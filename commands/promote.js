@@ -76,6 +76,9 @@ module.exports = {
 
                         switch (options) {
                             case ("addOptions"):
+                                let nickNameCheck = member.nickname;
+                                if (nickNameCheck === null) nickNameCheck = member.user.username;
+
                                 switch (addOptions) {
                                     case ("admin"):
                                         if (!member.roles.cache.some(role => role.name === "Manager")) {
@@ -259,9 +262,6 @@ module.exports = {
                                             .setColor("2f3136")
 
                                         return member.send({ embeds: [promoteGateKeeper] })
-                                    default:
-                                        let nickNameCheck = member.nickname;
-                                        if (nickNameCheck === null) nickNameCheck = member.user.username;
                                 }
                             case ("removeOptions"):
                                 switch (addOptions) {

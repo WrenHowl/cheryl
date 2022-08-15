@@ -549,7 +549,6 @@ bot.on('interactionCreate', async (interaction) => {
     let ApplicationLog = await Staff_Application.findOne({ where: { MessageID: interaction.message.id } });
     let VerificationLog = await Verification.findOne({ where: { MessageID: interaction.message.id } });
 
-
     switch (interaction.customId) {
       case ("applyForStaff"):
         if (!interaction.member.roles.cache.some(role => role.name === MessageConfig.StaffRoleApplication)) {
@@ -638,10 +637,12 @@ bot.on('interactionCreate', async (interaction) => {
         break;
       case ("buttonToDenyApplication"):
         if (ApplicationLog) {
-          return interaction.reply({
-            content: MessageConfig.CannotFindDataOfMessage,
-            ephemeral: true,
-          })
+          if (!ApplicationLog.MessageID) {
+            return interaction.reply({
+              content: MessageConfig.CannotFindDataOfMessage,
+              ephemeral: true,
+            })
+          }
         }
 
         interaction.channel.messages.fetch(ApplicationLog.MessageID).then(async (UpdateMessage) => {
@@ -762,7 +763,6 @@ bot.on('interactionCreate', async (interaction) => {
           }
         };
       case ("buttonToAcceptVerify"):
-
         if (!VerificationLog) {
           return interaction.reply({
             content: "Cannot find the data of this message!",
@@ -952,10 +952,8 @@ bot.on('interactionCreate', async (interaction) => {
           })
         };
     }
-
   }
   if (interaction.isModalSubmit()) {
-
     switch (interaction.customId) {
       case ("modalStaff"):
         const button = new MessageActionRow()
@@ -1176,533 +1174,521 @@ bot.on('interactionCreate', async (interaction) => {
     }
   }
   if (interaction.isSelectMenu()) {
-    if (interaction.customId === "roleMenu1") {
-      await interaction.deferUpdate();
+    let args = interaction.values[0]
+    await interaction.deferUpdate();
 
-      const args = interaction.values[0]
+    switch (interaction.customId) {
+      case ("roleMenu1"):
+        switch (args) {
+          case ("Major (18+)"):
+            if (interaction.member.roles.cache.some(role => role.name === "Major (18+)")) {
+              interaction.member.roles.remove("900200948557824050")
+            }
 
-      if (args == "Major (18+)") {
-        if (interaction.member.roles.cache.some(role => role.name === "Major (18+)")) {
-          interaction.member.roles.remove("900200948557824050")
+            interaction.member.roles.add("900201076916105306");
+          case ("Minor (17-)"):
+            if (interaction.member.roles.cache.some(role => role.name === "Major (18+)")) {
+              interaction.member.roles.remove("900201076916105306")
+            }
+
+            interaction.member.roles.add("900200948557824050");
         }
 
-        interaction.member.roles.add("900201076916105306")
-      } else if (args == "Minor (17-)") {
-        if (interaction.member.roles.cache.some(role => role.name === "Major (18+)")) {
-          interaction.member.roles.remove("900201076916105306")
+        break;
+      case ("roleMenu2"):
+        switch (args) {
+          case ("Boy"):
+            if (interaction.member.roles.cache.some(role => role.name === "Girl")) {
+              interaction.member.roles.remove("900149792930406400")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Gender Fluid")) {
+              interaction.member.roles.remove("900769520111734835")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Trans")) {
+              interaction.member.roles.remove("940126702389039164")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Agender")) {
+              interaction.member.roles.remove("940130071249829969")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Non-Binary")) {
+              interaction.member.roles.remove("940130130225950720")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Cisgender")) {
+              interaction.member.roles.remove("940130181014761513")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Other Gender")) {
+              interaction.member.roles.remove("940240745821007922")
+            }
+
+            interaction.member.roles.add("900149879089815604");
+          case ("Girl"):
+            if (interaction.member.roles.cache.some(role => role.name === "Boy")) {
+              interaction.member.roles.remove("900149879089815604")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Gender Fluid")) {
+              interaction.member.roles.remove("900769520111734835")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Trans")) {
+              interaction.member.roles.remove("940126702389039164")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Agender")) {
+              interaction.member.roles.remove("940130071249829969")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Non-Binary")) {
+              interaction.member.roles.remove("940130130225950720")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Cisgender")) {
+              interaction.member.roles.remove("940130181014761513")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Other Gender")) {
+              interaction.member.roles.remove("940240745821007922")
+            }
+
+            interaction.member.roles.add("900149792930406400");
+          case ("Gender Fluid"):
+            if (interaction.member.roles.cache.some(role => role.name === "Boy")) {
+              interaction.member.roles.remove("900149879089815604")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Girl")) {
+              interaction.member.roles.remove("900149792930406400")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Trans")) {
+              interaction.member.roles.remove("940126702389039164")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Agender")) {
+              interaction.member.roles.remove("940130071249829969")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Non-Binary")) {
+              interaction.member.roles.remove("940130130225950720")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Cisgender")) {
+              interaction.member.roles.remove("940130181014761513")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Other Gender")) {
+              interaction.member.roles.remove("940240745821007922")
+            }
+
+            interaction.member.roles.add("900769520111734835");
+          case ("Trans"):
+            if (interaction.member.roles.cache.some(role => role.name === "Boy")) {
+              interaction.member.roles.remove("900149879089815604")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Girl")) {
+              interaction.member.roles.remove("900149792930406400")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Gender Fluid")) {
+              interaction.member.roles.remove("900769520111734835")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Agender")) {
+              interaction.member.roles.remove("940130071249829969")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Non-Binary")) {
+              interaction.member.roles.remove("940130130225950720")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Cisgender")) {
+              interaction.member.roles.remove("940130181014761513")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Other Gender")) {
+              interaction.member.roles.remove("940240745821007922")
+            }
+
+            interaction.member.roles.add("940126702389039164");
+          case ("Agender"):
+            if (interaction.member.roles.cache.some(role => role.name === "Boy")) {
+              interaction.member.roles.remove("900149879089815604")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Girl")) {
+              interaction.member.roles.remove("900149792930406400")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Trans")) {
+              interaction.member.roles.remove("940126702389039164")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Gender Fluid")) {
+              interaction.member.roles.remove("900769520111734835")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Non-Binary")) {
+              interaction.member.roles.remove("940130130225950720")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Cisgender")) {
+              interaction.member.roles.remove("940130181014761513")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Other Gender")) {
+              interaction.member.roles.remove("940240745821007922")
+            }
+
+            interaction.member.roles.add("940130071249829969");
+          case ("Non-Binary"):
+            if (interaction.member.roles.cache.some(role => role.name === "Boy")) {
+              interaction.member.roles.remove("900149879089815604")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Girl")) {
+              interaction.member.roles.remove("900149792930406400")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Trans")) {
+              interaction.member.roles.remove("940126702389039164")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Agender")) {
+              interaction.member.roles.remove("940130071249829969")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Gender Fluid")) {
+              interaction.member.roles.remove("900769520111734835")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Cisgender")) {
+              interaction.member.roles.remove("940130181014761513")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Other Gender")) {
+              interaction.member.roles.remove("940240745821007922")
+            }
+
+            interaction.member.roles.add("940130130225950720");
+          case ("Cisgender"):
+            if (interaction.member.roles.cache.some(role => role.name === "Boy")) {
+              interaction.member.roles.remove("900149879089815604")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Girl")) {
+              interaction.member.roles.remove("900149792930406400")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Trans")) {
+              interaction.member.roles.remove("940126702389039164")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Agender")) {
+              interaction.member.roles.remove("940130071249829969")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Non-Binary")) {
+              interaction.member.roles.remove("940130130225950720")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Gender Fluid")) {
+              interaction.member.roles.remove("900769520111734835")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Other Gender")) {
+              interaction.member.roles.remove("940240745821007922")
+            }
+
+            interaction.member.roles.add("940130181014761513");
+          case ("Other Gender"):
+            if (interaction.member.roles.cache.some(role => role.name === "Boy")) {
+              interaction.member.roles.remove("900149879089815604")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Girl")) {
+              interaction.member.roles.remove("900149792930406400")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Trans")) {
+              interaction.member.roles.remove("940126702389039164")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Agender")) {
+              interaction.member.roles.remove("940130071249829969")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Non-Binary")) {
+              interaction.member.roles.remove("940130130225950720")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Cisgender")) {
+              interaction.member.roles.remove("940130181014761513")
+            } else if (interaction.member.roles.cache.some(role => role.name === "Gender Fluid")) {
+              interaction.member.roles.remove("900769520111734835")
+            }
+
+            interaction.member.roles.add("940240745821007922");
+        };
+
+        break;
+      case ("roleMenu3"):
+        await interaction.deferUpdate();
+
+        if (args == "They/Them") {
+          if (interaction.member.roles.cache.some(role => role.name === "He/Him")) {
+            interaction.member.roles.remove("940251047174238218")
+          } else if (interaction.member.roles.cache.some(role => role.name === "She/Her")) {
+            interaction.member.roles.remove("940250894203764786")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Other Pronouns")) {
+            interaction.member.roles.remove("940251221292363806")
+          }
+
+          interaction.member.roles.add("940251105118523452")
+        } else if (args == "He/Him") {
+          if (interaction.member.roles.cache.some(role => role.name === "They/Them")) {
+            interaction.member.roles.remove("940251105118523452")
+          } else if (interaction.member.roles.cache.some(role => role.name === "She/Her")) {
+            interaction.member.roles.remove("940250894203764786")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Other Pronouns")) {
+            interaction.member.roles.remove("940251221292363806")
+          }
+
+          interaction.member.roles.add("940251047174238218")
+        } else if (args == "She/Her") {
+          if (interaction.member.roles.cache.some(role => role.name === "He/Him")) {
+            interaction.member.roles.remove("940251047174238218")
+          } else if (interaction.member.roles.cache.some(role => role.name === "They/Them")) {
+            interaction.member.roles.remove("940251105118523452")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Other Pronouns")) {
+            interaction.member.roles.remove("940251221292363806")
+          }
+
+          interaction.member.roles.add("940250894203764786")
+        } else if (args == "Other Pronouns") {
+          if (interaction.member.roles.cache.some(role => role.name === "He/Him")) {
+            interaction.member.roles.remove("940251047174238218")
+          } else if (interaction.member.roles.cache.some(role => role.name === "She/Her")) {
+            interaction.member.roles.remove("940250894203764786")
+          } else if (interaction.member.roles.cache.some(role => role.name === "They/Them")) {
+            interaction.member.roles.remove("940251105118523452")
+          }
+
+          interaction.member.roles.add("940251221292363806")
         }
 
-        interaction.member.roles.add("900200948557824050")
-      }
-    }
-    if (interaction.customId === "roleMenu2") {
-      await interaction.deferUpdate();
+        break;
+      case ("roleMenu4"):
+        await interaction.deferUpdate();
 
-      const args = interaction.values[0]
+        if (args == "Single") {
+          if (interaction.member.roles.cache.some(role => role.name === "Taken")) {
+            interaction.member.roles.remove("940274020706844693")
+          }
 
-      if (args == "Boy") {
-        if (interaction.member.roles.cache.some(role => role.name === "Girl")) {
-          interaction.member.roles.remove("900149792930406400")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Gender Fluid")) {
-          interaction.member.roles.remove("900769520111734835")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Trans")) {
-          interaction.member.roles.remove("940126702389039164")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Agender")) {
-          interaction.member.roles.remove("940130071249829969")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Non-Binary")) {
-          interaction.member.roles.remove("940130130225950720")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Cisgender")) {
-          interaction.member.roles.remove("940130181014761513")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Other Gender")) {
-          interaction.member.roles.remove("940240745821007922")
+          return interaction.member.roles.add("940274055339192390")
+        } else if (args == "Taken") {
+          if (interaction.member.roles.cache.some(role => role.name === "Single")) {
+            interaction.member.roles.remove("940274055339192390")
+          }
+
+          return interaction.member.roles.add("940274020706844693")
+        } else if (args == "Looking") {
+          if (interaction.member.roles.cache.some(role => role.name === "Not Looking")) {
+            interaction.member.roles.remove("940273975295111218")
+          }
+
+          return interaction.member.roles.add("940273816066732083")
+        } else if (args == "Not Looking") {
+          if (interaction.member.roles.cache.some(role => role.name === "Looking")) {
+            interaction.member.roles.remove("940273816066732083")
+          }
+
+          return interaction.member.roles.add("940273975295111218")
         }
 
-        interaction.member.roles.add("900149879089815604")
-      } else if (args == "Girl") {
-        if (interaction.member.roles.cache.some(role => role.name === "Boy")) {
-          interaction.member.roles.remove("900149879089815604")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Gender Fluid")) {
-          interaction.member.roles.remove("900769520111734835")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Trans")) {
-          interaction.member.roles.remove("940126702389039164")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Agender")) {
-          interaction.member.roles.remove("940130071249829969")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Non-Binary")) {
-          interaction.member.roles.remove("940130130225950720")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Cisgender")) {
-          interaction.member.roles.remove("940130181014761513")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Other Gender")) {
-          interaction.member.roles.remove("940240745821007922")
+        break;
+      case ("roleMenu5"):
+        await interaction.deferUpdate();
+
+        if (args == "Straight") {
+          if (interaction.member.roles.cache.some(role => role.name === "Gay")) {
+            interaction.member.roles.remove("931040829961822218")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Lesbian")) {
+            interaction.member.roles.remove("993914756232654868")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Bisexual")) {
+            interaction.member.roles.remove("931040851973517332")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Pansexual")) {
+            interaction.member.roles.remove("931041941003575306")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Asexual")) {
+            interaction.member.roles.remove("931041656671711253")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Aromantic")) {
+            interaction.member.roles.remove("940127204002648094")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Other Orientation")) {
+            interaction.member.roles.remove("940128332740198410")
+          }
+
+          interaction.member.roles.add("931040779277860954")
+        } else if (args == "Gay") {
+          if (interaction.member.roles.cache.some(role => role.name === "Straight")) {
+            interaction.member.roles.remove("931040779277860954")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Lesbian")) {
+            interaction.member.roles.remove("993914756232654868")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Bisexual")) {
+            interaction.member.roles.remove("931040851973517332")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Pansexual")) {
+            interaction.member.roles.remove("931041941003575306")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Asexual")) {
+            interaction.member.roles.remove("931041656671711253")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Aromantic")) {
+            interaction.member.roles.remove("940127204002648094")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Other Orientation")) {
+            interaction.member.roles.remove("940128332740198410")
+          }
+
+          interaction.member.roles.add("931040829961822218")
+        } else if (args == "Lesbian") {
+          if (interaction.member.roles.cache.some(role => role.name === "Straight")) {
+            interaction.member.roles.remove("931040779277860954")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Gay")) {
+            interaction.member.roles.remove("931040829961822218")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Bisexual")) {
+            interaction.member.roles.remove("931040851973517332")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Pansexual")) {
+            interaction.member.roles.remove("931041941003575306")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Asexual")) {
+            interaction.member.roles.remove("931041656671711253")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Aromantic")) {
+            interaction.member.roles.remove("940127204002648094")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Other Orientation")) {
+            interaction.member.roles.remove("940128332740198410")
+          }
+
+          interaction.member.roles.add("993914756232654868")
+        } else if (args == "Bisexual") {
+          if (interaction.member.roles.cache.some(role => role.name === "Straight")) {
+            interaction.member.roles.remove("931040779277860954")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Gay")) {
+            interaction.member.roles.remove("931040829961822218")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Lesbian")) {
+            interaction.member.roles.remove("993914756232654868")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Pansexual")) {
+            interaction.member.roles.remove("931041941003575306")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Asexual")) {
+            interaction.member.roles.remove("931041656671711253")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Aromantic")) {
+            interaction.member.roles.remove("940127204002648094")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Other Orientation")) {
+            interaction.member.roles.remove("940128332740198410")
+          }
+
+          interaction.member.roles.add("931040851973517332")
+        } else if (args == "Pansexual") {
+          if (interaction.member.roles.cache.some(role => role.name === "Straight")) {
+            interaction.member.roles.remove("931040779277860954")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Gay")) {
+            interaction.member.roles.remove("931040829961822218")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Lesbian")) {
+            interaction.member.roles.remove("993914756232654868")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Bisexual")) {
+            interaction.member.roles.remove("931040851973517332")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Asexual")) {
+            interaction.member.roles.remove("931041656671711253")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Aromantic")) {
+            interaction.member.roles.remove("940127204002648094")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Other Orientation")) {
+            interaction.member.roles.remove("940128332740198410")
+          }
+
+          interaction.member.roles.add("931041941003575306")
+        } else if (args == "Asexual") {
+          if (interaction.member.roles.cache.some(role => role.name === "Straight")) {
+            interaction.member.roles.remove("931040779277860954")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Gay")) {
+            interaction.member.roles.remove("931040829961822218")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Lesbian")) {
+            interaction.member.roles.remove("993914756232654868")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Bisexual")) {
+            interaction.member.roles.remove("931040851973517332")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Pansexual")) {
+            interaction.member.roles.remove("931041941003575306")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Aromantic")) {
+            interaction.member.roles.remove("940127204002648094")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Other Orientation")) {
+            interaction.member.roles.remove("940128332740198410")
+          }
+
+          interaction.member.roles.add("931041656671711253")
+        } else if (args == "Aromantic") {
+          if (interaction.member.roles.cache.some(role => role.name === "Straight")) {
+            interaction.member.roles.remove("931040779277860954")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Gay")) {
+            interaction.member.roles.remove("931040829961822218")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Lesbian")) {
+            interaction.member.roles.remove("993914756232654868")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Bisexual")) {
+            interaction.member.roles.remove("931040851973517332")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Pansexual")) {
+            interaction.member.roles.remove("931041941003575306")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Asexual")) {
+            interaction.member.roles.remove("931041656671711253")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Other Orientation")) {
+            interaction.member.roles.remove("940128332740198410")
+          }
+
+          interaction.member.roles.add("940127204002648094")
+        } else if (args == "Polyamorous") {
+          interaction.member.roles.add("940128299173154826")
+        } else if (args == "Other Orientation") {
+          if (interaction.member.roles.cache.some(role => role.name === "Straight")) {
+            interaction.member.roles.remove("931040779277860954")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Gay")) {
+            interaction.member.roles.remove("931040829961822218")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Lesbian")) {
+            interaction.member.roles.remove("993914756232654868")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Bisexual")) {
+            interaction.member.roles.remove("931040851973517332")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Pansexual")) {
+            interaction.member.roles.remove("931041941003575306")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Asexual")) {
+            interaction.member.roles.remove("931041656671711253")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Aromantic")) {
+            interaction.member.roles.remove("940127204002648094")
+          }
+
+          interaction.member.roles.add("940128332740198410")
         }
 
-        interaction.member.roles.add("900149792930406400")
-      }
-      if (args == "Gender Fluid") {
-        if (interaction.member.roles.cache.some(role => role.name === "Boy")) {
-          interaction.member.roles.remove("900149879089815604")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Girl")) {
-          interaction.member.roles.remove("900149792930406400")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Trans")) {
-          interaction.member.roles.remove("940126702389039164")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Agender")) {
-          interaction.member.roles.remove("940130071249829969")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Non-Binary")) {
-          interaction.member.roles.remove("940130130225950720")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Cisgender")) {
-          interaction.member.roles.remove("940130181014761513")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Other Gender")) {
-          interaction.member.roles.remove("940240745821007922")
+        break;
+      case ("roleMenu6"):
+        await interaction.deferUpdate();
+
+        if (args == "Open DM") {
+          if (interaction.member.roles.cache.some(role => role.name === "Important DM Only")) {
+            interaction.member.roles.remove("940273628669411348")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Closed DM")) {
+            interaction.member.roles.remove("940273602983526481")
+          }
+
+          interaction.member.roles.add("940273578769801226")
+        } else if (args == "Important DM Only") {
+          if (interaction.member.roles.cache.some(role => role.name === "Open DM")) {
+            interaction.member.roles.remove("940273578769801226")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Closed DM")) {
+            interaction.member.roles.remove("940273602983526481")
+          }
+
+          interaction.member.roles.add("940273628669411348")
+        } else if (args == "Closed DM") {
+          if (interaction.member.roles.cache.some(role => role.name === "Open DM")) {
+            interaction.member.roles.remove("940273578769801226")
+          } else if (interaction.member.roles.cache.some(role => role.name === "Important DM Only")) {
+            interaction.member.roles.remove("940273628669411348")
+          }
+
+          interaction.member.roles.add("940273602983526481")
         }
 
-        interaction.member.roles.add("900769520111734835")
-      } else if (args == "Trans") {
-        if (interaction.member.roles.cache.some(role => role.name === "Boy")) {
-          interaction.member.roles.remove("900149879089815604")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Girl")) {
-          interaction.member.roles.remove("900149792930406400")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Gender Fluid")) {
-          interaction.member.roles.remove("900769520111734835")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Agender")) {
-          interaction.member.roles.remove("940130071249829969")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Non-Binary")) {
-          interaction.member.roles.remove("940130130225950720")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Cisgender")) {
-          interaction.member.roles.remove("940130181014761513")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Other Gender")) {
-          interaction.member.roles.remove("940240745821007922")
+        break;
+      case ("roleMenu7"):
+        await interaction.deferUpdate();
+
+        if (args == "Furry") {
+          if (interaction.member.roles.cache.some(role => role.name === "Not a Furry")) {
+            interaction.member.roles.remove("940244795811594270")
+          }
+
+          interaction.member.roles.add("923054477735522304")
+        } else if (args == "Not a Furry") {
+          if (interaction.member.roles.cache.some(role => role.name === "Furry")) {
+            interaction.member.roles.remove("923054477735522304")
+          }
+
+          interaction.member.roles.add("940244795811594270")
         }
 
-        interaction.member.roles.add("940126702389039164")
-      }
-      if (args == "Agender") {
-        if (interaction.member.roles.cache.some(role => role.name === "Boy")) {
-          interaction.member.roles.remove("900149879089815604")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Girl")) {
-          interaction.member.roles.remove("900149792930406400")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Trans")) {
-          interaction.member.roles.remove("940126702389039164")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Gender Fluid")) {
-          interaction.member.roles.remove("900769520111734835")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Non-Binary")) {
-          interaction.member.roles.remove("940130130225950720")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Cisgender")) {
-          interaction.member.roles.remove("940130181014761513")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Other Gender")) {
-          interaction.member.roles.remove("940240745821007922")
+        break;
+      case ("roleMenu8"):
+        await interaction.deferUpdate();
+
+        if (args == "VRChat Access") {
+          interaction.member.roles.add("922968520847945768")
+        } else if (args == "VRChat LFP") {
+          interaction.member.roles.add("984908404390776833")
+        } else if (args == "Minecraft Access") {
+          interaction.member.roles.add("979570914108801035")
         }
 
-        interaction.member.roles.add("940130071249829969")
-      } else if (args == "Non-Binary") {
-        if (interaction.member.roles.cache.some(role => role.name === "Boy")) {
-          interaction.member.roles.remove("900149879089815604")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Girl")) {
-          interaction.member.roles.remove("900149792930406400")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Trans")) {
-          interaction.member.roles.remove("940126702389039164")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Agender")) {
-          interaction.member.roles.remove("940130071249829969")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Gender Fluid")) {
-          interaction.member.roles.remove("900769520111734835")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Cisgender")) {
-          interaction.member.roles.remove("940130181014761513")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Other Gender")) {
-          interaction.member.roles.remove("940240745821007922")
+        break;
+      case ("roleMenu9"):
+        await interaction.deferUpdate();
+
+        if (args == "All") {
+          if (interaction.member.roles.cache.some(role => role.name === "All")) {
+            return interaction.member.roles.remove('940658136048603176')
+          } else {
+            return interaction.member.roles.add("940658136048603176")
+          }
+        } else if (args == "Announcement") {
+          if (interaction.member.roles.cache.some(role => role.name === "Announcement")) {
+            return interaction.member.roles.remove('940658199411949600')
+          } else {
+            return interaction.member.roles.add("940658199411949600")
+          }
+        } else if (args == "Giveaway") {
+          if (interaction.member.roles.cache.some(role => role.name === "Giveaway")) {
+            return interaction.member.roles.remove('940664575659999284')
+          } else {
+            return interaction.member.roles.add("940664575659999284")
+          }
+        } else if (args === "Partnership") {
+          if (interaction.member.roles.cache.some(role => role.name === "Partnership")) {
+            return interaction.member.roles.remove('943956163840577537')
+          } else {
+            return interaction.member.roles.add("943956163840577537")
+          }
+        } else if (args === "Bump") {
+          if (interaction.member.roles.cache.some(role => role.name === "Bump")) {
+            return interaction.member.roles.remove('940658171867959317')
+          } else {
+            return interaction.member.roles.add("940658171867959317")
+          }
+        } else if (args === "Events") {
+          if (interaction.member.roles.cache.some(role => role.name === "Events")) {
+            return interaction.member.roles.remove('950406476365705227')
+          } else {
+            return interaction.member.roles.add("950406476365705227")
+          }
+        } else if (args === "Dead Chat") {
+          if (interaction.member.roles.cache.some(role => role.name === "Dead Chat")) {
+            return interaction.member.roles.remove('945731050888392716')
+          } else {
+            return interaction.member.roles.add("945731050888392716")
+          }
+        } else if (args === "Nitro Drop") {
+          if (interaction.member.roles.cache.some(role => role.name === "Nitro Drop")) {
+            return interaction.member.roles.remove('956565030604771389')
+          } else {
+            return interaction.member.roles.add("956565030604771389")
+          }
         }
 
-        interaction.member.roles.add("940130130225950720")
-      }
-      if (args == "Cisgender") {
-        if (interaction.member.roles.cache.some(role => role.name === "Boy")) {
-          interaction.member.roles.remove("900149879089815604")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Girl")) {
-          interaction.member.roles.remove("900149792930406400")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Trans")) {
-          interaction.member.roles.remove("940126702389039164")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Agender")) {
-          interaction.member.roles.remove("940130071249829969")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Non-Binary")) {
-          interaction.member.roles.remove("940130130225950720")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Gender Fluid")) {
-          interaction.member.roles.remove("900769520111734835")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Other Gender")) {
-          interaction.member.roles.remove("940240745821007922")
-        }
-
-        interaction.member.roles.add("940130181014761513")
-      } else if (args == "Other Gender") {
-        if (interaction.member.roles.cache.some(role => role.name === "Boy")) {
-          interaction.member.roles.remove("900149879089815604")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Girl")) {
-          interaction.member.roles.remove("900149792930406400")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Trans")) {
-          interaction.member.roles.remove("940126702389039164")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Agender")) {
-          interaction.member.roles.remove("940130071249829969")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Non-Binary")) {
-          interaction.member.roles.remove("940130130225950720")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Cisgender")) {
-          interaction.member.roles.remove("940130181014761513")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Gender Fluid")) {
-          interaction.member.roles.remove("900769520111734835")
-        }
-
-        interaction.member.roles.add("940240745821007922")
-      }
-    }
-    if (interaction.customId === "roleMenu3") {
-      await interaction.deferUpdate();
-
-      const args = interaction.values[0]
-
-      if (args == "They/Them") {
-        if (interaction.member.roles.cache.some(role => role.name === "He/Him")) {
-          interaction.member.roles.remove("940251047174238218")
-        } else if (interaction.member.roles.cache.some(role => role.name === "She/Her")) {
-          interaction.member.roles.remove("940250894203764786")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Other Pronouns")) {
-          interaction.member.roles.remove("940251221292363806")
-        }
-
-        interaction.member.roles.add("940251105118523452")
-      } else if (args == "He/Him") {
-        if (interaction.member.roles.cache.some(role => role.name === "They/Them")) {
-          interaction.member.roles.remove("940251105118523452")
-        } else if (interaction.member.roles.cache.some(role => role.name === "She/Her")) {
-          interaction.member.roles.remove("940250894203764786")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Other Pronouns")) {
-          interaction.member.roles.remove("940251221292363806")
-        }
-
-        interaction.member.roles.add("940251047174238218")
-      } else if (args == "She/Her") {
-        if (interaction.member.roles.cache.some(role => role.name === "He/Him")) {
-          interaction.member.roles.remove("940251047174238218")
-        } else if (interaction.member.roles.cache.some(role => role.name === "They/Them")) {
-          interaction.member.roles.remove("940251105118523452")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Other Pronouns")) {
-          interaction.member.roles.remove("940251221292363806")
-        }
-
-        interaction.member.roles.add("940250894203764786")
-      } else if (args == "Other Pronouns") {
-        if (interaction.member.roles.cache.some(role => role.name === "He/Him")) {
-          interaction.member.roles.remove("940251047174238218")
-        } else if (interaction.member.roles.cache.some(role => role.name === "She/Her")) {
-          interaction.member.roles.remove("940250894203764786")
-        } else if (interaction.member.roles.cache.some(role => role.name === "They/Them")) {
-          interaction.member.roles.remove("940251105118523452")
-        }
-
-        interaction.member.roles.add("940251221292363806")
-      }
-    }
-    if (interaction.customId === "roleMenu4") {
-      await interaction.deferUpdate();
-
-      const args = interaction.values[0]
-
-      if (args == "Single") {
-        if (interaction.member.roles.cache.some(role => role.name === "Taken")) {
-          interaction.member.roles.remove("940274020706844693")
-        }
-
-        interaction.member.roles.add("940274055339192390")
-      } else if (args == "Taken") {
-        if (interaction.member.roles.cache.some(role => role.name === "Single")) {
-          interaction.member.roles.remove("940274055339192390")
-        }
-
-        interaction.member.roles.add("940274020706844693")
-      } else if (args == "Looking") {
-        if (interaction.member.roles.cache.some(role => role.name === "Not Looking")) {
-          interaction.member.roles.remove("940273975295111218")
-        }
-
-        interaction.member.roles.add("940273816066732083")
-      } else if (args == "Not Looking") {
-        if (interaction.member.roles.cache.some(role => role.name === "Looking")) {
-          interaction.member.roles.remove("940273816066732083")
-        }
-
-        interaction.member.roles.add("940273975295111218")
-      }
-    }
-    if (interaction.customId === "roleMenu5") {
-      await interaction.deferUpdate();
-
-      const args = interaction.values[0]
-
-      if (args == "Straight") {
-        if (interaction.member.roles.cache.some(role => role.name === "Gay")) {
-          interaction.member.roles.remove("931040829961822218")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Lesbian")) {
-          interaction.member.roles.remove("993914756232654868")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Bisexual")) {
-          interaction.member.roles.remove("931040851973517332")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Pansexual")) {
-          interaction.member.roles.remove("931041941003575306")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Asexual")) {
-          interaction.member.roles.remove("931041656671711253")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Aromantic")) {
-          interaction.member.roles.remove("940127204002648094")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Other Orientation")) {
-          interaction.member.roles.remove("940128332740198410")
-        }
-
-        interaction.member.roles.add("931040779277860954")
-      } else if (args == "Gay") {
-        if (interaction.member.roles.cache.some(role => role.name === "Straight")) {
-          interaction.member.roles.remove("931040779277860954")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Lesbian")) {
-          interaction.member.roles.remove("993914756232654868")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Bisexual")) {
-          interaction.member.roles.remove("931040851973517332")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Pansexual")) {
-          interaction.member.roles.remove("931041941003575306")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Asexual")) {
-          interaction.member.roles.remove("931041656671711253")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Aromantic")) {
-          interaction.member.roles.remove("940127204002648094")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Other Orientation")) {
-          interaction.member.roles.remove("940128332740198410")
-        }
-
-        interaction.member.roles.add("931040829961822218")
-      } else if (args == "Lesbian") {
-        if (interaction.member.roles.cache.some(role => role.name === "Straight")) {
-          interaction.member.roles.remove("931040779277860954")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Gay")) {
-          interaction.member.roles.remove("931040829961822218")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Bisexual")) {
-          interaction.member.roles.remove("931040851973517332")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Pansexual")) {
-          interaction.member.roles.remove("931041941003575306")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Asexual")) {
-          interaction.member.roles.remove("931041656671711253")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Aromantic")) {
-          interaction.member.roles.remove("940127204002648094")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Other Orientation")) {
-          interaction.member.roles.remove("940128332740198410")
-        }
-
-        interaction.member.roles.add("993914756232654868")
-      } else if (args == "Bisexual") {
-        if (interaction.member.roles.cache.some(role => role.name === "Straight")) {
-          interaction.member.roles.remove("931040779277860954")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Gay")) {
-          interaction.member.roles.remove("931040829961822218")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Lesbian")) {
-          interaction.member.roles.remove("993914756232654868")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Pansexual")) {
-          interaction.member.roles.remove("931041941003575306")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Asexual")) {
-          interaction.member.roles.remove("931041656671711253")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Aromantic")) {
-          interaction.member.roles.remove("940127204002648094")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Other Orientation")) {
-          interaction.member.roles.remove("940128332740198410")
-        }
-
-        interaction.member.roles.add("931040851973517332")
-      } else if (args == "Pansexual") {
-        if (interaction.member.roles.cache.some(role => role.name === "Straight")) {
-          interaction.member.roles.remove("931040779277860954")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Gay")) {
-          interaction.member.roles.remove("931040829961822218")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Lesbian")) {
-          interaction.member.roles.remove("993914756232654868")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Bisexual")) {
-          interaction.member.roles.remove("931040851973517332")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Asexual")) {
-          interaction.member.roles.remove("931041656671711253")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Aromantic")) {
-          interaction.member.roles.remove("940127204002648094")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Other Orientation")) {
-          interaction.member.roles.remove("940128332740198410")
-        }
-
-        interaction.member.roles.add("931041941003575306")
-      } else if (args == "Asexual") {
-        if (interaction.member.roles.cache.some(role => role.name === "Straight")) {
-          interaction.member.roles.remove("931040779277860954")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Gay")) {
-          interaction.member.roles.remove("931040829961822218")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Lesbian")) {
-          interaction.member.roles.remove("993914756232654868")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Bisexual")) {
-          interaction.member.roles.remove("931040851973517332")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Pansexual")) {
-          interaction.member.roles.remove("931041941003575306")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Aromantic")) {
-          interaction.member.roles.remove("940127204002648094")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Other Orientation")) {
-          interaction.member.roles.remove("940128332740198410")
-        }
-
-        interaction.member.roles.add("931041656671711253")
-      } else if (args == "Aromantic") {
-        if (interaction.member.roles.cache.some(role => role.name === "Straight")) {
-          interaction.member.roles.remove("931040779277860954")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Gay")) {
-          interaction.member.roles.remove("931040829961822218")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Lesbian")) {
-          interaction.member.roles.remove("993914756232654868")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Bisexual")) {
-          interaction.member.roles.remove("931040851973517332")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Pansexual")) {
-          interaction.member.roles.remove("931041941003575306")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Asexual")) {
-          interaction.member.roles.remove("931041656671711253")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Other Orientation")) {
-          interaction.member.roles.remove("940128332740198410")
-        }
-
-        interaction.member.roles.add("940127204002648094")
-      } else if (args == "Polyamorous") {
-        interaction.member.roles.add("940128299173154826")
-      } else if (args == "Other Orientation") {
-        if (interaction.member.roles.cache.some(role => role.name === "Straight")) {
-          interaction.member.roles.remove("931040779277860954")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Gay")) {
-          interaction.member.roles.remove("931040829961822218")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Lesbian")) {
-          interaction.member.roles.remove("993914756232654868")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Bisexual")) {
-          interaction.member.roles.remove("931040851973517332")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Pansexual")) {
-          interaction.member.roles.remove("931041941003575306")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Asexual")) {
-          interaction.member.roles.remove("931041656671711253")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Aromantic")) {
-          interaction.member.roles.remove("940127204002648094")
-        }
-
-        interaction.member.roles.add("940128332740198410")
-      }
-    }
-    if (interaction.customId === "roleMenu6") {
-      await interaction.deferUpdate();
-
-      const args = interaction.values[0]
-
-      if (args == "Open DM") {
-        if (interaction.member.roles.cache.some(role => role.name === "Important DM Only")) {
-          interaction.member.roles.remove("940273628669411348")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Closed DM")) {
-          interaction.member.roles.remove("940273602983526481")
-        }
-
-        interaction.member.roles.add("940273578769801226")
-      } else if (args == "Important DM Only") {
-        if (interaction.member.roles.cache.some(role => role.name === "Open DM")) {
-          interaction.member.roles.remove("940273578769801226")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Closed DM")) {
-          interaction.member.roles.remove("940273602983526481")
-        }
-
-        interaction.member.roles.add("940273628669411348")
-      } else if (args == "Closed DM") {
-        if (interaction.member.roles.cache.some(role => role.name === "Open DM")) {
-          interaction.member.roles.remove("940273578769801226")
-        } else if (interaction.member.roles.cache.some(role => role.name === "Important DM Only")) {
-          interaction.member.roles.remove("940273628669411348")
-        }
-
-        interaction.member.roles.add("940273602983526481")
-      }
-    }
-    if (interaction.customId === "roleMenu7") {
-      await interaction.deferUpdate();
-
-      const args = interaction.values[0]
-
-      if (args == "Furry") {
-        if (interaction.member.roles.cache.some(role => role.name === "Not a Furry")) {
-          interaction.member.roles.remove("940244795811594270")
-        }
-
-        interaction.member.roles.add("923054477735522304")
-      } else if (args == "Not a Furry") {
-        if (interaction.member.roles.cache.some(role => role.name === "Furry")) {
-          interaction.member.roles.remove("923054477735522304")
-        }
-
-        interaction.member.roles.add("940244795811594270")
-      }
-    }
-    if (interaction.customId === "roleMenu8") {
-      await interaction.deferUpdate();
-
-      const args = interaction.values[0]
-
-      if (args == "VRChat Access") {
-        interaction.member.roles.add("922968520847945768")
-      } else if (args == "VRChat LFP") {
-        interaction.member.roles.add("984908404390776833")
-      } else if (args == "Minecraft Access") {
-        interaction.member.roles.add("979570914108801035")
-      }
-    }
-    if (interaction.customId === "roleMenu9") {
-      await interaction.deferUpdate();
-
-      const args = interaction.values[0]
-
-      if (args == "All") {
-        if (interaction.member.roles.cache.some(role => role.name === "All")) {
-          return interaction.member.roles.remove('940658136048603176')
-        } else {
-          return interaction.member.roles.add("940658136048603176")
-        }
-      } else if (args == "Announcement") {
-        if (interaction.member.roles.cache.some(role => role.name === "Announcement")) {
-          return interaction.member.roles.remove('940658199411949600')
-        } else {
-          return interaction.member.roles.add("940658199411949600")
-        }
-      } else if (args == "Giveaway") {
-        if (interaction.member.roles.cache.some(role => role.name === "Giveaway")) {
-          return interaction.member.roles.remove('940664575659999284')
-        } else {
-          return interaction.member.roles.add("940664575659999284")
-        }
-      } else if (args === "Partnership") {
-        if (interaction.member.roles.cache.some(role => role.name === "Partnership")) {
-          return interaction.member.roles.remove('943956163840577537')
-        } else {
-          return interaction.member.roles.add("943956163840577537")
-        }
-      } else if (args === "Bump") {
-        if (interaction.member.roles.cache.some(role => role.name === "Bump")) {
-          return interaction.member.roles.remove('940658171867959317')
-        } else {
-          return interaction.member.roles.add("940658171867959317")
-        }
-      } else if (args === "Events") {
-        if (interaction.member.roles.cache.some(role => role.name === "Events")) {
-          return interaction.member.roles.remove('950406476365705227')
-        } else {
-          return interaction.member.roles.add("950406476365705227")
-        }
-      } else if (args === "Dead Chat") {
-        if (interaction.member.roles.cache.some(role => role.name === "Dead Chat")) {
-          return interaction.member.roles.remove('945731050888392716')
-        } else {
-          return interaction.member.roles.add("945731050888392716")
-        }
-      } else if (args === "Nitro Drop") {
-        if (interaction.member.roles.cache.some(role => role.name === "Nitro Drop")) {
-          return interaction.member.roles.remove('956565030604771389')
-        } else {
-          return interaction.member.roles.add("956565030604771389")
-        }
-      }
-    }
-    if (interaction.customId === "reasonDeny") {
-      let VerificationLog = await Verification.findOne({ where: { MessageID: interaction.message.id } });
-      const MessageToUpdate = VerificationLog.MessageID;
-
-      if (!mesagg)
+        break;
+      case ("reasonDeny"):
+        let VerificationLog = await Verification.findOne({ where: { MessageID: interaction.message.id } });
+        const MessageToUpdate = VerificationLog.MessageID;
 
         if (interaction.guild.id === "815422069234860073") {
 
@@ -1713,7 +1699,6 @@ bot.on('interactionCreate', async (interaction) => {
             .setColor("FF0000")
             .setTimestamp()
 
-          const args = interaction.values[0]
           let verificationDeleteLog = await Verification.destroy({ where: { MessageID: interaction.message.id } });
 
           switch (args) {
@@ -1786,7 +1771,7 @@ bot.on('interactionCreate', async (interaction) => {
                 return;
               });
           }
-        }
+        };
     }
   }
 });
