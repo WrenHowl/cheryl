@@ -1,0 +1,7 @@
+{
+    "StaffRoleApplication": "Staff",
+    "AlreadyAppliedStaffApplicationError": "You cannot send a staff application, because you're already part of the staff team.",
+    "CannotFindDataOfMessage": "Cannot find the data of this message.",
+    "StaffApplicationAccepted": "Your staff application has been accepted. Congratulations!",
+    "StaffApplicationDenied": "Your staff application has been denied. You can try again in 2 weeks!"
+}

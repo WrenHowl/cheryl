@@ -1,0 +1,24 @@
+{
+  "main": "server.js",
+  "dependencies": {
+    "@discordjs/builders": "^0.15.0",
+    "@discordjs/rest": "^0.1.0-canary.0",
+    "@discordjs/voice": "^0.7.5",
+    "@mapbox/node-pre-gyp": "^1.0.9",
+    "@sapphire/snowflake": "^3.2.2",
+    "discord-api-types": "^0.36.0",
+    "discord.js": "^13.8.1",
+    "fs": "^0.0.1-security",
+    "google-images": "^0.1.4",
+    "libsodium-wrappers": "^0.7.10",
+    "moment": "^2.29.3",
+    "ms": "^2.1.3",
+    "node-cron": "^3.0.1",
+    "path": "^0.12.7",
+    "sequelize": "^6.21.2",
+    "sqlite3": "npm:@vscode/sqlite3@^5.0.8"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.42"
+  }
+}
