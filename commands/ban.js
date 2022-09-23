@@ -77,9 +77,9 @@ module.exports = {
             const user = interaction.options.getUser("user");
             const member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(err => { });
 
-            const banList = await interaction.guild.fetchBans();
+            /*const banList = await interaction.guild.fetchBans();
 
-            const bannedUser = banList.find(user => user.id === user.id);
+            const bannedUser = banList.find(user => user.id === user.id);*/
 
             let guild = bot.guilds.cache.get(interaction.guild.id);
 
@@ -104,11 +104,11 @@ module.exports = {
                         content: "You can't ban the owner!",
                         ephemeral: true
                     });
-                case (bannedUser):
+                /*case (bannedUser):
                     return interaction.reply({
                         content: "You can't ban someone who is already ban!",
                         ephemeral: true
-                    });
+                    });*/
                 case (!user.bannable):
                     return interaction.reply({
                         content: "I can't ban this user!",

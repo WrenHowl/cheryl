@@ -459,17 +459,6 @@ bot.on("userUpdate", async (NewUser, oldUser) => {
   }
 });
 
-bot.on("guildCreate", guild => {
-  const Channels = guild.channels.cache.filter(channel => channel.type == "text");
-
-  Channels.first().createInvite({
-    maxUses: 1,
-    unique: true
-  }).then(invite => {
-    console.log(`[INVITE] I've created an invite for ${guild.id}:${guild.name} - ${invite.url}`);
-  });
-});
-
 bot.on("guildMemberRemove", async (LeavingMember) => {
   if (LeavingMember.guild.id === "821241527941726248") {
     const FirstRowToDelete = await Verifier.destroy({ where: { GuildID: LeavingMember.guild.id, VerifierID: LeavingMember.user.id } })
@@ -582,7 +571,6 @@ bot.on("voiceStateUpdate", async (oldState, newState) => {
     }
   }
 });
-
 
 bot.on('interactionCreate', async (interaction) => {
 
