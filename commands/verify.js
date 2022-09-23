@@ -144,11 +144,6 @@ module.exports = {
                         content: "You can't verify me!",
                         ephemeral: true
                     });
-                case (member.roles.highest.position >= interaction.member.roles.highest.position):
-                    return interaction.reply({
-                        content: "You can't verify this user, because he's higher than you!",
-                        ephemeral: true
-                    });
                 default:
                     const VerifierData = await Verifier.findOne({ where: { VerifierID: member.user.id } });
 

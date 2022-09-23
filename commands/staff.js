@@ -18,6 +18,10 @@ module.exports = {
             .members.map(m => m.user.id)
             .join("> \n- <@") : false;
 
+        let coOwnerRole = fetchGuild ? fetchGuild.roles.cache.get("1020543982289301517")
+            .members.map(m => m.user.id)
+            .join("> \n- <@") : false;
+
         let adminRole = fetchGuild ? fetchGuild.roles.cache.get("898352526154416138")
             .members.map(m => m.user.id)
             .join("> \n- <@") : false;
@@ -52,6 +56,7 @@ module.exports = {
         const staffRoleSize = fetchGuild.roles.cache.get("931038287114678334")
 
         if (ownerRole) ownerRole = "- <@" + ownerRole + ">";
+        if (coOwnerRole) coOwnerRole = "- <@" + coOwnerRole + ">";
         if (adminRole) adminRole = "- <@" + adminRole + ">";
         if (managerRole) managerRole = "- <@" + managerRole + ">";
         if (seniorRole) seniorRole = "- <@" + seniorRole + ">";
@@ -61,6 +66,7 @@ module.exports = {
         if (gateKeeperRole) gateKeeperRole = "- <@" + gateKeeperRole + ">";
 
         if (!ownerRole) ownerRole = "- N/A";
+        if (!coOwnerRole) coOwnerRole = "- N/A";
         if (!adminRole) adminRole = "- N/A";
         if (!managerRole) managerRole = "- N/A";
         if (!seniorRole) seniorRole = "- N/A";
@@ -72,7 +78,7 @@ module.exports = {
         const staffList = new MessageEmbed()
             .setDescription("List of all the staff members on ``Over Control Furry``. There's currently ``" + staffRoleSize.members.size + "`` staff.")
             .addFields(
-                { name: "__**Management [" + managementRoleSize.members.size + "]**__", value: "*Owner*\n" + ownerRole + "\n\n*Administrator*\n" + adminRole + "\n\n*Manager*\n" + managerRole, inline: true },
+                { name: "__**Management [" + managementRoleSize.members.size + "]**__", value: "*Owner*\n" + ownerRole + "\n\n*Co-Owner*\n" + coOwnerRole + "\n\n*Administrator*\n" + adminRole + "\n\n*Manager*\n" + managerRole, inline: true },
                 { name: "__**Moderation [" + moderationRoleSize.members.size + "]**__", value: "*Senior Moderator*\n" + seniorRole + "\n\n*Moderator*\n" + modRole + "\n\n*Helper*\n" + helperRole, inline: true },
                 { name: "__**Community [" + communityRoleSize.members.size + "]**__", value: "*Event Organizer*\n" + eoRole + "\n\n*Gate Keeper*\n" + gateKeeperRole, inline: true }
             )

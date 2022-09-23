@@ -9,10 +9,16 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('userinfo')
         .setDescription('Get info about a user.')
-        .addUserOption(option => option.setName("user").setDescription("User to get").setRequired(true)),
+        .addUserOption(option => option.setName("user").setDescription("User to get info from").setRequired(false)),
     execute: async (interaction, bot, sequelize, Sequelize) => {
-        const user = interaction.options.getUser("user");
-        const member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(err => { });
+        let user = interaction.options.getUser("user");
+
+        let MemberData = null;
+
+        if (user) MemberData = user;
+        if (!user) MemberData = interaction.user;
+
+        let member = interaction.guild.members.cache.get(MemberData.id) || await interaction.guild.members.fetch(MemberData.id).catch(err => { });
 
         let roleMap = member.roles.cache
             .filter((roles) => roles.id !== interaction.guild.id)
@@ -24,7 +30,7 @@ module.exports = {
 
         let fetchGuild = interaction.client.guilds.cache.get("821241527941726248")
 
-        const staffMember = fetchGuild.members.cache.get(member.user.id)
+        const staffMember = fetchGuild.members.cache.get(MemberData.id)
         let staffCheck = staffMember ? staffMember.roles.cache.has("931038287114678334") : false
 
         if (staffCheck) staffCheck = "Yes";
@@ -54,23 +60,23 @@ module.exports = {
             },
         });
 
-        let verifLog = await Verifier.findOne({ where: { VerifierID: member.user.id } });
+        let verifLog = await Verifier.findOne({ where: { VerifierID: MemberData.id } });
 
         if (verifLog) verifLog = verifLog.ModName;
         if (!verifLog) verifLog = "No data";
 
-        if (member.user.id === "291262778730217472") {
+        if (MemberData.id === "291262778730217472") {
             const userinfoEmbed = new MessageEmbed()
                 .setDescription("Owner of **Bad Dragon** & **OCF**")
                 .addFields(
-                    { name: "__**Name:**__", value: "<@" + member.user.id + ">" },
-                    { name: "__**ID:**__", value: "``" + member.user.id + "``" },
+                    { name: "__**Name:**__", value: "<@" + MemberData.id + ">" },
+                    { name: "__**ID:**__", value: "``" + MemberData.id + "``" },
                     { name: "__**Verifier:**__", value: "``" + verifLog + "``" },
                     { name: "__**Staff OCF:**__", value: "``" + staffCheck + "``" },
-                    { name: "__**Created At**__", value: "``" + moment(member.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") + "``" },
+                    { name: "__**Created At**__", value: "``" + moment(MemberData.createdAt).format("Do MMMM YYYY hh:ss:mm A") + "``" },
                     { name: "__**Roles:**__", value: roleMap },
                 )
-                .setThumbnail(member.displayAvatarURL())
+                .setThumbnail(MemberData.displayAvatarURL())
                 .setColor("2f3136")
 
             return interaction.reply({
@@ -80,14 +86,14 @@ module.exports = {
 
         const userinfoEmbed = new MessageEmbed()
             .addFields(
-                { name: "__**Name:**__", value: "<@" + member.user.id + ">" },
-                { name: "__**ID:**__", value: "``" + member.user.id + "``" },
+                { name: "__**Name:**__", value: "<@" + MemberData.id + ">" },
+                { name: "__**ID:**__", value: "``" + MemberData.id + "``" },
                 { name: "__**Verifier:**__", value: "``" + verifLog + "``" },
                 { name: "__**Staff OCF:**__", value: "``" + staffCheck + "``" },
-                { name: "__**Created At**__", value: "``" + moment(member.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") + "``" },
+                { name: "__**Created At**__", value: "``" + moment(MemberData.createdAt).format("Do MMMM YYYY hh:ss:mm A") + "``" },
                 { name: "__**Roles:**__", value: roleMap },
             )
-            .setThumbnail(member.displayAvatarURL())
+            .setThumbnail(MemberData.displayAvatarURL())
             .setColor("2f3136")
 
         return interaction.reply({

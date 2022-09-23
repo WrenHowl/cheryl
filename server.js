@@ -1,12 +1,19 @@
-const { Client, Intents, MessageEmbed, Collection, MessageActionRow, Modal, MessageButton, TextInputComponent, MessageSelectMenu, GuildBan } = require("discord.js");
+const { Client, Intents, MessageEmbed, Collection, MessageActionRow, Modal, MessageButton, TextInputComponent, MessageSelectMenu, ReactionUserManager } = require("discord.js");
 const fs = require("node:fs");
 const path = require('node:path');
 const Sequelize = require('sequelize');
 const moment = require("moment");
+const { Login } = require('furaffinity-api');
 const wait = require("timers/promises").setTimeout;
-const { token } = require("./config/config.json");
+const Config = require("./config/config.json");
 const MessageConfig = require("./config/message.json");
-const bot = new Client({ allowedMentions: { parse: ['users', 'roles'], repliedUser: true }, intents: [Intents.FLAGS.GUILD_BANS, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_PRESENCES, Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.GUILD_INTEGRATIONS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS] });
+const Color = require("./config/color.json");
+const { channel } = require("node:diagnostics_channel");
+const bot = new Client({
+  allowedMentions: { parse: ['users', 'roles'], repliedUser: true },
+  intents: [Intents.FLAGS.GUILD_BANS, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_PRESENCES, Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.GUILD_INTEGRATIONS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS],
+  partials: ["MESSAGE", "CHANNEL", "REACTION"]
+});
 
 const dateTime = new Date();
 
@@ -168,6 +175,14 @@ const Blacklist = sequelize.define("Blacklist", {
     type: Sequelize.STRING,
     unique: false,
   },
+  Proof: {
+    type: Sequelize.STRING,
+    unique: false,
+  },
+  Risk: {
+    type: Sequelize.STRING,
+    unique: false,
+  },
 });
 const Warns = sequelize.define("Warns", {
   UserName: {
@@ -216,6 +231,10 @@ const Logging = sequelize.define("Logging", {
     type: Sequelize.STRING,
     unique: false,
   },
+  ChannelIDWelcome: {
+    type: Sequelize.STRING,
+    unique: false,
+  },
   StaffRoleReport: {
     type: Sequelize.STRING,
     unique: false,
@@ -256,25 +275,45 @@ const Logging = sequelize.define("Logging", {
     type: Sequelize.STRING,
     unique: false,
   },
+  TicketRoleID: {
+    type: Sequelize.STRING,
+    unique: false,
+  },
+});
+const AFK = sequelize.define("AFK", {
+  UserID: {
+    type: Sequelize.STRING,
+    unique: false,
+  },
+  EnableDisable: {
+    type: Sequelize.STRING,
+    unique: false,
+  },
+  Reason: {
+    type: Sequelize.STRING,
+    unique: true,
+  },
 });
 
 bot.once("ready", async () => {
   await wait(1000);
 
   const Guild = bot.guilds.cache.get("821241527941726248");
-  const MemberCount = Guild.members.cache.filter(member => !member.user.bot).size;
-  const AllServers = bot.guilds.cache.size;
-
-  const Status = [
-    "/help | Furries: " + MemberCount,
-    "/help | Servers: " + AllServers,
-    "/help | Furries: " + MemberCount,
-    "/help | Servers: " + AllServers,
-  ]
 
   bot.user.setStatus("dnd")
 
   setInterval(async function () {
+
+    const MemberCount = Guild.members.cache.filter(member => !member.user.bot).size;
+    const AllServers = bot.guilds.cache.size;
+
+    const Status = [
+      MemberCount + " Furries!",
+      AllServers + " Servers!",
+      MemberCount + " Furries!",
+      AllServers + " Servers!",
+    ]
+
     const randomIndex = Math.floor(Math.random() * (Status.length - 1) + 0);
     const NewStatus = Status[randomIndex];
 
@@ -289,45 +328,59 @@ bot.once("ready", async () => {
     Blacklist.sync();
     Warns.sync();
     Logging.sync();
+    AFK.sync();
   }, 5000);
 
   console.log(dateTime.toLocaleString() + " -> The bot is ready!");
-
-  setTimeout(function () {
-    bot.guilds.cache.forEach(guild => {
-      console.log(dateTime.toLocaleString() + " -> [SERVER] -> " + guild.name + " | " + guild.id);
-    })
-  }, 5000)
 });
 
 bot.on("guildMemberAdd", async (NewMember) => {
   const LoggingData = await Logging.findOne({ where: { GuildID: NewMember.guild.id } });
 
-  if (NewMember.guild.id === "821241527941726248") {
-    if (NewMember.user.bot) return;
+  if (LoggingData) {
+    if (LoggingData.ChannelIDWelcome) {
+      const ChannelGuild = NewMember.guild.channels.cache.get(LoggingData.ChannelIDWelcome);
+      if (NewMember.guild.id === "821241527941726248") {
+        if (NewMember.user.bot) return;
 
-    const ChannelGuild = NewMember.guild.channels.cache.get("898360451296010251");
+        const MemberCount = NewMember.guild.members.cache.filter(member => !member.user.bot).size;
 
-    const MemberCount = NewMember.guild.members.cache.filter(member => !member.user.bot).size;
+        await NewMember.roles.add("940140000916430848");
+        await NewMember.roles.add("1000236020517834844");
+        await NewMember.roles.add("1000236337900818533");
+        await NewMember.roles.add("1001111992834211921");
 
-    await NewMember.roles.add("940140000916430848");
-    await NewMember.roles.add("1000236020517834844");
-    await NewMember.roles.add("1000236337900818533");
-    await NewMember.roles.add("1001111992834211921");
+        const WelcomeMessage = new MessageEmbed()
+          .setDescription("Welcome to <@" + NewMember.id + "> ``(" + NewMember.user.tag + ")``!\n\n> __**Account Creation:**__ ``" + moment(NewMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") + "``\n> **__Joined At:__** ``" + moment(NewMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') + "``\n> __**Furries Count:**__ ``" + MemberCount + "``")
+          .setColor("2f3136")
+          .setFooter({
+            text: "ID: " + NewMember.id
+          })
+          .setThumbnail(NewMember.user.displayAvatarURL())
 
-    const WelcomeMessage = new MessageEmbed()
-      .setDescription("Welcome to <@" + NewMember.id + "> ``(" + NewMember.user.tag + ")``!\n\n> __**Account Creation:**__ ``" + moment(NewMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") + "``\n> **__Joined At:__** ``" + moment(NewMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') + "``\n> __**Furries Count:**__ ``" + MemberCount + "``")
-      .setColor("2f3136")
-      .setFooter({
-        text: "ID: " + NewMember.id
-      })
-      .setThumbnail(NewMember.user.displayAvatarURL())
+        if (NewMember.user.id === "610309745714135040") return;
 
-    if (NewMember.user.id === "610309745714135040") return;
+        await ChannelGuild.send({
+          embeds: [WelcomeMessage]
+        });
+      } else {
+        const MemberCount = NewMember.guild.members.cache.filter(member => !member.user.bot).size;
 
-    return ChannelGuild.send({
-      embeds: [WelcomeMessage]
-    });
+        const WelcomeMessage = new MessageEmbed()
+          .setDescription("Welcome to <@" + NewMember.id + "> ``(" + NewMember.user.tag + ")``!\n\n> __**Account Creation:**__ ``" + moment(NewMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") + "``\n> **__Joined At:__** ``" + moment(NewMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') + "``\n> __**Furries Count:**__ ``" + MemberCount + "``")
+          .setColor("2f3136")
+          .setFooter({
+            text: "ID: " + NewMember.id
+          })
+          .setThumbnail(NewMember.user.displayAvatarURL())
+
+        if (NewMember.user.id === "610309745714135040") return;
+
+        await ChannelGuild.send({
+          embeds: [WelcomeMessage]
+        });
+      }
+    }
   }
 
   const VerifBlacklist = await Blacklist.findOne({ where: { UserID: NewMember.user.id } })
@@ -338,15 +391,31 @@ bot.on("guildMemberAdd", async (NewMember) => {
         if (LoggingData.ChannelIDBlacklist) {
           const ChannelToSendAt = await NewMember.guild.channels.fetch(LoggingData.ChannelIDBlacklist)
 
-          const BlacklistedUserJoined = new MessageEmbed()
-            .setDescription("<:BanHammer:997932635454197790>  User <@" + VerifBlacklist.UserID + "> is blacklisted for ``" + VerifBlacklist.Reason + "``\n\nWe suggest you to be careful with that user!")
-            .setColor("2f3136")
-            .setFooter({
-              text: "ID: " + VerifBlacklist.UserID
-            })
-            .setTimestamp()
+          if (VerifBlacklist.Risk === "Low") ColorEmbed = Color.RiskLow;
+          if (VerifBlacklist.Risk === "Medium") ColorEmbed = Color.RiskMedium;
+          if (VerifBlacklist.Risk === "High") ColorEmbed = Color.RiskHigh;
 
-          ChannelToSendAt.send({ embeds: [BlacklistedUserJoined] })
+          if (VerifBlacklist.Risk === "Low" | VerifBlacklist.Risk === "Medium") {
+            const BlacklistedUserJoined = new MessageEmbed()
+              .setDescription("<:BanHammer:997932635454197790>  User <@" + VerifBlacklist.UserID + "> is blacklisted for ``" + VerifBlacklist.Reason + "``\n\nWe suggest you to be careful with that user!")
+              .setColor(ColorEmbed)
+              .setFooter({
+                text: "ID: " + VerifBlacklist.UserID
+              })
+              .setTimestamp()
+
+            ChannelToSendAt.send({ embeds: [BlacklistedUserJoined] })
+          } else if (VerifBlacklist.Risk === "High") {
+            const BlacklistedUserJoined = new MessageEmbed()
+              .setDescription("<:BanHammer:997932635454197790>  User <@" + VerifBlacklist.UserID + "> is blacklisted for ``" + VerifBlacklist.Reason + "``.\n\n**Evidence:**" + VerifBlacklist.Proof + "\n\nWe suggest you to be careful with that user!")
+              .setColor(ColorEmbed)
+              .setFooter({
+                text: "ID: " + VerifBlacklist.UserID
+              })
+              .setTimestamp()
+
+            ChannelToSendAt.send({ embeds: [BlacklistedUserJoined] })
+          }
         }
       }
     }
@@ -363,7 +432,7 @@ bot.on("guildMemberUpdate", async (OldMember, NewMember) => {
 
       const NewBoost = new MessageEmbed()
         .setTitle("New Boost")
-        .setDescription("Thank you <@" + NewMember.user.id + "> for Boosting our server!\n\n Perks:\n- Participate to private events\n- A beautiful role\n- Get 10% Booster in Levels\n- Role income of 750$")
+        .setDescription("Thank you <@" + NewMember.user.id + "> for Boosting our server!")
         .setColor("f47fff")
 
       ChannelToSend.send({
@@ -390,16 +459,24 @@ bot.on("userUpdate", async (NewUser, oldUser) => {
   }
 });
 
-bot.on("guildMemberRemove", async (LeavingMember) => {
+bot.on("guildCreate", guild => {
+  const Channels = guild.channels.cache.filter(channel => channel.type == "text");
 
+  Channels.first().createInvite({
+    maxUses: 1,
+    unique: true
+  }).then(invite => {
+    console.log(`[INVITE] I've created an invite for ${guild.id}:${guild.name} - ${invite.url}`);
+  });
+});
+
+bot.on("guildMemberRemove", async (LeavingMember) => {
   if (LeavingMember.guild.id === "821241527941726248") {
-    const FirstRowToDelete = await Verifier.destroy({ where: { VerifierID: LeavingMember.user.id } })
-    const SecondFirstRowToDelete = await Verification.destroy({ where: { UserID: LeavingMember.user.id } })
-    const ThirdRowToDelete = await Verification_Count.destroy({ where: { ModID: LeavingMember.user.id } })
+    const FirstRowToDelete = await Verifier.destroy({ where: { GuildID: LeavingMember.guild.id, VerifierID: LeavingMember.user.id } })
     const FourthRowToDelete = await Staff_Application.destroy({ where: { UserID: LeavingMember.user.id } })
     const LogChannel = LeavingMember.guild.channels.cache.get("898366209827954718");
 
-    if (FirstRowToDelete | SecondFirstRowToDelete | ThirdRowToDelete | FourthRowToDelete) {
+    if (FirstRowToDelete | FourthRowToDelete) {
 
       const LeavingMemberEmbedData = new MessageEmbed()
         .setTitle("Member Left")
@@ -431,48 +508,18 @@ bot.on("guildMemberRemove", async (LeavingMember) => {
 });
 
 bot.on("messageCreate", async (message) => {
-  const SuggestionChannel = "940372261477679184";
-  const SuggestionBot = bot.channels.cache.get(SuggestionChannel)
-
-  if (SuggestionChannel.includes(message.channel.id)) {
-    if (message.author.bot) return message.delete()
-    if (message.author.bot | message.member.roles.cache.some(role => role.name === 'Administrator') | message.member.roles.cache.some(role => role.name === 'Owner')) {
-      return;
-    } else {
-      await message.delete()
-
-      const SuggestionMessage = new MessageEmbed()
-        .setDescription("**__New Suggestion__**\n\n" + message.content)
-        .setFooter({ text: "Suggested by " + message.author.tag })
-        .setColor("2f3136")
-        .setTimestamp()
-
-      await SuggestionBot.send({
-        embeds: [SuggestionMessage],
-      }).then((message) => {
-        message.react("<:check_ocf:962115470549458954>")
-        message.react("<:cross_ocf:962115493253222420>")
-      });
-    }
-  }
-});
-
-bot.on("messageCreate", async (message) => {
   if (message.author.bot || message.content.indexOf(prefix) !== 0) return;
   const args = message.content.slice(prefix.length).trim().split(/ +/);
   const command = args.shift().toLowerCase();
 
-  if (command === "rolemenu") {
-    bot.commands.get("rolemenu").execute(bot, message, args, MessageEmbed);
-  }
   if (command === "application") {
     bot.commands.get("application").execute(bot, message, args, MessageEmbed);
   }
-  if (command === "welcomemessage") {
-    bot.commands.get("welcomemessage").execute(bot, message, args, MessageEmbed, sequelize, Sequelize);
-  }
   if (command === "serverlist") {
     bot.commands.get("serverlist").execute(bot, message, args, MessageEmbed);
+  }
+  if (command === "role") {
+    bot.commands.get("role").execute(bot, message, args, MessageEmbed, sequelize, Sequelize);
   }
 });
 
@@ -480,55 +527,62 @@ bot.on("voiceStateUpdate", async (oldState, newState) => {
   const Guild = bot.guilds.cache.get("821241527941726248")
 
   if (newState.channelId === "1005901578852642906") {
-    const voiceChannel = await Guild.channels.create(newState.member.user.username + " | Room", {
-      type: "GUILD_VOICE",
-      parent: newState.channel.parent,
-      permissionOverwrites: [
-        {
-          id: newState.Guild.id,
-          deny: ["VIEW_CHANNEL"],
-        },
-        {
-          id: "940140000916430848",
-          deny: ["VIEW_CHANNEL"],
-        },
-        {
-          id: "898354377503432734",
-          deny: ["CONNECT"],
-          allow: ["VIEW_CHANNEL"],
-        },
-        {
-          id: newState.member.user.id,
-          allow: ["VIEW_CHANNEL", "CONNECT", "DEAFEN_MEMBERS", "MUTE_MEMBERS", "MOVE_MEMBERS"],
-        },
-      ],
-    });
-    const voiceChannelWaiting = await Guild.channels.create(newState.member.user.username + " | Waiting", {
-      type: "GUILD_VOICE",
-      parent: newState.channel.parent,
-      permissionOverwrites: [
-        {
-          id: newState.Guild.id,
-          deny: ["VIEW_CHANNEL"],
-        },
-        {
-          id: "940140000916430848",
-          deny: ["VIEW_CHANNEL"],
-        },
-        {
-          id: "898354377503432734",
-          allow: ["CONNECT", "VIEW_CHANNEL"],
-        },
-        {
-          id: newState.member.user.id,
-          allow: ["VIEW_CHANNEL", "CONNECT", "DEAFEN_MEMBERS", "MUTE_MEMBERS", "MOVE_MEMBERS"],
-        },
-      ],
-    });
+    if (!newState.guild.channels.cache.find(channel => channel.name === newState.member.user.username + " | Room")) {
+      const voiceChannel = await Guild.channels.create(newState.member.user.username + " | Room", {
+        type: "GUILD_VOICE",
+        parent: newState.channel.parent,
+        permissionOverwrites: [
+          {
+            id: newState.guild.id,
+            deny: ["VIEW_CHANNEL"],
+          },
+          {
+            id: "940140000916430848",
+            deny: ["VIEW_CHANNEL"],
+          },
+          {
+            id: "898354377503432734",
+            deny: ["CONNECT"],
+            allow: ["VIEW_CHANNEL"],
+          },
+          {
+            id: newState.member.user.id,
+            allow: ["VIEW_CHANNEL", "CONNECT", "DEAFEN_MEMBERS", "MUTE_MEMBERS", "MOVE_MEMBERS"],
+          },
+        ],
+      });
+      const voiceChannelWaiting = await Guild.channels.create(newState.member.user.username + " | Waiting", {
+        type: "GUILD_VOICE",
+        parent: newState.channel.parent,
+        permissionOverwrites: [
+          {
+            id: newState.guild.id,
+            deny: ["VIEW_CHANNEL"],
+          },
+          {
+            id: "940140000916430848",
+            deny: ["VIEW_CHANNEL"],
+          },
+          {
+            id: "898354377503432734",
+            allow: ["CONNECT", "VIEW_CHANNEL"],
+          },
+          {
+            id: newState.member.user.id,
+            allow: ["VIEW_CHANNEL", "CONNECT", "DEAFEN_MEMBERS", "MUTE_MEMBERS", "MOVE_MEMBERS"],
+          },
+        ],
+      });
 
-    return setTimeout(() => newState.member.voice.setChannel(voiceChannel))
+      return setTimeout(() => newState.member.voice.setChannel(voiceChannel))
+    } else {
+      return newState.member.send({
+        content: "You already have a channel created!"
+      })
+    }
   }
-})
+});
+
 
 bot.on('interactionCreate', async (interaction) => {
 
@@ -545,9 +599,12 @@ bot.on('interactionCreate', async (interaction) => {
 });
 
 bot.on('interactionCreate', async (interaction) => {
+  const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } })
+
   if (interaction.isButton()) {
-    let ApplicationLog = await Staff_Application.findOne({ where: { MessageID: interaction.message.id } });
     let VerificationLog = await Verification.findOne({ where: { MessageID: interaction.message.id } });
+    const ApplicationLog = await Staff_Application.findOne({ where: { MessageID: interaction.message.id } });
+    let guild = bot.guilds.cache.get(interaction.guild.id);
 
     switch (interaction.customId) {
       case ("applyForStaff"):
@@ -613,11 +670,13 @@ bot.on('interactionCreate', async (interaction) => {
 
         interaction.channel.messages.fetch(ApplicationLog.MessageID).then(async (UpdateMessage) => {
           const staffApplicationEmbed2 = new MessageEmbed()
-            .addField("**__Age__**", ApplicationLog.AgeData)
-            .addField("**__Timezone__**", ApplicationLog.TimeZoneData)
-            .addField("**__How long have you been on the server?__**", ApplicationLog.BeenOnServerData)
-            .addField("**__Do you have any experience?__**", ApplicationLog.ExperienceData)
-            .addField("**__Why do you want to be staff?__**", ApplicationLog.WhyDoYouWantStaffData)
+            .addFields(
+              { name: "**__Age__**", value: ApplicationLog.AgeData },
+              { name: "**__Timezone__**", value: ApplicationLog.TimeZoneData },
+              { name: "**__How long have you been on the server?__**", value: ApplicationLog.BeenOnServerData },
+              { name: "**__Do you have any experience?__**", value: ApplicationLog.ExperienceData },
+              { name: "**__Why do you want to be staff?__**", value: ApplicationLog.WhyDoYouWantStaffData },
+            )
             .setColor("00FF00")
             .setTimestamp()
 
@@ -646,13 +705,14 @@ bot.on('interactionCreate', async (interaction) => {
         }
 
         interaction.channel.messages.fetch(ApplicationLog.MessageID).then(async (UpdateMessage) => {
-
           const staffApplicationEmbed2 = new MessageEmbed()
-            .addField("**__Age__**", ApplicationLog.AgeData)
-            .addField("**__Timezone__**", ApplicationLog.TimeZoneData)
-            .addField("**__How long have you been on the server?__**", ApplicationLog.BeenOnServerData)
-            .addField("**__Do you have any experience?__**", ApplicationLog.ExperienceData)
-            .addField("**__Why do you want to be staff?__**", ApplicationLog.WhyDoYouWantStaffData)
+            .addFields(
+              { name: "**__Age__**", value: ApplicationLog.AgeData },
+              { name: "**__Timezone__**", value: ApplicationLog.TimeZoneData },
+              { name: "**__How long have you been on the server?__**", value: ApplicationLog.BeenOnServerData },
+              { name: "**__Do you have any experience?__**", value: ApplicationLog.ExperienceData },
+              { name: "**__Why do you want to be staff?__**", value: ApplicationLog.WhyDoYouWantStaffData },
+            )
             .setColor("FF0000")
             .setTimestamp()
 
@@ -672,58 +732,6 @@ bot.on('interactionCreate', async (interaction) => {
 
         break;
       case ("buttonToVerify"):
-        if (interaction.guild.id === "821241527941726248") {
-          if (!interaction.member.roles.cache.some(role => role.name === "New Member")) {
-            const ModalVerification = new Modal()
-              .setCustomId('verificationModal')
-              .setTitle('Verification');
-
-            const ageOption = new TextInputComponent()
-              .setCustomId('age')
-              .setLabel("Age")
-              .setStyle('SHORT')
-              .setRequired();
-
-            const howServerOption = new TextInputComponent()
-              .setCustomId('howServer')
-              .setLabel("How did you find our server?")
-              .setStyle('SHORT')
-              .setRequired();
-
-            const joiningOption = new TextInputComponent()
-              .setCustomId('joining')
-              .setLabel("Why are you joining us?")
-              .setStyle('PARAGRAPH')
-              .setRequired();
-
-            const furryFandomOption = new TextInputComponent()
-              .setCustomId('furryFandom')
-              .setLabel("What do you think about the furry fandom?")
-              .setStyle('PARAGRAPH')
-              .setRequired();
-
-            const sonaOption = new TextInputComponent()
-              .setCustomId('sona')
-              .setLabel("Do you have any sona? Tell us about it")
-              .setStyle('PARAGRAPH')
-              .setRequired();
-
-            const ageRow = new MessageActionRow().addComponents(ageOption);
-            const howServerRow = new MessageActionRow().addComponents(howServerOption);
-            const joiningRow = new MessageActionRow().addComponents(joiningOption);
-            const furryFandomRow = new MessageActionRow().addComponents(furryFandomOption);
-            const sonaRow = new MessageActionRow().addComponents(sonaOption);
-
-            ModalVerification.addComponents(ageRow, howServerRow, joiningRow, furryFandomRow, sonaRow);
-
-            return interaction.showModal(ModalVerification)
-          } else {
-            return interaction.reply({
-              content: "You cannot verify yourself, because you're already verified.",
-              ephemeral: true,
-            })
-          }
-        };
         if (interaction.guild.id === "815422069234860073") {
           if (interaction.member.roles.cache.some(role => role.id === "817245431296950282")) {
             const ModalVerification = new Modal()
@@ -762,197 +770,268 @@ bot.on('interactionCreate', async (interaction) => {
             })
           }
         };
-      case ("buttonToAcceptVerify"):
-        if (!VerificationLog) {
+
+        if (!interaction.member.roles.cache.some(role => role.id === LoggingData.RoleToAddVerify)) {
+          const ModalVerification = new Modal()
+            .setCustomId('verificationModal')
+            .setTitle('Verification');
+
+          const ageOption = new TextInputComponent()
+            .setCustomId('ageVerify')
+            .setLabel("Age")
+            .setStyle('SHORT')
+            .setRequired();
+
+          const howServerOption = new TextInputComponent()
+            .setCustomId('howServer')
+            .setLabel("How did you find our server?")
+            .setStyle('SHORT')
+            .setRequired();
+
+          const joiningOption = new TextInputComponent()
+            .setCustomId('joining')
+            .setLabel("Why are you joining us?")
+            .setStyle('PARAGRAPH')
+            .setRequired();
+
+          const furryFandomOption = new TextInputComponent()
+            .setCustomId('furryFandom')
+            .setLabel("What do you think about the furry fandom?")
+            .setStyle('PARAGRAPH')
+            .setRequired();
+
+          const sonaOption = new TextInputComponent()
+            .setCustomId('sona')
+            .setLabel("Do you have any sona? Tell us about it")
+            .setStyle('PARAGRAPH')
+            .setRequired();
+
+          const ageRow = new MessageActionRow().addComponents(ageOption);
+          const howServerRow = new MessageActionRow().addComponents(howServerOption);
+          const joiningRow = new MessageActionRow().addComponents(joiningOption);
+          const furryFandomRow = new MessageActionRow().addComponents(furryFandomOption);
+          const sonaRow = new MessageActionRow().addComponents(sonaOption);
+
+          ModalVerification.addComponents(ageRow, howServerRow, joiningRow, furryFandomRow, sonaRow);
+
+          return interaction.showModal(ModalVerification)
+        } else {
           return interaction.reply({
-            content: "Cannot find the data of this message!",
+            content: "You cannot verify yourself, because you're already verified.",
             ephemeral: true,
-          })
-        }
-
-        const member = interaction.guild.members.cache.get(VerificationLog.UserID)
-
-        const RowToUpdate = await Verification_Count.update({ ModName: interaction.user.tag }, { where: { ModID: interaction.user.id } })
-
-        if (interaction.guild.id === "821241527941726248") {
-          await member.roles.add("898354377503432734")
-          await member.roles.remove("940140000916430848")
-
-          const generalMessage = interaction.guild.channels.cache.get("898361230010482688")
-
-          const AdsInGeneral = new MessageEmbed()
-            .setDescription("__**Read the rules:**__ <#898360656175198249>\n__**Get your roles:**__ <#898360376654188557>\n__**Join an event:**__ <#898360298552037426>")
-            .setColor("2f3136")
-
-          await generalMessage.send({ embeds: [AdsInGeneral], content: "<@" + VerificationLog.UserID + ">" })
-
-          interaction.channel.messages.fetch(VerificationLog.MessageID).then(async (UpdateMessage) => {
-
-            const verificationEmbedAccepted = new MessageEmbed()
-              .addField("**__Age__**", VerificationLog.AgeData)
-              .addField("**__How did you find our server?__**", VerificationLog.HowServerData)
-              .addField("**__Why are you joining us?__**", VerificationLog.JoiningData)
-              .addField("**__What do you think about the furry fandom?__**", VerificationLog.FurryFandomData)
-              .addField("**__Do you have any sona? Tell us about it__**", VerificationLog.SonaData)
-              .setColor("00FF00")
-              .setTimestamp()
-
-            await interaction.update({
-              content: "<@&931038287114678334> | Verification from <@" + VerificationLog.UserID + "> accepted by <@" + interaction.user.id + ">",
-              embeds: [verificationEmbedAccepted],
-              components: [],
-            })
-          })
-
-          const Verification_CountData = await Verification_Count.findOne({ where: { ModID: interaction.user.id, GuildID: interaction.guild.id } });
-
-          if (Verification_CountData) {
-            if (Verification_CountData.GuildID === interaction.guild.id) {
-              await Verification_CountData.increment('Usage_Count');
-            };
-          } else {
-            const Verification_CountCreate = await Verification_Count.create({
-              ModID: interaction.user.id,
-              ModName: interaction.user.tag,
-              GuildID: interaction.guild.id,
-            });
-          };
-        }
-
-        if (interaction.guild.id === "815422069234860073") {
-          await member.roles.add("829845328223404053")
-          await member.roles.remove("817245431296950282")
-
-          const generalMessage = interaction.guild.channels.cache.get("815422070053273681")
-
-          const AdsInGeneral = new MessageEmbed()
-            .setDescription("Go get roles in\n\n" +
-              "> Grab some role in: <#839049304060067850>\n" +
-              "> Get some new color in: <#815422069557952551>\n" +
-              "> Introduce yourself in: <#815819177008955402>\n\n" +
-              "Pleasure to have you here! :flag_ca:")
-            .setColor("2f3136")
-
-          await generalMessage.send({ embeds: [AdsInGeneral], content: "Welcome <@" + VerificationLog.UserID + ">!" })
-
-          interaction.channel.messages.fetch(VerificationLog.MessageID).then(async (UpdateMessage) => {
-
-            const verificationEmbedAccepted = new MessageEmbed()
-              .addField("**__How did you find our server?__**", VerificationLog.HowServerData)
-              .addField("**__Why are you joining us?__**", VerificationLog.JoiningData)
-              .addField("**__What do you think about the furry fandom?__**", VerificationLog.FurryFandomData)
-              .setColor("00FF00")
-              .setTimestamp()
-
-            await interaction.update({
-              content: "<@&852950515389169714> | Verification from <@" + VerificationLog.UserID + "> accepted by <@" + interaction.user.id + ">",
-              embeds: [verificationEmbedAccepted],
-              components: [],
-            })
-          })
-
-          const Verification_CountData = await Verification_Count.findOne({ where: { ModID: interaction.user.id, GuildID: interaction.guild.id } });
-
-          if (Verification_CountData) {
-            if (Verification_CountData.GuildID === interaction.guild.id) {
-              await Verification_CountData.increment('Usage_Count');
-            };
-          } else {
-            const Verification_CountCreate = await Verification_Count.create({
-              ModID: interaction.user.id,
-              ModName: interaction.user.tag,
-              GuildID: interaction.guild.id,
-            });
-          };
-        }
-
-        const VerifierCreateData = await Verifier.create({
-          VerifierName: VerificationLog.UserName,
-          VerifierID: VerificationLog.UserID,
-          ModName: interaction.user.tag,
-          ModID: interaction.user.id,
-          GuildID: interaction.guild.id,
-        })
-
-        const verificationDeleteLog = await Verification.destroy({ where: { MessageID: interaction.message.id } });
-      case ("buttonToDenyVerify"):
-        if (!VerificationLog) {
-          return interaction.reply({
-            content: "Cannot find the data of this message!",
-            ephemeral: true,
-          })
-        }
-
-        if (interaction.guild.id === "821241527941726248") {
-          interaction.channel.messages.fetch(VerificationLog.MessageID).then(async (UpdateMessage) => {
-            const reasonDeny = new MessageActionRow()
-              .addComponents(
-                new MessageSelectMenu()
-                  .setCustomId('reasonDeny')
-                  .setPlaceholder('Please select a reason')
-                  .addOptions(
-                    {
-                      label: 'Not Enough Details',
-                      value: 'noDetails',
-                    },
-                    {
-                      label: 'Troll',
-                      value: 'troll',
-                    },
-                  ),
-              );
-
-            const verificationEmbedDenied = new MessageEmbed()
-              .addField("**__Age__**", VerificationLog.AgeData)
-              .addField("**__How did you find our server?__**", VerificationLog.HowServerData)
-              .addField("**__Why are you joining us?__**", VerificationLog.JoiningData)
-              .addField("**__What do you think about the furry fandom?__**", VerificationLog.FurryFandomData)
-              .addField("**__Do you have any sona? Tell us about it__**", VerificationLog.SonaData)
-              .setColor("FF0000")
-              .setTimestamp()
-
-            await interaction.update({
-              content: "<@&931038287114678334> | Verification from <@" + VerificationLog.UserID + "> denied by <@" + interaction.user.id + ">",
-              embeds: [verificationEmbedDenied],
-              components: [reasonDeny],
-            })
-          })
-        }
-        if (interaction.guild.id === "815422069234860073") {
-          interaction.channel.messages.fetch(VerificationLog.MessageID).then(async (UpdateMessage) => {
-            const reasonDeny = new MessageActionRow()
-              .addComponents(
-                new MessageSelectMenu()
-                  .setCustomId('reasonDeny')
-                  .setPlaceholder('Please select a reason')
-                  .addOptions(
-                    {
-                      label: 'Not Enough Details',
-                      value: 'noDetails',
-                    },
-                    {
-                      label: 'Troll',
-                      value: 'troll',
-                    },
-                  ),
-              );
-
-            const verificationEmbedDenied = new MessageEmbed()
-              .addField("**__How did you find our server?__**", VerificationLog.HowServerData)
-              .addField("**__Why are you joining us?__**", VerificationLog.JoiningData)
-              .addField("**__What do you think about the furry fandom?__**", VerificationLog.FurryFandomData)
-              .setColor("FF0000")
-              .setTimestamp()
-
-            await interaction.update({
-              content: "<@&852950515389169714> | Verification from <@" + VerificationLog.UserID + "> denied by <@" + interaction.user.id + ">",
-              embeds: [verificationEmbedDenied],
-              components: [reasonDeny],
-            })
           })
         };
+      case ("buttonToAcceptVerify"):
+        let MessageUpdate = VerificationLog.MessageID;
+
+        if (VerificationLog) {
+          if (!guild.members.cache.find(m => m.id === VerificationLog.UserID)?.id) {
+            interaction.channel.messages.fetch(MessageUpdate).then(async (UpdateMessage) => {
+              const verificationEmbedAccepted = new MessageEmbed()
+                .addFields(
+                  { name: "**__Age__**", value: VerificationLog.AgeData },
+                  { name: "**__How did you find our server?__**", value: VerificationLog.HowServerData },
+                  { name: "**__Why are you joining us?__**", value: VerificationLog.JoiningData },
+                  { name: "**__What do you think about the furry fandom?__**", value: VerificationLog.FurryFandomData },
+                  { name: "**__Do you have any sona? Tell us about it__**", value: VerificationLog.SonaData },
+                )
+                .setColor("929292")
+                .setTimestamp()
+
+              await interaction.update({
+                content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> canceled",
+                embeds: [verificationEmbedAccepted],
+                components: [],
+              })
+
+              const verificationDeleteLog = await Verification.destroy({ where: { MessageID: interaction.message.id } });
+
+              return;
+            })
+          } else {
+            switch (!interaction.guild.me.permissions.has) {
+              case ("MANAGE_ROLES"):
+                return interaction.reply({
+                  content: "Missing permission: MANAGE_ROLES",
+                });
+            };
+
+            const member = interaction.guild.members.cache.get(VerificationLog.UserID)
+
+            const RowToUpdate = await Verification_Count.update({ ModName: interaction.user.tag }, { where: { ModID: interaction.user.id } })
+
+            await member.roles.add(LoggingData.RoleToAddVerify);
+
+            if (LoggingData.RoleToRemoveVerify) {
+              await member.roles.remove(LoggingData.RoleToRemoveVerify);
+            };
+
+            const generalMessage = interaction.guild.channels.cache.get(LoggingData.ChannelIDVerify);
+
+            interaction.channel.messages.fetch(MessageUpdate).then(async (UpdateMessage) => {
+              const verificationEmbedAccepted = new MessageEmbed()
+                .addFields(
+                  { name: "**__Age__**", value: VerificationLog.AgeData },
+                  { name: "**__How did you find our server?__**", value: VerificationLog.HowServerData },
+                  { name: "**__Why are you joining us?__**", value: VerificationLog.JoiningData },
+                  { name: "**__What do you think about the furry fandom?__**", value: VerificationLog.FurryFandomData },
+                  { name: "**__Do you have any sona? Tell us about it__**", value: VerificationLog.SonaData },
+                )
+                .setColor("00FF00")
+                .setTimestamp()
+
+              await interaction.update({
+                content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> accepted by <@" + interaction.user.id + ">",
+                embeds: [verificationEmbedAccepted],
+                components: [],
+              })
+            })
+
+
+            if (interaction.guild.id === "821241527941726248") {
+              await member.roles.add("898354377503432734")
+              await member.roles.remove("940140000916430848")
+
+              const generalMessage = interaction.guild.channels.cache.get("898361230010482688")
+
+              const AdsInGeneral = new MessageEmbed()
+                .setDescription("__**Read the rules:**__ <#898360656175198249>\n__**Get your roles:**__ <#898360376654188557>\n__**Join an event:**__ <#898360298552037426>")
+                .setColor("2f3136")
+
+              await generalMessage.send({
+                embeds: [AdsInGeneral],
+                content: "<@" + VerificationLog.UserID + ">"
+              });
+
+            } else {
+              await generalMessage.send({ content: "Welcome <@" + VerificationLog.UserID + ">!" });
+            };
+
+            const Verification_CountData = await Verification_Count.findOne({ where: { ModID: interaction.user.id, GuildID: interaction.guild.id } });
+
+            if (Verification_CountData) {
+              if (Verification_CountData.GuildID === interaction.guild.id) {
+                await Verification_CountData.increment('Usage_Count');
+              };
+            } else {
+              const Verification_CountCreate = await Verification_Count.create({
+                ModID: interaction.user.id,
+                ModName: interaction.user.tag,
+                GuildID: interaction.guild.id,
+              });
+            };
+
+            const VerifierCreateData = await Verifier.create({
+              VerifierName: VerificationLog.UserName,
+              VerifierID: VerificationLog.UserID,
+              ModName: interaction.user.tag,
+              ModID: interaction.user.id,
+              GuildID: interaction.guild.id,
+            })
+
+            const verificationDeleteLog = await Verification.destroy({ where: { MessageID: interaction.message.id } });
+          }
+        }
+
+        break;
+      case ("buttonToDenyVerify"):
+        let MessageUpdateTwo = VerificationLog.MessageID;
+
+        if (VerificationLog) {
+          if (!guild.members.cache.find(m => m.id === VerificationLog.UserID)?.id) {
+            interaction.channel.messages.fetch(MessageUpdateTwo).then(async (UpdateMessage) => {
+              const verificationEmbedAccepted = new MessageEmbed()
+                .addFields(
+                  { name: "**__Age__**", value: VerificationLog.AgeData },
+                  { name: "**__How did you find our server?__**", value: VerificationLog.HowServerData },
+                  { name: "**__Why are you joining us?__**", value: VerificationLog.JoiningData },
+                  { name: "**__What do you think about the furry fandom?__**", value: VerificationLog.FurryFandomData },
+                  { name: "**__Do you have any sona? Tell us about it__**", value: VerificationLog.SonaData },
+                )
+                .setColor("929292")
+                .setTimestamp()
+
+              return interaction.update({
+                content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> canceled",
+                embeds: [verificationEmbedAccepted],
+                components: [],
+              })
+            })
+          } else {
+            interaction.channel.messages.fetch(MessageUpdateTwo).then(async (UpdateMessage) => {
+              const reasonDeny = new MessageActionRow()
+                .addComponents(
+                  new MessageSelectMenu()
+                    .setCustomId('reasonDeny')
+                    .setPlaceholder('Please select a reason')
+                    .addOptions(
+                      {
+                        label: 'Not enough details',
+                        value: 'noDetails',
+                      },
+                      {
+                        label: 'Troll',
+                        value: 'troll',
+                      },
+                      {
+                        label: 'New account',
+                        value: 'new',
+                      },
+                    ),
+                );
+
+              const verificationEmbedDenied = new MessageEmbed()
+                .addFields(
+                  { name: "**__Age__**", value: VerificationLog.AgeData },
+                  { name: "**__How did you find our server?__**", value: VerificationLog.HowServerData },
+                  { name: "**__Why are you joining us?__**", value: VerificationLog.JoiningData },
+                  { name: "**__What do you think about the furry fandom?__**", value: VerificationLog.FurryFandomData },
+                  { name: "**__Do you have any sona? Tell us about it__**", value: VerificationLog.SonaData },
+                )
+                .setColor("FF0000")
+                .setTimestamp()
+
+              return interaction.update({
+                content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> denied by <@" + interaction.user.id + ">",
+                embeds: [verificationEmbedDenied],
+                components: [reasonDeny],
+              })
+            });
+          }
+        };
+      /*case ("buttonToCreateTicket"):
+        interaction.guild.channels.cache.forEach((channel) => {
+          if (channel.name === "ticket-" + interaction.user.username.toLowerCase() + interaction.user.discriminator) {
+            return interaction.reply({
+              content: MessageConfig.TicketExist,
+            });
+          }
+        });
+  
+        interaction.guild.channels.create("ticket-" + interaction.user.username.toLowerCase() + interaction.user.discriminator, {
+          type: "GUILD_TEXT",
+          permissionOverwrites: [
+            {
+              id: interaction.guild.roles.everyone,
+              deny: ["VIEW_CHANNEL", "SEND_MESSAGES"],
+            },
+            {
+              id: interaction.member.user.id,
+              allow: ["VIEW_CHANNEL", "SEND_MESSAGES"],
+            },
+            {
+              id: LoggingData.TicketRoleID,
+              allow: ["VIEW_CHANNEL", "SEND_MESSAGES"],
+            }
+          ]
+        })
+  
+        await interaction.reply({
+          content: "Ticket Created: " + channel.id,
+        })*/
     }
   }
+
   if (interaction.isModalSubmit()) {
     switch (interaction.customId) {
       case ("modalStaff"):
@@ -985,11 +1064,13 @@ bot.on('interactionCreate', async (interaction) => {
         if (!whyDoYouWant) whyDoYouWant = "N/A";
 
         const staffApplicationEmbed = new MessageEmbed()
-          .addField("**__Age__**", age)
-          .addField("**__Timezone__**", timezone)
-          .addField("**__How long have you been on the server?__**", beenOnServer)
-          .addField("**__Do you have any experience?__**", experience)
-          .addField("**__Why do you want to be staff?__**", whyDoYouWant)
+          .addFields(
+            { name: "**__Age__**", value: age },
+            { name: "**__Timezone__**", value: timezone },
+            { name: "**__How long have you been on the server?__**", value: beenOnServer },
+            { name: "**__Do you have any experience?__**", value: experience },
+            { name: "**__Why do you want to be staff?__**", value: whyDoYouWant },
+          )
           .setColor("2f3136")
           .setTimestamp()
 
@@ -1019,683 +1100,100 @@ bot.on('interactionCreate', async (interaction) => {
           })
 
         })
-        await interaction.reply({
+        return interaction.reply({
           content: "We received your application, you will receive a response soon!",
           ephemeral: true
         });
       case ("verificationModal"):
-        if (interaction.guild.id === "821241527941726248") {
+        const buttonVerify = new MessageActionRow()
+          .addComponents(
+            new MessageButton()
+              .setCustomId('buttonToAcceptVerify')
+              .setLabel('Accept')
+              .setStyle('SUCCESS'),
+          )
+          .addComponents(
+            new MessageButton()
+              .setCustomId('buttonToDenyVerify')
+              .setLabel('Deny')
+              .setStyle('DANGER'),
+          );
 
-          const buttonVerify = new MessageActionRow()
-            .addComponents(
-              new MessageButton()
-                .setCustomId('buttonToAcceptVerify')
-                .setLabel('Accept')
-                .setStyle('SUCCESS'),
-            )
-            .addComponents(
-              new MessageButton()
-                .setCustomId('buttonToDenyVerify')
-                .setLabel('Deny')
-                .setStyle('DANGER'),
-            );
+        const channelForVerification = interaction.guild.channels.cache.get(LoggingData.ChannelIDReceiveVerification);
 
-          const channelForVerification = interaction.guild.channels.cache.get("993350217535602688");
+        let ageVerify = interaction.fields.getTextInputValue('ageVerify');
+        let howServer = interaction.fields.getTextInputValue('howServer');
+        let joining = interaction.fields.getTextInputValue('joining');
+        let furryFandom = interaction.fields.getTextInputValue('furryFandom');
+        let sona = interaction.fields.getTextInputValue('sona');
 
-          let age = interaction.fields.getTextInputValue('age');
-          let howServer = interaction.fields.getTextInputValue('howServer');
-          let joining = interaction.fields.getTextInputValue('joining');
-          let furryFandom = interaction.fields.getTextInputValue('furryFandom');
-          let sona = interaction.fields.getTextInputValue('sona');
+        if (!ageVerify) ageVerify = "N/A";
+        if (!howServer) howServer = "N/A";
+        if (!joining) joining = "N/A";
+        if (!furryFandom) furryFandom = "N/A";
+        if (!sona) sona = "N/A";
 
-          if (!age) age = "N/A";
-          if (!howServer) howServer = "N/A";
-          if (!joining) joining = "N/A";
-          if (!furryFandom) furryFandom = "N/A";
-          if (!sona) sona = "N/A";
+        const verificationEmbed = new MessageEmbed()
+          .addFields(
+            { name: "**__Age__**", value: ageVerify },
+            { name: "**__How did you find our server?__**", value: howServer },
+            { name: "**__Why are you joining us?__**", value: joining },
+            { name: "**__What do you think about the furry fandom?__**", value: furryFandom },
+            { name: "**__Do you have any sona? Tell us about it__**", value: sona },
+          )
+          .setColor("2f3136")
+          .setTimestamp()
 
-          const verificationEmbed = new MessageEmbed()
-            .addField("**__Age__**", age)
-            .addField("**__How did you find our server?__**", howServer)
-            .addField("**__Why are you joining us?__**", joining)
-            .addField("**__What do you think about the furry fandom?__**", furryFandom)
-            .addField("**__Do you have any sona? Tell us about it__**", sona)
-            .setColor("2f3136")
-            .setTimestamp()
+        let idExist = await Verification.findOne({ where: { UserID: interaction.user.id } });
 
-          try {
+        if (idExist) return interaction.reply({
+          content: "You're already waiting to be verified, please be patient while our staff look at your verification.",
+          ephemeral: true
+        })
 
-            let idExist = await Verification.findOne({ where: { UserID: interaction.user.id } });
+        await channelForVerification.send({
+          content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + interaction.user.id + ">",
+          embeds: [verificationEmbed],
+          components: [buttonVerify],
+        }).then(async sent => {
+          let MessageID = sent.id
 
-            if (idExist) return interaction.reply({
-              content: "You're already waiting to be verified, please be patient while our staff look at your verification.",
-              ephemeral: true
-            })
-
-            await channelForVerification.send({
-              content: "<@&931038287114678334> | Verification from <@" + interaction.user.id + ">",
-              embeds: [verificationEmbed],
-              components: [buttonVerify],
-            }).then(async sent => {
-              let MessageID = sent.id
-
-              const VerificationCreate = await Verification.create({
-                MessageID: MessageID,
-                UserID: interaction.user.id,
-                UserName: interaction.user.tag,
-                AgeData: age,
-                HowServerData: howServer,
-                JoiningData: joining,
-                FurryFandomData: furryFandom,
-                SonaData: sona,
-              })
-            })
-
-            await interaction.reply({
-              content: "We received your verification, you will be verified soon!",
-              ephemeral: true
-            });
-
-          } catch (error) {
-            console.log(error)
-          }
-        };
-      case ("verificationModal2"):
-        if (interaction.guild.id === "815422069234860073") {
-
-          const buttonVerify = new MessageActionRow()
-            .addComponents(
-              new MessageButton()
-                .setCustomId('buttonToAcceptVerify')
-                .setLabel('Accept')
-                .setStyle('SUCCESS'),
-            )
-            .addComponents(
-              new MessageButton()
-                .setCustomId('buttonToDenyVerify')
-                .setLabel('Deny')
-                .setStyle('DANGER'),
-            );
-
-          const channelForVerification = interaction.guild.channels.cache.get("1008225810404089886");
-
-          let howServer = interaction.fields.getTextInputValue('howServer2');
-          let joining = interaction.fields.getTextInputValue('joining2');
-          let furryFandom = interaction.fields.getTextInputValue('furryFandom2');
-
-          if (!howServer) howServer = "N/A";
-          if (!joining) joining = "N/A";
-          if (!furryFandom) furryFandom = "N/A";
-
-          const verificationEmbed = new MessageEmbed()
-            .setDescription("*Account Age: " + moment(interaction.member.joinedAt).format('Do MMMM YYYY hh:ss:mm A') + "*")
-            .addFields(
-              { name: "**__How did you find our server?__**", value: howServer },
-              { name: "**__Why are you joining us?__**", value: joining },
-              { name: "**__What do you think about the furry fandom?__**", value: furryFandom }
-            )
-            .setColor("2f3136")
-            .setTimestamp()
-
-          let VerificationData = await Verification.findOne({ where: { GuildID: interaction.guild.id } });
-
-          if (VerificationData) {
-            if (VerificationData.UserID) {
-              return interaction.reply({
-                content: "You're already waiting to be verified, please be patient while our staff look at your verification.",
-                ephemeral: true
-              })
-            }
-          }
-
-          await channelForVerification.send({
-            content: "<@&852950515389169714> | Verification from <@" + interaction.user.id + ">",
-            embeds: [verificationEmbed],
-            components: [buttonVerify],
-          }).then(async sent => {
-            let MessageID = sent.id
-
-            const VerificationCreate = await Verification.create({
-              MessageID: MessageID,
-              UserID: interaction.user.id,
-              UserName: interaction.user.tag,
-              HowServerData: howServer,
-              JoiningData: joining,
-              FurryFandomData: furryFandom,
-              GuildID: interaction.guild.id,
-            })
+          const VerificationCreate = await Verification.create({
+            MessageID: MessageID,
+            UserID: interaction.user.id,
+            UserName: interaction.user.tag,
+            AgeData: ageVerify,
+            HowServerData: howServer,
+            JoiningData: joining,
+            FurryFandomData: furryFandom,
+            SonaData: sona,
+            GuildID: interaction.guild.id,
           })
+        })
 
-          return interaction.reply({
-            content: "We received your verification, you will be verified soon!",
-            ephemeral: true
-          });
-        };
+        await interaction.reply({
+          content: "We received your verification, you will be verified soon!",
+          ephemeral: true
+        });
+
+        break;
     }
   }
   if (interaction.isSelectMenu()) {
     let args = interaction.values[0]
-    await interaction.deferUpdate();
 
     switch (interaction.customId) {
-      case ("roleMenu1"):
-        switch (args) {
-          case ("Major (18+)"):
-            if (interaction.member.roles.cache.some(role => role.name === "Major (18+)")) {
-              interaction.member.roles.remove("900200948557824050")
-            }
-
-            interaction.member.roles.add("900201076916105306");
-          case ("Minor (17-)"):
-            if (interaction.member.roles.cache.some(role => role.name === "Major (18+)")) {
-              interaction.member.roles.remove("900201076916105306")
-            }
-
-            interaction.member.roles.add("900200948557824050");
-        }
-
-        break;
-      case ("roleMenu2"):
-        switch (args) {
-          case ("Boy"):
-            if (interaction.member.roles.cache.some(role => role.name === "Girl")) {
-              interaction.member.roles.remove("900149792930406400")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Gender Fluid")) {
-              interaction.member.roles.remove("900769520111734835")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Trans")) {
-              interaction.member.roles.remove("940126702389039164")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Agender")) {
-              interaction.member.roles.remove("940130071249829969")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Non-Binary")) {
-              interaction.member.roles.remove("940130130225950720")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Cisgender")) {
-              interaction.member.roles.remove("940130181014761513")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Other Gender")) {
-              interaction.member.roles.remove("940240745821007922")
-            }
-
-            interaction.member.roles.add("900149879089815604");
-          case ("Girl"):
-            if (interaction.member.roles.cache.some(role => role.name === "Boy")) {
-              interaction.member.roles.remove("900149879089815604")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Gender Fluid")) {
-              interaction.member.roles.remove("900769520111734835")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Trans")) {
-              interaction.member.roles.remove("940126702389039164")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Agender")) {
-              interaction.member.roles.remove("940130071249829969")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Non-Binary")) {
-              interaction.member.roles.remove("940130130225950720")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Cisgender")) {
-              interaction.member.roles.remove("940130181014761513")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Other Gender")) {
-              interaction.member.roles.remove("940240745821007922")
-            }
-
-            interaction.member.roles.add("900149792930406400");
-          case ("Gender Fluid"):
-            if (interaction.member.roles.cache.some(role => role.name === "Boy")) {
-              interaction.member.roles.remove("900149879089815604")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Girl")) {
-              interaction.member.roles.remove("900149792930406400")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Trans")) {
-              interaction.member.roles.remove("940126702389039164")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Agender")) {
-              interaction.member.roles.remove("940130071249829969")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Non-Binary")) {
-              interaction.member.roles.remove("940130130225950720")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Cisgender")) {
-              interaction.member.roles.remove("940130181014761513")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Other Gender")) {
-              interaction.member.roles.remove("940240745821007922")
-            }
-
-            interaction.member.roles.add("900769520111734835");
-          case ("Trans"):
-            if (interaction.member.roles.cache.some(role => role.name === "Boy")) {
-              interaction.member.roles.remove("900149879089815604")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Girl")) {
-              interaction.member.roles.remove("900149792930406400")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Gender Fluid")) {
-              interaction.member.roles.remove("900769520111734835")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Agender")) {
-              interaction.member.roles.remove("940130071249829969")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Non-Binary")) {
-              interaction.member.roles.remove("940130130225950720")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Cisgender")) {
-              interaction.member.roles.remove("940130181014761513")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Other Gender")) {
-              interaction.member.roles.remove("940240745821007922")
-            }
-
-            interaction.member.roles.add("940126702389039164");
-          case ("Agender"):
-            if (interaction.member.roles.cache.some(role => role.name === "Boy")) {
-              interaction.member.roles.remove("900149879089815604")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Girl")) {
-              interaction.member.roles.remove("900149792930406400")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Trans")) {
-              interaction.member.roles.remove("940126702389039164")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Gender Fluid")) {
-              interaction.member.roles.remove("900769520111734835")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Non-Binary")) {
-              interaction.member.roles.remove("940130130225950720")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Cisgender")) {
-              interaction.member.roles.remove("940130181014761513")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Other Gender")) {
-              interaction.member.roles.remove("940240745821007922")
-            }
-
-            interaction.member.roles.add("940130071249829969");
-          case ("Non-Binary"):
-            if (interaction.member.roles.cache.some(role => role.name === "Boy")) {
-              interaction.member.roles.remove("900149879089815604")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Girl")) {
-              interaction.member.roles.remove("900149792930406400")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Trans")) {
-              interaction.member.roles.remove("940126702389039164")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Agender")) {
-              interaction.member.roles.remove("940130071249829969")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Gender Fluid")) {
-              interaction.member.roles.remove("900769520111734835")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Cisgender")) {
-              interaction.member.roles.remove("940130181014761513")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Other Gender")) {
-              interaction.member.roles.remove("940240745821007922")
-            }
-
-            interaction.member.roles.add("940130130225950720");
-          case ("Cisgender"):
-            if (interaction.member.roles.cache.some(role => role.name === "Boy")) {
-              interaction.member.roles.remove("900149879089815604")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Girl")) {
-              interaction.member.roles.remove("900149792930406400")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Trans")) {
-              interaction.member.roles.remove("940126702389039164")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Agender")) {
-              interaction.member.roles.remove("940130071249829969")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Non-Binary")) {
-              interaction.member.roles.remove("940130130225950720")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Gender Fluid")) {
-              interaction.member.roles.remove("900769520111734835")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Other Gender")) {
-              interaction.member.roles.remove("940240745821007922")
-            }
-
-            interaction.member.roles.add("940130181014761513");
-          case ("Other Gender"):
-            if (interaction.member.roles.cache.some(role => role.name === "Boy")) {
-              interaction.member.roles.remove("900149879089815604")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Girl")) {
-              interaction.member.roles.remove("900149792930406400")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Trans")) {
-              interaction.member.roles.remove("940126702389039164")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Agender")) {
-              interaction.member.roles.remove("940130071249829969")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Non-Binary")) {
-              interaction.member.roles.remove("940130130225950720")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Cisgender")) {
-              interaction.member.roles.remove("940130181014761513")
-            } else if (interaction.member.roles.cache.some(role => role.name === "Gender Fluid")) {
-              interaction.member.roles.remove("900769520111734835")
-            }
-
-            interaction.member.roles.add("940240745821007922");
-        };
-
-        break;
-      case ("roleMenu3"):
-        await interaction.deferUpdate();
-
-        if (args == "They/Them") {
-          if (interaction.member.roles.cache.some(role => role.name === "He/Him")) {
-            interaction.member.roles.remove("940251047174238218")
-          } else if (interaction.member.roles.cache.some(role => role.name === "She/Her")) {
-            interaction.member.roles.remove("940250894203764786")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Other Pronouns")) {
-            interaction.member.roles.remove("940251221292363806")
-          }
-
-          interaction.member.roles.add("940251105118523452")
-        } else if (args == "He/Him") {
-          if (interaction.member.roles.cache.some(role => role.name === "They/Them")) {
-            interaction.member.roles.remove("940251105118523452")
-          } else if (interaction.member.roles.cache.some(role => role.name === "She/Her")) {
-            interaction.member.roles.remove("940250894203764786")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Other Pronouns")) {
-            interaction.member.roles.remove("940251221292363806")
-          }
-
-          interaction.member.roles.add("940251047174238218")
-        } else if (args == "She/Her") {
-          if (interaction.member.roles.cache.some(role => role.name === "He/Him")) {
-            interaction.member.roles.remove("940251047174238218")
-          } else if (interaction.member.roles.cache.some(role => role.name === "They/Them")) {
-            interaction.member.roles.remove("940251105118523452")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Other Pronouns")) {
-            interaction.member.roles.remove("940251221292363806")
-          }
-
-          interaction.member.roles.add("940250894203764786")
-        } else if (args == "Other Pronouns") {
-          if (interaction.member.roles.cache.some(role => role.name === "He/Him")) {
-            interaction.member.roles.remove("940251047174238218")
-          } else if (interaction.member.roles.cache.some(role => role.name === "She/Her")) {
-            interaction.member.roles.remove("940250894203764786")
-          } else if (interaction.member.roles.cache.some(role => role.name === "They/Them")) {
-            interaction.member.roles.remove("940251105118523452")
-          }
-
-          interaction.member.roles.add("940251221292363806")
-        }
-
-        break;
-      case ("roleMenu4"):
-        await interaction.deferUpdate();
-
-        if (args == "Single") {
-          if (interaction.member.roles.cache.some(role => role.name === "Taken")) {
-            interaction.member.roles.remove("940274020706844693")
-          }
-
-          return interaction.member.roles.add("940274055339192390")
-        } else if (args == "Taken") {
-          if (interaction.member.roles.cache.some(role => role.name === "Single")) {
-            interaction.member.roles.remove("940274055339192390")
-          }
-
-          return interaction.member.roles.add("940274020706844693")
-        } else if (args == "Looking") {
-          if (interaction.member.roles.cache.some(role => role.name === "Not Looking")) {
-            interaction.member.roles.remove("940273975295111218")
-          }
-
-          return interaction.member.roles.add("940273816066732083")
-        } else if (args == "Not Looking") {
-          if (interaction.member.roles.cache.some(role => role.name === "Looking")) {
-            interaction.member.roles.remove("940273816066732083")
-          }
-
-          return interaction.member.roles.add("940273975295111218")
-        }
-
-        break;
-      case ("roleMenu5"):
-        await interaction.deferUpdate();
-
-        if (args == "Straight") {
-          if (interaction.member.roles.cache.some(role => role.name === "Gay")) {
-            interaction.member.roles.remove("931040829961822218")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Lesbian")) {
-            interaction.member.roles.remove("993914756232654868")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Bisexual")) {
-            interaction.member.roles.remove("931040851973517332")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Pansexual")) {
-            interaction.member.roles.remove("931041941003575306")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Asexual")) {
-            interaction.member.roles.remove("931041656671711253")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Aromantic")) {
-            interaction.member.roles.remove("940127204002648094")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Other Orientation")) {
-            interaction.member.roles.remove("940128332740198410")
-          }
-
-          interaction.member.roles.add("931040779277860954")
-        } else if (args == "Gay") {
-          if (interaction.member.roles.cache.some(role => role.name === "Straight")) {
-            interaction.member.roles.remove("931040779277860954")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Lesbian")) {
-            interaction.member.roles.remove("993914756232654868")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Bisexual")) {
-            interaction.member.roles.remove("931040851973517332")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Pansexual")) {
-            interaction.member.roles.remove("931041941003575306")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Asexual")) {
-            interaction.member.roles.remove("931041656671711253")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Aromantic")) {
-            interaction.member.roles.remove("940127204002648094")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Other Orientation")) {
-            interaction.member.roles.remove("940128332740198410")
-          }
-
-          interaction.member.roles.add("931040829961822218")
-        } else if (args == "Lesbian") {
-          if (interaction.member.roles.cache.some(role => role.name === "Straight")) {
-            interaction.member.roles.remove("931040779277860954")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Gay")) {
-            interaction.member.roles.remove("931040829961822218")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Bisexual")) {
-            interaction.member.roles.remove("931040851973517332")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Pansexual")) {
-            interaction.member.roles.remove("931041941003575306")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Asexual")) {
-            interaction.member.roles.remove("931041656671711253")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Aromantic")) {
-            interaction.member.roles.remove("940127204002648094")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Other Orientation")) {
-            interaction.member.roles.remove("940128332740198410")
-          }
-
-          interaction.member.roles.add("993914756232654868")
-        } else if (args == "Bisexual") {
-          if (interaction.member.roles.cache.some(role => role.name === "Straight")) {
-            interaction.member.roles.remove("931040779277860954")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Gay")) {
-            interaction.member.roles.remove("931040829961822218")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Lesbian")) {
-            interaction.member.roles.remove("993914756232654868")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Pansexual")) {
-            interaction.member.roles.remove("931041941003575306")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Asexual")) {
-            interaction.member.roles.remove("931041656671711253")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Aromantic")) {
-            interaction.member.roles.remove("940127204002648094")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Other Orientation")) {
-            interaction.member.roles.remove("940128332740198410")
-          }
-
-          interaction.member.roles.add("931040851973517332")
-        } else if (args == "Pansexual") {
-          if (interaction.member.roles.cache.some(role => role.name === "Straight")) {
-            interaction.member.roles.remove("931040779277860954")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Gay")) {
-            interaction.member.roles.remove("931040829961822218")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Lesbian")) {
-            interaction.member.roles.remove("993914756232654868")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Bisexual")) {
-            interaction.member.roles.remove("931040851973517332")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Asexual")) {
-            interaction.member.roles.remove("931041656671711253")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Aromantic")) {
-            interaction.member.roles.remove("940127204002648094")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Other Orientation")) {
-            interaction.member.roles.remove("940128332740198410")
-          }
-
-          interaction.member.roles.add("931041941003575306")
-        } else if (args == "Asexual") {
-          if (interaction.member.roles.cache.some(role => role.name === "Straight")) {
-            interaction.member.roles.remove("931040779277860954")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Gay")) {
-            interaction.member.roles.remove("931040829961822218")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Lesbian")) {
-            interaction.member.roles.remove("993914756232654868")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Bisexual")) {
-            interaction.member.roles.remove("931040851973517332")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Pansexual")) {
-            interaction.member.roles.remove("931041941003575306")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Aromantic")) {
-            interaction.member.roles.remove("940127204002648094")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Other Orientation")) {
-            interaction.member.roles.remove("940128332740198410")
-          }
-
-          interaction.member.roles.add("931041656671711253")
-        } else if (args == "Aromantic") {
-          if (interaction.member.roles.cache.some(role => role.name === "Straight")) {
-            interaction.member.roles.remove("931040779277860954")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Gay")) {
-            interaction.member.roles.remove("931040829961822218")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Lesbian")) {
-            interaction.member.roles.remove("993914756232654868")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Bisexual")) {
-            interaction.member.roles.remove("931040851973517332")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Pansexual")) {
-            interaction.member.roles.remove("931041941003575306")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Asexual")) {
-            interaction.member.roles.remove("931041656671711253")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Other Orientation")) {
-            interaction.member.roles.remove("940128332740198410")
-          }
-
-          interaction.member.roles.add("940127204002648094")
-        } else if (args == "Polyamorous") {
-          interaction.member.roles.add("940128299173154826")
-        } else if (args == "Other Orientation") {
-          if (interaction.member.roles.cache.some(role => role.name === "Straight")) {
-            interaction.member.roles.remove("931040779277860954")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Gay")) {
-            interaction.member.roles.remove("931040829961822218")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Lesbian")) {
-            interaction.member.roles.remove("993914756232654868")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Bisexual")) {
-            interaction.member.roles.remove("931040851973517332")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Pansexual")) {
-            interaction.member.roles.remove("931041941003575306")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Asexual")) {
-            interaction.member.roles.remove("931041656671711253")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Aromantic")) {
-            interaction.member.roles.remove("940127204002648094")
-          }
-
-          interaction.member.roles.add("940128332740198410")
-        }
-
-        break;
-      case ("roleMenu6"):
-        await interaction.deferUpdate();
-
-        if (args == "Open DM") {
-          if (interaction.member.roles.cache.some(role => role.name === "Important DM Only")) {
-            interaction.member.roles.remove("940273628669411348")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Closed DM")) {
-            interaction.member.roles.remove("940273602983526481")
-          }
-
-          interaction.member.roles.add("940273578769801226")
-        } else if (args == "Important DM Only") {
-          if (interaction.member.roles.cache.some(role => role.name === "Open DM")) {
-            interaction.member.roles.remove("940273578769801226")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Closed DM")) {
-            interaction.member.roles.remove("940273602983526481")
-          }
-
-          interaction.member.roles.add("940273628669411348")
-        } else if (args == "Closed DM") {
-          if (interaction.member.roles.cache.some(role => role.name === "Open DM")) {
-            interaction.member.roles.remove("940273578769801226")
-          } else if (interaction.member.roles.cache.some(role => role.name === "Important DM Only")) {
-            interaction.member.roles.remove("940273628669411348")
-          }
-
-          interaction.member.roles.add("940273602983526481")
-        }
-
-        break;
-      case ("roleMenu7"):
-        await interaction.deferUpdate();
-
-        if (args == "Furry") {
-          if (interaction.member.roles.cache.some(role => role.name === "Not a Furry")) {
-            interaction.member.roles.remove("940244795811594270")
-          }
-
-          interaction.member.roles.add("923054477735522304")
-        } else if (args == "Not a Furry") {
-          if (interaction.member.roles.cache.some(role => role.name === "Furry")) {
-            interaction.member.roles.remove("923054477735522304")
-          }
-
-          interaction.member.roles.add("940244795811594270")
-        }
-
-        break;
-      case ("roleMenu8"):
-        await interaction.deferUpdate();
-
-        if (args == "VRChat Access") {
-          interaction.member.roles.add("922968520847945768")
-        } else if (args == "VRChat LFP") {
-          interaction.member.roles.add("984908404390776833")
-        } else if (args == "Minecraft Access") {
-          interaction.member.roles.add("979570914108801035")
-        }
-
-        break;
-      case ("roleMenu9"):
-        await interaction.deferUpdate();
-
-        if (args == "All") {
-          if (interaction.member.roles.cache.some(role => role.name === "All")) {
-            return interaction.member.roles.remove('940658136048603176')
-          } else {
-            return interaction.member.roles.add("940658136048603176")
-          }
-        } else if (args == "Announcement") {
-          if (interaction.member.roles.cache.some(role => role.name === "Announcement")) {
-            return interaction.member.roles.remove('940658199411949600')
-          } else {
-            return interaction.member.roles.add("940658199411949600")
-          }
-        } else if (args == "Giveaway") {
-          if (interaction.member.roles.cache.some(role => role.name === "Giveaway")) {
-            return interaction.member.roles.remove('940664575659999284')
-          } else {
-            return interaction.member.roles.add("940664575659999284")
-          }
-        } else if (args === "Partnership") {
-          if (interaction.member.roles.cache.some(role => role.name === "Partnership")) {
-            return interaction.member.roles.remove('943956163840577537')
-          } else {
-            return interaction.member.roles.add("943956163840577537")
-          }
-        } else if (args === "Bump") {
-          if (interaction.member.roles.cache.some(role => role.name === "Bump")) {
-            return interaction.member.roles.remove('940658171867959317')
-          } else {
-            return interaction.member.roles.add("940658171867959317")
-          }
-        } else if (args === "Events") {
-          if (interaction.member.roles.cache.some(role => role.name === "Events")) {
-            return interaction.member.roles.remove('950406476365705227')
-          } else {
-            return interaction.member.roles.add("950406476365705227")
-          }
-        } else if (args === "Dead Chat") {
-          if (interaction.member.roles.cache.some(role => role.name === "Dead Chat")) {
-            return interaction.member.roles.remove('945731050888392716')
-          } else {
-            return interaction.member.roles.add("945731050888392716")
-          }
-        } else if (args === "Nitro Drop") {
-          if (interaction.member.roles.cache.some(role => role.name === "Nitro Drop")) {
-            return interaction.member.roles.remove('956565030604771389')
-          } else {
-            return interaction.member.roles.add("956565030604771389")
-          }
-        }
-
-        break;
       case ("reasonDeny"):
         let VerificationLog = await Verification.findOne({ where: { MessageID: interaction.message.id } });
         const MessageToUpdate = VerificationLog.MessageID;
 
         if (interaction.guild.id === "815422069234860073") {
-
           const verificationEmbedDenied = new MessageEmbed()
-            .addField("**__How did you find our server?__**", VerificationLog.HowServerData)
-            .addField("**__Why are you joining us?__**", VerificationLog.JoiningData)
-            .addField("**__What do you think about the furry fandom?__**", VerificationLog.FurryFandomData)
+            .addFields(
+              { name: "**__How did you find our server?__**", value: VerificationLog.HowServerData },
+              { name: "**__Why are you joining us?__**", value: VerificationLog.JoiningData },
+              { name: "**__What do you think about the furry fandom?__**", value: VerificationLog.FurryFandomData },
+            )
             .setColor("FF0000")
             .setTimestamp()
 
@@ -1705,7 +1203,7 @@ bot.on('interactionCreate', async (interaction) => {
             case ("noDetails"):
               interaction.channel.messages.fetch(MessageToUpdate).then(async (UpdateMessage) => {
                 await interaction.update({
-                  content: "<@&852950515389169714> | Verification from <@" + VerificationLog.UserID + "> denied by <@" + interaction.user.id + ">",
+                  content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> denied by <@" + interaction.user.id + ">",
                   embeds: [verificationEmbedDenied],
                   components: [],
                 })
@@ -1713,11 +1211,11 @@ bot.on('interactionCreate', async (interaction) => {
 
               return bot.users.cache.get(VerificationLog.UserID).send({
                 content: "Your verification has been denied.\n\n*Reason: You did not put enough details.*",
-              });
+              }).catch(() => { return });
             case ("troll"):
               interaction.channel.messages.fetch(MessageToUpdate).then(async (UpdateMessage) => {
                 await interaction.update({
-                  content: "<@&852950515389169714> | Verification from <@" + VerificationLog.UserID + "> denied by <@" + interaction.user.id + ">",
+                  content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> denied by <@" + interaction.user.id + ">",
                   embeds: [verificationEmbedDenied],
                   components: [],
                 })
@@ -1725,55 +1223,644 @@ bot.on('interactionCreate', async (interaction) => {
 
               return bot.users.cache.get(VerificationLog.UserID).send({
                 content: "Your verification has been denied.\n\n*Reason: You've been flagged for trolling.*",
-              }).catch(() => {
-                return;
-              });
-          }
-
-        } else {
-          const verificationEmbedDenied = new MessageEmbed()
-            .addField("**__Age__**", VerificationLog.AgeData)
-            .addField("**__How did you find our server?__**", VerificationLog.HowServerData)
-            .addField("**__Why are you joining us?__**", VerificationLog.JoiningData)
-            .addField("**__What do you think about the furry fandom?__**", VerificationLog.FurryFandomData)
-            .addField("**__Do you have any sona? Tell us about it__**", VerificationLog.SonaData)
-            .setColor("FF0000")
-            .setTimestamp()
-
-          const args = interaction.values[0]
-          let verificationDeleteLog = await Verification.destroy({ where: { MessageID: interaction.message.id } });
-
-          switch (args) {
-            case ("noDetails"):
+              }).catch(() => { return });
+            case ("new"):
               interaction.channel.messages.fetch(MessageToUpdate).then(async (UpdateMessage) => {
                 await interaction.update({
-                  content: "<@&931038287114678334> | Verification from <@" + VerificationLog.UserID + "> denied by <@" + interaction.user.id + ">",
+                  content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> denied by <@" + interaction.user.id + ">",
                   embeds: [verificationEmbedDenied],
                   components: [],
                 })
               });
 
               return bot.users.cache.get(VerificationLog.UserID).send({
-                content: "Your verification has been denied.\n\n*Reason: You did not put enough details.*",
-              });
-            case ("troll"):
-              interaction.channel.messages.fetch(MessageToUpdate).then(async (UpdateMessage) => {
-                await interaction.update({
-                  content: "<@&931038287114678334> | Verification from <@" + VerificationLog.UserID + "> denied by <@" + interaction.user.id + ">",
-                  embeds: [verificationEmbedDenied],
-                  components: [],
-                })
-              });
-
-              return bot.users.cache.get(VerificationLog.UserID).send({
-                content: "Your verification has been denied.\n\n*Reason: You've been flagged for trolling.*",
-              }).catch(() => {
-                return;
-              });
+                content: "Your verification has been denied.\n\n*Reason: Your account is too new to be accepted.*",
+              }).catch(() => { return });
           }
+
+        }
+        const verificationEmbedDenied = new MessageEmbed()
+          .addFields(
+            { name: "**__Age__**", value: VerificationLog.AgeData },
+            { name: "**__How did you find our server?__**", value: VerificationLog.HowServerData },
+            { name: "**__Why are you joining us?__**", value: VerificationLog.JoiningData },
+            { name: "**__What do you think about the furry fandom?__**", value: VerificationLog.FurryFandomData },
+            { name: "**__Do you have any sona? Tell us about it__**", value: VerificationLog.SonaData },
+          )
+          .setColor("FF0000")
+          .setTimestamp()
+
+        let verificationDeleteLog = await Verification.destroy({ where: { MessageID: interaction.message.id } });
+
+        switch (args) {
+          case ("noDetails"):
+            interaction.channel.messages.fetch(MessageToUpdate).then(async (UpdateMessage) => {
+              await interaction.update({
+                content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> denied by <@" + interaction.user.id + ">",
+                embeds: [verificationEmbedDenied],
+                components: [],
+              })
+            });
+
+            return bot.users.cache.get(VerificationLog.UserID).send({
+              content: "Your verification has been denied.\n\n*Reason: You did not put enough details.*",
+            }).catch(() => { return });
+          case ("troll"):
+            interaction.channel.messages.fetch(MessageToUpdate).then(async (UpdateMessage) => {
+              await interaction.update({
+                content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> denied by <@" + interaction.user.id + ">",
+                embeds: [verificationEmbedDenied],
+                components: [],
+              })
+            });
+
+            return bot.users.cache.get(VerificationLog.UserID).send({
+              content: "Your verification has been denied.\n\n*Reason: You've been flagged for trolling.*",
+            }).catch(() => { return });
+          case ("new"):
+            interaction.channel.messages.fetch(MessageToUpdate).then(async (UpdateMessage) => {
+              await interaction.update({
+                content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> denied by <@" + interaction.user.id + ">",
+                embeds: [verificationEmbedDenied],
+                components: [],
+              })
+            });
+
+            return bot.users.cache.get(VerificationLog.UserID).send({
+              content: "Your verification has been denied.\n\n*Reason: Your account is too new to be accepted.*",
+            }).catch(() => { return });
         };
+    }
+  }
+
+});
+
+const Major = "900201076916105306";
+const Minor = "900200948557824050";
+const TheyThem = "940251105118523452";
+const HeHim = "940251047174238218";
+const SheHer = "940250894203764786";
+const AnyPronouns = "1009521963825369098";
+const OtherPronouns = "940251221292363806";
+const Boy = "900149879089815604";
+const Girl = "900149792930406400";
+const GenderFluid = "900769520111734835";
+const TransBoy = "940126702389039164";
+const TransGirl = "1009511819737563197";
+const Agender = "940130071249829969";
+const NonBinary = "940130130225950720";
+const OtherGender = "940240745821007922";
+const Straight = "931040779277860954";
+const Gay = "931040829961822218";
+const Lesbian = "993914756232654868";
+const Bisexual = "931040851973517332";
+const Pansexual = "931041941003575306";
+const Asexual = "931041656671711253";
+const Aromantic = "940127204002648094";
+const Polyamorous = "940128299173154826";
+const OtherOrientation = "940128332740198410";
+const Single = "940274055339192390";
+const Taken = "940274020706844693";
+const Looking = "940273816066732083";
+const NotLooking = "940273975295111218";
+const OpenDM = "940273578769801226";
+const ImportantDM = "940273628669411348";
+const CloseDM = "940273602983526481";
+const Furry = "923054477735522304";
+const NotAFurry = "940244795811594270";
+const VRAccess = "922968520847945768";
+const VRLFP = "984908404390776833";
+const AllNotification = "940658136048603176";
+const Announcement = "940658199411949600";
+const Giveaway = "940664575659999284";
+const Partnership = "943956163840577537";
+const Bump = "940658171867959317";
+const Events = "950406476365705227";
+const DeadChat = "945731050888392716";
+const NitroDrop = "956565030604771389";
+
+const One = "1️⃣";
+const Two = "2️⃣";
+const Three = "3️⃣";
+const Four = "4️⃣";
+const Five = "5️⃣";
+const Six = "6️⃣";
+const Seven = "7️⃣";
+const Eight = "8️⃣";
+const Nine = "9️⃣";
+
+const Message_1 = "1010245466400755732";
+const Message_2 = "1010245467436761198";
+const Message_3 = "1010245468309172254";
+const Message_4 = "1010245469340979220";
+const Message_5 = "1010245470389534801";
+const Message_6 = "1010245490073415794";
+const Message_7 = "1010245491491078208";
+const Message_8 = "1010245492443205762";
+const Message_9 = "1010245493479198740";
+
+bot.on("messageReactionAdd", async (reaction, user) => {
+  if (user.bot) return;
+
+  if (reaction.partial) {
+    try {
+      await reaction.fetch();
+    } catch (error) {
+      console.error('Something went wrong when fetching the message:', error);
+      return;
+    }
+  }
+
+  const UserCheck = reaction.message.guild.members.cache.get(user.id);
+
+  if (reaction.message.guild.id === "821241527941726248") {
+    switch (reaction.message.id) {
+      case (Message_1):
+        switch (reaction.emoji.name) {
+          case (One):
+            reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Two).users.remove(user.id)
+
+            return UserCheck.roles.add(Minor);
+          case (Two):
+            reaction.message.reactions.cache.find(reaction => reaction.emoji.name === One).users.remove(user.id)
+
+            return UserCheck.roles.add(Major);
+        }
+
+        break;
+      case (Message_2):
+        switch (reaction.emoji.name) {
+          case (One):
+            reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Eight).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Two).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Three).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Four).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Five).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Six).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Seven).users.remove(user.id)
+
+            return UserCheck.roles.add(Boy);
+          case (Two):
+            reaction.message.reactions.cache.find(reaction => reaction.emoji.name === One).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Eight).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Three).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Four).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Five).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Six).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Seven).users.remove(user.id)
+
+            return UserCheck.roles.add(Girl);
+          case (Three):
+            reaction.message.reactions.cache.find(reaction => reaction.emoji.name === One).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Two).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Eight).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Four).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Five).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Six).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Seven).users.remove(user.id)
+
+            return UserCheck.roles.add(GenderFluid);
+          case (Four):
+            reaction.message.reactions.cache.find(reaction => reaction.emoji.name === One).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Two).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Three).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Eight).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Five).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Six).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Seven).users.remove(user.id)
+
+            return UserCheck.roles.add(TransBoy);
+          case (Five):
+            reaction.message.reactions.cache.find(reaction => reaction.emoji.name === One).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Two).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Three).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Four).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Eight).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Six).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Seven).users.remove(user.id)
+
+            return UserCheck.roles.add(TransGirl);
+          case (Six):
+            reaction.message.reactions.cache.find(reaction => reaction.emoji.name === One).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Two).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Three).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Four).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Five).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Eight).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Seven).users.remove(user.id)
+
+            return UserCheck.roles.add(Agender);
+          case (Seven):
+            reaction.message.reactions.cache.find(reaction => reaction.emoji.name === One).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Two).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Three).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Four).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Five).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Six).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Eight).users.remove(user.id)
+
+            return UserCheck.roles.add(NonBinary);
+          case (Eight):
+            reaction.message.reactions.cache.find(reaction => reaction.emoji.name === One).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Two).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Three).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Four).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Five).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Six).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Seven).users.remove(user.id)
+
+            return UserCheck.roles.add(OtherGender);
+        };
+
+        break;
+      case (Message_3):
+        switch (reaction.emoji.name) {
+          case (One):
+            reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Two).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Three).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Four).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Five).users.remove(user.id)
+
+            return UserCheck.roles.add(TheyThem)
+          case (Two):
+            reaction.message.reactions.cache.find(reaction => reaction.emoji.name === One).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Three).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Four).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Five).users.remove(user.id)
+
+            return UserCheck.roles.add(HeHim)
+          case (Three):
+            reaction.message.reactions.cache.find(reaction => reaction.emoji.name === One).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Two).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Four).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Five).users.remove(user.id)
+
+            return UserCheck.roles.add(SheHer)
+          case (Four):
+            reaction.message.reactions.cache.find(reaction => reaction.emoji.name === One).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Two).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Three).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Five).users.remove(user.id)
+
+            return UserCheck.roles.add(AnyPronouns)
+          case (Five):
+            reaction.message.reactions.cache.find(reaction => reaction.emoji.name === One).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Two).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Three).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Four).users.remove(user.id)
+
+            return UserCheck.roles.add(OtherPronouns)
+        }
+
+        break;
+      case (Message_4):
+        switch (reaction.emoji.name) {
+          case (One):
+            reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Two).users.remove(user.id)
+
+            return UserCheck.roles.add(Single)
+          case (Two):
+            reaction.message.reactions.cache.find(reaction => reaction.emoji.name === One).users.remove(user.id)
+
+            return UserCheck.roles.add(Taken)
+          case (Three):
+            reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Four).users.remove(user.id)
+
+            return UserCheck.roles.add(Looking)
+          case (Four):
+            reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Three).users.remove(user.id)
+
+            return UserCheck.roles.add(NotLooking)
+        }
+
+        break;
+      case (Message_5):
+        switch (reaction.emoji.name) {
+          case (One):
+            reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Eight).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Two).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Three).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Four).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Five).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Six).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Seven).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Nine).users.remove(user.id)
+
+            return UserCheck.roles.add(Straight);
+          case (Two):
+            reaction.message.reactions.cache.find(reaction => reaction.emoji.name === One).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Eight).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Three).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Four).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Five).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Six).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Seven).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Nine).users.remove(user.id)
+
+            return UserCheck.roles.add(Gay);
+          case (Three):
+            reaction.message.reactions.cache.find(reaction => reaction.emoji.name === One).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Two).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Eight).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Four).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Five).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Six).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Seven).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Nine).users.remove(user.id)
+
+            return UserCheck.roles.add(Lesbian);
+          case (Four):
+            reaction.message.reactions.cache.find(reaction => reaction.emoji.name === One).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Two).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Three).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Eight).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Five).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Six).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Seven).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Nine).users.remove(user.id)
+
+            return UserCheck.roles.add(Bisexual);
+          case (Five):
+            reaction.message.reactions.cache.find(reaction => reaction.emoji.name === One).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Two).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Three).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Four).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Eight).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Six).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Seven).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Nine).users.remove(user.id)
+
+            return UserCheck.roles.add(Pansexual);
+          case (Six):
+            reaction.message.reactions.cache.find(reaction => reaction.emoji.name === One).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Two).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Three).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Four).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Five).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Eight).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Seven).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Nine).users.remove(user.id)
+
+            return UserCheck.roles.add(Asexual);
+          case (Seven):
+            reaction.message.reactions.cache.find(reaction => reaction.emoji.name === One).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Two).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Three).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Four).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Five).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Six).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Eight).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Nine).users.remove(user.id)
+
+            return UserCheck.roles.add(Aromantic);
+          case (Eight):
+            reaction.message.reactions.cache.find(reaction => reaction.emoji.name === One).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Two).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Three).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Four).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Five).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Six).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Seven).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Nine).users.remove(user.id)
+
+            return UserCheck.roles.add(Polyamorous);
+          case (Nine):
+            reaction.message.reactions.cache.find(reaction => reaction.emoji.name === One).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Two).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Three).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Four).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Five).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Six).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Seven).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Eight).users.remove(user.id)
+
+            return UserCheck.roles.add(OtherOrientation);
+        };
+
+
+        break;
+      case (Message_6):
+        switch (reaction.emoji.name) {
+          case (One):
+            reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Two).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Three).users.remove(user.id)
+
+            return UserCheck.roles.add(OpenDM);
+          case (Two):
+            reaction.message.reactions.cache.find(reaction => reaction.emoji.name === One).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Three).users.remove(user.id)
+
+            return UserCheck.roles.add(ImportantDM);
+          case (Three):
+            reaction.message.reactions.cache.find(reaction => reaction.emoji.name === One).users.remove(user.id) &
+              reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Two).users.remove(user.id)
+
+            return UserCheck.roles.add(CloseDM);
+        };
+
+        break;
+      case (Message_7):
+        switch (reaction.emoji.name) {
+          case (One):
+            reaction.message.reactions.cache.find(reaction => reaction.emoji.name === Two).users.remove(user.id)
+
+            return UserCheck.roles.add(Furry);
+          case (Two):
+            reaction.message.reactions.cache.find(reaction => reaction.emoji.name === One).users.remove(user.id)
+
+            return UserCheck.roles.add(NotAFurry);
+        };
+
+        break;
+      case (Message_8):
+        switch (reaction.emoji.name) {
+          case (One):
+            return UserCheck.roles.add(VRAccess);
+          case (Two):
+            return UserCheck.roles.add(VRLFP);
+        };
+
+        break;
+      case (Message_9):
+        switch (reaction.emoji.name) {
+          case (One):
+            return UserCheck.roles.add(AllNotification);
+          case (Two):
+            return UserCheck.roles.add(Announcement);
+          case (Three):
+            return UserCheck.roles.add(Giveaway);
+          case (Four):
+            return UserCheck.roles.add(Partnership);
+          case (Five):
+            return UserCheck.roles.add(Bump);
+          case (Six):
+            return UserCheck.roles.add(Events);
+          case (Seven):
+            return UserCheck.roles.add(DeadChat);
+          case (Eight):
+            return UserCheck.roles.add(NitroDrop);
+        };
+        break;
+      default:
+
+        break;
     }
   }
 });
 
-bot.login(token);
+bot.on("messageReactionRemove", async (reaction, user) => {
+  if (user.bot) return;
+
+  if (reaction.partial) {
+    try {
+      await reaction.fetch();
+    } catch (error) {
+      console.error('Something went wrong when fetching the message:', error);
+      return;
+    }
+  }
+
+  const UserCheck = reaction.message.guild.members.cache.get(user.id);
+
+  if (reaction.message.guild.id === "821241527941726248") {
+    switch (reaction.message.id) {
+      case (Message_1):
+        switch (reaction.emoji.name) {
+          case (One):
+            return UserCheck.roles.remove(Minor);
+          case (Two):
+            return UserCheck.roles.remove(Major);
+        }
+
+        break;
+      case (Message_2):
+        switch (reaction.emoji.name) {
+          case (One):
+            return UserCheck.roles.remove(Boy);
+          case (Two):
+            return UserCheck.roles.remove(Girl);
+          case (Three):
+            return UserCheck.roles.remove(GenderFluid);
+          case (Four):
+            return UserCheck.roles.remove(TransBoy);
+          case (Five):
+            return UserCheck.roles.remove(TransGirl);
+          case (Six):
+            return UserCheck.roles.remove(Agender);
+          case (Seven):
+            return UserCheck.roles.remove(NonBinary);
+          case (Eight):
+            return UserCheck.roles.remove(OtherGender);
+        };
+
+        break;
+      case (Message_3):
+        switch (reaction.emoji.name) {
+          case (One):
+            return UserCheck.roles.remove(TheyThem)
+          case (Two):
+            return UserCheck.roles.remove(HeHim)
+          case (Three):
+            return UserCheck.roles.remove(SheHer)
+          case (Four):
+            return UserCheck.roles.remove(AnyPronouns)
+          case (Five):
+            return UserCheck.roles.remove(OtherPronouns)
+        }
+
+        break;
+      case (Message_4):
+        switch (reaction.emoji.name) {
+          case (One):
+            return UserCheck.roles.remove(Single)
+          case (Two):
+            return UserCheck.roles.remove(Taken)
+          case (Three):
+            return UserCheck.roles.remove(Looking)
+          case (Four):
+            return UserCheck.roles.remove(NotLooking)
+        }
+
+        break;
+      case (Message_5):
+        switch (reaction.emoji.name) {
+          case (One):
+            return UserCheck.roles.remove(Straight);
+          case (Two):
+            return UserCheck.roles.remove(Gay);
+          case (Three):
+            return UserCheck.roles.remove(Lesbian);
+          case (Four):
+            return UserCheck.roles.remove(Bisexual);
+          case (Five):
+            return UserCheck.roles.remove(Pansexual);
+          case (Six):
+            return UserCheck.roles.remove(Asexual);
+          case (Seven):
+            return UserCheck.roles.remove(Aromantic);
+          case (Eight):
+            return UserCheck.roles.remove(Polyamorous);
+          case (Nine):
+            return UserCheck.roles.remove(OtherOrientation);
+        };
+
+
+        break;
+      case (Message_6):
+        switch (reaction.emoji.name) {
+          case (One):
+            return UserCheck.roles.remove(OpenDM);
+          case (Two):
+            return UserCheck.roles.remove(ImportantDM);
+          case (Three):
+            return UserCheck.roles.remove(CloseDM);
+        };
+
+        break;
+      case (Message_7):
+        switch (reaction.emoji.name) {
+          case (One):
+            return UserCheck.roles.remove(Furry);
+          case (Two):
+            return UserCheck.roles.remove(NotAFurry);
+        };
+
+        break;
+      case (Message_8):
+        switch (reaction.emoji.name) {
+          case (One):
+            return UserCheck.roles.remove(VRAccess);
+          case (Two):
+            return UserCheck.roles.remove(VRLFP);
+        };
+
+        break;
+      case (Message_9):
+        switch (reaction.emoji.name) {
+          case (One):
+            return UserCheck.roles.remove(AllNotification);
+          case (Two):
+            return UserCheck.roles.remove(Announcement);
+          case (Three):
+            return UserCheck.roles.remove(Giveaway);
+          case (Four):
+            return UserCheck.roles.remove(Partnership);
+          case (Five):
+            return UserCheck.roles.remove(Bump);
+          case (Six):
+            return UserCheck.roles.remove(Events);
+          case (Seven):
+            return UserCheck.roles.remove(DeadChat);
+          case (Eight):
+            return UserCheck.roles.remove(NitroDrop);
+        };
+        break;
+      default:
+
+        break;
+    }
+  }
+});
+
+bot.login(Config.token);
+Login("cookie_a", "cookie_b");

@@ -37,8 +37,8 @@ module.exports = {
                 let user = interaction.options.getUser("user")
                 let member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(err => { })
 
-                switch (member.id) {
-                    case (!member):
+                switch (user.id) {
+                    case (!user):
                         return interaction.reply({
                             content: "I can't find this user!",
                             ephemeral: true
@@ -126,9 +126,9 @@ module.exports = {
                                             .setDescription("You got promoted to ``Manager``, here's all the command you can do!")
                                             .addFields(
                                                 { name: "Unmute", value: "You can now unmute a user with ``!unmute <@user> <reason>``.", inline: true },
+                                                { name: "Unban", value: "You can now unban a user with ``/unban``.", inline: true },
+                                                { name: "Promote", value: "You can now promote a user with ``" + config.prefix + "promote <@user>``.", inline: true },
                                             )
-                                            .addField("Unban", "You can now unban a user with ``!unban <userid> <reason>``.", true)
-                                            .addField("Promote", "You can now promote a user with ``" + config.prefix + "promote <@user>``.", true)
                                             .setColor("2f3136")
 
                                         return member.send({ embeds: [promoteManager] })
@@ -175,10 +175,12 @@ module.exports = {
                                         const promoteModerator = new MessageEmbed()
                                             .setTitle(":tada: Congratulations :tada:")
                                             .setDescription("You got promoted to ``Moderator``, here's all the command you can do!")
-                                            .addField("Ban", "You know have the power to ban people with ``" + config.prefix + "ban <@user> <time (if needed)> <reason>``.", true)
-                                            .addField("Kick", "You know have the power to kick people with ``" + config.prefix + "kick <@user> <reason>``.", true)
-                                            .addField("Manage Threads", "You can now delete/lock/archive threads when needed.", true)
-                                            .addField("Manage Voice Channel", "You can now mute, deafen, move and disconnect people from a VC.", true)
+                                            .addFields(
+                                                { name: "Ban", value: "You know have the power to ban people with ``" + config.prefix + "ban``.", inline: true },
+                                                { name: "Kick", value: "You know have the power to kick people with ``" + config.prefix + "kick``.", inline: true },
+                                                { name: "Manage Threads", value: "You can now delete/lock/archive threads when needed.", inline: true },
+                                                { name: "Manage Voice Channel", value: "You can now mute, deafen, move and disconnect people from a VC.", inline: true },
+                                            )
                                             .setColor("2f3136")
 
                                         return member.send({ embeds: [promoteModerator] })
@@ -204,9 +206,11 @@ module.exports = {
                                         const promoteHelper = new MessageEmbed()
                                             .setTitle(":tada: Congratulations :tada:")
                                             .setDescription("You got promoted to ``Helper``, here's all the command you can do!")
-                                            .addField("Mute", "You know have the power to mute people in chat with ``!mute <@user> <time> <reason>``.", true)
-                                            .addField("Warn", "You know have the power to warn people with ``!warn <@user> <reason>``.", true)
-                                            .addField("Lockdown", "You know have the power to lock certain channel with ``" + config.prefix + "lockdown``, and unlock with ``" + config.prefix + "unlockdown``", true)
+                                            .addFields(
+                                                { name: "Mute", value: "You know have the power to mute people in chat with ``!mute <@user> <time> <reason>``.", inline: true },
+                                                { name: "Warn", value: "You know have the power to warn people with ``" + config.prefix + "warn``.", inline: true },
+                                                { name: "Lockdown", value: "You know have the power to lock certain channel with ``" + config.prefix + "lockdown``, and unlock with ``" + config.prefix + "unlockdown``", inline: true },
+                                            )
                                             .setColor("2f3136")
 
                                         return member.send({ embeds: [promoteHelper] })
@@ -257,8 +261,10 @@ module.exports = {
                                         const promoteGateKeeper = new MessageEmbed()
                                             .setTitle(":tada: Congratulations :tada:")
                                             .setDescription("You got promoted to ``Gate Keeper``, here's all the command you can do!")
-                                            .addField("Verification", "You can know verify people with ``" + config.prefix + "verify <@user> <newUsername>``. **Replaced with <#993350217535602688>!**.", true)
-                                            .addField("Verify Artist", "You can now add/remove artist from their role. It's part of your job to verify artist.", true)
+                                            .addFields(
+                                                { name: "Verification", value: "You can know verify people with ``" + config.prefix + "verify <@user> <newUsername>``. **Replaced with <#993350217535602688>!**.", inline: true },
+                                                { name: "Verify Artist", value: "You can now add/remove artist from their role. It's part of your job to verify artist.", inline: true }
+                                            )
                                             .setColor("2f3136")
 
                                         return member.send({ embeds: [promoteGateKeeper] })

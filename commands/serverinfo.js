@@ -18,7 +18,7 @@ module.exports = {
 
     let roleCount = interaction.guild.roles.cache.size
 
-    let rolemap = [...interaction.guild.roles.cache.values()]
+    /*let rolemap = [...interaction.guild.roles.cache.values()]
 
       .filter(role => role.id !== interaction.guild.id && role != role.bot)
 
@@ -28,29 +28,23 @@ module.exports = {
 
       .map(r => r)
 
-      .join("\n");
+      .join("\n");*/
 
-    if (interaction.guild.roles.cache.size > 44) rolemap += "...";
+    // if (interaction.guild.roles.cache.size > 44) rolemap += "...";
 
-    if (!rolemap) rolemap = "No role";
+    // if (!rolemap) rolemap = "No role";
 
     const serverinfo = new MessageEmbed()
-      .addField("__**Name**__", "``" + interaction.guild.name + "``")
-      .addField("__**ID**__", "``" + interaction.guild.id + "``")
-      .addField("__**Owner**__", "<@" + interaction.guild.ownerId + "> ``(" + interaction.guild.ownerId + ")``")
-      .addField(
-        "__**Created the**__",
-        "``" + interaction.channel.guild.createdAt
-          .toUTCString()
-          .substr(0, 16) + " / " + (checkDays(interaction.channel.guild.createdAt)) + "``"
+      .addFields(
+        { name: "__**Name**__", value: "``" + interaction.guild.name + "``", inline: true },
+        { name: "__**ID**__", value: "``" + interaction.guild.id + "``", inline: true },
+        { name: "__**Owner**__", value: "<@" + interaction.guild.ownerId + "> ``(" + interaction.guild.ownerId + ")``", inline: true },
+        { name: "__**Created the**__", value: "``" + interaction.channel.guild.createdAt.toUTCString().substr(0, 16) + " / " + (checkDays(interaction.channel.guild.createdAt)) + "``", inline: true },
+        { name: "__**Member**__", value: "``" + interaction.guild.memberCount + "``", inline: true },
+        { name: `__**Roles**__`, value: "``" + roleCount + "``", inline: true },
       )
-      .addField(
-        "__**Member**__",
-        "``" + interaction.guild.memberCount + "``"
-      )
-      .addField(`__**Roles [${roleCount}]**__`, ">>> " + rolemap)
       .setThumbnail(interaction.guild.iconURL())
-      .setColor("00ff00")
+      .setColor("2f3136")
       .setTimestamp()
 
     return interaction.reply({

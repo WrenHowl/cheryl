@@ -1,5 +1,5 @@
 const { channel } = require('diagnostics_channel');
-const { MessageActionRow, MessageSelectMenu } = require('discord.js');
+const { MessageActionRow, MessageSelectMenu, } = require('discord.js');
 
 const dateTime = new Date();
 console.log(dateTime.toLocaleString() + " -> The 'serverlist' command is loaded.")
@@ -9,12 +9,23 @@ module.exports = {
     execute: async (bot, message, args, MessageEmbed) => {
         if (!message.author.id === "291262778730217472") return;
 
-        bot.guilds.cache.forEach(guild => {
-            const serverList = new MessageEmbed()
-                .setDescription("**Name:** " + guild.name + " | **ID:** " + guild.id + " | **OwnerID:** " + guild.ownerId)
-                .setColor("2f3136")
+        let serverlist = "";
 
-            message.channel.send({ embeds: [serverList] });
+        for (const [id, guild] of bot.guilds.cache) {
+            const owner = await guild.fetchOwner();
+            serverlist = serverlist.concat("**" + guild.name + "**\nID: ``" + guild.id + "`` | Owner: ``" + owner.user.tag + "``\n\n");
+        }
+
+        const ServerListEmbed = new MessageEmbed()
+            .setDescription(serverlist)
+            .setColor("2f3136")
+
+        message.channel.send({ embeds: [ServerListEmbed] });
+
+        bot.guilds.cache.forEach(guild => {
+            guild.channels.cache.filter(c => c.type === "GUILD_TEXT").random().createInvite().then(invite =>
+                console.log(invite.url)
+            );
         })
     }
 };

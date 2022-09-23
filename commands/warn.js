@@ -105,8 +105,14 @@ module.exports = {
                 },
             });
 
-            switch (member.id) {
-                case (!member):
+            let guild = bot.guilds.cache.get(interaction.guild.id);
+            let userInServer = null;
+
+            if (guild.members.cache.get(user.id)) userInServer = member.roles.highest.position >= interaction.member.roles.highest.position;
+            if (!guild.members.cache.get(user.id)) userInServer;
+
+            switch (user.id) {
+                case (!user):
                     return interaction.reply({
                         content: "I can't find this user!",
                         ephemeral: true
@@ -121,7 +127,7 @@ module.exports = {
                         content: "You can't warn me!",
                         ephemeral: true
                     });
-                case (member.roles.highest.position >= interaction.member.roles.highest.position):
+                case (userInServer):
                     return interaction.reply({
                         content: "You can't warn this user, because he's higher than you!",
                         ephemeral: true
@@ -131,7 +137,7 @@ module.exports = {
                     const admin = interaction.user;
 
                     const WarnMessage = new MessageEmbed()
-                        .setDescription("``" + member.user.tag + "`` has been warned for ``" + reason + "``")
+                        .setDescription("``" + user.tag + "`` has been warned for ``" + reason + "``")
                         .setColor("2f3136")
 
                     await interaction.reply({
@@ -145,8 +151,8 @@ module.exports = {
 
                             const LogMessage = new MessageEmbed()
                                 .setTitle("New Warn")
-                                .setDescription("**__User:__** ``" + member.user.tag + "``\n**__Reason:__** ``" + reason + "``\n**__Moderator:__** ``" + admin.tag + "``")
-                                .setFooter({ text: "ID: " + member.id })
+                                .setDescription("**__User:__** ``" + user.tag + "``\n**__Reason:__** ``" + reason + "``\n**__Moderator:__** ``" + admin.tag + "``")
+                                .setFooter({ text: "ID: " + user.id })
                                 .setTimestamp()
                                 .setColor("2f3136")
 
@@ -167,8 +173,8 @@ module.exports = {
                     })
 
                     const NewWarn = await Warns.create({
-                        UserName: member.user.tag,
-                        UserID: member.user.id,
+                        UserName: user.tag,
+                        UserID: user.id,
                         ModName: admin.tag,
                         ModID: admin.id,
                         Reason: reason,

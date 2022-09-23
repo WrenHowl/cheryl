@@ -1,4 +1,4 @@
-const { MessageEmbed } = require('discord.js');
+const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
 const dateTime = new Date();
@@ -10,24 +10,61 @@ module.exports = {
         .setDescription('Change your server settings.')
         .addSubcommand(subcommand => subcommand
             .setName("report")
-            .setDescription("Change logging of the report system")
-            .addChannelOption(option => option.setName("channel").setDescription("Channel to receive the report").setRequired(true))
-            .addRoleOption(option => option.setName("role").setDescription("Role to ping").setRequired(false)))
+            .setDescription("Change the settings of the report system")
+            .addChannelOption(option => option
+                .setName("channel")
+                .setDescription("Channel to receive the report")
+                .setRequired(true))
+            .addRoleOption(option => option
+                .setName("role")
+                .setDescription("Role to ping")
+                .setRequired(false)))
+        .addSubcommand(subcommand => subcommand
+            .setName("welcome")
+            .setDescription("Change the settings of the welcome system")
+            .addChannelOption(option => option
+                .setName("channel")
+                .setDescription("Channel to send the welcome message")
+                .setRequired(true)))
+        .addSubcommand(subcommand => subcommand
+            .setName("ticket")
+            .setDescription("Change the settings of the ticket system")
+            .addChannelOption(option => option
+                .setName("channel")
+                .setDescription("Channel to send the ticket message")
+                .setRequired(true))
+            .addRoleOption(option => option
+                .setName("staff")
+                .setDescription("Role that can manage tickets")
+                .setRequired(true))
+            .addStringOption(option => option
+                .setName("description")
+                .setDescription("Add a description to the message")
+                .setRequired(false)))
         .addSubcommandGroup(group => group
             .setName("logging")
             .setDescription("Change the settings of the logging system")
             .addSubcommand(subcommand => subcommand
                 .setName("ban")
                 .setDescription("Change logging of the ban system")
-                .addChannelOption(option => option.setName("channel").setDescription("Channel to receive the log").setRequired(true)))
+                .addChannelOption(option => option
+                    .setName("channel")
+                    .setDescription("Channel to receive the log")
+                    .setRequired(true)))
             .addSubcommand(subcommand => subcommand
                 .setName("kick")
                 .setDescription("Change logging of the kick system")
-                .addChannelOption(option => option.setName("channel").setDescription("Channel to receive the log").setRequired(true)))
+                .addChannelOption(option => option
+                    .setName("channel")
+                    .setDescription("Channel to receive the log")
+                    .setRequired(true)))
             .addSubcommand(subcommand => subcommand
                 .setName("warn")
                 .setDescription("Change logging of the warn system")
-                .addChannelOption(option => option.setName("channel").setDescription("Channel to receive the log").setRequired(true)))
+                .addChannelOption(option => option
+                    .setName("channel")
+                    .setDescription("Channel to receive the log")
+                    .setRequired(true)))
             .addSubcommand(subcommand => subcommand
                 .setName("blacklist")
                 .setDescription("Change logging of the blacklist system")
@@ -39,7 +76,10 @@ module.exports = {
                         { name: "Enable", value: "true" },
                         { name: "Disable", value: "false" },
                     ))
-                .addChannelOption(option => option.setName("channel").setDescription("Channel to receive alert").setRequired(true)))
+                .addChannelOption(option => option
+                    .setName("channel")
+                    .setDescription("Channel to receive alert")
+                    .setRequired(true)))
         )
         .addSubcommandGroup(group => group
             .setName("verification")
@@ -71,6 +111,7 @@ module.exports = {
             const removeRoleOptions = interaction.options.getRole("remove");
             const staffRoleOptions = interaction.options.getRole("staff");
             let booleanBlacklist = interaction.options.getString("set");
+            const descriptionOptions = interaction.options.getString("description");
 
             const Logging = sequelize.define("Logging", {
                 GuildID: {
@@ -90,6 +131,10 @@ module.exports = {
                     unique: false,
                 },
                 ChannelIDEnterServer: {
+                    type: Sequelize.STRING,
+                    unique: false,
+                },
+                ChannelIDWelcome: {
                     type: Sequelize.STRING,
                     unique: false,
                 },
@@ -133,6 +178,10 @@ module.exports = {
                     type: Sequelize.STRING,
                     unique: false,
                 },
+                TicketRoleID: {
+                    type: Sequelize.STRING,
+                    unique: false,
+                }
             });
 
             const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
@@ -328,6 +377,85 @@ module.exports = {
                                 });
                             };
                         };
+                    case ("welcome"):
+                        if (channelOptions) {
+                            if (!LoggingData) {
+                                const ReportChannelCreateData = await Logging.create({
+                                    GuildID: interaction.guild.id,
+                                    ChannelIDWelcome: channelOptions.id,
+                                })
+
+                                const embed = new MessageEmbed()
+                                    .setDescription("Settings Created")
+                                    .addFields(
+                                        { name: "**Welcome Channel**", value: "<#" + channelOptions.id + ">", inline: true },
+                                    )
+
+                                return interaction.reply({
+                                    embeds: [embed],
+                                    ephemeral: true,
+                                })
+                            } else {
+                                const ReportChannelChangeData = await Logging.update({ ChannelIDWelcome: channelOptions.id }, { where: { GuildID: interaction.guild.id } })
+
+                                const embed = new MessageEmbed()
+                                    .setDescription("Settings Created")
+                                    .addFields(
+                                        { name: "**Welcome Channel**", value: "<#" + channelOptions.id + ">", inline: true },
+                                    )
+
+                                return interaction.reply({
+                                    embeds: [embed],
+                                    ephemeral: true,
+                                })
+                            }
+                        };
+                    /*case ("ticket"):
+                        if (channelOptions & staffRoleOptions) {
+                            const TicketCreateData = await Logging.create({
+                                GuildID: interaction.guild.id,
+                                TicketRoleID: staffRoleOptions.id,
+                            });
+                        } else {
+                            const TicketChangeData = Logging.update({ TicketRoleID: staffRoleOptions.id }, { where: { GuildID: interaction.guild.id } })
+                        }
+
+                        const channelToSend = interaction.guild.channels.cache.get(channelOptions.id);
+
+                        const buttonToCreateTicket = new MessageActionRow()
+                            .addComponents(
+                                new MessageButton()
+                                    .setCustomId('buttonToCreateTicket')
+                                    .setLabel('➕ Create')
+                                    .setStyle('SUCCESS'),
+                            );
+
+                        if (descriptionOptions) {
+                            const ticketMessage = new MessageEmbed()
+                                .setTitle("Ticket")
+                                .setDescription(descriptionOptions)
+                                .setColor("2f3136")
+
+                            channelToSend.send({
+                                embeds: [ticketMessage],
+                                components: [buttonToCreateTicket]
+                            });
+                        } else {
+                            const ticketMessage = new MessageEmbed()
+                                .setTitle("Ticket")
+                                .setDescription("You need help? Click on the button below to create a ticket!")
+                                .setColor("2f3136")
+
+                            channelToSend.send({
+                                embeds: [ticketMessage],
+                                components: [buttonToCreateTicket]
+                            });
+                        }
+
+                        return interaction.reply({
+                            content: "Welcome message/menu sent!",
+                            ephemeral: true,
+                        });*/
                 };
 
                 const secondOptions = interaction.options.getSubcommandGroup();

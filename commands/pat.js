@@ -1,5 +1,7 @@
-const { MessageActionRow, MessageSelectMenu, MessageEmbed } = require('discord.js');
+const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const Furaffinity = require('furaffinity-api');
+const { Type, Page, Rating } = require('furaffinity-api');
 
 const dateTime = new Date();
 console.log(dateTime.toLocaleString() + " -> The 'pat' command is loaded.")
@@ -11,22 +13,21 @@ module.exports = {
         .addUserOption(option => option.setName("user").setDescription("User to pat").setRequired(true)),
     execute: async (interaction, bot) => {
         const user = interaction.options.getUser("user")
-        const member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(err => { })
 
-        if (!member) {
+        Furaffinity.Search('sfw pat', { Type, Rating, Page }).then(res => {
+
+            const randomNumber = res.length;
+            const randomImage = Math.floor(Math.random() * randomNumber);
+            const imageSent = res[randomImage].thumb.large;
+
+            const embed = new MessageEmbed()
+                .setImage(imageSent)
+                .setColor("2f3136")
+
             return interaction.reply({
-                content: "I can't find this user!",
-                ephemeral: true
+                embeds: [embed],
+                content: "<@" + user.id + ">, you got pat by <@" + interaction.user.id + ">"
             })
-        }
-
-        const patEmbed = new MessageEmbed()
-            .setImage("https://tenor.com/bP2IV.gif")
-            .setColor("2f3136")
-
-        await interaction.reply({
-            embeds: [patEmbed],
-            content: "<@" + member.id + ">, you got boop by <@" + interaction.member.id + ">"
-        })
+        });
     }
 };

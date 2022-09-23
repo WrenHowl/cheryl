@@ -99,27 +99,26 @@ module.exports = {
                         content: "You can't kick me!",
                         ephemeral: true
                     });
-                case (member.roles.highest.position >= interaction.member.roles.highest.position):
-                    return interaction.reply({
-                        content: "You can't kick this user, because he's higher than you!",
-                        ephemeral: true
-                    });
                 case (!member.kickable):
                     return interaction.reply({
                         content: "I can't kick this user!",
                         ephemeral: true,
                     });
-                case ("610309745714135040"):
-                    return interaction.reply({
-                        content: "You can't kick him Mega.",
-                        ephemeral: true,
-                    });
                 default:
+                    if (guild.members.cache.find(m => m.id === user.id)?.id) {
+                        if (member.roles.highest.position >= interaction.member.roles.highest.position) {
+                            return interaction.reply({
+                                content: "You can't kick this user, because he's higher than you!",
+                                ephemeral: true
+                            });
+                        }
+                    }
+
                     const reason = interaction.options.getString("reason");
                     const admin = interaction.user.tag;
 
                     const kickMessage = new MessageEmbed()
-                        .setDescription("``" + member.user.tag + "`` has been kicked from the server for ``" + reason + "``")
+                        .setDescription("``" + member.user.tag + "`` has been kicked from the server for ``" + reason + "``.")
                         .setColor("2f3136")
 
                     await interaction.reply({

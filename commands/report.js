@@ -12,19 +12,7 @@ module.exports = {
         .addStringOption(option =>
             option.setName('reason')
                 .setDescription('Choose a reason')
-                .setRequired(true)
-                .addChoices(
-                    { name: 'Self Promotion or Spam', value: 'Self Promotion or Spam' },
-                    { name: 'Threats, intimidation, racism or homophobic', value: 'Threats, intimidation, racism or homophobic' },
-                    { name: 'To young to use Discord', value: 'To young to use Discord' },
-                    { name: 'NSFW or Political topics', value: 'NSFW or Political topics' },
-                    { name: 'Blocking an Administrator', value: 'Blocking an Administrator' },
-                    { name: 'Leak of private information', value: 'Leak of private information' },
-                    { name: 'Troll or Anti-Furry', value: 'Troll or Anti-Furry' },
-                    { name: 'Multiples warnings', value: 'Multiples warnings' },
-                    { name: 'Drama', value: 'Drama' },
-                    { name: 'Other', value: 'Other' },
-                )),
+                .setRequired(true)),
     execute: async (interaction, bot, sequelize, Sequelize) => {
         const user = interaction.options.getUser("user");
         const member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(err => { });

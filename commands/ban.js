@@ -1,4 +1,4 @@
-const { MessageActionRow, MessageEmbed, MessageButton, BitField } = require('discord.js');
+const { MessageActionRow, MessageEmbed, MessageButton, CommandInteractionOptionResolver } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
 const dateTime = new Date();
@@ -73,12 +73,18 @@ module.exports = {
 
         const PrivatePerms = interaction.member.roles.cache.some(role => role.name === "Moderation") | interaction.member.roles.cache.some(role => role.name === "Management");
 
-        if (PrivatePerms | interaction.member.roles.cache.some(role => role.id === LoggingData.BanByPassRole) | interaction.member.permissions.has("BAN_MEMBERS")) {
+        if (PrivatePerms | interaction.member.permissions.has("BAN_MEMBERS")) {
             const user = interaction.options.getUser("user");
             const member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(err => { });
 
-            switch (member.id) {
-                case (!member):
+            const banList = await interaction.guild.fetchBans();
+
+            const bannedUser = banList.find(user => user.id === user.id);
+
+            let guild = bot.guilds.cache.get(interaction.guild.id);
+
+            switch (user.id) {
+                case (!user):
                     return interaction.reply({
                         content: "I can't find this user!",
                         ephemeral: true
@@ -93,27 +99,36 @@ module.exports = {
                         content: "You can't ban me!",
                         ephemeral: true
                     });
-                case (member.roles.highest.position >= interaction.member.roles.highest.position):
+                case (interaction.guild.ownerId):
                     return interaction.reply({
-                        content: "You can't ban this user, because he's higher than you!",
+                        content: "You can't ban the owner!",
                         ephemeral: true
                     });
-                case (!member.kickable):
+                case (bannedUser):
+                    return interaction.reply({
+                        content: "You can't ban someone who is already ban!",
+                        ephemeral: true
+                    });
+                case (!user.bannable):
                     return interaction.reply({
                         content: "I can't ban this user!",
                         ephemeral: true,
                     });
-                case ("610309745714135040"):
-                    return interaction.reply({
-                        content: "You can't ban him Mega.",
-                        ephemeral: true,
-                    });
                 default:
+                    if (guild.members.cache.find(m => m.id === user.id)?.id) {
+                        if (member.roles.highest.position >= interaction.member.roles.highest.position) {
+                            return interaction.reply({
+                                content: "You can't ban this user, because he's higher than you!",
+                                ephemeral: true
+                            });
+                        }
+                    }
+
                     const reason = interaction.options.getString("reason");
                     const admin = interaction.user.tag;
 
                     const banMessage = new MessageEmbed()
-                        .setDescription("``" + member.user.tag + "`` has been banned from the server for ``" + reason + "``")
+                        .setDescription("``" + user.tag + "`` has been banned from the server for ``" + reason + "``.")
                         .setColor("2f3136")
 
                     await interaction.reply({
@@ -151,19 +166,19 @@ module.exports = {
                         .setColor("2f3136")
 
                     if (interaction.guild.id === "821241527941726248") {
-                        await member.send({
+                        await user.send({
                             embeds: [banDM],
                             components: [buttonBan],
                         }).catch(() => { return });
 
-                        return member.ban({ reason: [reason + " | " + admin] });
+                        return interaction.guild.members.ban(user.id, { reason: [reason + " | " + admin] });
                     };
 
-                    await member.send({
+                    await user.send({
                         embeds: [banDM],
                     }).catch(() => { return });
 
-                    return member.ban({ reason: [reason + " | " + admin] });
+                    return interaction.guild.members.ban(user.id, { reason: [reason + " | " + admin] });
             }
         } else {
             if (interaction.guild.id === "821241527941726248") {
