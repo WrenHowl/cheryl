@@ -1,76 +1,44 @@
 const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const Logging = require("../config/logging.json");
 
 const dateTime = new Date();
-console.log(dateTime.toLocaleString() + " -> The 'report' command is loaded.")
+console.log(dateTime.toLocaleString() + " -> The 'settings' command is loaded.");
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('settings')
         .setDescription('Change your server settings.')
-        .addSubcommand(subcommand => subcommand
-            .setName("report")
-            .setDescription("Change the settings of the report system")
-            .addChannelOption(option => option
-                .setName("channel")
-                .setDescription("Channel to receive the report")
-                .setRequired(true))
-            .addRoleOption(option => option
-                .setName("role")
-                .setDescription("Role to ping")
-                .setRequired(false)))
-        .addSubcommand(subcommand => subcommand
-            .setName("welcome")
-            .setDescription("Change the settings of the welcome system")
-            .addChannelOption(option => option
-                .setName("channel")
-                .setDescription("Channel to send the welcome message")
-                .setRequired(true)))
-        .addSubcommand(subcommand => subcommand
-            .setName("ticket")
-            .setDescription("Change the settings of the ticket system")
-            .addChannelOption(option => option
-                .setName("channel")
-                .setDescription("Channel to send the ticket message")
-                .setRequired(true))
-            .addRoleOption(option => option
-                .setName("staff")
-                .setDescription("Role that can manage tickets")
-                .setRequired(true))
-            .addStringOption(option => option
-                .setName("description")
-                .setDescription("Add a description to the message")
-                .setRequired(false)))
+
+        // Setup
+
         .addSubcommandGroup(group => group
-            .setName("logging")
-            .setDescription("Change the settings of the logging system")
+            .setName("setup")
+            .setDescription("Setup a command.")
             .addSubcommand(subcommand => subcommand
-                .setName("ban")
-                .setDescription("Change logging of the ban system")
+                .setName("report")
+                .setDescription("Change the settings of the Report System.")
                 .addChannelOption(option => option
                     .setName("channel")
-                    .setDescription("Channel to receive the log")
-                    .setRequired(true)))
+                    .setDescription("Channel to receive the report.")
+                    .setRequired(true))
+                .addRoleOption(option => option
+                    .setName("role")
+                    .setDescription("Role to ping.")
+                    .setRequired(false)))
             .addSubcommand(subcommand => subcommand
-                .setName("kick")
-                .setDescription("Change logging of the kick system")
+                .setName("welcome")
+                .setDescription("Change the settings of the Welcome System.")
                 .addChannelOption(option => option
                     .setName("channel")
-                    .setDescription("Channel to receive the log")
-                    .setRequired(true)))
-            .addSubcommand(subcommand => subcommand
-                .setName("warn")
-                .setDescription("Change logging of the warn system")
-                .addChannelOption(option => option
-                    .setName("channel")
-                    .setDescription("Channel to receive the log")
+                    .setDescription("Channel to send the welcome message.")
                     .setRequired(true)))
             .addSubcommand(subcommand => subcommand
                 .setName("blacklist")
-                .setDescription("Change logging of the blacklist system")
+                .setDescription("Change the settings of the Blacklist System.")
                 .addStringOption(option => option
-                    .setName("set")
-                    .setDescription("Enable/Disable the blacklist logger")
+                    .setName("status")
+                    .setDescription("Enable/Disable")
                     .setRequired(true)
                     .addChoices(
                         { name: "Enable", value: "true" },
@@ -78,40 +46,74 @@ module.exports = {
                     ))
                 .addChannelOption(option => option
                     .setName("channel")
-                    .setDescription("Channel to receive alert")
-                    .setRequired(true)))
-        )
+                    .setDescription("Channel to receive the alert.")
+                    .setRequired(false))
+                .addStringOption(option => option
+                    .setName("autoban")
+                    .setDescription("Enable/Disable")
+                    .setRequired(false)
+                    .addChoices(
+                        { name: "Low+", value: "low" },
+                        { name: "Medium+", value: "medium" },
+                        { name: "High+", value: "high" },
+                        { name: "Disable", value: "disable" },
+                    ))))
+
+        // Verification
+
         .addSubcommandGroup(group => group
             .setName("verification")
-            .setDescription("Change the settings of the verification system")
+            .setDescription("Change the settings of the verification system.")
             .addSubcommand(subcommand => subcommand
                 .setName("command")
-                .setDescription("Change the settings of the verification command")
-                .addChannelOption(option => option.setName("welcome").setDescription("Channel to send the welcome message").setRequired(true))
-                .addRoleOption(option => option.setName("staff").setDescription("Role that can verify").setRequired(true))
-                .addRoleOption(option => option.setName("add").setDescription("Role to give").setRequired(true))
-                .addRoleOption(option => option.setName("remove").setDescription("Role to remove").setRequired(false)))
+                .setDescription("Change the settings of the verification command.")
+                .addChannelOption(option => option.setName("welcome").setDescription("Channel to send the welcome message.").setRequired(true))
+                .addRoleOption(option => option.setName("staff").setDescription("Role that can verify.").setRequired(true))
+                .addRoleOption(option => option.setName("add").setDescription("Role to give.").setRequired(true))
+                .addRoleOption(option => option.setName("remove").setDescription("Role to remove.").setRequired(false)))
             .addSubcommand(subcommand => subcommand
                 .setName("menu")
-                .setDescription("Change the settings of the verification menu")
-                .addChannelOption(option => option.setName("welcome").setDescription("Channel to send the welcome message").setRequired(true))
-                .addChannelOption(option => option.setName("receive").setDescription("Channel to receive the verification").setRequired(true))
-                .addRoleOption(option => option.setName("staff").setDescription("Role that can verify").setRequired(true))
-                .addRoleOption(option => option.setName("add").setDescription("Role to give").setRequired(true))
-                .addRoleOption(option => option.setName("remove").setDescription("Role to remove").setRequired(false)))
-        ),
+                .setDescription("Change the settings of the verification menu.")
+                .addChannelOption(option => option.setName("welcome").setDescription("Channel to send the welcome message.").setRequired(true))
+                .addChannelOption(option => option.setName("receive").setDescription("Channel to receive the verification.").setRequired(true))
+                .addRoleOption(option => option.setName("staff").setDescription("Role that can verify.").setRequired(true))
+                .addRoleOption(option => option.setName("add").setDescription("Role to give.").setRequired(true))
+                .addRoleOption(option => option.setName("remove").setDescription("Role to remove.").setRequired(false))))
+
+        // Logging
+
+        .addSubcommand(subcommand => subcommand
+            .setName("logging")
+            .setDescription(Logging.LoggingDescription)
+            .addStringOption(option => option
+                .setName("options")
+                .setDescription(Logging.OptionsLog)
+                .setRequired(true)
+                .addChoices(
+                    { name: "All", value: "all" },
+                    { name: "Ban", value: "ban" },
+                    { name: "Unban", value: "unban" },
+                    { name: "Kick", value: "kick" },
+                    { name: "Warn", value: "warn" },
+                    { name: "Disable", value: "disable" },
+                ))
+            .addChannelOption(option => option
+                .setName("channel")
+                .setDescription(Logging.ChannelSendLog)
+                .setRequired(false))),
     execute: async (interaction, bot, sequelize, Sequelize) => {
         if (interaction.member.permissions.has("ADMINISTRATOR") | interaction.member.permissions.has("MANAGE_GUILD") | interaction.user.id === '291262778730217472') {
-            const options = interaction.options.getSubcommand();
-            const channelOptions = interaction.options.getChannel("channel");
-            const channelOptions2 = interaction.options.getChannel("welcome");
-            const channelOptions3 = interaction.options.getChannel("receive");
-            const roleOptions = interaction.options.getRole("role");
-            const addRoleOptions = interaction.options.getRole("add");
-            const removeRoleOptions = interaction.options.getRole("remove");
-            const staffRoleOptions = interaction.options.getRole("staff");
-            let booleanBlacklist = interaction.options.getString("set");
-            const descriptionOptions = interaction.options.getString("description");
+            let options = interaction.options.getSubcommand();
+            let channelOptions = interaction.options.getChannel("channel");
+            let channelOptions2 = interaction.options.getChannel("welcome");
+            let channelOptions3 = interaction.options.getChannel("receive");
+            let roleOptions = interaction.options.getRole("role");
+            let addRoleOptions = interaction.options.getRole("add");
+            let removeRoleOptions = interaction.options.getRole("remove");
+            let staffRoleOptions = interaction.options.getRole("staff");
+            let booleanBlacklist = interaction.options.getString("status");
+            let autobanStatus = interaction.options.getString("autoban");
+            let optionsLogging = interaction.options.getString("options");
 
             const Logging = sequelize.define("Logging", {
                 GuildID: {
@@ -166,7 +168,7 @@ module.exports = {
                     type: Sequelize.STRING,
                     unique: false,
                 },
-                BanByPassRole: {
+                ChannelIDUnban: {
                     type: Sequelize.STRING,
                     unique: false,
                 },
@@ -178,113 +180,83 @@ module.exports = {
                     type: Sequelize.STRING,
                     unique: false,
                 },
-                TicketRoleID: {
+                AutoBanStatus: {
                     type: Sequelize.STRING,
                     unique: false,
                 }
             });
 
             const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
-            if (interaction.commandName === "settings") {
-                switch (options) {
-                    case ("report"):
-                        if (channelOptions) {
-                            let role = roleOptions;
-                            if (role) role = roleOptions.name;
-                            if (!role) role = roleOptions;
 
-                            if (role === "@everyone") {
-                                const embed = new MessageEmbed()
-                                    .setDescription("Settings Error")
-                                    .addFields(
-                                        { name: "**Role provided**", value: "This role (@everyone) cannot be used!", inline: true },
-                                    )
+            let removeRole = removeRoleOptions;
 
-                                return interaction.reply({
-                                    embeds: [embed],
-                                    ephemeral: true,
-                                })
-                            }
+            if (removeRole) removeRole = removeRoleOptions.name;
+            if (!removeRole) removeRole = removeRoleOptions;
 
-                            if (!LoggingData) {
-                                if (!roleOptions) {
-                                    const ReportChannelCreateData = await Logging.create({
-                                        GuildID: interaction.guild.id,
-                                        ChannelIDReport: channelOptions.id,
-                                    })
+            switch (options) {
+                case ("report"):
+                    if (channelOptions) {
+                        let role = roleOptions;
+                        if (role) role = roleOptions.name;
+                        if (!role) role = roleOptions;
 
-                                    const embed = new MessageEmbed()
-                                        .setDescription("Settings Created")
-                                        .addFields(
-                                            { name: "**Channel**", value: "<#" + channelOptions.id + ">", inline: true },
-                                        )
+                        if (role === "@everyone") {
+                            const embed = new MessageEmbed()
+                                .setDescription("Settings Error")
+                                .addFields(
+                                    { name: "**Role provided**", value: "This role (@everyone) cannot be used!", inline: true },
+                                )
 
-                                    return interaction.reply({
-                                        embeds: [embed],
-                                        ephemeral: true,
-                                    })
-                                }
+                            return interaction.reply({
+                                embeds: [embed],
+                                ephemeral: true,
+                            })
+                        }
 
+                        if (!LoggingData) {
+                            if (!roleOptions) {
                                 const ReportChannelCreateData = await Logging.create({
                                     GuildID: interaction.guild.id,
                                     ChannelIDReport: channelOptions.id,
-                                    StaffRoleReport: roleOptions.id,
                                 })
 
                                 const embed = new MessageEmbed()
                                     .setDescription("Settings Created")
                                     .addFields(
                                         { name: "**Channel**", value: "<#" + channelOptions.id + ">", inline: true },
-                                        { name: "**Role to Ping:**", value: "<@&" + roleOptions.id + ">", inline: true }
                                     )
 
                                 return interaction.reply({
                                     embeds: [embed],
                                     ephemeral: true,
-                                });
-                            } else {
-                                if (!roleOptions) {
-                                    const ReportChannelChangeData = await Logging.update({ ChannelIDReport: channelOptions.id }, { where: { GuildID: interaction.guild.id } })
+                                })
+                            }
 
-                                    const embed = new MessageEmbed()
-                                        .setDescription("Settings Created")
-                                        .addFields(
-                                            { name: "**Channel**", value: "<#" + channelOptions.id + ">", inline: true },
-                                        )
+                            const ReportChannelCreateData = await Logging.create({
+                                GuildID: interaction.guild.id,
+                                ChannelIDReport: channelOptions.id,
+                                StaffRoleReport: roleOptions.id,
+                            })
 
-                                    return interaction.reply({
-                                        embeds: [embed],
-                                        ephemeral: true,
-                                    })
-                                }
+                            const embed = new MessageEmbed()
+                                .setDescription("Settings Created")
+                                .addFields(
+                                    { name: "**Channel**", value: "<#" + channelOptions.id + ">", inline: true },
+                                    { name: "**Role to Ping:**", value: "<@&" + roleOptions.id + ">", inline: true }
+                                )
 
+                            return interaction.reply({
+                                embeds: [embed],
+                                ephemeral: true,
+                            });
+                        } else {
+                            if (!roleOptions) {
                                 const ReportChannelChangeData = await Logging.update({ ChannelIDReport: channelOptions.id }, { where: { GuildID: interaction.guild.id } })
-                                const ReportStaffRoleChangeData = await Logging.update({ StaffRoleReport: roleOptions.id }, { where: { GuildID: interaction.guild.id } })
 
                                 const embed = new MessageEmbed()
                                     .setDescription("Settings Created")
                                     .addFields(
                                         { name: "**Channel**", value: "<#" + channelOptions.id + ">", inline: true },
-                                        { name: "**Role to Ping:**", value: "<@&" + roleOptions.id + ">", inline: true }
-                                    )
-
-                                return interaction.reply({
-                                    embeds: [embed],
-                                    ephemeral: true,
-                                });
-                            }
-                        };
-                    case ("verification"):
-                        if (channelOptions2 & staffRoleOptions & addRoleOptions) {
-                            let removeRole = removeRoleOptions;
-                            if (removeRole) removeRole = removeRoleOptions.name;
-                            if (!removeRole) removeRole = removeRoleOptions;
-
-                            if (staffRoleOptions.name === "@everyone" | addRoleOptions.name === "@everyone" | removeRole === "@everyone") {
-                                const embed = new MessageEmbed()
-                                    .setDescription("Settings Error")
-                                    .addFields(
-                                        { name: "**Role provided**", value: "This role, @everyone, cannot be used!", inline: true },
                                     )
 
                                 return interaction.reply({
@@ -293,35 +265,47 @@ module.exports = {
                                 })
                             }
 
-                            if (!LoggingData) {
-                                if (!removeRoleOptions) {
-                                    const verificationChannelCreateData = await Logging.create({
-                                        GuildID: interaction.guild.id,
-                                        ChannelIDVerify: channelOptions2.id,
-                                        StaffRoleVerify: staffRoleOptions.id,
-                                        RoleToAddVerify: addRoleOptions.id,
-                                    });
+                            const ReportChannelChangeData = await Logging.update({ ChannelIDReport: channelOptions.id, StaffRoleReport: roleOptions.id }, { where: { GuildID: interaction.guild.id } })
 
-                                    const embed = new MessageEmbed()
-                                        .setDescription("Settings Created")
-                                        .addFields(
-                                            { name: "**Channel**", value: "<#" + channelOptions2.id + ">", inline: true },
-                                            { name: "**Staff Role**", value: "<@&" + staffRoleOptions.id + ">", inline: true },
-                                            { name: "**Role to Add**", value: "<@&" + addRoleOptions.id + ">", inline: true },
-                                        )
+                            const embed = new MessageEmbed()
+                                .setDescription("Settings Created")
+                                .addFields(
+                                    { name: "**Channel**", value: "<#" + channelOptions.id + ">", inline: true },
+                                    { name: "**Role to Ping:**", value: "<@&" + roleOptions.id + ">", inline: true }
+                                )
 
-                                    return interaction.reply({
-                                        embeds: [embed],
-                                        ephemeral: true,
-                                    });
-                                };
+                            return interaction.reply({
+                                embeds: [embed],
+                                ephemeral: true,
+                            });
+                        }
+                    };
+                case ("verification"):
+                    if (channelOptions2 & staffRoleOptions & addRoleOptions) {
+                        let removeRole = removeRoleOptions;
+                        if (removeRole) removeRole = removeRoleOptions.name;
+                        if (!removeRole) removeRole = removeRoleOptions;
 
+                        if (staffRoleOptions.name === "@everyone" | addRoleOptions.name === "@everyone" | removeRole === "@everyone") {
+                            const embed = new MessageEmbed()
+                                .setDescription("Settings Error")
+                                .addFields(
+                                    { name: "**Role provided**", value: "This role, @everyone, cannot be used!", inline: true },
+                                )
+
+                            return interaction.reply({
+                                embeds: [embed],
+                                ephemeral: true,
+                            })
+                        }
+
+                        if (!LoggingData) {
+                            if (!removeRoleOptions) {
                                 const verificationChannelCreateData = await Logging.create({
                                     GuildID: interaction.guild.id,
                                     ChannelIDVerify: channelOptions2.id,
                                     StaffRoleVerify: staffRoleOptions.id,
                                     RoleToAddVerify: addRoleOptions.id,
-                                    RoleToRemoveVerify: removeRoleOptions.id,
                                 });
 
                                 const embed = new MessageEmbed()
@@ -330,45 +314,6 @@ module.exports = {
                                         { name: "**Channel**", value: "<#" + channelOptions2.id + ">", inline: true },
                                         { name: "**Staff Role**", value: "<@&" + staffRoleOptions.id + ">", inline: true },
                                         { name: "**Role to Add**", value: "<@&" + addRoleOptions.id + ">", inline: true },
-                                        { name: "**Role to Remove**", value: "<@&" + removeRoleOptions.id + ">", inline: true },
-                                    )
-
-                                return interaction.reply({
-                                    embeds: [embed],
-                                    ephemeral: true,
-                                });
-                            } else {
-                                if (!removeRoleOptions) {
-                                    const VerificationChannelChangeData1 = await Logging.update({ ChannelIDVerify: channelOptions2.id }, { where: { GuildID: interaction.guild.id } })
-                                    const VerificationChannelChangeData2 = await Logging.update({ StaffRoleReport: staffRoleOptions.id }, { where: { GuildID: interaction.guild.id } })
-                                    const VerificationChannelChangeData3 = await Logging.update({ RoleToAddVerify: addRoleOptions.id }, { where: { GuildID: interaction.guild.id } })
-
-                                    const embed = new MessageEmbed()
-                                        .setDescription("Settings Changed")
-                                        .addFields(
-                                            { name: "**Channel:**", value: "<#" + channelOptions2.id + ">", inline: true },
-                                            { name: "**Staff:**", value: "<@&" + staffRoleOptions.id + ">", inline: true },
-                                            { name: "**Role to add:**", value: "<@&" + addRoleOptions.id + ">", inline: true },
-                                        )
-
-                                    return interaction.reply({
-                                        embeds: [embed],
-                                        ephemeral: true,
-                                    });
-                                };
-
-                                const VerificationChannelChangeData1 = await Logging.update({ ChannelIDVerify: channelOptions2.id }, { where: { GuildID: interaction.guild.id } })
-                                const VerificationChannelChangeData2 = await Logging.update({ StaffRoleReport: staffRoleOptions.id }, { where: { GuildID: interaction.guild.id } })
-                                const VerificationChannelChangeData3 = await Logging.update({ RoleToAddVerify: addRoleOptions.id }, { where: { GuildID: interaction.guild.id } })
-                                const VerificationChannelChangeData4 = await Logging.update({ RoleToRemoveVerify: removeRoleOptions.id }, { where: { GuildID: interaction.guild.id } })
-
-                                const embed = new MessageEmbed()
-                                    .setDescription("Settings Changed")
-                                    .addFields(
-                                        { name: "**Channel:**", value: "<#" + channelOptions2.id + ">", inline: true },
-                                        { name: "**Staff:**", value: "<@&" + staffRoleOptions.id + ">", inline: true },
-                                        { name: "**Role to add:**", value: "<@&" + addRoleOptions.id + ">", inline: true },
-                                        { name: "**Role to remove:**", value: "<@&" + removeRoleOptions.id + ">", inline: true },
                                     )
 
                                 return interaction.reply({
@@ -376,32 +321,148 @@ module.exports = {
                                     ephemeral: true,
                                 });
                             };
+
+                            const verificationChannelCreateData = await Logging.create({
+                                GuildID: interaction.guild.id,
+                                ChannelIDVerify: channelOptions2.id,
+                                StaffRoleVerify: staffRoleOptions.id,
+                                RoleToAddVerify: addRoleOptions.id,
+                                RoleToRemoveVerify: removeRoleOptions.id,
+                            });
+
+                            const embed = new MessageEmbed()
+                                .setDescription("Settings Created")
+                                .addFields(
+                                    { name: "**Channel**", value: "<#" + channelOptions2.id + ">", inline: true },
+                                    { name: "**Staff Role**", value: "<@&" + staffRoleOptions.id + ">", inline: true },
+                                    { name: "**Role to Add**", value: "<@&" + addRoleOptions.id + ">", inline: true },
+                                    { name: "**Role to Remove**", value: "<@&" + removeRoleOptions.id + ">", inline: true },
+                                )
+
+                            return interaction.reply({
+                                embeds: [embed],
+                                ephemeral: true,
+                            });
+                        } else {
+                            if (!removeRoleOptions) {
+                                const VerificationChannelChangeData1 = await Logging.update({
+                                    ChannelIDVerify: channelOptions2.id,
+                                    StaffRoleReport: staffRoleOptions.id,
+                                    RoleToAddVerify: addRoleOptions.id
+                                }, { where: { GuildID: interaction.guild.id } })
+
+                                const embed = new MessageEmbed()
+                                    .setDescription("Settings Changed")
+                                    .addFields(
+                                        { name: "**Channel:**", value: "<#" + channelOptions2.id + ">", inline: true },
+                                        { name: "**Staff:**", value: "<@&" + staffRoleOptions.id + ">", inline: true },
+                                        { name: "**Role to add:**", value: "<@&" + addRoleOptions.id + ">", inline: true },
+                                    )
+
+                                return interaction.reply({
+                                    embeds: [embed],
+                                    ephemeral: true,
+                                });
+                            };
+
+                            const VerificationChannelChangeData1 = await Logging.update({
+                                ChannelIDVerify: channelOptions2.id,
+                                StaffRoleReport: staffRoleOptions.id,
+                                RoleToAddVerify: addRoleOptions.id,
+                                RoleToRemoveVerify: removeRoleOptions.id
+                            }, { where: { GuildID: interaction.guild.id } })
+
+                            const embed = new MessageEmbed()
+                                .setDescription("Settings Changed")
+                                .addFields(
+                                    { name: "**Channel:**", value: "<#" + channelOptions2.id + ">", inline: true },
+                                    { name: "**Staff:**", value: "<@&" + staffRoleOptions.id + ">", inline: true },
+                                    { name: "**Role to add:**", value: "<@&" + addRoleOptions.id + ">", inline: true },
+                                    { name: "**Role to remove:**", value: "<@&" + removeRoleOptions.id + ">", inline: true },
+                                )
+
+                            return interaction.reply({
+                                embeds: [embed],
+                                ephemeral: true,
+                            });
                         };
-                    case ("welcome"):
-                        if (channelOptions) {
-                            if (!LoggingData) {
-                                const ReportChannelCreateData = await Logging.create({
+                    };
+                case ("welcome"):
+                    if (channelOptions) {
+                        if (!LoggingData) {
+                            const ReportChannelCreateData = await Logging.create({
+                                GuildID: interaction.guild.id,
+                                ChannelIDWelcome: channelOptions.id,
+                            })
+
+                            const embed = new MessageEmbed()
+                                .setDescription("Settings Created")
+                                .addFields(
+                                    { name: "**Welcome Channel**", value: "<#" + channelOptions.id + ">", inline: true },
+                                )
+
+                            return interaction.reply({
+                                embeds: [embed],
+                                ephemeral: true,
+                            })
+                        } else {
+                            const ReportChannelChangeData = await Logging.update({ ChannelIDWelcome: channelOptions.id }, { where: { GuildID: interaction.guild.id } })
+
+                            const embed = new MessageEmbed()
+                                .setDescription("Settings Created")
+                                .addFields(
+                                    { name: "**Welcome Channel**", value: "<#" + channelOptions.id + ">", inline: true },
+                                )
+
+                            return interaction.reply({
+                                embeds: [embed],
+                                ephemeral: true,
+                            })
+                        }
+                    };
+                case ("blacklist"):
+                    if (booleanBlacklist) {
+                        if (booleanBlacklist === "true") booleanBlacklist = "Enabled";
+                        if (booleanBlacklist === "false") booleanBlacklist = "Disabled";
+                        if (autobanStatus === "low") autobanStatus = "Low+";
+                        if (autobanStatus === "medium") autobanStatus = "Medium+";
+                        if (autobanStatus === "high") autobanStatus = "High+";
+                        if (autobanStatus === "disable") autobanStatus = "Disabled";
+
+                        if (!LoggingData) {
+                            if (!channelOptions) {
+                                const blacklistData = await Logging.create({
                                     GuildID: interaction.guild.id,
-                                    ChannelIDWelcome: channelOptions.id,
+                                    EnableDisableBlacklistLogger: booleanBlacklist,
+                                    AutoBanStatus: autobanStatus
                                 })
 
                                 const embed = new MessageEmbed()
                                     .setDescription("Settings Created")
                                     .addFields(
-                                        { name: "**Welcome Channel**", value: "<#" + channelOptions.id + ">", inline: true },
+                                        { name: "**Status**", value: booleanBlacklist, inline: true },
+                                        { name: "**Autoban**", value: autobanStatus, inline: true }
                                     )
 
                                 return interaction.reply({
                                     embeds: [embed],
                                     ephemeral: true,
                                 })
-                            } else {
-                                const ReportChannelChangeData = await Logging.update({ ChannelIDWelcome: channelOptions.id }, { where: { GuildID: interaction.guild.id } })
+
+                            }
+
+                            if (!autobanStatus) {
+                                const blacklistData = await Logging.create({
+                                    GuildID: interaction.guild.id,
+                                    EnableDisableBlacklistLogger: booleanBlacklist,
+                                    ChannelIDBlacklist: channelOptions.id,
+                                })
 
                                 const embed = new MessageEmbed()
                                     .setDescription("Settings Created")
                                     .addFields(
-                                        { name: "**Welcome Channel**", value: "<#" + channelOptions.id + ">", inline: true },
+                                        { name: "**Status**", value: booleanBlacklist, inline: true },
+                                        { name: "**Channel**", value: "<#" + channelOptions.id + ">", inline: true }
                                     )
 
                                 return interaction.reply({
@@ -409,421 +470,531 @@ module.exports = {
                                     ephemeral: true,
                                 })
                             }
-                        };
-                    /*case ("ticket"):
-                        if (channelOptions & staffRoleOptions) {
-                            const TicketCreateData = await Logging.create({
+
+                            const blacklistData = await Logging.create({
                                 GuildID: interaction.guild.id,
-                                TicketRoleID: staffRoleOptions.id,
-                            });
+                                EnableDisableBlacklistLogger: booleanBlacklist,
+                                ChannelIDBlacklist: channelOptions.id,
+                                AutoBanStatus: autobanStatus
+                            })
+
+                            const embed = new MessageEmbed()
+                                .setDescription("Settings Created")
+                                .addFields(
+                                    { name: "**Status**", value: booleanBlacklist, inline: true },
+                                    { name: "**Channel**", value: "<#" + channelOptions.id + ">", inline: true },
+                                    { name: "**Autoban**", value: autobanStatus, inline: true }
+                                )
+
+                            return interaction.reply({
+                                embeds: [embed],
+                                ephemeral: true,
+                            })
                         } else {
-                            const TicketChangeData = Logging.update({ TicketRoleID: staffRoleOptions.id }, { where: { GuildID: interaction.guild.id } })
+                            if (!channelOptions) {
+                                const BlacklistChangeData = await Logging.update({
+                                    EnableDisableBlacklistLogger: booleanBlacklist,
+                                    AutoBanStatus: autobanStatus
+                                }, { where: { GuildID: interaction.guild.id } })
+
+                                const embed = new MessageEmbed()
+                                    .setDescription("Settings Changed")
+                                    .addFields(
+                                        { name: "**Status**", value: booleanBlacklist, inline: true },
+                                        { name: "**Autoban**", value: autobanStatus, inline: true }
+                                    )
+
+                                return interaction.reply({
+                                    embeds: [embed],
+                                    ephemeral: true,
+                                })
+
+                            }
+
+                            if (!autobanStatus) {
+                                const BlacklistChangeData = await Logging.update({
+                                    EnableDisableBlacklistLogger: booleanBlacklist,
+                                    ChannelIDBlacklist: channelOptions.id,
+                                }, { where: { GuildID: interaction.guild.id } })
+
+                                const embed = new MessageEmbed()
+                                    .setDescription("Settings Changed")
+                                    .addFields(
+                                        { name: "**Status**", value: booleanBlacklist, inline: true },
+                                        { name: "**Channel**", value: "<#" + channelOptions.id + ">", inline: true }
+                                    )
+
+                                return interaction.reply({
+                                    embeds: [embed],
+                                    ephemeral: true,
+                                })
+                            }
+
+                            const BlacklistChangeData = await Logging.update({
+                                EnableDisableBlacklistLogger: booleanBlacklist,
+                                AutoBanStatus: autobanStatus,
+                                ChannelIDBlacklist: channelOptions.id,
+                            }, { where: { GuildID: interaction.guild.id } })
+
+                            const embed = new MessageEmbed()
+                                .setDescription("Settings Created")
+                                .addFields(
+                                    { name: "**Status**", value: booleanBlacklist, inline: true },
+                                    { name: "**Channel**", value: "<#" + channelOptions.id + ">", inline: true },
+                                    { name: "**Autoban**", value: autobanStatus, inline: true }
+                                )
+
+                            return interaction.reply({
+                                embeds: [embed],
+                                ephemeral: true,
+                            })
+                        }
+                    };
+                case ("logging"):
+                    switch (optionsLogging) {
+                        case ("all"):
+                            if (channelOptions) {
+                                if (!LoggingData) {
+                                    const allChannelCreateData = await Logging.create({
+                                        GuildID: interaction.guild.id,
+                                        ChannelIDBan: channelOptions.id,
+                                        ChannelIDUnban: channelOptions.id,
+                                        ChannelIDKick: channelOptions.id,
+                                        ChannelIDWarn: channelOptions.id,
+                                    })
+
+                                    const embed = new MessageEmbed()
+                                        .setDescription("Settings Created")
+                                        .addFields(
+                                            { name: "**Channel**", value: "<#" + channelOptions.id + ">!", inline: true },
+                                        )
+
+                                    return interaction.reply({
+                                        embeds: [embed],
+                                        ephemeral: true,
+                                    })
+                                }
+
+                                const allChannelChangeData = await Logging.update({ ChannelIDBan: channelOptions.id, ChannelIDUnban: channelOptions.id, ChannelIDKick: channelOptions.id, ChannelIDWarn: channelOptions.id, }, { where: { GuildID: interaction.guild.id } })
+
+                                const embed = new MessageEmbed()
+                                    .setDescription("Settings Changed")
+                                    .addFields(
+                                        { name: "**Channel**", value: "<#" + channelOptions.id + ">", inline: true },
+                                    )
+
+                                return interaction.reply({
+                                    embeds: [embed],
+                                    ephemeral: true,
+                                })
+                            } else {
+                                return interaction.reply({
+                                    content: "Please select a channel when selecting this option."
+                                })
+                            };
+                        case ("ban"):
+                            if (channelOptions) {
+                                if (!LoggingData) {
+                                    const banChannelCreateData = await Logging.create({
+                                        GuildID: interaction.guild.id,
+                                        ChannelIDBan: channelOptions.id,
+                                    })
+
+                                    const embed = new MessageEmbed()
+                                        .setDescription("Settings Created")
+                                        .addFields(
+                                            { name: "**Channel**", value: "<#" + channelOptions.id + ">!", inline: true },
+                                        )
+
+                                    return interaction.reply({
+                                        embeds: [embed],
+                                        ephemeral: true,
+                                    })
+                                }
+
+                                const banChannelChangeData = await Logging.update({ ChannelIDBan: channelOptions.id }, { where: { GuildID: interaction.guild.id } })
+
+                                const embed = new MessageEmbed()
+                                    .setDescription("Settings Changed")
+                                    .addFields(
+                                        { name: "**Channel**", value: "<#" + channelOptions.id + ">", inline: true },
+                                    )
+
+                                return interaction.reply({
+                                    embeds: [embed],
+                                    ephemeral: true,
+                                })
+                            } else {
+                                return interaction.reply({
+                                    content: "Please select a channel when selecting this option."
+                                })
+                            };
+                        case ("kick"):
+                            if (channelOptions) {
+                                if (!LoggingData) {
+                                    const kickChannelCreateData = await Logging.create({
+                                        GuildID: interaction.guild.id,
+                                        ChannelIDKick: channelOptions.id,
+                                    })
+
+                                    const embed = new MessageEmbed()
+                                        .setDescription("Settings Created")
+                                        .addFields(
+                                            { name: "**Channel**", value: "<#" + channelOptions.id + ">!", inline: true },
+                                        )
+
+                                    return interaction.reply({
+                                        embeds: [embed],
+                                        ephemeral: true,
+                                    })
+                                }
+
+                                const kickChannelChangeData = await Logging.update({ ChannelIDKick: channelOptions.id }, { where: { GuildID: interaction.guild.id } })
+
+                                const embed = new MessageEmbed()
+                                    .setDescription("Settings Changed")
+                                    .addFields(
+                                        { name: "**Channel**", value: "<#" + channelOptions.id + ">", inline: true },
+                                    )
+
+                                return interaction.reply({
+                                    embeds: [embed],
+                                    ephemeral: true,
+                                })
+                            } else {
+                                return interaction.reply({
+                                    content: "Please select a channel when selecting this option."
+                                })
+                            };
+                        case ("warn"):
+                            if (channelOptions) {
+                                if (!LoggingData) {
+                                    const warnChannelCreateData = await Logging.create({
+                                        GuildID: interaction.guild.id,
+                                        ChannelIDWarn: channelOptions.id,
+                                    })
+
+                                    const embed = new MessageEmbed()
+                                        .setDescription("Settings Created")
+                                        .addFields(
+                                            { name: "**Channel**", value: "<#" + channelOptions.id + ">!", inline: true },
+                                        )
+
+                                    return interaction.reply({
+                                        embeds: [embed],
+                                        ephemeral: true,
+                                    })
+                                }
+
+                                const warnChannelChangeData = await Logging.update({ ChannelIDWarn: channelOptions.id }, { where: { GuildID: interaction.guild.id } })
+
+                                const embed = new MessageEmbed()
+                                    .setDescription("Settings Changed")
+                                    .addFields(
+                                        { name: "**Channel**", value: "<#" + channelOptions.id + ">", inline: true },
+                                    )
+
+                                return interaction.reply({
+                                    embeds: [embed],
+                                    ephemeral: true,
+                                })
+                            } else {
+                                return interaction.reply({
+                                    content: "Please select a channel when selecting this option."
+                                })
+                            };
+                        case ("unban"):
+                            if (channelOptions) {
+                                if (!LoggingData) {
+                                    const banChannelCreateData = await Logging.create({
+                                        GuildID: interaction.guild.id,
+                                        ChannelIDUnban: channelOptions.id,
+                                    })
+
+                                    const embed = new MessageEmbed()
+                                        .setDescription("Settings Created")
+                                        .addFields(
+                                            { name: "**Channel**", value: "<#" + channelOptions.id + ">!", inline: true },
+                                        )
+
+                                    return interaction.reply({
+                                        embeds: [embed],
+                                        ephemeral: true,
+                                    })
+                                }
+
+                                const banChannelChangeData = await Logging.update({ ChannelIDUnban: channelOptions.id }, { where: { GuildID: interaction.guild.id } })
+
+                                const embed = new MessageEmbed()
+                                    .setDescription("Settings Changed")
+                                    .addFields(
+                                        { name: "**Channel**", value: "<#" + channelOptions.id + ">", inline: true },
+                                    )
+
+                                return interaction.reply({
+                                    embeds: [embed],
+                                    ephemeral: true,
+                                })
+                            } else {
+                                return interaction.reply({
+                                    content: "Please select a channel when selecting this option."
+                                })
+                            };
+                        case ("disable"):
+                            if (!LoggingData) {
+                                const banChannelCreateData = await Logging.create({
+                                    GuildID: interaction.guild.id,
+                                    ChannelIDBan: null,
+                                    ChannelIDUnban: null,
+                                    ChannelIDKick: null,
+                                    ChannelIDWarn: null,
+                                })
+
+                                const embed = new MessageEmbed()
+                                    .setDescription("Settings Created")
+                                    .addFields(
+                                        { name: "**Channel**", value: null, inline: true },
+                                    )
+
+                                return interaction.reply({
+                                    embeds: [embed],
+                                    ephemeral: true,
+                                })
+                            }
+
+                            const allChannelChangeData = await Logging.update({ ChannelIDBan: null, ChannelIDUnban: null, ChannelIDKick: null, ChannelIDWarn: null, }, { where: { GuildID: interaction.guild.id } })
+
+                            const embed = new MessageEmbed()
+                                .setDescription("Settings Changed")
+                                .addFields(
+                                    { name: "**Channel**", value: null, inline: true },
+                                )
+
+                            return interaction.reply({
+                                embeds: [embed],
+                                ephemeral: true,
+                            });
+                    };
+                case ("command"):
+                    if (channelOptions2 & staffRoleOptions & addRoleOptions) {
+                        if (staffRoleOptions.name === "@everyone" | addRoleOptions.name === "@everyone" | removeRole === "@everyone") {
+                            const embed = new MessageEmbed()
+                                .setDescription("Settings Error")
+                                .addFields(
+                                    { name: "**Role provided**", value: "This role, @everyone, cannot be used!", inline: true },
+                                )
+
+                            return interaction.reply({
+                                embeds: [embed],
+                                ephemeral: true,
+                            })
                         }
 
-                        const channelToSend = interaction.guild.channels.cache.get(channelOptions.id);
+                        if (!LoggingData) {
+                            if (!removeRoleOptions) {
+                                const verificationChannelCreateData = await Logging.create({
+                                    GuildID: interaction.guild.id,
+                                    ChannelIDVerify: channelOptions2.id,
+                                    StaffRoleVerify: staffRoleOptions.id,
+                                    RoleToAddVerify: addRoleOptions.id,
+                                });
 
-                        const buttonToCreateTicket = new MessageActionRow()
-                            .addComponents(
-                                new MessageButton()
-                                    .setCustomId('buttonToCreateTicket')
-                                    .setLabel('➕ Create')
-                                    .setStyle('SUCCESS'),
-                            );
+                                const embed = new MessageEmbed()
+                                    .setDescription("Settings Created")
+                                    .addFields(
+                                        { name: "**Welcome Channel**", value: "<#" + channelOptions2.id + ">", inline: true },
+                                        { name: "**Staff Role**", value: "<@&" + staffRoleOptions.id + ">", inline: true },
+                                        { name: "**Role to Add**", value: "<@&" + addRoleOptions.id + ">", inline: true },
+                                    )
 
-                        if (descriptionOptions) {
-                            const ticketMessage = new MessageEmbed()
-                                .setTitle("Ticket")
-                                .setDescription(descriptionOptions)
-                                .setColor("2f3136")
+                                return interaction.reply({
+                                    embeds: [embed],
+                                    ephemeral: true,
+                                });
+                            };
 
-                            channelToSend.send({
-                                embeds: [ticketMessage],
-                                components: [buttonToCreateTicket]
+                            const verificationChannelCreateData = await Logging.create({
+                                GuildID: interaction.guild.id,
+                                ChannelIDVerify: channelOptions2.id,
+                                StaffRoleVerify: staffRoleOptions.id,
+                                RoleToAddVerify: addRoleOptions.id,
+                                RoleToRemoveVerify: removeRoleOptions.id,
+                            });
+
+                            const embed = new MessageEmbed()
+                                .setDescription("Settings Created")
+                                .addFields(
+                                    { name: "**Welcome Channel**", value: "<#" + channelOptions2.id + ">", inline: true },
+                                    { name: "**Staff Role**", value: "<@&" + staffRoleOptions.id + ">", inline: true },
+                                    { name: "**Role to Add**", value: "<@&" + addRoleOptions.id + ">", inline: true },
+                                    { name: "**Role to Remove**", value: "<@&" + removeRoleOptions.id + ">", inline: true },
+                                )
+
+                            return interaction.reply({
+                                embeds: [embed],
+                                ephemeral: true,
                             });
                         } else {
-                            const ticketMessage = new MessageEmbed()
-                                .setTitle("Ticket")
-                                .setDescription("You need help? Click on the button below to create a ticket!")
-                                .setColor("2f3136")
+                            if (!removeRoleOptions) {
+                                const VerificationChannelChangeData1 = await Logging.update({
+                                    ChannelIDVerify: channelOptions2.id,
+                                    StaffRoleReport: staffRoleOptions.id,
+                                    RoleToAddVerify: addRoleOptions.id
+                                }, { where: { GuildID: interaction.guild.id } })
 
-                            channelToSend.send({
-                                embeds: [ticketMessage],
-                                components: [buttonToCreateTicket]
+                                const embed = new MessageEmbed()
+                                    .setDescription("Settings Changed")
+                                    .addFields(
+                                        { name: "**Welcome Channel:**", value: "<#" + channelOptions2.id + ">", inline: true },
+                                        { name: "**Staff:**", value: "<@&" + staffRoleOptions.id + ">", inline: true },
+                                        { name: "**Role to add:**", value: "<@&" + addRoleOptions.id + ">", inline: true },
+                                    )
+
+                                return interaction.reply({
+                                    embeds: [embed],
+                                    ephemeral: true,
+                                });
+                            };
+
+                            const VerificationChannelChangeData1 = await Logging.update({
+                                ChannelIDVerify: channelOptions2.id,
+                                StaffRoleReport: staffRoleOptions.id,
+                                RoleToAddVerify: addRoleOptions.id,
+                                RoleToRemoveVerify: removeRoleOptions.id
+                            }, { where: { GuildID: interaction.guild.id } })
+
+                            const embed = new MessageEmbed()
+                                .setDescription("Settings Changed")
+                                .addFields(
+                                    { name: "**Welcome Channel:**", value: "<#" + channelOptions2.id + ">", inline: true },
+                                    { name: "**Staff:**", value: "<@&" + staffRoleOptions.id + ">", inline: true },
+                                    { name: "**Role to add:**", value: "<@&" + addRoleOptions.id + ">", inline: true },
+                                    { name: "**Role to remove:**", value: "<@&" + removeRoleOptions.id + ">", inline: true },
+                                )
+
+                            return interaction.reply({
+                                embeds: [embed],
+                                ephemeral: true,
                             });
+                        };
+
+                    };
+                case ("menu"):
+                    if (channelOptions2 & channelOptions3 & staffRoleOptions & addRoleOptions) {
+
+                        if (staffRoleOptions.name === "@everyone" | addRoleOptions.name === "@everyone" | removeRole === "@everyone") {
+                            const embed = new MessageEmbed()
+                                .setDescription("Settings Error")
+                                .addFields(
+                                    { name: "**Role provided**", value: "This role, @everyone, cannot be used!", inline: true },
+                                )
+
+                            return interaction.reply({
+                                embeds: [embed],
+                                ephemeral: true,
+                            })
                         }
 
-                        return interaction.reply({
-                            content: "Welcome message/menu sent!",
-                            ephemeral: true,
-                        });*/
-                };
+                        if (!LoggingData) {
+                            if (!removeRoleOptions) {
+                                const verificationChannelCreateData = await Logging.create({
+                                    GuildID: interaction.guild.id,
+                                    ChannelIDVerify: channelOptions2.id,
+                                    ChannelIDReceiveVerification: channelOptions3.id,
+                                    StaffRoleVerify: staffRoleOptions.id,
+                                    RoleToAddVerify: addRoleOptions.id,
+                                });
 
-                const secondOptions = interaction.options.getSubcommandGroup();
+                                const embed = new MessageEmbed()
+                                    .setDescription("Settings Created")
+                                    .addFields(
+                                        { name: "**Welcome Channel**", value: "<#" + channelOptions2.id + ">", inline: true },
+                                        { name: "**Receive Channel**", value: "<#" + channelOptions3.id + ">", inline: true },
+                                        { name: "**Staff Role**", value: "<@&" + staffRoleOptions.id + ">", inline: true },
+                                        { name: "**Role to Add**", value: "<@&" + addRoleOptions.id + ">", inline: true },
+                                    )
 
-                switch (secondOptions) {
-                    case ("logging"):
-                        switch (options) {
-                            case ("ban"):
-                                if (channelOptions) {
-                                    if (!LoggingData) {
-                                        const banChannelCreateData = await Logging.create({
-                                            GuildID: interaction.guild.id,
-                                            ChannelIDBan: channelOptions.id,
-                                        })
+                                return interaction.reply({
+                                    embeds: [embed],
+                                    ephemeral: true,
+                                });
+                            };
 
-                                        const embed = new MessageEmbed()
-                                            .setDescription("Settings Created")
-                                            .addFields(
-                                                { name: "**Channel**", value: "<#" + channelOptions.id + ">!", inline: true },
-                                            )
+                            const verificationChannelCreateData = await Logging.create({
+                                GuildID: interaction.guild.id,
+                                ChannelIDVerify: channelOptions2.id,
+                                ChannelIDReceiveVerification: channelOptions3.id,
+                                StaffRoleVerify: staffRoleOptions.id,
+                                RoleToAddVerify: addRoleOptions.id,
+                                RoleToRemoveVerify: removeRoleOptions.id,
+                            });
 
-                                        return interaction.reply({
-                                            embeds: [embed],
-                                            ephemeral: true,
-                                        })
-                                    }
+                            const embed = new MessageEmbed()
+                                .setDescription("Settings Created")
+                                .addFields(
+                                    { name: "**Welcome Channel**", value: "<#" + channelOptions2.id + ">", inline: true },
+                                    { name: "**Receive Channel**", value: "<#" + channelOptions3.id + ">", inline: true },
+                                    { name: "**Staff Role**", value: "<@&" + staffRoleOptions.id + ">", inline: true },
+                                    { name: "**Role to Add**", value: "<@&" + addRoleOptions.id + ">", inline: true },
+                                    { name: "**Role to Remove**", value: "<@&" + removeRoleOptions.id + ">", inline: true },
+                                )
 
-                                    const banChannelChangeData = await Logging.update({ ChannelIDBan: channelOptions.id }, { where: { GuildID: interaction.guild.id } })
+                            return interaction.reply({
+                                embeds: [embed],
+                                ephemeral: true,
+                            });
+                        } else {
+                            if (!removeRoleOptions) {
+                                const VerificationChannelChangeData1 = await Logging.update({
+                                    ChannelIDVerify: channelOptions2.id,
+                                    ChannelIDReceiveVerification: channelOptions3.id,
+                                    StaffRoleReport: staffRoleOptions.id,
+                                    RoleToAddVerify: addRoleOptions.id
+                                }, { where: { GuildID: interaction.guild.id } })
 
-                                    const embed = new MessageEmbed()
-                                        .setDescription("Settings Changed")
-                                        .addFields(
-                                            { name: "**Channel**", value: "<#" + channelOptions.id + ">", inline: true },
-                                        )
+                                const embed = new MessageEmbed()
+                                    .setDescription("Settings Changed")
+                                    .addFields(
+                                        { name: "**Welcome Channel:**", value: "<#" + channelOptions2.id + ">", inline: true },
+                                        { name: "**Receive Channel**", value: "<#" + channelOptions3.id + ">", inline: true },
+                                        { name: "**Staff Role:**", value: "<@&" + staffRoleOptions.id + ">", inline: true },
+                                        { name: "**Role to add:**", value: "<@&" + addRoleOptions.id + ">", inline: true },
+                                    )
 
-                                    return interaction.reply({
-                                        embeds: [embed],
-                                        ephemeral: true,
-                                    })
-                                };
-                            case ("kick"):
-                                if (channelOptions) {
-                                    if (!LoggingData) {
-                                        const kickChannelCreateData = await Logging.create({
-                                            GuildID: interaction.guild.id,
-                                            ChannelIDKick: channelOptions.id,
-                                        })
+                                return interaction.reply({
+                                    embeds: [embed],
+                                    ephemeral: true,
+                                });
+                            };
 
-                                        const embed = new MessageEmbed()
-                                            .setDescription("Settings Created")
-                                            .addFields(
-                                                { name: "**Channel**", value: "<#" + channelOptions.id + ">!", inline: true },
-                                            )
+                            const VerificationChannelChangeData1 = await Logging.update({
+                                ChannelIDVerify: channelOptions2.id,
+                                ChannelIDReceiveVerification: channelOptions3.id,
+                                StaffRoleReport: staffRoleOptions.id,
+                                RoleToAddVerify: addRoleOptions.id,
+                                RoleToRemoveVerify: removeRoleOptions.id,
+                            }, { where: { GuildID: interaction.guild.id } })
 
-                                        return interaction.reply({
-                                            embeds: [embed],
-                                            ephemeral: true,
-                                        })
-                                    }
+                            const embed = new MessageEmbed()
+                                .setDescription("Settings Changed")
+                                .addFields(
+                                    { name: "**Welcome Channel:**", value: "<#" + channelOptions2.id + ">", inline: true },
+                                    { name: "**Receive Channel**", value: "<#" + channelOptions3.id + ">", inline: true },
+                                    { name: "**Staff Role:**", value: "<@&" + staffRoleOptions.id + ">", inline: true },
+                                    { name: "**Role to add:**", value: "<@&" + addRoleOptions.id + ">", inline: true },
+                                    { name: "**Role to remove:**", value: "<@&" + removeRoleOptions.id + ">", inline: true },
+                                )
 
-                                    const kickChannelChangeData = await Logging.update({ ChannelIDKick: channelOptions.id }, { where: { GuildID: interaction.guild.id } })
-
-                                    const embed = new MessageEmbed()
-                                        .setDescription("Settings Changed")
-                                        .addFields(
-                                            { name: "**Channel**", value: "<#" + channelOptions.id + ">", inline: true },
-                                        )
-
-                                    return interaction.reply({
-                                        embeds: [embed],
-                                        ephemeral: true,
-                                    })
-                                };
-                            case ("warn"):
-                                if (channelOptions) {
-                                    if (!LoggingData) {
-                                        const warnChannelCreateData = await Logging.create({
-                                            GuildID: interaction.guild.id,
-                                            ChannelIDWarn: channelOptions.id,
-                                        })
-
-                                        const embed = new MessageEmbed()
-                                            .setDescription("Settings Created")
-                                            .addFields(
-                                                { name: "**Channel**", value: "<#" + channelOptions.id + ">!", inline: true },
-                                            )
-
-                                        return interaction.reply({
-                                            embeds: [embed],
-                                            ephemeral: true,
-                                        })
-                                    }
-
-                                    const warnChannelChangeData = await Logging.update({ ChannelIDWarn: channelOptions.id }, { where: { GuildID: interaction.guild.id } })
-
-                                    const embed = new MessageEmbed()
-                                        .setDescription("Settings Changed")
-                                        .addFields(
-                                            { name: "**Channel**", value: "<#" + channelOptions.id + ">", inline: true },
-                                        )
-
-                                    return interaction.reply({
-                                        embeds: [embed],
-                                        ephemeral: true,
-                                    })
-                                };
-                            case ("blacklist"):
-                                if (booleanBlacklist) {
-                                    if (booleanBlacklist === "true") booleanBlacklist = "Enabled";
-                                    if (booleanBlacklist === "false") booleanBlacklist = "Disabled";
-
-                                    if (!LoggingData) {
-                                        const blacklistData = await Logging.create({
-                                            GuildID: interaction.guild.id,
-                                            ChannelIDBlacklist: channelOptions.id,
-                                            EnableDisableBlacklistLogger: booleanBlacklist,
-                                        })
-
-                                        const embed = new MessageEmbed()
-                                            .setDescription("Settings Created")
-                                            .addFields(
-                                                { name: "**Set**", value: booleanBlacklist, inline: true },
-                                                { name: "**Channel**", value: "<#" + channelOptions.id + ">", inline: true }
-                                            )
-
-                                        return interaction.reply({
-                                            embeds: [embed],
-                                            ephemeral: true,
-                                        })
-                                    }
-
-                                    const BlacklistChangeData = await Logging.update({ EnableDisableBlacklistLogger: booleanBlacklist }, { where: { GuildID: interaction.guild.id } })
-                                    const BlacklistChannelChangeData = await Logging.update({ ChannelIDBlacklist: channelOptions.id }, { where: { GuildID: interaction.guild.id } })
-
-                                    const embed = new MessageEmbed()
-                                        .setDescription("Settings Changed")
-                                        .addFields(
-                                            { name: "**Set**", value: booleanBlacklist, inline: true },
-                                            { name: "**Channel**", value: "<#" + channelOptions.id + ">", inline: true }
-                                        )
-
-                                    return interaction.reply({
-                                        embeds: [embed],
-                                        ephemeral: true,
-                                    })
-
-                                };
-                        };
-                    case ("verification"):
-                        let removeRole = removeRoleOptions;
-                        if (removeRole) removeRole = removeRoleOptions.name;
-                        if (!removeRole) removeRole = removeRoleOptions;
-
-                        switch (options) {
-                            case ("command"):
-                                if (channelOptions2 & staffRoleOptions & addRoleOptions) {
-                                    if (staffRoleOptions.name === "@everyone" | addRoleOptions.name === "@everyone" | removeRole === "@everyone") {
-                                        const embed = new MessageEmbed()
-                                            .setDescription("Settings Error")
-                                            .addFields(
-                                                { name: "**Role provided**", value: "This role, @everyone, cannot be used!", inline: true },
-                                            )
-
-                                        return interaction.reply({
-                                            embeds: [embed],
-                                            ephemeral: true,
-                                        })
-                                    }
-
-                                    if (!LoggingData) {
-                                        if (!removeRoleOptions) {
-                                            const verificationChannelCreateData = await Logging.create({
-                                                GuildID: interaction.guild.id,
-                                                ChannelIDVerify: channelOptions2.id,
-                                                StaffRoleVerify: staffRoleOptions.id,
-                                                RoleToAddVerify: addRoleOptions.id,
-                                            });
-
-                                            const embed = new MessageEmbed()
-                                                .setDescription("Settings Created")
-                                                .addFields(
-                                                    { name: "**Welcome Channel**", value: "<#" + channelOptions2.id + ">", inline: true },
-                                                    { name: "**Staff Role**", value: "<@&" + staffRoleOptions.id + ">", inline: true },
-                                                    { name: "**Role to Add**", value: "<@&" + addRoleOptions.id + ">", inline: true },
-                                                )
-
-                                            return interaction.reply({
-                                                embeds: [embed],
-                                                ephemeral: true,
-                                            });
-                                        };
-
-                                        const verificationChannelCreateData = await Logging.create({
-                                            GuildID: interaction.guild.id,
-                                            ChannelIDVerify: channelOptions2.id,
-                                            StaffRoleVerify: staffRoleOptions.id,
-                                            RoleToAddVerify: addRoleOptions.id,
-                                            RoleToRemoveVerify: removeRoleOptions.id,
-                                        });
-
-                                        const embed = new MessageEmbed()
-                                            .setDescription("Settings Created")
-                                            .addFields(
-                                                { name: "**Welcome Channel**", value: "<#" + channelOptions2.id + ">", inline: true },
-                                                { name: "**Staff Role**", value: "<@&" + staffRoleOptions.id + ">", inline: true },
-                                                { name: "**Role to Add**", value: "<@&" + addRoleOptions.id + ">", inline: true },
-                                                { name: "**Role to Remove**", value: "<@&" + removeRoleOptions.id + ">", inline: true },
-                                            )
-
-                                        return interaction.reply({
-                                            embeds: [embed],
-                                            ephemeral: true,
-                                        });
-                                    } else {
-                                        if (!removeRoleOptions) {
-                                            const VerificationChannelChangeData1 = await Logging.update({ ChannelIDVerify: channelOptions2.id }, { where: { GuildID: interaction.guild.id } })
-                                            const VerificationChannelChangeData2 = await Logging.update({ StaffRoleReport: staffRoleOptions.id }, { where: { GuildID: interaction.guild.id } })
-                                            const VerificationChannelChangeData3 = await Logging.update({ RoleToAddVerify: addRoleOptions.id }, { where: { GuildID: interaction.guild.id } })
-
-                                            const embed = new MessageEmbed()
-                                                .setDescription("Settings Changed")
-                                                .addFields(
-                                                    { name: "**Welcome Channel:**", value: "<#" + channelOptions2.id + ">", inline: true },
-                                                    { name: "**Staff:**", value: "<@&" + staffRoleOptions.id + ">", inline: true },
-                                                    { name: "**Role to add:**", value: "<@&" + addRoleOptions.id + ">", inline: true },
-                                                )
-
-                                            return interaction.reply({
-                                                embeds: [embed],
-                                                ephemeral: true,
-                                            });
-                                        };
-
-                                        const VerificationChannelChangeData1 = await Logging.update({ ChannelIDVerify: channelOptions2.id }, { where: { GuildID: interaction.guild.id } })
-                                        const VerificationChannelChangeData2 = await Logging.update({ StaffRoleReport: staffRoleOptions.id }, { where: { GuildID: interaction.guild.id } })
-                                        const VerificationChannelChangeData3 = await Logging.update({ RoleToAddVerify: addRoleOptions.id }, { where: { GuildID: interaction.guild.id } })
-                                        const VerificationChannelChangeData4 = await Logging.update({ RoleToRemoveVerify: removeRoleOptions.id }, { where: { GuildID: interaction.guild.id } })
-
-                                        const embed = new MessageEmbed()
-                                            .setDescription("Settings Changed")
-                                            .addFields(
-                                                { name: "**Welcome Channel:**", value: "<#" + channelOptions2.id + ">", inline: true },
-                                                { name: "**Staff:**", value: "<@&" + staffRoleOptions.id + ">", inline: true },
-                                                { name: "**Role to add:**", value: "<@&" + addRoleOptions.id + ">", inline: true },
-                                                { name: "**Role to remove:**", value: "<@&" + removeRoleOptions.id + ">", inline: true },
-                                            )
-
-                                        return interaction.reply({
-                                            embeds: [embed],
-                                            ephemeral: true,
-                                        });
-                                    };
-
-                                };
-                            case ("menu"):
-                                if (channelOptions2 & channelOptions3 & staffRoleOptions & addRoleOptions) {
-
-                                    if (staffRoleOptions.name === "@everyone" | addRoleOptions.name === "@everyone" | removeRole === "@everyone") {
-                                        const embed = new MessageEmbed()
-                                            .setDescription("Settings Error")
-                                            .addFields(
-                                                { name: "**Role provided**", value: "This role, @everyone, cannot be used!", inline: true },
-                                            )
-
-                                        return interaction.reply({
-                                            embeds: [embed],
-                                            ephemeral: true,
-                                        })
-                                    }
-
-                                    if (!LoggingData) {
-                                        if (!removeRoleOptions) {
-                                            const verificationChannelCreateData = await Logging.create({
-                                                GuildID: interaction.guild.id,
-                                                ChannelIDVerify: channelOptions2.id,
-                                                ChannelIDReceiveVerification: channelOptions3.id,
-                                                StaffRoleVerify: staffRoleOptions.id,
-                                                RoleToAddVerify: addRoleOptions.id,
-                                            });
-
-                                            const embed = new MessageEmbed()
-                                                .setDescription("Settings Created")
-                                                .addFields(
-                                                    { name: "**Welcome Channel**", value: "<#" + channelOptions2.id + ">", inline: true },
-                                                    { name: "**Receive Channel**", value: "<#" + channelOptions3.id + ">", inline: true },
-                                                    { name: "**Staff Role**", value: "<@&" + staffRoleOptions.id + ">", inline: true },
-                                                    { name: "**Role to Add**", value: "<@&" + addRoleOptions.id + ">", inline: true },
-                                                )
-
-                                            return interaction.reply({
-                                                embeds: [embed],
-                                                ephemeral: true,
-                                            });
-                                        };
-
-                                        const verificationChannelCreateData = await Logging.create({
-                                            GuildID: interaction.guild.id,
-                                            ChannelIDVerify: channelOptions2.id,
-                                            ChannelIDReceiveVerification: channelOptions3.id,
-                                            StaffRoleVerify: staffRoleOptions.id,
-                                            RoleToAddVerify: addRoleOptions.id,
-                                            RoleToRemoveVerify: removeRoleOptions.id,
-                                        });
-
-                                        const embed = new MessageEmbed()
-                                            .setDescription("Settings Created")
-                                            .addFields(
-                                                { name: "**Welcome Channel**", value: "<#" + channelOptions2.id + ">", inline: true },
-                                                { name: "**Receive Channel**", value: "<#" + channelOptions3.id + ">", inline: true },
-                                                { name: "**Staff Role**", value: "<@&" + staffRoleOptions.id + ">", inline: true },
-                                                { name: "**Role to Add**", value: "<@&" + addRoleOptions.id + ">", inline: true },
-                                                { name: "**Role to Remove**", value: "<@&" + removeRoleOptions.id + ">", inline: true },
-                                            )
-
-                                        return interaction.reply({
-                                            embeds: [embed],
-                                            ephemeral: true,
-                                        });
-                                    } else {
-                                        if (!removeRoleOptions) {
-                                            const VerificationChannelChangeData1 = await Logging.update({ ChannelIDVerify: channelOptions2.id }, { where: { GuildID: interaction.guild.id } })
-                                            const VerificationChannelChangeData2 = await Logging.update({ ChannelIDReceiveVerification: channelOptions3.id }, { where: { GuildID: interaction.guild.id } })
-                                            const VerificationChannelChangeData3 = await Logging.update({ StaffRoleReport: staffRoleOptions.id }, { where: { GuildID: interaction.guild.id } })
-                                            const VerificationChannelChangeData4 = await Logging.update({ RoleToAddVerify: addRoleOptions.id }, { where: { GuildID: interaction.guild.id } })
-
-                                            const embed = new MessageEmbed()
-                                                .setDescription("Settings Changed")
-                                                .addFields(
-                                                    { name: "**Welcome Channel:**", value: "<#" + channelOptions2.id + ">", inline: true },
-                                                    { name: "**Receive Channel**", value: "<#" + channelOptions3.id + ">", inline: true },
-                                                    { name: "**Staff Role:**", value: "<@&" + staffRoleOptions.id + ">", inline: true },
-                                                    { name: "**Role to add:**", value: "<@&" + addRoleOptions.id + ">", inline: true },
-                                                )
-
-                                            return interaction.reply({
-                                                embeds: [embed],
-                                                ephemeral: true,
-                                            });
-                                        };
-
-                                        const VerificationChannelChangeData1 = await Logging.update({ ChannelIDVerify: channelOptions2.id }, { where: { GuildID: interaction.guild.id } })
-                                        const VerificationChannelChangeData2 = await Logging.update({ ChannelIDReceiveVerification: channelOptions3.id }, { where: { GuildID: interaction.guild.id } })
-                                        const VerificationChannelChangeData3 = await Logging.update({ StaffRoleReport: staffRoleOptions.id }, { where: { GuildID: interaction.guild.id } })
-                                        const VerificationChannelChangeData4 = await Logging.update({ RoleToAddVerify: addRoleOptions.id }, { where: { GuildID: interaction.guild.id } })
-                                        const VerificationChannelChangeData5 = await Logging.update({ RoleToRemoveVerify: removeRoleOptions.id }, { where: { GuildID: interaction.guild.id } })
-
-                                        const embed = new MessageEmbed()
-                                            .setDescription("Settings Changed")
-                                            .addFields(
-                                                { name: "**Welcome Channel:**", value: "<#" + channelOptions2.id + ">", inline: true },
-                                                { name: "**Receive Channel**", value: "<#" + channelOptions3.id + ">", inline: true },
-                                                { name: "**Staff Role:**", value: "<@&" + staffRoleOptions.id + ">", inline: true },
-                                                { name: "**Role to add:**", value: "<@&" + addRoleOptions.id + ">", inline: true },
-                                                { name: "**Role to remove:**", value: "<@&" + removeRoleOptions.id + ">", inline: true },
-                                            )
-
-                                        return interaction.reply({
-                                            embeds: [embed],
-                                            ephemeral: true,
-                                        });
-                                    }
-                                };
-                        };
-                };
-            };
+                            return interaction.reply({
+                                embeds: [embed],
+                                ephemeral: true,
+                            });
+                        }
+                    };
+            }
         } else {
             return interaction.reply({
-                content: "You cannot execute that command! You need the following permission ``ADMINISTRATOR`` or ``MANAGE_GUILD``.",
+                content: "You cannot execute that command! You need the following permission: ``ADMINISTRATOR`` or ``MANAGE_GUILD``.",
                 ephemeral: true,
             })
         }

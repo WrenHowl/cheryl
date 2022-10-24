@@ -1,17 +1,18 @@
-const { MessageActionRow, MessageSelectMenu, MessageEmbed } = require('discord.js');
+const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const Color = require("../config/color.json");
 
 const dateTime = new Date();
-console.log(dateTime.toLocaleString() + " -> The 'report' command is loaded.")
+console.log(dateTime.toLocaleString() + " -> The 'report' command is loaded.");
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('report')
         .setDescription('Report a user.')
-        .addUserOption(option => option.setName("user").setDescription("User to report").setRequired(true))
+        .addUserOption(option => option.setName("user").setDescription("User to report.").setRequired(true))
         .addStringOption(option =>
             option.setName('reason')
-                .setDescription('Choose a reason')
+                .setDescription('Enter a reason.')
                 .setRequired(true)),
     execute: async (interaction, bot, sequelize, Sequelize) => {
         const user = interaction.options.getUser("user");
@@ -35,6 +36,10 @@ module.exports = {
                 unique: false,
             },
             ChannelIDEnterServer: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            ChannelIDWelcome: {
                 type: Sequelize.STRING,
                 unique: false,
             },
@@ -66,10 +71,22 @@ module.exports = {
                 type: Sequelize.STRING,
                 unique: false,
             },
-            BanByPassRole: {
+            ChannelIDUnban: {
                 type: Sequelize.STRING,
                 unique: false,
             },
+            ChannelIDKick: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            ChannelIDReceiveVerification: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            AutoBanStatus: {
+                type: Sequelize.STRING,
+                unique: false,
+            }
         });
 
         const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
@@ -107,7 +124,7 @@ module.exports = {
 
                 const banMessage = new MessageEmbed()
                     .setDescription("You have successfully reported ``" + member.user.tag + "`` for ``" + reason + "``")
-                    .setColor("2f3136")
+                    .setColor(Color.Green)
 
                 await interaction.reply({
                     embeds: [banMessage],
@@ -123,18 +140,20 @@ module.exports = {
                     .setFooter({
                         text: "ID: " + member.user.id,
                     })
-                    .setColor("2f3136")
+                    .setColor(Color.RiskLow)
 
-                if (!LoggingData.StaffRoleReport) {
+                if (interaction.guild.members.guild.me.permissionsIn(LoggingData.ChannelIDReport).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
+                    if (!LoggingData.StaffRoleReport) {
+                        return logChannel.send({
+                            embeds: [logMessage],
+                        });
+                    }
+
                     return logChannel.send({
+                        content: "<@&" + LoggingData.StaffRoleReport + ">",
                         embeds: [logMessage],
                     });
                 }
-
-                return logChannel.send({
-                    content: "<@&" + LoggingData.StaffRoleReport + ">",
-                    embeds: [logMessage],
-                });
         }
     }
 };

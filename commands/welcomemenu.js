@@ -36,6 +36,10 @@ module.exports = {
                     type: Sequelize.STRING,
                     unique: false,
                 },
+                ChannelIDWelcome: {
+                    type: Sequelize.STRING,
+                    unique: false,
+                },
                 StaffRoleReport: {
                     type: Sequelize.STRING,
                     unique: false,
@@ -64,7 +68,7 @@ module.exports = {
                     type: Sequelize.STRING,
                     unique: false,
                 },
-                BanByPassRole: {
+                ChannelIDUnban: {
                     type: Sequelize.STRING,
                     unique: false,
                 },
@@ -76,6 +80,10 @@ module.exports = {
                     type: Sequelize.STRING,
                     unique: false,
                 },
+                AutoBanStatus: {
+                    type: Sequelize.STRING,
+                    unique: false,
+                }
             });
 
             const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });

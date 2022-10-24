@@ -1,6 +1,7 @@
 const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const moment = require("moment")
+const Color = require("../config/color.json");
 
 const dateTime = new Date();
 console.log(dateTime.toLocaleString() + " -> The 'userinfo' command is loaded.")
@@ -9,33 +10,8 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('userinfo')
         .setDescription('Get info about a user.')
-        .addUserOption(option => option.setName("user").setDescription("User to get info from").setRequired(false)),
+        .addUserOption(option => option.setName("user").setDescription("User to get info.").setRequired(false)),
     execute: async (interaction, bot, sequelize, Sequelize) => {
-        let user = interaction.options.getUser("user");
-
-        let MemberData = null;
-
-        if (user) MemberData = user;
-        if (!user) MemberData = interaction.user;
-
-        let member = interaction.guild.members.cache.get(MemberData.id) || await interaction.guild.members.fetch(MemberData.id).catch(err => { });
-
-        let roleMap = member.roles.cache
-            .filter((roles) => roles.id !== interaction.guild.id)
-            .sort((a, b) => b.position - a.position)
-            .map((role) => role.toLocaleString())
-            .join(", ");
-
-        if (!roleMap) roleMap = "No role";
-
-        let fetchGuild = interaction.client.guilds.cache.get("821241527941726248")
-
-        const staffMember = fetchGuild.members.cache.get(MemberData.id)
-        let staffCheck = staffMember ? staffMember.roles.cache.has("931038287114678334") : false
-
-        if (staffCheck) staffCheck = "Yes";
-        if (!staffCheck) staffCheck = "No";
-
         const Verifier = sequelize.define("Verifier", {
             VerifierName: {
                 type: Sequelize.STRING,
@@ -60,44 +36,63 @@ module.exports = {
             },
         });
 
-        let verifLog = await Verifier.findOne({ where: { VerifierID: MemberData.id } });
+        function checkDays(date) {
+            let now = new Date();
+            let diff = now.getTime() - date.getTime();
+            let days = Math.floor(diff / 86400000);
+            return days + (days == 1 ? " day" : " days") + " ago";
+        }
+
+        let user = interaction.options.getUser("user");
+        let MemberData = "";
+
+        if (user) MemberData = user;
+        if (!user) MemberData = interaction.member;
+
+        let member = interaction.guild.members.cache.get(MemberData.id) || await interaction.guild.members.fetch(MemberData.id).catch(err => { });
+
+        if (user) CheckDaysCreatedAt = user.createdAt;
+        if (!user) CheckDaysCreatedAt = interaction.user.createdAt;
+
+        let guild = bot.guilds.cache.get(interaction.guild.id);
+        let JoinedAtData = "";
+        let CheckDaysJoinedAt = "";
+
+        if (guild.members.cache.get(MemberData.id)) JoinedAtData = interaction.member.joinedAt;
+        if (!guild.members.cache.get(MemberData.id)) JoinedAtData = "No Data Found";
+        if (guild.members.cache.get(MemberData.id)) CheckDaysJoinedAt = moment(JoinedAtData).format("Do MMMM YYYY hh:ss:mm A") + " / " + (checkDays(JoinedAtData));
+        if (!guild.members.cache.get(MemberData.id)) CheckDaysJoinedAt = "No Data Found";
+
+        let verifLog = await Verifier.findOne({ where: { VerifierID: MemberData.id, GuildID: interaction.guild.id } });
 
         if (verifLog) verifLog = verifLog.ModName;
-        if (!verifLog) verifLog = "No data";
+        if (!verifLog) verifLog = "No Data Found";
 
-        if (MemberData.id === "291262778730217472") {
-            const userinfoEmbed = new MessageEmbed()
-                .setDescription("Owner of **Bad Dragon** & **OCF**")
-                .addFields(
-                    { name: "__**Name:**__", value: "<@" + MemberData.id + ">" },
-                    { name: "__**ID:**__", value: "``" + MemberData.id + "``" },
-                    { name: "__**Verifier:**__", value: "``" + verifLog + "``" },
-                    { name: "__**Staff OCF:**__", value: "``" + staffCheck + "``" },
-                    { name: "__**Created At**__", value: "``" + moment(MemberData.createdAt).format("Do MMMM YYYY hh:ss:mm A") + "``" },
-                    { name: "__**Roles:**__", value: roleMap },
-                )
-                .setThumbnail(MemberData.displayAvatarURL())
-                .setColor("2f3136")
+        let roleMap = "";
 
-            return interaction.reply({
-                embeds: [userinfoEmbed]
-            })
-        }
+        if (guild.members.cache.get(MemberData.id)) roleMap = member.roles.cache
+            .filter((roles) => roles.id !== interaction.guild.id)
+            .sort((a, b) => b.position - a.position)
+            .map((role) => role.toLocaleString())
+            .join(", ");;
+        if (!guild.members.cache.get(MemberData.id)) roleMap = "No Role Found";
+
+        if (!roleMap) roleMap = "No Role Found";
 
         const userinfoEmbed = new MessageEmbed()
             .addFields(
-                { name: "__**Name:**__", value: "<@" + MemberData.id + ">" },
-                { name: "__**ID:**__", value: "``" + MemberData.id + "``" },
-                { name: "__**Verifier:**__", value: "``" + verifLog + "``" },
-                { name: "__**Staff OCF:**__", value: "``" + staffCheck + "``" },
-                { name: "__**Created At**__", value: "``" + moment(MemberData.createdAt).format("Do MMMM YYYY hh:ss:mm A") + "``" },
-                { name: "__**Roles:**__", value: roleMap },
+                { name: "Name:", value: "<@" + MemberData.id + ">" },
+                { name: "ID:", value: MemberData.id },
+                { name: "Verifier:", value: verifLog },
+                { name: "Created At:", value: moment(CheckDaysCreatedAt).format("Do MMMM YYYY hh:ss:mm A") + " / " + (checkDays(CheckDaysCreatedAt)) },
+                { name: "Joined At:", value: CheckDaysJoinedAt },
+                { name: "Roles:", value: roleMap },
             )
             .setThumbnail(MemberData.displayAvatarURL())
-            .setColor("2f3136")
+            .setColor(Color.Green)
 
         return interaction.reply({
             embeds: [userinfoEmbed]
-        })
+        });
     }
 };

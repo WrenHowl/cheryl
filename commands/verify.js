@@ -1,7 +1,6 @@
-const { MessageActionRow, MessageSelectMenu, MessageEmbed, CommandInteractionOptionResolver } = require('discord.js');
+const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const wait = require("timers/promises").setTimeout;
-const config = require("../config/config.json");
+const Color = require("../config/color.json");
 
 const dateTime = new Date();
 console.log(dateTime.toLocaleString() + " -> The 'verify' command is loaded.");
@@ -9,9 +8,9 @@ console.log(dateTime.toLocaleString() + " -> The 'verify' command is loaded.");
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('verify')
-        .setDescription('Verify a member!')
-        .addUserOption((option) => option.setName("user").setDescription("User to verify").setRequired(true))
-        .addStringOption(option => option.setName("name").setDescription("Name to change").setRequired(false)),
+        .setDescription('Verify a member.')
+        .addUserOption((option) => option.setName("user").setDescription("User to verify.").setRequired(true))
+        .addStringOption(option => option.setName("name").setDescription("Name to change (optional).").setRequired(false)),
     execute: async (interaction, bot, sequelize, Sequelize) => {
         const Logging = sequelize.define("Logging", {
             GuildID: {
@@ -31,6 +30,10 @@ module.exports = {
                 unique: false,
             },
             ChannelIDEnterServer: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            ChannelIDWelcome: {
                 type: Sequelize.STRING,
                 unique: false,
             },
@@ -62,12 +65,23 @@ module.exports = {
                 type: Sequelize.STRING,
                 unique: false,
             },
-            BanByPassRole: {
+            ChannelIDUnban: {
                 type: Sequelize.STRING,
                 unique: false,
             },
+            ChannelIDKick: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            ChannelIDReceiveVerification: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            AutoBanStatus: {
+                type: Sequelize.STRING,
+                unique: false,
+            }
         });
-
         const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
 
         if (!LoggingData) {
@@ -172,7 +186,7 @@ module.exports = {
 
                             const SetRoleSuccess = new MessageEmbed()
                                 .setDescription("<@" + user + "> is now verified!\n\n> You verified ``" + Verification_CountData.Usage_Count + "`` members.")
-                                .setColor("2f3136")
+                                .setColor(Color.Green)
 
                             await interaction.reply({ embeds: [SetRoleSuccess], ephemeral: true });
                         };
@@ -185,7 +199,7 @@ module.exports = {
 
                         const SetRoleSuccess = new MessageEmbed()
                             .setDescription("<@" + user + "> is now verified!\n\n> You verified ``1`` members.")
-                            .setColor("2f3136")
+                            .setColor(Color.Green)
 
                         await interaction.reply({ embeds: [SetRoleSuccess], ephemeral: true });
                     };
@@ -202,7 +216,7 @@ module.exports = {
 
                         const AdsInGeneral = new MessageEmbed()
                             .setDescription("__**Read the rules:**__ <#898360656175198249>\n__**Get your roles:**__ <#898360376654188557>\n__**Join an event:**__ <#898360298552037426>")
-                            .setColor("2f3136")
+                            .setColor(Color.Green)
 
                         return GeneralMessage.send({ embeds: [AdsInGeneral], content: user.toString() });
                     }

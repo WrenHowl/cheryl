@@ -1,23 +1,23 @@
-const { Client, Intents, MessageEmbed, Collection, MessageActionRow, Modal, MessageButton, TextInputComponent, MessageSelectMenu, ReactionUserManager } = require("discord.js");
+const { Client, Intents, MessageEmbed, Collection, MessageActionRow, Modal, MessageButton, TextInputComponent, MessageSelectMenu, Message } = require("discord.js");
 const fs = require("node:fs");
 const path = require('node:path');
 const Sequelize = require('sequelize');
 const moment = require("moment");
-const { Login } = require('furaffinity-api');
-const wait = require("timers/promises").setTimeout;
+const { Login, user } = require('furaffinity-api');
 const Config = require("./config/config.json");
 const MessageConfig = require("./config/message.json");
 const Color = require("./config/color.json");
-const { channel } = require("node:diagnostics_channel");
 const bot = new Client({
   allowedMentions: { parse: ['users', 'roles'], repliedUser: true },
   intents: [Intents.FLAGS.GUILD_BANS, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_PRESENCES, Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.GUILD_INTEGRATIONS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS],
   partials: ["MESSAGE", "CHANNEL", "REACTION"]
 });
+const { ImgurClient } = require('imgur');
 
 const dateTime = new Date();
+const client = new ImgurClient({ clientId: Config.ImgurID });
 
-let prefix = ".";
+let prefix = Config.secondPrefix;
 
 bot.commands = new Collection();
 
@@ -263,7 +263,7 @@ const Logging = sequelize.define("Logging", {
     type: Sequelize.STRING,
     unique: false,
   },
-  BanByPassRole: {
+  ChannelIDUnban: {
     type: Sequelize.STRING,
     unique: false,
   },
@@ -275,50 +275,77 @@ const Logging = sequelize.define("Logging", {
     type: Sequelize.STRING,
     unique: false,
   },
-  TicketRoleID: {
+  AutoBanStatus: {
     type: Sequelize.STRING,
     unique: false,
   },
+  ChannelIDBump: {
+    type: Sequelize.STRING,
+    unique: false,
+  }
 });
-const AFK = sequelize.define("AFK", {
+const Permission = sequelize.define("Permission", {
+  UserName: {
+    type: Sequelize.STRING,
+    unique: false,
+  },
   UserID: {
     type: Sequelize.STRING,
     unique: false,
   },
-  EnableDisable: {
+  GuildID: {
     type: Sequelize.STRING,
     unique: false,
   },
-  Reason: {
+  BlacklistPermission: {
     type: Sequelize.STRING,
-    unique: true,
+    unique: false,
+  },
+});
+const ActionImage = sequelize.define("ActionImage", {
+  ImageURL: {
+    type: Sequelize.STRING,
+    unique: false,
+  },
+  Category: {
+    type: Sequelize.STRING,
+    unique: false,
+  },
+  MessageID: {
+    type: Sequelize.STRING,
+    unique: false,
+  },
+  UserName: {
+    type: Sequelize.STRING,
+    unique: false,
+  },
+  UserID: {
+    type: Sequelize.STRING,
+    unique: false,
   },
 });
 
 bot.once("ready", async () => {
-  await wait(1000);
-
-  const Guild = bot.guilds.cache.get("821241527941726248");
-
   bot.user.setStatus("dnd")
-
+  let counter = 0;
   setInterval(async function () {
-
-    const MemberCount = Guild.members.cache.filter(member => !member.user.bot).size;
+    const MemberCount = bot.guilds.cache.reduce((a, g) => a + g.memberCount, 0)
     const AllServers = bot.guilds.cache.size;
+    let Blacklisted = await Blacklist.findAll({ attributes: ['UserID'] });
 
     const Status = [
-      MemberCount + " Furries!",
+      MemberCount + " Members!",
       AllServers + " Servers!",
-      MemberCount + " Furries!",
-      AllServers + " Servers!",
+      Blacklisted.length + " Blacklisted Users!",
     ]
 
-    const randomIndex = Math.floor(Math.random() * (Status.length - 1) + 0);
-    const NewStatus = Status[randomIndex];
+    if (counter === Status.length) counter = 0;
+    const StatusChange = Status[counter];
 
-    bot.user.setPresence({ activities: [{ type: "WATCHING", name: NewStatus }] });
-  }, 15000)
+    bot.user.setPresence({ activities: [{ type: "WATCHING", name: StatusChange }] });
+
+    counter++;
+  }, 5000)
 
   setInterval(function () {
     Verification_Count.sync();
@@ -328,7 +355,8 @@ bot.once("ready", async () => {
     Blacklist.sync();
     Warns.sync();
     Logging.sync();
-    AFK.sync();
+    ActionImage.sync();
+    Permission.sync();
   }, 5000);
 
   console.log(dateTime.toLocaleString() + " -> The bot is ready!");
@@ -339,47 +367,37 @@ bot.on("guildMemberAdd", async (NewMember) => {
 
   if (LoggingData) {
     if (LoggingData.ChannelIDWelcome) {
-      const ChannelGuild = NewMember.guild.channels.cache.get(LoggingData.ChannelIDWelcome);
-      if (NewMember.guild.id === "821241527941726248") {
-        if (NewMember.user.bot) return;
-
+      if (NewMember.guild.members.guild.me.permissionsIn(LoggingData.ChannelIDWelcome).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
+        const ChannelGuild = NewMember.guild.channels.cache.get(LoggingData.ChannelIDWelcome);
         const MemberCount = NewMember.guild.members.cache.filter(member => !member.user.bot).size;
 
-        await NewMember.roles.add("940140000916430848");
-        await NewMember.roles.add("1000236020517834844");
-        await NewMember.roles.add("1000236337900818533");
-        await NewMember.roles.add("1001111992834211921");
+        if (NewMember.guild.id === "821241527941726248") {
+          if (NewMember.user.bot) return;
 
-        const WelcomeMessage = new MessageEmbed()
-          .setDescription("Welcome to <@" + NewMember.id + "> ``(" + NewMember.user.tag + ")``!\n\n> __**Account Creation:**__ ``" + moment(NewMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") + "``\n> **__Joined At:__** ``" + moment(NewMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') + "``\n> __**Furries Count:**__ ``" + MemberCount + "``")
-          .setColor("2f3136")
-          .setFooter({
-            text: "ID: " + NewMember.id
-          })
-          .setThumbnail(NewMember.user.displayAvatarURL())
+          await NewMember.roles.add("940140000916430848");
+          await NewMember.roles.add("1000236020517834844");
+          await NewMember.roles.add("1000236337900818533");
+          await NewMember.roles.add("1001111992834211921");
 
-        if (NewMember.user.id === "610309745714135040") return;
+          const WelcomeMessage = new MessageEmbed()
+            .setDescription("Welcome <@" + NewMember.id + "> ``(" + NewMember.user.tag + ")``!\n\n> **Created At:** ``" + moment(NewMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") + "``\n> **Joined At:** ``" + moment(NewMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') + "``\n> **Furries Count:** ``" + MemberCount + "``")
+            .setColor(Color.Green)
+            .setThumbnail(NewMember.user.displayAvatarURL())
 
-        await ChannelGuild.send({
-          embeds: [WelcomeMessage]
-        });
-      } else {
-        const MemberCount = NewMember.guild.members.cache.filter(member => !member.user.bot).size;
+          await ChannelGuild.send({
+            embeds: [WelcomeMessage]
+          });
+        } else {
+          const WelcomeMessage = new MessageEmbed()
+            .setDescription("Welcome <@" + NewMember.id + "> ``(" + NewMember.user.tag + ")``!\n\n> **Created At:** ``" + moment(NewMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") + "``\n> **Joined At:** ``" + moment(NewMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') + "``\n> **Member Count:** ``" + MemberCount + "``")
+            .setColor(Color.Green)
+            .setThumbnail(NewMember.user.displayAvatarURL())
 
-        const WelcomeMessage = new MessageEmbed()
-          .setDescription("Welcome to <@" + NewMember.id + "> ``(" + NewMember.user.tag + ")``!\n\n> __**Account Creation:**__ ``" + moment(NewMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") + "``\n> **__Joined At:__** ``" + moment(NewMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') + "``\n> __**Furries Count:**__ ``" + MemberCount + "``")
-          .setColor("2f3136")
-          .setFooter({
-            text: "ID: " + NewMember.id
-          })
-          .setThumbnail(NewMember.user.displayAvatarURL())
-
-        if (NewMember.user.id === "610309745714135040") return;
-
-        await ChannelGuild.send({
-          embeds: [WelcomeMessage]
-        });
-      }
+          await ChannelGuild.send({
+            embeds: [WelcomeMessage]
+          });
+        }
+      } else return;
     }
   }
 
@@ -389,32 +407,44 @@ bot.on("guildMemberAdd", async (NewMember) => {
     if (LoggingData) {
       if (LoggingData.EnableDisableBlacklistLogger === "Enabled") {
         if (LoggingData.ChannelIDBlacklist) {
-          const ChannelToSendAt = await NewMember.guild.channels.fetch(LoggingData.ChannelIDBlacklist)
+          if (NewMember.guild.members.guild.me.permissionsIn(LoggingData.ChannelIDBlacklist).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
+            const ChannelToSendAt = await NewMember.guild.channels.fetch(LoggingData.ChannelIDBlacklist)
 
-          if (VerifBlacklist.Risk === "Low") ColorEmbed = Color.RiskLow;
-          if (VerifBlacklist.Risk === "Medium") ColorEmbed = Color.RiskMedium;
-          if (VerifBlacklist.Risk === "High") ColorEmbed = Color.RiskHigh;
+            if (VerifBlacklist.Risk === "Low") ColorEmbed = Color.RiskLow;
+            if (VerifBlacklist.Risk === "Medium") ColorEmbed = Color.RiskMedium;
+            if (VerifBlacklist.Risk === "High") ColorEmbed = Color.RiskHigh;
 
-          if (VerifBlacklist.Risk === "Low" | VerifBlacklist.Risk === "Medium") {
             const BlacklistedUserJoined = new MessageEmbed()
-              .setDescription("<:BanHammer:997932635454197790>  User <@" + VerifBlacklist.UserID + "> is blacklisted for ``" + VerifBlacklist.Reason + "``\n\nWe suggest you to be careful with that user!")
+              .setDescription("<:BanHammer:997932635454197790>  User <@" + VerifBlacklist.UserID + "> is blacklisted for ``" + VerifBlacklist.Reason + "``.\n\n**Evidence:** " + VerifBlacklist.Proof + "\n\nWe suggest you to be careful with that user!\n*If you have the autoban enabled, that person will be automatically ban in function of your settings!*")
               .setColor(ColorEmbed)
               .setFooter({
                 text: "ID: " + VerifBlacklist.UserID
               })
               .setTimestamp()
 
-            ChannelToSendAt.send({ embeds: [BlacklistedUserJoined] })
-          } else if (VerifBlacklist.Risk === "High") {
-            const BlacklistedUserJoined = new MessageEmbed()
-              .setDescription("<:BanHammer:997932635454197790>  User <@" + VerifBlacklist.UserID + "> is blacklisted for ``" + VerifBlacklist.Reason + "``.\n\n**Evidence:**" + VerifBlacklist.Proof + "\n\nWe suggest you to be careful with that user!")
-              .setColor(ColorEmbed)
-              .setFooter({
-                text: "ID: " + VerifBlacklist.UserID
-              })
-              .setTimestamp()
+            await ChannelToSendAt.send({ embeds: [BlacklistedUserJoined] })
 
-            ChannelToSendAt.send({ embeds: [BlacklistedUserJoined] })
+            const ban = NewMember.guild.members.ban(VerifBlacklist.UserID, { reason: [VerifBlacklist.Reason + " | " + MessageConfig.BlacklistBanReason] });
+
+            if (LoggingData.AutoBanStatus) {
+              if (LoggingData.AutoBanStatus === "Disable") return;
+
+              if (LoggingData.AutoBanStatus === "Low+") {
+                if (VerifBlacklist.Risk === ["Low", "Medium", "High"])
+
+                  return ban;
+              } else if (LoggingData.AutoBanStatus === "Medium+") {
+                if (VerifBlacklist.Risk === ["Medium", "High"])
+
+                  return ban;
+              } else if (LoggingData.AutoBanStatus === "High+") {
+                if (VerifBlacklist.Risk === ["High"])
+
+                  return ban;
+              }
+            };
+
+            return;
           }
         }
       }
@@ -433,7 +463,7 @@ bot.on("guildMemberUpdate", async (OldMember, NewMember) => {
       const NewBoost = new MessageEmbed()
         .setTitle("New Boost")
         .setDescription("Thank you <@" + NewMember.user.id + "> for Boosting our server!")
-        .setColor("f47fff")
+        .setColor(Color.Pink)
 
       ChannelToSend.send({
         embeds: [NewBoost]
@@ -446,13 +476,13 @@ bot.on("guildMemberUpdate", async (OldMember, NewMember) => {
   }
 });
 
-bot.on("userUpdate", async (NewUser, oldUser) => {
-  if (oldUser.userModName !== NewUser.userModName) {
+bot.on("userUpdate", async (NewUser, OldUser) => {
+  if (OldUser.userModName !== NewUser.userModName) {
     const UpdateThisOne = Verifier.update({ ModName: NewUser.tag }, { where: { ModID: NewUser.id } })
     const UpdateThisOneToo = Blacklist.update({ ModName: NewUser.tag }, { where: { ModID: NewUser.id } })
 
   }
-  if (oldUser.discriminator !== NewUser.discriminator) {
+  if (OldUser.discriminator !== NewUser.discriminator) {
     const UpdateThisOne = Verifier.update({ ModName: NewUser.tag }, { where: { ModID: NewUser.id } })
     const UpdateThisOneToo = Blacklist.update({ ModName: NewUser.tag }, { where: { ModID: NewUser.id } })
 
@@ -469,11 +499,8 @@ bot.on("guildMemberRemove", async (LeavingMember) => {
 
       const LeavingMemberEmbedData = new MessageEmbed()
         .setTitle("Member Left")
-        .setDescription("**__User:__** ``" + LeavingMember.user.tag + "``.\n__**Account Creation:**__ ``" + moment(LeavingMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") + "``\n**__Joined At:__** ``" + moment(LeavingMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') + "``\n**__Data:__** ``Deleted``")
-        .setColor("2f3136")
-        .setFooter({
-          text: "ID: " + LeavingMember.id
-        })
+        .setDescription("**__User:__** ``" + LeavingMember.user.tag + "``.\n__**Created At:**__ ``" + moment(LeavingMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") + "``\n**__Joined At:__** ``" + moment(LeavingMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') + "``\n**__Data:__** ``Deleted``")
+        .setColor(Color.Green)
         .setThumbnail(LeavingMember.user.displayAvatarURL())
 
       LogChannel.send({
@@ -482,11 +509,8 @@ bot.on("guildMemberRemove", async (LeavingMember) => {
     } else {
       const LeavingMemberEmbedData2 = new MessageEmbed()
         .setTitle("Member Left")
-        .setDescription("**__User:__** ``" + LeavingMember.user.tag + "``.\n__**Account Creation:**__ ``" + moment(LeavingMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") + "``\n**__Joined At:__** ``" + moment(LeavingMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') + "``\n**__Data:__** ``Not Found``")
-        .setColor("2f3136")
-        .setFooter({
-          text: "ID: " + LeavingMember.id
-        })
+        .setDescription("**__User:__** ``" + LeavingMember.user.tag + "``.\n__**Created At:**__ ``" + moment(LeavingMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") + "``\n**__Joined At:__** ``" + moment(LeavingMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') + "``\n**__Data:__** ``Not Found``")
+        .setColor(Color.Green)
         .setThumbnail(LeavingMember.user.displayAvatarURL())
 
       LogChannel.send({
@@ -497,6 +521,26 @@ bot.on("guildMemberRemove", async (LeavingMember) => {
 });
 
 bot.on("messageCreate", async (message) => {
+  const LoggingData = await Logging.findOne({ where: { GuildID: message.guild.id } });
+
+  if (LoggingData) {
+    if (LoggingData.ChannelIDBump) {
+      if (message.embeds.length >= 0) {
+        let embed = message.embeds
+
+        for (let i = 0; i < embed.length; i++) {
+          if (embed[i].description === null) return;
+
+          if (embed[i].description.toLowerCase().includes('Bump done!')) {
+            return message.channel.send({
+              content: "Thank you <@" + message.author.id + "> for bumping our server! We will remind you in 2 hours."
+            })
+          }
+        }
+      }
+    }
+  }
+
   if (message.author.bot || message.content.indexOf(prefix) !== 0) return;
   const args = message.content.slice(prefix.length).trim().split(/ +/);
   const command = args.shift().toLowerCase();
@@ -512,68 +556,7 @@ bot.on("messageCreate", async (message) => {
   }
 });
 
-bot.on("voiceStateUpdate", async (oldState, newState) => {
-  const Guild = bot.guilds.cache.get("821241527941726248")
-
-  if (newState.channelId === "1005901578852642906") {
-    if (!newState.guild.channels.cache.find(channel => channel.name === newState.member.user.username + " | Room")) {
-      const voiceChannel = await Guild.channels.create(newState.member.user.username + " | Room", {
-        type: "GUILD_VOICE",
-        parent: newState.channel.parent,
-        permissionOverwrites: [
-          {
-            id: newState.guild.id,
-            deny: ["VIEW_CHANNEL"],
-          },
-          {
-            id: "940140000916430848",
-            deny: ["VIEW_CHANNEL"],
-          },
-          {
-            id: "898354377503432734",
-            deny: ["CONNECT"],
-            allow: ["VIEW_CHANNEL"],
-          },
-          {
-            id: newState.member.user.id,
-            allow: ["VIEW_CHANNEL", "CONNECT", "DEAFEN_MEMBERS", "MUTE_MEMBERS", "MOVE_MEMBERS"],
-          },
-        ],
-      });
-      const voiceChannelWaiting = await Guild.channels.create(newState.member.user.username + " | Waiting", {
-        type: "GUILD_VOICE",
-        parent: newState.channel.parent,
-        permissionOverwrites: [
-          {
-            id: newState.guild.id,
-            deny: ["VIEW_CHANNEL"],
-          },
-          {
-            id: "940140000916430848",
-            deny: ["VIEW_CHANNEL"],
-          },
-          {
-            id: "898354377503432734",
-            allow: ["CONNECT", "VIEW_CHANNEL"],
-          },
-          {
-            id: newState.member.user.id,
-            allow: ["VIEW_CHANNEL", "CONNECT", "DEAFEN_MEMBERS", "MUTE_MEMBERS", "MOVE_MEMBERS"],
-          },
-        ],
-      });
-
-      return setTimeout(() => newState.member.voice.setChannel(voiceChannel))
-    } else {
-      return newState.member.send({
-        content: "You already have a channel created!"
-      })
-    }
-  }
-});
-
 bot.on('interactionCreate', async (interaction) => {
-
   if (!interaction.isCommand()) return;
 
   const command = bot.commands.get(interaction.commandName);
@@ -587,11 +570,12 @@ bot.on('interactionCreate', async (interaction) => {
 });
 
 bot.on('interactionCreate', async (interaction) => {
-  const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } })
+  let LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } })
 
   if (interaction.isButton()) {
     let VerificationLog = await Verification.findOne({ where: { MessageID: interaction.message.id } });
-    const ApplicationLog = await Staff_Application.findOne({ where: { MessageID: interaction.message.id } });
+    let ApplicationLog = await Staff_Application.findOne({ where: { MessageID: interaction.message.id } });
+    let ActionImageData = await ActionImage.findOne({ where: { MessageID: interaction.message.id } });
     let guild = bot.guilds.cache.get(interaction.guild.id);
 
     switch (interaction.customId) {
@@ -987,36 +971,66 @@ bot.on('interactionCreate', async (interaction) => {
             });
           }
         };
-      /*case ("buttonToCreateTicket"):
-        interaction.guild.channels.cache.forEach((channel) => {
-          if (channel.name === "ticket-" + interaction.user.username.toLowerCase() + interaction.user.discriminator) {
+      case ("AcceptSuggestion"):
+        if (ActionImageData) {
+          if (!ActionImageData.MessageID) {
             return interaction.reply({
-              content: MessageConfig.TicketExist,
+              content: MessageConfig.CannotFindDataOfMessage,
+              ephemeral: true
             });
-          }
-        });
-  
-        interaction.guild.channels.create("ticket-" + interaction.user.username.toLowerCase() + interaction.user.discriminator, {
-          type: "GUILD_TEXT",
-          permissionOverwrites: [
-            {
-              id: interaction.guild.roles.everyone,
-              deny: ["VIEW_CHANNEL", "SEND_MESSAGES"],
-            },
-            {
-              id: interaction.member.user.id,
-              allow: ["VIEW_CHANNEL", "SEND_MESSAGES"],
-            },
-            {
-              id: LoggingData.TicketRoleID,
-              allow: ["VIEW_CHANNEL", "SEND_MESSAGES"],
-            }
-          ]
-        })
-  
-        await interaction.reply({
-          content: "Ticket Created: " + channel.id,
-        })*/
+          };
+
+          interaction.channel.messages.fetch(interaction.message.id).then(async (UpdateMessage) => {
+            const ImageEmbed = new MessageEmbed()
+              .addFields(
+                { name: "Category:", value: ActionImageData.Category, inline: true },
+                { name: "Author:", value: ActionImageData.UserName + " ``(" + ActionImageData.UserID + ")``", inline: true }
+              )
+              .setImage(ActionImageData.ImageURL)
+              .setColor(Color.Green)
+
+            return interaction.update({
+              embeds: [ImageEmbed],
+              components: []
+            });
+          });
+
+          const response = await client.upload({
+            image: ActionImageData.ImageURL,
+          });
+
+          let ActionImageDataUpdate = await ActionImage.update({ ImageURL: response.data.link }, { where: { MessageID: interaction.message.id } });
+
+        };
+        return;
+      case ("DenySuggestion"):
+        if (ActionImageData) {
+          if (!ActionImageData.MessageID) {
+            return interaction.reply({
+              content: MessageConfig.CannotFindDataOfMessage,
+              ephemeral: true
+            });
+          };
+
+          interaction.channel.messages.fetch(interaction.message.id).then(async (UpdateMessage) => {
+            const ImageEmbed = new MessageEmbed()
+              .addFields(
+                { name: "Category:", value: ActionImageData.Category, inline: true },
+                { name: "Author:", value: ActionImageData.UserName + " ``(" + ActionImageData.UserID + ")``", inline: true }
+              )
+              .setImage(ActionImageData.ImageURL)
+              .setColor(Color.RiskHigh)
+
+            return interaction.update({
+              embeds: [ImageEmbed],
+              components: []
+            })
+          })
+
+          let ActionImageDataDelete = await ActionImage.destroy({ where: { MessageID: interaction.message.id } });
+        };
+
+        return;
     }
   }
 
@@ -1167,6 +1181,7 @@ bot.on('interactionCreate', async (interaction) => {
         break;
     }
   }
+
   if (interaction.isSelectMenu()) {
     let args = interaction.values[0]
 
@@ -1280,7 +1295,6 @@ bot.on('interactionCreate', async (interaction) => {
         };
     }
   }
-
 });
 
 const Major = "900201076916105306";

@@ -36,6 +36,10 @@ module.exports = {
                 type: Sequelize.STRING,
                 unique: false,
             },
+            ChannelIDWelcome: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
             StaffRoleReport: {
                 type: Sequelize.STRING,
                 unique: false,
@@ -64,16 +68,26 @@ module.exports = {
                 type: Sequelize.STRING,
                 unique: false,
             },
-            BanByPassRole: {
+            ChannelIDUnban: {
                 type: Sequelize.STRING,
                 unique: false,
             },
+            ChannelIDKick: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            ChannelIDReceiveVerification: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            AutoBanStatus: {
+                type: Sequelize.STRING,
+                unique: false,
+            }
         });
         const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
 
-        const PrivatePerms = interaction.member.roles.cache.some(role => role.name === "Moderation") | interaction.member.roles.cache.some(role => role.name === "Management");
-
-        if (PrivatePerms | interaction.member.permissions.has("MODERATE_MEMBERS")) {
+        if (interaction.member.permissions.has("MODERATE_MEMBERS")) {
             const user = interaction.options.getUser("user");
             const member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(error => { });
 
@@ -147,18 +161,20 @@ module.exports = {
 
                     if (LoggingData) {
                         if (LoggingData.ChannelIDWarn) {
-                            const LogChannel = interaction.guild.channels.cache.get(LoggingData.ChannelIDWarn)
+                            if (interaction.guild.members.guild.me.permissionsIn(LoggingData.ChannelIDWarn).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
+                                const LogChannel = interaction.guild.channels.cache.get(LoggingData.ChannelIDWarn)
 
-                            const LogMessage = new MessageEmbed()
-                                .setTitle("New Warn")
-                                .setDescription("**__User:__** ``" + user.tag + "``\n**__Reason:__** ``" + reason + "``\n**__Moderator:__** ``" + admin.tag + "``")
-                                .setFooter({ text: "ID: " + user.id })
-                                .setTimestamp()
-                                .setColor("2f3136")
+                                const LogMessage = new MessageEmbed()
+                                    .setTitle("New Warn")
+                                    .setDescription("**__User:__** ``" + user.tag + "``\n**__Reason:__** ``" + reason + "``\n**__Moderator:__** ``" + admin.tag + "``")
+                                    .setFooter({ text: "ID: " + user.id })
+                                    .setTimestamp()
+                                    .setColor("2f3136")
 
-                            await LogChannel.send({
-                                embeds: [LogMessage]
-                            })
+                                await LogChannel.send({
+                                    embeds: [LogMessage]
+                                })
+                            }
                         }
                     }
 

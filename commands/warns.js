@@ -2,7 +2,7 @@ const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
 const dateTime = new Date();
-console.log(dateTime.toLocaleString() + " -> The 'warns' command is loaded.")
+console.log(dateTime.toLocaleString() + " -> The 'warns' command is loaded.");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -28,6 +28,10 @@ module.exports = {
                 unique: false,
             },
             ChannelIDEnterServer: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            ChannelIDWelcome: {
                 type: Sequelize.STRING,
                 unique: false,
             },
@@ -59,15 +63,23 @@ module.exports = {
                 type: Sequelize.STRING,
                 unique: false,
             },
-            BanByPassRole: {
+            ChannelIDUnban: {
                 type: Sequelize.STRING,
                 unique: false,
             },
+            ChannelIDKick: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            ChannelIDReceiveVerification: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            AutoBanStatus: {
+                type: Sequelize.STRING,
+                unique: false,
+            }
         });
-        const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
-
-        const user = interaction.options.getUser("user");
-
         const Warns = sequelize.define("Warns", {
             UserName: {
                 type: Sequelize.STRING,
@@ -96,8 +108,19 @@ module.exports = {
             },
         });
 
-        switch (user.id) {
-            case (!user):
+        const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
+
+        const user = interaction.options.getUser("user");
+
+        let MemberData = "";
+
+        if (user) MemberData = user;
+        if (!user) MemberData = interaction.user;
+
+        let member = interaction.guild.members.cache.get(MemberData.id) || await interaction.guild.members.fetch(MemberData.id).catch(err => { });
+
+        switch (MemberData.id) {
+            case (!MemberData):
                 return interaction.reply({
                     content: "I can't find this user!",
                     ephemeral: true
@@ -108,9 +131,13 @@ module.exports = {
                     ephemeral: true
                 });
             default:
-                const ShowWarns = new MessageEmbed()
+                /*const ShowWarns = new MessageEmbed()
                     .setDescription("Warns of ``" + user.tag + "``")
-                    .setColor("2f3136")
+                    .setColor("2f3136")*/
+
+                return interaction.reply({
+                    content: "Currently unavailable"
+                })
         }
     }
 }

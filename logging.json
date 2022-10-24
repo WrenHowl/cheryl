@@ -1,0 +1,6 @@
+{
+    "ChannelSendLog": "What channel should I send the logging to?",
+    "OptionsLog": "Change the logging channel of a certain event.",
+    "LoggingDescription": "Change the settings of the logging system.",
+    "SelectAChannel": "Please select a channel when selecting this option."
+}

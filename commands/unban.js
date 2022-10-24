@@ -1,5 +1,6 @@
-const { MessageActionRow, MessageEmbed, MessageButton } = require('discord.js');
+const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const Color = require("../config/color.json");
 
 const dateTime = new Date();
 console.log(dateTime.toLocaleString() + " -> The 'unban' command is loaded.")
@@ -31,6 +32,10 @@ module.exports = {
                 type: Sequelize.STRING,
                 unique: false,
             },
+            ChannelIDWelcome: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
             StaffRoleReport: {
                 type: Sequelize.STRING,
                 unique: false,
@@ -59,80 +64,93 @@ module.exports = {
                 type: Sequelize.STRING,
                 unique: false,
             },
-            BanByPassRole: {
+            ChannelIDUnban: {
                 type: Sequelize.STRING,
                 unique: false,
             },
+            ChannelIDKick: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            ChannelIDReceiveVerification: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            AutoBanStatus: {
+                type: Sequelize.STRING,
+                unique: false,
+            }
         });
         const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
 
-        const PrivatePerms = interaction.member.roles.cache.some(role => role.name === "Moderation") | interaction.member.roles.cache.some(role => role.name === "Management");
+        if (interaction.member.permissions.has("BAN_MEMBERS")) {
+            if (interaction.guild.me.permissions.has("BAN_MEMBERS")) {
+                const user = interaction.options.getUser("user");
+                const banList = await interaction.guild.bans.fetch();
+                const bannedUser = banList.find(user => user.id === user.id);
 
-        if (PrivatePerms | interaction.member.permissions.has("BAN_MEMBERS")) {
-            const user = interaction.options.getUser("user");
-
-            const banList = await interaction.guild.fetchBans();
-
-            const bannedUser = banList.find(user => user.id === user.id);
-
-            switch (user.id) {
-                case (!user):
-                    return interaction.reply({
-                        content: "I can't find this user!",
-                        ephemeral: true
-                    });
-                case (interaction.member.id):
-                    return interaction.reply({
-                        content: "You can't unban yourself!",
-                        ephemeral: true
-                    });
-                case (bot.user.id):
-                    return interaction.reply({
-                        content: "You can't unban me!",
-                        ephemeral: true
-                    });
-                case (bannedUser):
-                    return interaction.reply({
-                        content: "You can't unban someone who isn't ban!",
-                        ephemeral: true
-                    });
-                default:
-                    const banMessage = new MessageEmbed()
-                        .setDescription("``" + user.tag + "`` has been unban from the server.")
-                        .setColor("2f3136")
-
-                    await interaction.reply({
-                        embeds: [banMessage],
-                        ephemeral: true,
-                    });
-
-                    /*if (LoggingData) {
-                        if (LoggingData.ChannelIDBan) {
-                            const logChannel = interaction.guild.channels.cache.get(LoggingData.ChannelIDBan);
-
-                            const logMessage = new MessageEmbed()
-                                .setTitle("New Ban")
-                                .setDescription("**__User:__** ``" + user.tag + "``\n**__Reason:__** ``" + reason + "``\n**__Moderator:__** ``" + admin + "``")
-                                .setFooter({ text: "ID: " + user.id })
-                                .setTimestamp()
-                                .setColor("2f3136")
-
-                            await logChannel.send({
-                                embeds: [logMessage],
+                switch (user.id) {
+                    case (!user):
+                        return interaction.reply({
+                            content: "I can't find this user!",
+                            ephemeral: true
+                        });
+                    case (interaction.member.id):
+                        return interaction.reply({
+                            content: "You can't unban yourself!",
+                            ephemeral: true
+                        });
+                    case (bot.user.id):
+                        return interaction.reply({
+                            content: "You can't unban me!",
+                            ephemeral: true
+                        });
+                    default:
+                        if (!bannedUser) {
+                            return interaction.reply({
+                                content: "You can't unban this user, since they are not banned!",
+                                ephemeral: true,
                             });
+                        } else {
+                            const banMessage = new MessageEmbed()
+                                .setDescription("``" + user.tag + "`` has been unban from the server.")
+                                .setColor(Color.Green)
+
+                            await interaction.reply({
+                                embeds: [banMessage],
+                                ephemeral: true,
+                            });
+
+                            if (LoggingData) {
+                                if (LoggingData.ChannelIDUnban) {
+                                    if (interaction.guild.members.guild.me.permissionsIn(LoggingData.ChannelIDUnban).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
+                                        const logChannel = interaction.guild.channels.cache.get(LoggingData.ChannelIDUnban);
+
+                                        const logMessage = new MessageEmbed()
+                                            .setTitle("New Unban")
+                                            .setDescription("__**User:**__ ``" + user.tag + "``\n__**Moderator:**__ ``" + interaction.user.tag + "``")
+                                            .setFooter({
+                                                text: "ID: " + user.id
+                                            })
+                                            .setTimestamp()
+                                            .setColor(Color.Green)
+
+                                        await logChannel.send({
+                                            embeds: [logMessage],
+                                        });
+                                    }
+                                }
+                            }
+                            return interaction.guild.members.unban(user.id);
                         }
-                    }*/
-
-                    return interaction.guild.members.unban(user.id);
-            }
-        } else {
-            if (interaction.guild.id === "821241527941726248") {
+                }
+            } else {
                 return interaction.reply({
-                    content: "You cannot execute this command! You need the following roles ``Moderation`` or ``Management``.",
-                    ephemeral: true
-                })
-            }
-
+                    content: "I need the following permissions: ``BAN_MEMBERS``.",
+                    ephemeral: true,
+                });
+            };
+        } else {
             return interaction.reply({
                 content: "You cannot execute this command! You need the following permission ``BAN_MEMBERS``.",
                 ephemeral: true
