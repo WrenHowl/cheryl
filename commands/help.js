@@ -23,7 +23,7 @@ module.exports = {
     if (!infoOptions) {
       let arrayStaffCheryl = [
         "blacklist",
-        "whitelist",
+        "permission",
       ].join("``, ``");
 
       let arrayAdminGlobal = [

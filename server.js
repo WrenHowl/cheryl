@@ -279,7 +279,11 @@ const Logging = sequelize.define("Logging", {
     type: Sequelize.STRING,
     unique: false,
   },
-  ChannelIDBump: {
+  SettingsActionMessage: {
+    type: Sequelize.STRING,
+    unique: false,
+  },
+  SettingsActionImage: {
     type: Sequelize.STRING,
     unique: false,
   }
@@ -324,6 +328,20 @@ const ActionImage = sequelize.define("ActionImage", {
     unique: false,
   },
 });
+const Profile = sequelize.define("Profile", {
+  UserName: {
+    type: Sequelize.STRING,
+    unique: false,
+  },
+  UserID: {
+    type: Sequelize.STRING,
+    unique: false,
+  },
+  Pronouns: {
+    type: Sequelize.STRING,
+    unique: false,
+  },
+})
 
 bot.once("ready", async () => {
   bot.user.setStatus("dnd")
@@ -357,6 +375,7 @@ bot.once("ready", async () => {
     Logging.sync();
     ActionImage.sync();
     Permission.sync();
+    Profile.sync();
   }, 5000);
 
   console.log(dateTime.toLocaleString() + " -> The bot is ready!");
@@ -369,7 +388,8 @@ bot.on("guildMemberAdd", async (NewMember) => {
     if (LoggingData.ChannelIDWelcome) {
       if (NewMember.guild.members.guild.me.permissionsIn(LoggingData.ChannelIDWelcome).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
         const ChannelGuild = NewMember.guild.channels.cache.get(LoggingData.ChannelIDWelcome);
-        const MemberCount = NewMember.guild.members.cache.filter(member => !member.user.bot).size;
+        const guild = bot.guilds.cache.get(NewMember.guild.id);
+        var memberCount = guild.members.cache.filter(newMember => !newMember.user.bot).size;
 
         if (NewMember.guild.id === "821241527941726248") {
           if (NewMember.user.bot) return;
@@ -380,7 +400,7 @@ bot.on("guildMemberAdd", async (NewMember) => {
           await NewMember.roles.add("1001111992834211921");
 
           const WelcomeMessage = new MessageEmbed()
-            .setDescription("Welcome <@" + NewMember.id + "> ``(" + NewMember.user.tag + ")``!\n\n> **Created At:** ``" + moment(NewMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") + "``\n> **Joined At:** ``" + moment(NewMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') + "``\n> **Furries Count:** ``" + MemberCount + "``")
+            .setDescription("Welcome <@" + NewMember.id + "> ``(" + NewMember.user.tag + ")``!\n\n> **Created At:** ``" + moment(NewMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") + "``\n> **Joined At:** ``" + moment(NewMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') + "``\n> **Furries Count:** ``" + memberCount + "``")
             .setColor(Color.Green)
             .setThumbnail(NewMember.user.displayAvatarURL())
 
@@ -389,7 +409,7 @@ bot.on("guildMemberAdd", async (NewMember) => {
           });
         } else {
           const WelcomeMessage = new MessageEmbed()
-            .setDescription("Welcome <@" + NewMember.id + "> ``(" + NewMember.user.tag + ")``!\n\n> **Created At:** ``" + moment(NewMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") + "``\n> **Joined At:** ``" + moment(NewMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') + "``\n> **Member Count:** ``" + MemberCount + "``")
+            .setDescription("Welcome <@" + NewMember.id + "> ``(" + NewMember.user.tag + ")``!\n\n> **Created At:** ``" + moment(NewMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") + "``\n> **Joined At:** ``" + moment(NewMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') + "``\n> **Member Count:** ``" + memberCount + "``")
             .setColor(Color.Green)
             .setThumbnail(NewMember.user.displayAvatarURL())
 

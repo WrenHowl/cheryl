@@ -1,37 +1,81 @@
-const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
+const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Logging = require("../config/logging.json");
+const fr = require("../languages/fr.json");
+const en = require("../languages/en.json");
 
 const dateTime = new Date();
-console.log(dateTime.toLocaleString() + " -> The 'settings' command is loaded.");
+console.log(dateTime.toLocaleString() + " -> The '" + en.settings.name + "' command is loaded.");
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('settings')
-        .setDescription('Change your server settings.')
+        .setName(en.settings.Name)
+        .setNameLocalizations({
+            "fr": fr.settings.Name,
+        })
+        .setDescription(en.settings.Description)
+        .setDescriptionLocalizations({
+            "fr": fr.settings.Description,
+        })
 
         // Setup
 
         .addSubcommandGroup(group => group
-            .setName("setup")
-            .setDescription("Setup a command.")
+            .setName(en.settings.SetupName)
+            .setNameLocalizations({
+                "fr": fr.settings.SetupName,
+            })
+            .setDescription(en.settings.SetupDescription)
+            .setDescriptionLocalizations({
+                "fr": fr.settings.SetupDescription,
+            })
             .addSubcommand(subcommand => subcommand
-                .setName("report")
-                .setDescription("Change the settings of the Report System.")
+                .setName(en.settings.SetupReportName)
+                .setNameLocalizations({
+                    "fr": fr.settings.SetupReportName,
+                })
+                .setDescription(en.settings.SetupReportDescription)
+                .setDescriptionLocalizations({
+                    "fr": fr.settings.SetupReportDescription,
+                })
                 .addChannelOption(option => option
-                    .setName("channel")
-                    .setDescription("Channel to receive the report.")
+                    .setName(en.settings.SetupReportChannelName)
+                    .setNameLocalizations({
+                        "fr": fr.settings.SetupReportChannelName,
+                    })
+                    .setDescription(en.settings.SetupReportChannelDescription)
+                    .setDescriptionLocalizations({
+                        "fr": fr.settings.SetupReportChannelDescription,
+                    })
                     .setRequired(true))
                 .addRoleOption(option => option
-                    .setName("role")
-                    .setDescription("Role to ping.")
+                    .setName(en.settings.SetupReportRoleName)
+                    .setNameLocalizations({
+                        "fr": fr.settings.SetupReportRoleName,
+                    })
+                    .setDescription(en.settings.SetupReportRoleDescription)
+                    .setDescriptionLocalizations({
+                        "fr": fr.settings.SetupReportRoleDescription,
+                    })
                     .setRequired(false)))
             .addSubcommand(subcommand => subcommand
-                .setName("welcome")
-                .setDescription("Change the settings of the Welcome System.")
+                .setName(en.settings.SetupWelcomeName)
+                .setNameLocalizations({
+                    "fr": fr.settings.SetupWelcomeName,
+                })
+                .setDescription(en.settings.SetupWelcomeDescription)
+                .setDescriptionLocalizations({
+                    "fr": fr.settings.SetupWelcomeDescription,
+                })
                 .addChannelOption(option => option
-                    .setName("channel")
-                    .setDescription("Channel to send the welcome message.")
+                    .setName(en.settings.SetupWelcomeChannelName)
+                    .setNameLocalizations({
+                        "fr": fr.settings.SetupWelcomeChannelName,
+                    })
+                    .setDescription(en.settings.SetupWelcomeChannelDescription)
+                    .setDescriptionLocalizations({
+                        "fr": fr.settings.SetupWelcomeChannelDescription,
+                    })
                     .setRequired(true)))
             .addSubcommand(subcommand => subcommand
                 .setName("blacklist")
@@ -57,6 +101,25 @@ module.exports = {
                         { name: "Medium+", value: "medium" },
                         { name: "High+", value: "high" },
                         { name: "Disable", value: "disable" },
+                    )))
+            .addSubcommand(subcommand => subcommand
+                .setName("action")
+                .setDescription("Change the settings of the action command.")
+                .addStringOption(option => option
+                    .setName("options")
+                    .setDescription("Which command to change the settings.")
+                    .setRequired(true)
+                    .addChoices(
+                        { name: "Image", value: "image" },
+                        { name: "Message", value: "message" },
+                    ))
+                .addStringOption(option => option
+                    .setName("status")
+                    .setDescription("Enable/Disable")
+                    .setRequired(true)
+                    .addChoices(
+                        { name: "Enable", value: "true" },
+                        { name: "Disable", value: "false" },
                     ))))
 
         // Verification
@@ -101,6 +164,7 @@ module.exports = {
                 .setName("channel")
                 .setDescription(Logging.ChannelSendLog)
                 .setRequired(false))),
+
     execute: async (interaction, bot, sequelize, Sequelize) => {
         if (interaction.member.permissions.has("ADMINISTRATOR") | interaction.member.permissions.has("MANAGE_GUILD") | interaction.user.id === '291262778730217472') {
             let options = interaction.options.getSubcommand();
@@ -181,6 +245,14 @@ module.exports = {
                     unique: false,
                 },
                 AutoBanStatus: {
+                    type: Sequelize.STRING,
+                    unique: false,
+                },
+                SettingsActionMessage: {
+                    type: Sequelize.STRING,
+                    unique: false,
+                },
+                SettingsActionImage: {
                     type: Sequelize.STRING,
                     unique: false,
                 }
@@ -280,6 +352,85 @@ module.exports = {
                             });
                         }
                     };
+                case ("action"):
+                    if (optionsLogging === "image") optionsLogging = "Image";
+                    if (optionsLogging === "message") optionsLogging = "Message";
+                    if (booleanBlacklist === "true") booleanBlacklist = "Enabled";
+                    if (booleanBlacklist === "false") booleanBlacklist = "Disabled";
+
+                    if (!LoggingData) {
+                        if (optionsLogging === "Image") {
+                            const ActionData = await Logging.create({
+                                GuildID: interaction.guild.id,
+                                SettingsActionMessage: booleanBlacklist,
+                            })
+
+                            const embed = new MessageEmbed()
+                                .setDescription("Settings Created")
+                                .addFields(
+                                    { name: "**Action Message**", value: booleanBlacklist, inline: true }
+                                )
+
+                            return interaction.reply({
+                                embeds: [embed],
+                                ephemeral: true,
+                            })
+                        }
+
+                        if (optionsLogging === "Message") {
+                            const ActionData = await Logging.create({
+                                GuildID: interaction.guild.id,
+                                SettingsActionImage: booleanBlacklist,
+                            })
+
+                            const embed = new MessageEmbed()
+                                .setDescription("Settings Created")
+                                .addFields(
+                                    { name: "**Action Image**", value: booleanBlacklist, inline: true }
+                                )
+
+                            return interaction.reply({
+                                embeds: [embed],
+                                ephemeral: true,
+                            })
+                        }
+                    } else {
+                        if (optionsLogging === "Image") {
+                            const ActionData = await Logging.update({
+                                SettingsActionMessage: booleanBlacklist,
+                            }, { where: { GuildID: interaction.guild.id } })
+
+                            const embed = new MessageEmbed()
+                                .setDescription("Settings Changed")
+                                .addFields(
+                                    { name: "**Action Message**", value: booleanBlacklist, inline: true }
+                                )
+
+                            return interaction.reply({
+                                embeds: [embed],
+                                ephemeral: true,
+                            })
+                        }
+
+                        if (optionsLogging === "Message") {
+                            const ActionData = await Logging.update({
+                                SettingsActionImage: booleanBlacklist,
+                            }, { where: { GuildID: interaction.guild.id } })
+
+                            const embed = new MessageEmbed()
+                                .setDescription("Settings Changed")
+                                .addFields(
+                                    { name: "**Action Image**", value: booleanBlacklist, inline: true }
+                                )
+
+                            return interaction.reply({
+                                embeds: [embed],
+                                ephemeral: true,
+                            })
+                        }
+                    }
+
+                    return;
                 case ("verification"):
                     if (channelOptions2 & staffRoleOptions & addRoleOptions) {
                         let removeRole = removeRoleOptions;

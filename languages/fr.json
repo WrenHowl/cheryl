@@ -1,0 +1,18 @@
+{
+    "settings": {
+        "Name": "réglages",
+        "Description": "Changez les paramètres du serveur.",
+        "SetupName": "configurer",
+        "SetupDescription": "Configurer une commande.",
+        "SetupReportName": "rapport",
+        "SetupReportDescription": "Changez les paramètres du système de rapport.",
+        "SetupReportChannelName": "canal",
+        "SetupReportChannelDescription": "Canal a envoyer le rapport.",
+        "SetupReportRoleName": "rôle",
+        "SetupReportRoleDescription": "Rôle a mentionner lorsqu'un rapport est reçu.",
+        "SetupWelcomeName": "bienvenue",
+        "SetupWelcomeDescription": "Changez les paramètres du système de bienvenue.",
+        "SetupWelcomeChannelName": "canal",
+        "SetupWelcomeChannelDescription": "Canal a envoyer le message de bienvenue."
+    }
+}

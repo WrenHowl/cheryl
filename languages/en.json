@@ -1,0 +1,18 @@
+{
+    "settings": {
+        "Name": "settings",
+        "Description": "Change your server settings.",
+        "SetupName": "setup",
+        "SetupDescription": "Setup a command.",
+        "SetupReportName": "report",
+        "SetupReportDescription": "Change the settings of the Report System.",
+        "SetupReportChannelName": "channel",
+        "SetupReportChannelDescription": "Channel to send the report.",
+        "SetupReportRoleName": "role",
+        "SetupReportRoleDescription": "Role to ping when a report is received.",
+        "SetupWelcomeName": "welcome",
+        "SetupWelcomeDescription": "Change the settings of the Welcome System.",
+        "SetupWelcomeChannelName": "channel",
+        "SetupWelcomeChannelDescription": "Channel to send the welcome message."
+    }
+}

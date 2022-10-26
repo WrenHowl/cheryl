@@ -9,7 +9,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName('serverinfo')
     .setDescription('Get some information on the server.'),
-  execute: async (interaction) => {
+  execute: async (interaction, bot) => {
     function checkDays(date) {
       let now = new Date();
       let diff = now.getTime() - date.getTime();
@@ -19,13 +19,16 @@ module.exports = {
 
     let roleCount = interaction.guild.roles.cache.size
 
+    const guild = bot.guilds.cache.get(interaction.guild.id);
+    var memberCount = guild.members.cache.filter(member => !member.user.bot).size;
+
     const serverinfo = new MessageEmbed()
       .addFields(
         { name: "Name:", value: interaction.guild.name },
         { name: "ID:", value: interaction.guild.id },
         { name: "Owner:", value: "<@" + interaction.guild.ownerId + "> *(" + interaction.guild.ownerId + ")*" },
         { name: "Created the:", value: interaction.channel.guild.createdAt.toUTCString().substr(0, 16) + " / " + (checkDays(interaction.channel.guild.createdAt)) },
-        { name: "Members", value: interaction.guild.members.cache.filter(member => !member.user.bot).size + " ** **" },
+        { name: "Members", value: memberCount + " ** **" },
         { name: "Roles:", value: roleCount + " ** **" },
       )
       .setThumbnail(interaction.guild.iconURL())
