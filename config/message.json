@@ -1,7 +1,14 @@
 {
     "StaffRoleApplication": "Staff",
-    "AlreadyAppliedStaffApplicationError": "You cannot send a staff application, because you're already part of the staff team.",
-    "CannotFindDataOfMessage": "Cannot find the data of this message.",
+    "AlreadyAppliedStaffApplicationError": "You can't send a staff application, because you're already part of the staff team.",
+    "CannotFindDataOfMessage": "I can't find the data of this message.",
     "StaffApplicationAccepted": "Your staff application has been accepted. Congratulations!",
-    "StaffApplicationDenied": "Your staff application has been denied. You can try again in 2 weeks!"
+    "StaffApplicationDenied": "Your staff application has been denied. You can try again in 2 weeks!",
+    "BlacklistBanReason": "Cheryl - Autoban",
+    "StaffOnlyCommand": "You cannot execute this command! You need the following role ``STAFF``.",
+    "OCFOnlyCommand": "This command can only be used on ``Over Control Furry``!",
+    "AddedWhitelistBlacklist": "The user has been successfully added to the following whitelist: ``Blacklist``.",
+    "RemovedWhitelistBlacklist": "The user has been successfully removed of the following whitelist: ``Blacklist``.",
+    "AddedToBlacklist": "The user has been successfully added to the blacklist.",
+    "SuggestedToBlacklist": "The user has been successfully suggested to be added to the blacklist."
 }

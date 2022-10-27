@@ -44,7 +44,7 @@ module.exports = {
       let arrayUtilGlobal = [
         "help",
         "ping",
-        "userinfo",
+        "profile",
         "serverinfo",
         "staff",
         "report",

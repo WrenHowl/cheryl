@@ -2,34 +2,63 @@ const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Config = require("../config/config.json");
 const Color = require("../config/color.json");
-const pronouns = require("../config/pronouns.json")
+const pronouns = require("../config/profile.json")
+const LanguageFR = require("../languages/fr.json");
+const LanguageEN = require("../languages/en.json");
+
+const fr = LanguageFR.action;
+const en = LanguageEN.action;
 
 const dateTime = new Date();
-console.log(dateTime.toLocaleString() + " -> The 'action' command is loaded.");
+console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('action')
-        .setDescription('Do an action (or suggest an image for an action.) on a member.')
+        .setName(en.Name)
+        .setNameLocalizations({
+            "fr": fr.Name
+        })
+        .setDescription(en.Description)
+        .setDescriptionLocalizations({
+            "fr": fr.Description
+        })
         .addStringOption(option => option
-            .setName("choice")
-            .setDescription("What action would you like to do?")
+            .setName(en.ChoiceName)
+            .setNameLocalizations({
+                "fr": fr.ChoiceName
+            })
+            .setDescription(en.ChoiceDescription)
+            .setDescriptionLocalizations({
+                "fr": fr.ChoiceDescription
+            })
             .setRequired(true)
             .addChoices(
-                { name: "Hug", value: "hug" },
-                { name: "Kiss", value: "kiss" },
-                { name: "Boop", value: "boop" },
-                { name: "Lick", value: "lick" },
-                { name: "Cuddle", value: "cuddle" },
-                { name: "Yeet", value: "yeet" },
+                { name: "hug", value: "hug" },
+                { name: "kiss", value: "kiss" },
+                { name: "boop", value: "boop" },
+                { name: "lick", value: "lick" },
+                { name: "cuddle", value: "cuddle" },
+                { name: "yeet", value: "yeet" },
             ))
         .addAttachmentOption(option => option
-            .setName("suggest")
-            .setDescription("Suggest an image for addition.")
+            .setName(en.SuggestName)
+            .setNameLocalizations({
+                "fr": fr.SuggestName
+            })
+            .setDescription(en.SuggestDescription)
+            .setDescriptionLocalizations({
+                "fr": fr.SuggestDescription
+            })
             .setRequired(false))
         .addUserOption(option => option
-            .setName("member")
-            .setDescription("Member to do the action on.")
+            .setName(en.MemberName)
+            .setNameLocalizations({
+                "fr": fr.MemberName
+            })
+            .setDescription(en.MemberDescription)
+            .setDescriptionLocalizations({
+                "fr": fr.MemberDescription
+            })
             .setRequired(false)),
     execute: async (interaction, bot, sequelize, Sequelize) => {
         const ActionImage = sequelize.define("ActionImage", {
@@ -147,9 +176,9 @@ module.exports = {
             },
         })
 
-        const choice = interaction.options.getString("choice");
-        let user = interaction.options.getUser("member");
-        let image = interaction.options.getAttachment("suggest");
+        const choice = interaction.options.getString(en.ChoiceName);
+        let user = interaction.options.getUser(en.MemberName);
+        let image = interaction.options.getAttachment(en.SuggestName);
 
         const User1 = interaction.user.toString();
         let User2 = "";
@@ -204,7 +233,7 @@ module.exports = {
         ];
         const KissSentence = [
             User1 + " approches slowly " + User2 + "'s face and gently kiss " + Pronouns + " on the lips!~",
-            User1 + " wraps their arms around " + User2 + ", place " + Pronouns2 + " lips to " + Pronouns + " and kiss " + Pronouns + " deeply!~"
+            User1 + " wraps " + Pronouns2 + " arms around " + User2 + ", place " + Pronouns2 + " lips to " + Pronouns + " and kiss " + Pronouns + " deeply!~"
         ];
         const BoopSentence = [
             User1 + " raises their paw and places it apon " + User2 + "'s snoot!",
@@ -218,7 +247,7 @@ module.exports = {
         ];
         const YeetSentence = [
             User1 + " yeeted " + User2 + " into the stratosphere!",
-            User1 + " grabbed " + User2 + " by the scruff and yeeted them 10 miles into the sky!",
+            User1 + " grabbed " + User2 + " by the scruff and yeeted " + Pronouns + " 10 miles into the sky!",
         ];
 
         switch (choice) {

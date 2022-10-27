@@ -1,7 +1,15 @@
 {
-    "token": "TOKEN",
+    "token": "",
     "prefix": "/",
-    "secondPrefix": ".",
+    "secondPrefix": "c.",
     "clientId": "940369423125061633",
-    "guildId": "821241527941726248"
+    "guildId": "1030517199951110224",
+    "ownerId": "291262778730217472",
+    "BlacklistChannel": "1030519256485470208",
+    "SupportDiscord": "https://discord.gg/kTNmRtWr5B",
+    "CheckMark": "https://i.imgur.com/f8K6ATl.png",
+    "x": "https://i.imgur.com/PSnQhmR.png",
+    "ReceiveSuggestedBlacklist": "1033159311326715944",
+    "SuggestImage": "1033214759421612142",
+    "ImgurID": "9a699ff3c7ab547"
 }

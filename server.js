@@ -337,7 +337,15 @@ const Profile = sequelize.define("Profile", {
     type: Sequelize.STRING,
     unique: false,
   },
+  Age: {
+    type: Sequelize.STRING,
+    unique: false,
+  },
   Pronouns: {
+    type: Sequelize.STRING,
+    unique: false,
+  },
+  Gender: {
     type: Sequelize.STRING,
     unique: false,
   },

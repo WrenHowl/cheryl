@@ -1,18 +1,44 @@
 const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Color = require("../config/color.json");
+const LanguageFR = require("../languages/fr.json");
+const LanguageEN = require("../languages/en.json");
+
+const fr = LanguageFR.ban;
+const en = LanguageEN.ban;
 
 const dateTime = new Date();
-console.log(dateTime.toLocaleString() + " -> The 'ban' command is loaded.");
+console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('ban')
-        .setDescription('Ban a user.')
-        .addUserOption(option => option.setName("user").setDescription("User to ban.").setRequired(true))
+        .setName(en.Name)
+        .setNameLocalizations({
+            "fr": fr.Name
+        })
+        .setDescription(en.Description)
+        .setDescriptionLocalizations({
+            "fr": fr.Description
+        })
+        .addUserOption(option => option
+            .setName(en.UserName)
+            .setNameLocalizations({
+                "fr": fr.UserName
+            })
+            .setDescription(en.UserDescription)
+            .setDescriptionLocalizations({
+                "fr": fr.UserDescription
+            })
+            .setRequired(true))
         .addStringOption(option => option
-            .setName('reason')
-            .setDescription('Enter the reason.')
+            .setName(en.ReasonName)
+            .setNameLocalizations({
+                "fr": fr.ReasonName
+            })
+            .setDescription(en.ReasonDescription)
+            .setDescriptionLocalizations({
+                "fr": fr.ReasonDescription
+            })
             .setRequired(true)
         ),
     execute: async (interaction, bot, sequelize, Sequelize) => {
@@ -90,7 +116,7 @@ module.exports = {
 
         if (interaction.member.permissions.has("BAN_MEMBERS")) {
             if (interaction.guild.me.permissions.has("BAN_MEMBERS")) {
-                const user = interaction.options.getUser("user");
+                const user = interaction.options.getUser(en.UserName);
                 const member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(err => { });
                 const banList = await interaction.guild.bans.fetch();
                 const bannedUser = banList.find(user => user.id === user.id);
@@ -137,7 +163,7 @@ module.exports = {
                             });
                         }
 
-                        const reason = interaction.options.getString("reason");
+                        const reason = interaction.options.getString(en.ReasonName);
                         const admin = interaction.user.tag;
 
                         const banMessage = new MessageEmbed()

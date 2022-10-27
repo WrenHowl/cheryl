@@ -1,20 +1,37 @@
 const { MessageEmbed, Message } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Color = require("../config/color.json");
+const LanguageFR = require("../languages/fr.json");
+const LanguageEN = require("../languages/en.json");
+
+const fr = LanguageFR.avatar;
+const en = LanguageEN.avatar;
 
 const dateTime = new Date();
-console.log(dateTime.toLocaleString() + " -> The 'avatar' command is loaded.");
+console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('avatar')
-        .setDescription('Get the avatar of a user.')
+        .setName(en.Name)
+        .setNameLocalizations({
+            "fr": fr.Name
+        })
+        .setDescription(en.Description)
+        .setDescriptionLocalizations({
+            "fr": fr.Description
+        })
         .addUserOption(option => option
-            .setName("user")
-            .setDescription("User to get the avatar.")
+            .setName(en.UserName)
+            .setNameLocalizations({
+                "fr": fr.UserName
+            })
+            .setDescription(en.UserDescription)
+            .setDescriptionLocalizations({
+                "fr": fr.UserDescription
+            })
             .setRequired(false)),
     execute: async (interaction, bot) => {
-        const user = interaction.options.getUser("user");
+        const user = interaction.options.getUser(en.UserName);
 
         let MemberData = "";
 

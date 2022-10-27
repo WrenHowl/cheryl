@@ -1,80 +1,83 @@
 const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Logging = require("../config/logging.json");
-const fr = require("../languages/fr.json");
-const en = require("../languages/en.json");
+const LanguageFR = require("../languages/fr.json");
+const LanguageEN = require("../languages/en.json");
+
+const fr = LanguageFR.settings;
+const en = LanguageEN.settings;
 
 const dateTime = new Date();
-console.log(dateTime.toLocaleString() + " -> The '" + en.settings.name + "' command is loaded.");
+console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName(en.settings.Name)
+        .setName(en.Name)
         .setNameLocalizations({
-            "fr": fr.settings.Name,
+            "fr": fr.Name,
         })
-        .setDescription(en.settings.Description)
+        .setDescription(en.Description)
         .setDescriptionLocalizations({
-            "fr": fr.settings.Description,
+            "fr": fr.Description,
         })
 
         // Setup
 
         .addSubcommandGroup(group => group
-            .setName(en.settings.SetupName)
+            .setName(en.SetupName)
             .setNameLocalizations({
-                "fr": fr.settings.SetupName,
+                "fr": fr.SetupName,
             })
-            .setDescription(en.settings.SetupDescription)
+            .setDescription(en.SetupDescription)
             .setDescriptionLocalizations({
-                "fr": fr.settings.SetupDescription,
+                "fr": fr.SetupDescription,
             })
             .addSubcommand(subcommand => subcommand
-                .setName(en.settings.SetupReportName)
+                .setName(en.SetupReportName)
                 .setNameLocalizations({
-                    "fr": fr.settings.SetupReportName,
+                    "fr": fr.SetupReportName,
                 })
-                .setDescription(en.settings.SetupReportDescription)
+                .setDescription(en.SetupReportDescription)
                 .setDescriptionLocalizations({
-                    "fr": fr.settings.SetupReportDescription,
+                    "fr": fr.SetupReportDescription,
                 })
                 .addChannelOption(option => option
-                    .setName(en.settings.SetupReportChannelName)
+                    .setName(en.SetupReportChannelName)
                     .setNameLocalizations({
-                        "fr": fr.settings.SetupReportChannelName,
+                        "fr": fr.SetupReportChannelName,
                     })
-                    .setDescription(en.settings.SetupReportChannelDescription)
+                    .setDescription(en.SetupReportChannelDescription)
                     .setDescriptionLocalizations({
-                        "fr": fr.settings.SetupReportChannelDescription,
+                        "fr": fr.SetupReportChannelDescription,
                     })
                     .setRequired(true))
                 .addRoleOption(option => option
-                    .setName(en.settings.SetupReportRoleName)
+                    .setName(en.SetupReportRoleName)
                     .setNameLocalizations({
-                        "fr": fr.settings.SetupReportRoleName,
+                        "fr": fr.SetupReportRoleName,
                     })
-                    .setDescription(en.settings.SetupReportRoleDescription)
+                    .setDescription(en.SetupReportRoleDescription)
                     .setDescriptionLocalizations({
-                        "fr": fr.settings.SetupReportRoleDescription,
+                        "fr": fr.SetupReportRoleDescription,
                     })
                     .setRequired(false)))
             .addSubcommand(subcommand => subcommand
-                .setName(en.settings.SetupWelcomeName)
+                .setName(en.SetupWelcomeName)
                 .setNameLocalizations({
-                    "fr": fr.settings.SetupWelcomeName,
+                    "fr": fr.SetupWelcomeName,
                 })
-                .setDescription(en.settings.SetupWelcomeDescription)
+                .setDescription(en.SetupWelcomeDescription)
                 .setDescriptionLocalizations({
-                    "fr": fr.settings.SetupWelcomeDescription,
+                    "fr": fr.SetupWelcomeDescription,
                 })
                 .addChannelOption(option => option
-                    .setName(en.settings.SetupWelcomeChannelName)
+                    .setName(en.SetupWelcomeChannelName)
                     .setNameLocalizations({
-                        "fr": fr.settings.SetupWelcomeChannelName,
+                        "fr": fr.SetupWelcomeChannelName,
                     })
-                    .setDescription(en.settings.SetupWelcomeChannelDescription)
+                    .setDescription(en.SetupWelcomeChannelDescription)
                     .setDescriptionLocalizations({
-                        "fr": fr.settings.SetupWelcomeChannelDescription,
+                        "fr": fr.SetupWelcomeChannelDescription,
                     })
                     .setRequired(true)))
             .addSubcommand(subcommand => subcommand

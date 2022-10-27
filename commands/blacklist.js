@@ -3,43 +3,72 @@ const { MessageEmbed } = require('discord.js');
 const Color = require("../config/color.json");
 const message = require("../config/message.json");
 const Config = require("../config/config.json");
+const LanguageFR = require("../languages/fr.json");
+const LanguageEN = require("../languages/en.json");
+
+const fr = LanguageFR.blacklist;
+const en = LanguageEN.blacklist;
 
 const dateTime = new Date();
-console.log(dateTime.toLocaleString() + " -> The 'blacklist' command is loaded.");
+console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('blacklist')
-        .setDescription('Blacklist System - Protect your server against bad user.')
+        .setName(en.Name)
+        .setDescription(en.Description)
         .addSubcommand(subcommand => subcommand
-            .setName("add")
-            .setDescription("Add someone to the blacklist.")
-            .addUserOption(option => option.setName("user").setDescription("User to blacklist.").setRequired(true))
-            .addStringOption(option => option.setName("reason").setDescription("Provide the reason of the blacklist.").setRequired(true))
+            .setName(en.AddName)
+            .setDescription(en.AddDescription)
+            .addUserOption(option => option
+                .setName(en.AddUserName)
+                .setDescription(en.AddUserDescription)
+                .setRequired(true))
             .addStringOption(option => option
-                .setName("risk")
-                .setDescription("Provide the risk depending on the severity.")
+                .setName(en.AddReasonName)
+                .setDescription(en.AddReasonDescription)
+                .setRequired(true))
+            .addStringOption(option => option
+                .setName(en.AddRiskName)
+                .setDescription(en.AddRiskDescription)
                 .setRequired(true)
                 .addChoices(
                     { name: 'low', value: 'Low' },
                     { name: 'medium', value: 'Medium' },
                     { name: 'high', value: 'High' },
                 ))
-            .addStringOption(option => option.setName("evidence").setDescription("Provide the evidence. It must be a permanent image (example: imgur).").setRequired(true)))
+            .addStringOption(option => option
+                .setName(en.AddEvidenceName)
+                .setDescription(en.AddEvidenceDescription)
+                .setRequired(true)))
         .addSubcommand(subcommand => subcommand
-            .setName("remove")
-            .setDescription("Remove someone of the blacklist.")
-            .addUserOption(option => option.setName("user").setDescription("User to unblacklist.").setRequired(true)))
+            .setName(en.RemoveName)
+            .setDescription(en.RemoveDescription)
+            .addUserOption(option => option
+                .setName(en.RemoveUserName)
+                .setDescription(en.RemoveUserDescription)
+                .setRequired(true)))
         .addSubcommand(subcommand => subcommand
-            .setName("check")
-            .setDescription("Check someone in blacklist.")
-            .addUserOption(option => option.setName("user").setDescription("User to check if they are blacklisted or not.").setRequired(true)))
+            .setName(en.CheckName)
+            .setDescription(en.CheckDescription)
+            .addUserOption(option => option
+                .setName(en.CheckUserName)
+                .setDescription(en.CheckUserDescription)
+                .setRequired(true)))
         .addSubcommand(subcommand => subcommand
-            .setName("suggest")
-            .setDescription("Suggest someone to be blacklist.")
-            .addUserOption(option => option.setName("user").setDescription("User to suggest to be added to the blacklist.").setRequired(true))
-            .addStringOption(option => option.setName("reason").setDescription("Provide the reason of the blacklist.").setRequired(true))
-            .addAttachmentOption(option => option.setName("evidence").setDescription("Provide the evidence.").setRequired(true))),
+            .setName(en.SuggestName)
+            .setDescription(en.SuggestDescription)
+            .addUserOption(option => option
+                .setName(en.SuggestUserName)
+                .setDescription(en.SuggestUserDescription)
+                .setRequired(true))
+            .addStringOption(option => option
+                .setName(en.SuggestReasonName)
+                .setDescription(en.SuggestReasonDescription)
+                .setRequired(true))
+            .addAttachmentOption(option => option
+                .setName(en.SuggestEvidenceName)
+                .setDescription(en.SuggestEvidenceDescription)
+                .setRequired(true))),
     execute: async (interaction, bot, sequelize, Sequelize) => {
         const Blacklist = sequelize.define("Blacklist", {
             UserName: {
@@ -87,9 +116,9 @@ module.exports = {
         });
 
         const options = interaction.options.getSubcommand();
-        const user = interaction.options.getUser("user");
-        const reason = interaction.options.getString("reason");
-        const risk = interaction.options.getString("risk");
+        const user = interaction.options.getUser(en.AddUserName);
+        const reason = interaction.options.getString(en.AddReasonName);
+        const risk = interaction.options.getString(en.AddRiskName);
 
         let PermissionCheck = await Permission.findOne({ where: { UserID: interaction.user.id } });
         let PermissionCheck2 = await Permission.findOne({ where: { UserID: user.id } });
@@ -142,7 +171,7 @@ module.exports = {
                 };
             default:
                 if (PermissionCheck & options === "add" | options === "remove") {
-                    const proof = interaction.options.getString("evidence");
+                    const proof = interaction.options.getString(en.AddEvidenceName);
 
                     switch (options) {
                         case ("add"):
@@ -256,7 +285,7 @@ module.exports = {
                             };
                     }
                 } else if (PermissionCheck3) {
-                    const proof2 = interaction.options.getAttachment("evidence");
+                    const proof2 = interaction.options.getAttachment(en.AddEvidenceName);
 
                     switch (options) {
                         case ("suggest"):
