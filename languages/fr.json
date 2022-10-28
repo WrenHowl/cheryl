@@ -24,7 +24,7 @@
         "ReasonDescription": "Raison du bannissement."
     },
     "blacklist": {
-        "Name": "liste noire",
+        "Name": "liste_noire",
         "Description": "Système de Liste Noire - Protégez votre serveur contre de mauvais utilisateurs.",
         "AddName": "ajouter",
         "AddDescription": "Ajouter un utilisateur a la liste noire.",
@@ -35,7 +35,7 @@
         "AddRiskName": "risque",
         "AddRiskDescription": "Risque de l'utilisateur.",
         "AddEvidenceName": "preuve",
-        "AddEvidenceDescription": "Preuve de l'action effectuée par l'utilisateur. Il doit s'agir d'une image permanente (exemple : imgur.com).",
+        "AddEvidenceDescription": "Preuve de l'action effectuée par l'utilisateur.",
         "RemoveName": "retirer",
         "RemoveDescription": "Supprimer un utilisateur de la liste noire.",
         "RemoveUserName": "utilisateur",
@@ -45,7 +45,7 @@
         "CheckUserName": "utilisateur",
         "CheckUserDescription": "Utilisateur à cibler.",
         "SuggestName": "suggérer",
-        "SuggestDescription": "Suggérer un utilisateur à mettre sur liste noire (commande serveur sur liste blanche).",
+        "SuggestDescription": "Suggérer un utilisateur à mettre sur liste noire.",
         "SuggestUserName": "utilisateur",
         "SuggestUserDescription": "L'utilisateur peut suggérer un ajout à la liste noire.",
         "SuggestReasonName": "raison",

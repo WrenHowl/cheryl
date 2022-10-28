@@ -24,7 +24,7 @@
         "ReasonDescription": "Motivo de la prohibición."
     },
     "blacklist": {
-        "Name"lista negra",
+        "Name": "lista_negra",
         "Description": "Sistema de lista negra - Protege tu servidor contra mal usuario.",
         "AddName": "agregar",
         "AddDescription": "Agregar un usuario a la lista negra",
