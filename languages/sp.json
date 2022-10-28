@@ -1,13 +1,13 @@
 {
     "action": {
         "Name": "acción",
-        "Description": "realizar una acción (o sugerir una imagen para una acción) en un miembro.",
+        "Description": "Realizar una acción (o sugerir una imagen para una acción) en un miembro.",
         "ChoiceName": "elección",
         "ChoiceDescription": "Qué acción te gustaría hacer?",
         "SuggestName": "sugerir",
         "SuggestDescription": "Sugerir una imagen para agregar una acción.",
         "MemberName": "miembro",
-        "MemberDescription": "miembro para apuntar."
+        "MemberDescription": "Miembro para apuntar."
     },
     "avatar": {
         "Name": "avatar",
@@ -48,9 +48,9 @@
         "SuggestDescription": "Suggest a user to be blacklisted (Whitelisted Server Command).",
         "SuggestUserName": "usuario",
         "SuggestUserDescription": "Usuario para sugerir la adición a la lista negra.",
-        "SuggestReasonName": "Razon",
+        "SuggestReasonName": "razon",
         "SuggestReasonDescription": "Motivo de la sugerencia de lista negra.",
-        "SuggestEvidenceName": "Evidencia",
+        "SuggestEvidenceName": "evidencia",
         "SuggestEvidenceDescription": "Evidencia de la acción realizada por el usuario."
     },
     "settings": {
@@ -60,13 +60,13 @@
         "SetupDescription": "Configurar un comando.",
         "SetupReportName": "reporte",
         "SetupReportDescription": "Cambiar la configuración del sistema de informes.",
-        "SetupReportChannelName": "Canal",
+        "SetupReportChannelName": "canal",
         "SetupReportChannelDescription": "Canal para enviar el informe.",
         "SetupReportRoleName": "rol",
         "SetupReportRoleDescription": "Rol para hacer ping cuando se recibe un informe.",
-        "SetupWelcomeName": "Bienvenida",
+        "SetupWelcomeName": "bienvenida",
         "SetupWelcomeDescription": "Cambie la configuración del Sistema de Bienvenida.",
-        "SetupWelcomeChannelName": "Canal",
+        "SetupWelcomeChannelName": "canal",
         "SetupWelcomeChannelDescription": "Canal para enviar el mensaje de bienvenida."
     },
     "profile": {
