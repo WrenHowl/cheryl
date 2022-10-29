@@ -2,23 +2,58 @@ const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Color = require("../config/color.json");
 const Config = require("../config/config.json");
+const LanguageFR = require("../languages/fr.json");
+const LanguageEN = require("../languages/en.json");
+const LanguageDE = require("../languages/de.json");
+const LanguageSP = require("../languages/sp.json");
+const LanguageNL = require("../languages/nl.json");
+
+const fr = LanguageFR.help;
+const en = LanguageEN.help;
+const de = LanguageDE.help;
+const sp = LanguageSP.help;
+const nl = LanguageNL.help;
 
 const dateTime = new Date();
-console.log(dateTime.toLocaleString() + " -> The 'help' command is loaded.")
+console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName('help')
-    .setDescription('Show a help menu.')
+    .setName(en.Name)
+    .setNameLocalizations({
+      fr: fr.Name,
+      de: de.Name,
+      SpanishES: sp.Name,
+      nl: nl.Name
+    })
+    .setDescription(en.Description)
+    .setDescriptionLocalizations({
+      fr: fr.Description,
+      de: de.Description,
+      SpanishES: sp.Description,
+      nl: nl.Description
+    })
     .addStringOption(option => option
-      .setName("info")
-      .setDescription("Display the information about certain commands.")
+      .setName(en.InfoName)
+      .setNameLocalizations({
+        fr: fr.InfoName,
+        de: de.InfoName,
+        SpanishES: sp.InfoName,
+        nl: nl.InfoName
+      })
+      .setDescription(en.InfoDescription)
+      .setDescriptionLocalizations({
+        fr: fr.InfoDescription,
+        de: de.InfoDescription,
+        SpanishES: sp.InfoDescription,
+        nl: nl.InfoDescription
+      })
       .addChoices(
         { name: "blacklist", value: "blacklistInfo" },
         { name: "verification", value: "verificationInfo" },
       )),
   execute: async (interaction, bot) => {
-    const infoOptions = interaction.options.getString("info");
+    const infoOptions = interaction.options.getString(en.InfoName);
 
     if (!infoOptions) {
       let arrayStaffCheryl = [

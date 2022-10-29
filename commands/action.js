@@ -2,12 +2,18 @@ const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Config = require("../config/config.json");
 const Color = require("../config/color.json");
-const pronouns = require("../config/profile.json")
+const Profile = require("../config/profile.json")
 const LanguageFR = require("../languages/fr.json");
 const LanguageEN = require("../languages/en.json");
+const LanguageDE = require("../languages/de.json");
+const LanguageSP = require("../languages/sp.json");
+const LanguageNL = require("../languages/nl.json");
 
 const fr = LanguageFR.action;
 const en = LanguageEN.action;
+const de = LanguageDE.action;
+const sp = LanguageSP.action;
+const nl = LanguageNL.action;
 
 const dateTime = new Date();
 console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");
@@ -16,20 +22,32 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName(en.Name)
         .setNameLocalizations({
-            "fr": fr.Name
+            fr: fr.Name,
+            de: de.Name,
+            SpanishES: sp.Name,
+            nl: nl.Name
         })
         .setDescription(en.Description)
         .setDescriptionLocalizations({
-            "fr": fr.Description
+            fr: fr.Description,
+            de: de.Description,
+            SpanishES: sp.Description,
+            nl: nl.Description
         })
         .addStringOption(option => option
             .setName(en.ChoiceName)
             .setNameLocalizations({
-                "fr": fr.ChoiceName
+                fr: fr.ChoiceName,
+                de: de.ChoiceName,
+                SpanishES: sp.ChoiceName,
+                nl: nl.ChoiceName
             })
             .setDescription(en.ChoiceDescription)
             .setDescriptionLocalizations({
-                "fr": fr.ChoiceDescription
+                fr: fr.ChoiceDescription,
+                de: de.ChoiceDescription,
+                SpanishES: sp.ChoiceDescription,
+                nl: nl.ChoiceDescription
             })
             .setRequired(true)
             .addChoices(
@@ -39,25 +57,40 @@ module.exports = {
                 { name: "lick", value: "lick" },
                 { name: "cuddle", value: "cuddle" },
                 { name: "yeet", value: "yeet" },
+                { name: "pat", value: "pat" },
+                { name: "bite", value: "bite" },
+                { name: "bonk", value: "bonk" }
             ))
         .addAttachmentOption(option => option
             .setName(en.SuggestName)
             .setNameLocalizations({
-                "fr": fr.SuggestName
+                fr: fr.SuggestName,
+                de: de.SuggestName,
+                SpanishES: sp.SuggestName,
+                nl: nl.SuggestName
             })
             .setDescription(en.SuggestDescription)
             .setDescriptionLocalizations({
-                "fr": fr.SuggestDescription
+                fr: fr.SuggestDescription,
+                de: de.SuggestDescription,
+                SpanishES: sp.SuggestDescription,
+                nl: nl.SuggestDescription
             })
             .setRequired(false))
         .addUserOption(option => option
             .setName(en.MemberName)
             .setNameLocalizations({
-                "fr": fr.MemberName
+                fr: fr.MemberName,
+                de: de.MemberName,
+                SpanishES: sp.MemberName,
+                nl: nl.MemberName
             })
             .setDescription(en.MemberDescription)
             .setDescriptionLocalizations({
-                "fr": fr.MemberDescription
+                fr: fr.MemberDescription,
+                de: de.MemberDescription,
+                SpanishES: sp.MemberDescription,
+                nl: nl.MemberDescription
             })
             .setRequired(false)),
     execute: async (interaction, bot, sequelize, Sequelize) => {
@@ -161,7 +194,7 @@ module.exports = {
                 unique: false,
             }
         });
-        const Profile = sequelize.define("Profile", {
+        const ProfileData = sequelize.define("Profile", {
             UserName: {
                 type: Sequelize.STRING,
                 unique: false,
@@ -210,44 +243,80 @@ module.exports = {
         let ActionImageData = await ActionImage.findAll({ where: { category: choice }, order: sequelize.random(), limit: 1 });
         let LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } })
 
-        let ProfileCheck = await Profile.findOne({ where: { UserID: User3 } })
+        let ProfileCheck1 = await ProfileData.findOne({ where: { UserID: interaction.user.id } })
+        let ProfileCheck2 = await ProfileData.findOne({ where: { UserID: User3 } })
 
-        let Pronouns = "";
-        let Pronouns2 = "";
+        let Pronouns1 = "";
 
-        if (ProfileCheck) {
-            if (ProfileCheck.Pronouns === pronouns.th) Pronouns = "them";
-            if (ProfileCheck.Pronouns === pronouns.he) Pronouns = "him";
-            if (ProfileCheck.Pronouns === pronouns.sh) Pronouns = "her";
-            if (ProfileCheck.Pronouns === pronouns.th) Pronouns2 = "their";
-            if (ProfileCheck.Pronouns === pronouns.he) Pronouns2 = "him";
-            if (ProfileCheck.Pronouns === pronouns.sh) Pronouns2 = "her";
+        if (ProfileCheck1) {
+            if (!ProfileCheck1.Pronouns) {
+                Pronouns1 = "their";
+            }
+
+            if (ProfileCheck1.Pronouns === Profile.pronouns.th) Pronouns1 = "their";
+            if (ProfileCheck1.Pronouns === Profile.pronouns.he) Pronouns1 = "him";
+            if (ProfileCheck1.Pronouns === Profile.pronouns.sh) Pronouns1 = "her";
         } else {
-            Pronouns = "them";
-            Pronouns2 = "their";
+            Pronouns1 = "their";
+        }
+
+        let Pronouns2 = "";
+        let Pronouns4 = "";
+
+        if (ProfileCheck2) {
+            if (!ProfileCheck2.Pronouns) {
+                Pronouns2 = "them";
+                Pronouns4 = "their";
+            }
+
+            if (ProfileCheck2.Pronouns === Profile.pronouns.th) Pronouns2 = "them";
+            if (ProfileCheck2.Pronouns === Profile.pronouns.th) Pronouns4 = "their";
+            if (ProfileCheck2.Pronouns === Profile.pronouns.he) Pronouns2 = "him";
+            if (ProfileCheck2.Pronouns === Profile.pronouns.he) Pronouns4 = "his";
+            if (ProfileCheck2.Pronouns === Profile.pronouns.sh) {
+                Pronouns2 = "her";
+                Pronouns4 = "her";
+            }
+        } else {
+            Pronouns2 = "them";
+            Pronouns4 = "their";
         }
 
         const HugSentence = [
-            User1 + " approaches " + User2 + " gently and hugs " + Pronouns + " from behind. How cute!",
-            User1 + " wraps " + Pronouns2 + " arms around " + User2 + ", taking " + Pronouns + " into " + Pronouns2 + " warm embrace!"
+            User1 + " approaches " + User2 + " gently and hugs " + Pronouns2 + " from behind!~",
+            User1 + " wraps " + Pronouns1 + " arms around " + User2 + ", taking " + Pronouns2 + " into " + Pronouns1 + " warm embrace!~",
+            User1 + " jump on " + User2 + "'s back and hug " + Pronouns2 + " thightly"
         ];
         const KissSentence = [
-            User1 + " approches slowly " + User2 + "'s face and gently kiss " + Pronouns + " on the lips!~",
-            User1 + " wraps " + Pronouns2 + " arms around " + User2 + ", place " + Pronouns2 + " lips to " + Pronouns + " and kiss " + Pronouns + " deeply!~"
+            User1 + " approches slowly " + User2 + "'s face and gently kiss " + Pronouns2 + " on the lips!~",
+            User1 + " wraps " + Pronouns1 + " arms around " + User2 + ", place " + Pronouns1 + " lips to " + Pronouns2 + " lips and kiss " + Pronouns2 + " deeply!~"
         ];
         const BoopSentence = [
-            User1 + " raises their paw and places it apon " + User2 + "'s snoot!",
+            User1 + " raises their paw and places it apon " + User2 + "'s snoot!~",
         ];
         const LickSentence = [
-            User1 + " get really close to " + User2 + " face and lick " + Pronouns + "!",
-            User1 + " lick rapidly " + User2 + " and run away!",
+            User1 + " gets really close to " + User2 + " face and lick " + Pronouns2 + "!~",
+            User1 + " licks " + User2 + " rapidly, and runs away!",
         ];
         const CuddleSentence = [
-            User1 + " sneaks up behind " + User2 + " and pounces, cuddling the suprised floofer!"
+            User1 + " sneaks up behind " + User2 + " and pounces, cuddling the suprised floofer!~"
         ];
         const YeetSentence = [
-            User1 + " yeeted " + User2 + " into the stratosphere!",
-            User1 + " grabbed " + User2 + " by the scruff and yeeted " + Pronouns + " 10 miles into the sky!",
+            User1 + " yeeted " + User2 + " into the stratosphere!~",
+            User1 + " grabbed " + User2 + " by the scruff and yeeted " + Pronouns2 + " 10 miles into the sky!",
+            User1 + " grabs " + User2 + " by " + Pronouns4 + " tail and throws " + Pronouns2 + " to Ohio!"
+        ];
+        const PatSentence = [
+            User1 + " rub " + User2 + " on the head!~",
+            User1 + " mess " + User2 + " hair!~",
+            User1 + " strokes " + User2 + " head, messing with " + Pronouns4 + " hair!~"
+        ];
+        const BiteSentence = [
+            User1 + " bites " + User2 + " nose!~",
+            User1 + " nom " + User2 + " ear!~",
+        ];
+        const BonkSentence = [
+            User1 + " swing a baseball bat on " + User2 + "'s head. Bonking " + Pronouns2 + "!~"
         ];
 
         switch (choice) {
@@ -629,6 +698,195 @@ module.exports = {
                 return interaction.reply({
                     content: RandomYeetSentence,
                     embeds: [imageEmbed6]
+                });
+            case ("pat"):
+                if (image) {
+                    let fetchGuild = interaction.client.guilds.cache.get(Config.guildId)
+                    const suggestChannel = fetchGuild.channels.cache.get(Config.SuggestImage)
+
+                    const ImageEmbed = new MessageEmbed()
+                        .addFields(
+                            { name: "Category:", value: choice, inline: true },
+                            { name: "Author:", value: interaction.user.tag + " ``(" + interaction.user.id + ")``", inline: true }
+                        )
+                        .setImage(image.url)
+                        .setColor(Color.RiskLow)
+
+                    await interaction.reply({
+                        content: "Your image has been successfully sent to the staff of ``Cheryl``!",
+                        ephemeral: true
+                    })
+
+                    return suggestChannel.send({
+                        embeds: [ImageEmbed],
+                        components: [buttonToAcceptSuggestion]
+                    }).then(async sent => {
+                        let MessageID = sent.id
+                        const ActionImageCreate = await ActionImage.create({
+                            MessageID: MessageID,
+                            Category: choice,
+                            ImageURL: image.url,
+                            UserName: interaction.user.tag,
+                            UserID: interaction.user.id,
+                        });
+                    });
+                }
+
+                const RandomPatSentence = PatSentence[Math.floor(Math.random() * PatSentence.length)];
+                let RandomImage7 = ActionImageData[Math.floor(Math.random() * ActionImageData.length)];
+
+                const imageEmbed7 = new MessageEmbed()
+                    .setDescription(embedDescription)
+                    .setImage(RandomImage7.ImageURL)
+                    .setColor(Color.Green)
+
+                if (LoggingData) {
+                    if (LoggingData.SettingsActionImage === "Disabled" & LoggingData.SettingsActionMessage === "Disabled") {
+                        return interaction.reply({
+                            content: ["This command has been disabled in this server."],
+                        });
+                    }
+                    if (LoggingData.SettingsActionImage === "Disabled") {
+                        return interaction.reply({
+                            content: RandomPatSentence,
+                        });
+                    }
+                    if (LoggingData.SettingsActionMessage === "Disabled") {
+                        return interaction.reply({
+                            embeds: [imageEmbed7]
+                        });
+                    }
+                }
+
+                return interaction.reply({
+                    content: RandomPatSentence,
+                    embeds: [imageEmbed7]
+                });
+            case ("bite"):
+                if (image) {
+                    let fetchGuild = interaction.client.guilds.cache.get(Config.guildId)
+                    const suggestChannel = fetchGuild.channels.cache.get(Config.SuggestImage)
+
+                    const ImageEmbed = new MessageEmbed()
+                        .addFields(
+                            { name: "Category:", value: choice, inline: true },
+                            { name: "Author:", value: interaction.user.tag + " ``(" + interaction.user.id + ")``", inline: true }
+                        )
+                        .setImage(image.url)
+                        .setColor(Color.RiskLow)
+
+                    await interaction.reply({
+                        content: "Your image has been successfully sent to the staff of ``Cheryl``!",
+                        ephemeral: true
+                    })
+
+                    return suggestChannel.send({
+                        embeds: [ImageEmbed],
+                        components: [buttonToAcceptSuggestion]
+                    }).then(async sent => {
+                        let MessageID = sent.id
+                        const ActionImageCreate = await ActionImage.create({
+                            MessageID: MessageID,
+                            Category: choice,
+                            ImageURL: image.url,
+                            UserName: interaction.user.tag,
+                            UserID: interaction.user.id,
+                        });
+                    });
+                }
+
+                const RandomBiteSentence = BiteSentence[Math.floor(Math.random() * BiteSentence.length)];
+                let RandomImage8 = ActionImageData[Math.floor(Math.random() * ActionImageData.length)];
+
+                const imageEmbed8 = new MessageEmbed()
+                    .setDescription(embedDescription)
+                    .setImage(RandomImage8.ImageURL)
+                    .setColor(Color.Green)
+
+                if (LoggingData) {
+                    if (LoggingData.SettingsActionImage === "Disabled" & LoggingData.SettingsActionMessage === "Disabled") {
+                        return interaction.reply({
+                            content: ["This command has been disabled in this server."],
+                        });
+                    }
+                    if (LoggingData.SettingsActionImage === "Disabled") {
+                        return interaction.reply({
+                            content: RandomBiteSentence,
+                        });
+                    }
+                    if (LoggingData.SettingsActionMessage === "Disabled") {
+                        return interaction.reply({
+                            embeds: [imageEmbed8]
+                        });
+                    }
+                }
+
+                return interaction.reply({
+                    content: RandomBiteSentence,
+                    embeds: [imageEmbed8]
+                });
+            case ("bonk"):
+                if (image) {
+                    let fetchGuild = interaction.client.guilds.cache.get(Config.guildId)
+                    const suggestChannel = fetchGuild.channels.cache.get(Config.SuggestImage)
+
+                    const ImageEmbed = new MessageEmbed()
+                        .addFields(
+                            { name: "Category:", value: choice, inline: true },
+                            { name: "Author:", value: interaction.user.tag + " ``(" + interaction.user.id + ")``", inline: true }
+                        )
+                        .setImage(image.url)
+                        .setColor(Color.RiskLow)
+
+                    await interaction.reply({
+                        content: "Your image has been successfully sent to the staff of ``Cheryl``!",
+                        ephemeral: true
+                    })
+
+                    return suggestChannel.send({
+                        embeds: [ImageEmbed],
+                        components: [buttonToAcceptSuggestion]
+                    }).then(async sent => {
+                        let MessageID = sent.id
+                        const ActionImageCreate = await ActionImage.create({
+                            MessageID: MessageID,
+                            Category: choice,
+                            ImageURL: image.url,
+                            UserName: interaction.user.tag,
+                            UserID: interaction.user.id,
+                        });
+                    });
+                }
+
+                const RandomBonkSentence = BonkSentence[Math.floor(Math.random() * BonkSentence.length)];
+                let RandomImage9 = ActionImageData[Math.floor(Math.random() * ActionImageData.length)];
+
+                const imageEmbed9 = new MessageEmbed()
+                    .setDescription(embedDescription)
+                    .setImage(RandomImage9.ImageURL)
+                    .setColor(Color.Green)
+
+                if (LoggingData) {
+                    if (LoggingData.SettingsActionImage === "Disabled" & LoggingData.SettingsActionMessage === "Disabled") {
+                        return interaction.reply({
+                            content: ["This command has been disabled in this server."],
+                        });
+                    }
+                    if (LoggingData.SettingsActionImage === "Disabled") {
+                        return interaction.reply({
+                            content: RandomBonkSentence,
+                        });
+                    }
+                    if (LoggingData.SettingsActionMessage === "Disabled") {
+                        return interaction.reply({
+                            embeds: [imageEmbed9]
+                        });
+                    }
+                }
+
+                return interaction.reply({
+                    content: RandomBonkSentence,
+                    embeds: [imageEmbed9]
                 });
         };
     }

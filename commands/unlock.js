@@ -1,9 +1,20 @@
 const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Color = require("../config/color.json");
+const LanguageFR = require("../languages/fr.json");
+const LanguageEN = require("../languages/en.json");
+const LanguageDE = require("../languages/de.json");
+const LanguageSP = require("../languages/sp.json");
+const LanguageNL = require("../languages/nl.json");
+
+const fr = LanguageFR.unlock;
+const en = LanguageEN.unlock;
+const de = LanguageDE.unlock;
+const sp = LanguageSP.unlock;
+const nl = LanguageNL.unlock;
 
 const dateTime = new Date();
-console.log(dateTime.toLocaleString() + " -> The 'unlock' command is loaded.");
+console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");
 
 module.exports = {
     data: new SlashCommandBuilder()

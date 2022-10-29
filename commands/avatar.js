@@ -3,9 +3,15 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const Color = require("../config/color.json");
 const LanguageFR = require("../languages/fr.json");
 const LanguageEN = require("../languages/en.json");
+const LanguageDE = require("../languages/de.json");
+const LanguageSP = require("../languages/sp.json");
+const LanguageNL = require("../languages/nl.json");
 
 const fr = LanguageFR.avatar;
 const en = LanguageEN.avatar;
+const de = LanguageDE.avatar;
+const sp = LanguageSP.avatar;
+const nl = LanguageNL.avatar;
 
 const dateTime = new Date();
 console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");
@@ -14,23 +20,35 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName(en.Name)
         .setNameLocalizations({
-            "fr": fr.Name
+            fr: fr.Name,
+            de: de.Name,
+            SpanishES: sp.Name,
+            nl: nl.Name
         })
         .setDescription(en.Description)
         .setDescriptionLocalizations({
-            "fr": fr.Description
+            fr: fr.Description,
+            de: de.Description,
+            SpanishES: sp.Description,
+            nl: nl.Description
         })
         .addUserOption(option => option
             .setName(en.UserName)
             .setNameLocalizations({
-                "fr": fr.UserName
+                fr: fr.UserName,
+                de: de.UserName,
+                SpanishES: sp.UserName,
+                nl: nl.UserName
             })
             .setDescription(en.UserDescription)
             .setDescriptionLocalizations({
-                "fr": fr.UserDescription
+                fr: fr.UserDescription,
+                de: de.UserDescription,
+                SpanishES: sp.UserDescription,
+                nl: nl.UserDescription
             })
             .setRequired(false)),
-    execute: async (interaction, bot) => {
+    execute: async (interaction) => {
         const user = interaction.options.getUser(en.UserName);
 
         let MemberData = "";

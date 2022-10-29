@@ -26,7 +26,7 @@
     "blacklist": {
         "Name": "blacklist",
         "Description": "Blacklist Systeem - Bescherm je server tegen een gevaarlijke gebruiker.",
-        "AddName": "voeg toe",
+        "AddName": "voeg_toe",
         "AddDescription": "Voeg een gebruiker toe aan de blacklist.",
         "AddUserName": "gebruiker",
         "AddUserDescription": "Gebruiker om te blacklisten.",
@@ -53,6 +53,58 @@
         "SuggestEvidenceName": "bewijs",
         "SuggestEvidenceDescription": "Bewijs van wat de gebruiker gedaan heeft."
     },
+    "help": {
+        "Name": "help",
+        "Description": "Display the commands available (or information about a certain command).",
+        "InfoName": "info",
+        "InfoDescription": "Display information about certain commands/functionalities."
+    },
+    "kick": {
+        "Name": "kick",
+        "Description": "Kick a user.",
+        "UserName": "user",
+        "UserDescription": "User to kick.",
+        "ReasonName": "reason",
+        "ReasonDescription": "Reason of the kick."
+    },
+    "lock": {
+        "Name": "lock",
+        "Description": "Lock the channel."
+    },
+    "permission": {
+        "Name": "permission",
+        "Description": "Give permission to a user/server.",
+        "UserName": "user",
+        "UserDescription": "Give permission to a user [Staff Cheryl].",
+        "UserUserName": "user",
+        "UserUserDescription": "User to add/remove permission.",
+        "UserOptionsName": "options",
+        "UserOptionsDescription": "Add/Remove",
+        "UserPermissionName": "permission",
+        "UserPermissionDescription": "Permission to add/remove.",
+        "ServerName": "server",
+        "ServerDescription": "Give permission to a server [Staff Cheryl].",
+        "ServerUserName": "server",
+        "ServerUserDescription": "Server to add/remove permission.",
+        "ServerOptionsName": "options",
+        "ServerOptionsDescription": "Add/Remove",
+        "ServerPermissionName": "permission",
+        "ServerPermissionDescription": "Permission to add/remove."
+    },
+    "profile": {
+        "Name": "profiel",
+        "Description": "Krijg informatie van een gebruiker.",
+        "UserName": "gebruiker",
+        "UserDescription": "Gebruiker om informatie van te krijgen.",
+        "PronounsName": "pronoun",
+        "PronounsDescription": "Verander je pronoun.",
+        "GenderName": "gender",
+        "GenderDescription": "Verander je gender.",
+        "AgeName": "leeftijd",
+        "AgeDescription": "Verander je leeftijd."
+    },
+    "report": {},
+    "serverinfo": {},
     "settings": {
         "Name": "instellingen",
         "Description": "Verander je server instellingen.",
@@ -69,16 +121,11 @@
         "SetupWelcomeChannelName": "kanaal",
         "SetupWelcomeChannelDescription": "Kanaal om het welkom bericht in te sturen."
     },
-    "profile": {
-        "Name": "profiel",
-        "Description": "Krijg informatie van een gebruiker.",
-        "UserName": "gebruiker",
-        "UserDescription": "Gebruiker om informatie van te krijgen.",
-        "PronounsName": "pronoun",
-        "PronounsDescription": "Verander je pronoun.",
-        "GenderName": "gender",
-        "GenderDescription": "Verander je gender.",
-        "AgeName": "leeftijd",
-        "AgeDescription": "Verander je leeftijd."
-    }
+    "staff": {},
+    "unban": {},
+    "unlock": {},
+    "verify": {},
+    "warn": {},
+    "warns": {},
+    "welcomemenu": {}
 }

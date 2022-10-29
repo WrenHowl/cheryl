@@ -1,9 +1,20 @@
 const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Color = require("../config/color.json");
+const LanguageFR = require("../languages/fr.json");
+const LanguageEN = require("../languages/en.json");
+const LanguageDE = require("../languages/de.json");
+const LanguageSP = require("../languages/sp.json");
+const LanguageNL = require("../languages/nl.json");
+
+const fr = LanguageFR.serverinfo;
+const en = LanguageEN.serverinfo;
+const de = LanguageDE.serverinfo;
+const sp = LanguageSP.serverinfo;
+const nl = LanguageNL.serverinfo;
 
 const dateTime = new Date();
-console.log(dateTime.toLocaleString() + " -> The 'serverinfo' command is loaded.");
+console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -20,7 +31,7 @@ module.exports = {
     let roleCount = interaction.guild.roles.cache.size
 
     const guild = bot.guilds.cache.get(interaction.guild.id);
-    var memberCount = guild.members.cache.filter(member => !member.user.bot).size;
+    var memberCount = guild.memberCount
 
     const serverinfo = new MessageEmbed()
       .addFields(

@@ -53,6 +53,58 @@
         "SuggestEvidenceName": "preuve",
         "SuggestEvidenceDescription": "Preuve de l'action effectuée par l'utilisateur."
     },
+    "help": {
+        "Name": "aide",
+        "Description": "Afficher les commandes disponibles (ou des informations sur une certaine commande).",
+        "InfoName": "info",
+        "InfoDescription": "Afficher des informations sur certaines commandes/fonctionnalités."
+    },
+    "kick": {
+        "Name": "expulser",
+        "Description": "Expulser un utilisateur.",
+        "UserName": "utilisateur",
+        "UserDescription": "Utilisateur à expulser.",
+        "ReasonName": "raison",
+        "ReasonDescription": "Raison de l'expulsion."
+    },
+    "lock": {
+        "Name": "verrouiller",
+        "Description": "Verrouiller le canal."
+    },
+    "permission": {
+        "Name": "permission",
+        "Description": "Donner la permission à un utilisateur/serveur.",
+        "UserName": "utilisateur",
+        "UserDescription": "Donner l'autorisation à un utilisateur [Personnel de Cheryl].",
+        "UserUserName": "utilisateur",
+        "UserUserDescription": "Utilisateur à ajouter/enlever l'autorisation.",
+        "UserOptionsName": "choix",
+        "UserOptionsDescription": "Ajouter/Enlever",
+        "UserPermissionName": "permission",
+        "UserPermissionDescription": "Permission à ajouter/enlever.",
+        "ServerName": "serveur",
+        "ServerDescription": "Donner la permission à un serveur [Personnel de Cheryl].",
+        "ServerUserName": "serveur",
+        "ServerUserDescription": "Serveur à ajouter/enlever l'autorisation.",
+        "ServerOptionsName": "choix",
+        "ServerOptionsDescription": "Ajouter/Enlever",
+        "ServerPermissionName": "permission",
+        "ServerPermissionDescription": "Permission à ajouter/enlever."
+    },
+    "profile": {
+        "Name": "profil",
+        "Description": "Obtenir des informations sur un utilisateur.",
+        "UserName": "utilisateur",
+        "UserDescription": "Utilisateur a obtenir les informations.",
+        "PronounsName": "pronom",
+        "PronounsDescription": "Changez votre pronom.",
+        "GenderName": "genre",
+        "GenderDescription": "Changez votre genre.",
+        "AgeName": "âge",
+        "AgeDescription": "Changez votre âge."
+    },
+    "report": {},
+    "serverinfo": {},
     "settings": {
         "Name": "réglages",
         "Description": "Changez les paramètres du serveur.",
@@ -69,16 +121,11 @@
         "SetupWelcomeChannelName": "canal",
         "SetupWelcomeChannelDescription": "Canal a envoyer le message de bienvenue."
     },
-    "profile": {
-        "Name": "profil",
-        "Description": "Obtenir des informations sur un utilisateur.",
-        "UserName": "utilisateur",
-        "UserDescription": "Utilisateur a obtenir les informations.",
-        "PronounsName": "pronom",
-        "PronounsDescription": "Changez votre pronom.",
-        "GenderName": "genre",
-        "GenderDescription": "Changez votre genre.",
-        "AgeName": "âge",
-        "AgeDescription": "Changez votre âge."
-    }
+    "staff": {},
+    "unban": {},
+    "unlock": {},
+    "verify": {},
+    "warn": {},
+    "warns": {},
+    "welcomemenu": {}
 }

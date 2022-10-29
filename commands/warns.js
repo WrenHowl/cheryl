@@ -1,8 +1,19 @@
 const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const LanguageFR = require("../languages/fr.json");
+const LanguageEN = require("../languages/en.json");
+const LanguageDE = require("../languages/de.json");
+const LanguageSP = require("../languages/sp.json");
+const LanguageNL = require("../languages/nl.json");
+
+const fr = LanguageFR.warns;
+const en = LanguageEN.warns;
+const de = LanguageDE.warns;
+const sp = LanguageSP.warns;
+const nl = LanguageNL.warns;
 
 const dateTime = new Date();
-console.log(dateTime.toLocaleString() + " -> The 'warns' command is loaded.");
+console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");
 
 module.exports = {
     data: new SlashCommandBuilder()

@@ -1,18 +1,68 @@
 const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Color = require("../config/color.json");
+const LanguageFR = require("../languages/fr.json");
+const LanguageEN = require("../languages/en.json");
+const LanguageDE = require("../languages/de.json");
+const LanguageSP = require("../languages/sp.json");
+const LanguageNL = require("../languages/nl.json");
+
+const fr = LanguageFR.kick;
+const en = LanguageEN.kick;
+const de = LanguageDE.kick;
+const sp = LanguageSP.kick;
+const nl = LanguageNL.kick;
 
 const dateTime = new Date();
-console.log(dateTime.toLocaleString() + " -> The 'kick' command is loaded.");
+console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('kick')
-        .setDescription('Kick a member!')
-        .addUserOption(option => option.setName("user").setDescription("User to kick.").setRequired(true))
+        .setName(en.Name)
+        .setNameLocalizations({
+            fr: fr.Name,
+            de: de.Name,
+            SpanishES: sp.Name,
+            nl: nl.Name
+        })
+        .setDescription(en.Description)
+        .setDescriptionLocalizations({
+            fr: fr.Description,
+            de: de.Description,
+            SpanishES: sp.Description,
+            nl: nl.Description
+        })
+        .addUserOption(option => option
+            .setName(en.UserName)
+            .setNameLocalizations({
+                fr: fr.UserName,
+                de: de.UserName,
+                SpanishES: sp.UserName,
+                nl: nl.UserName
+            })
+            .setDescription(en.UserDescription)
+            .setDescriptionLocalizations({
+                fr: fr.UserDescription,
+                de: de.UserDescription,
+                SpanishES: sp.UserDescription,
+                nl: nl.UserDescription
+            })
+            .setRequired(true))
         .addStringOption(option => option
-            .setName('reason')
-            .setDescription('Enter the reason.')
+            .setName(en.ReasonName)
+            .setNameLocalizations({
+                fr: fr.ReasonName,
+                de: de.ReasonName,
+                SpanishES: sp.ReasonName,
+                nl: nl.ReasonName
+            })
+            .setDescription(en.ReasonDescription)
+            .setDescriptionLocalizations({
+                fr: fr.ReasonDescription,
+                de: de.ReasonDescription,
+                SpanishES: sp.ReasonDescription,
+                nl: nl.ReasonDescription
+            })
             .setRequired(true)
         ),
     execute: async (interaction, bot, sequelize, Sequelize) => {
@@ -90,7 +140,7 @@ module.exports = {
 
         if (interaction.member.permissions.has("KICK_MEMBERS")) {
             if (interaction.guild.me.permissions.has("KICK_MEMBERS")) {
-                const user = interaction.options.getUser("user")
+                const user = interaction.options.getUser(en.UserName)
                 const member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(err => { })
                 let guild = bot.guilds.cache.get(interaction.guild.id);
 
@@ -125,7 +175,7 @@ module.exports = {
                             }
                         }
 
-                        const reason = interaction.options.getString("reason");
+                        const reason = interaction.options.getString(en.ReasonName);
                         const admin = interaction.user.tag;
 
                         const kickMessage = new MessageEmbed()

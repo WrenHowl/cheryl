@@ -5,44 +5,51 @@ const Color = require("../config/color.json");
 const Profile = require("../config/profile.json")
 const LanguageFR = require("../languages/fr.json");
 const LanguageEN = require("../languages/en.json");
+const LanguageDE = require("../languages/de.json");
+const LanguageSP = require("../languages/sp.json");
+const LanguageNL = require("../languages/nl.json");
 
 const fr = LanguageFR.profile;
 const en = LanguageEN.profile;
+const de = LanguageDE.profile;
+const sp = LanguageSP.profile;
+const nl = LanguageNL.profile;
+
 const Age = Profile.age;
 const Pronouns = Profile.pronouns;
 const Gender = Profile.gender;
 
 const dateTime = new Date();
-console.log(dateTime.toLocaleString() + " -> The '" + fr.Name + "' command is loaded.")
+console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName(fr.Name)
+        .setName(en.Name)
         .setNameLocalizations({
-            "fr": en.Name,
+            "fr": fr.Name,
         })
-        .setDescription(fr.Description)
+        .setDescription(en.Description)
         .setDescriptionLocalizations({
-            "fr": en.Description,
+            "fr": fr.Description,
         })
         .addUserOption(option => option
-            .setName(fr.UserName)
+            .setName(en.UserName)
             .setNameLocalizations({
-                "fr": en.UserName,
+                "fr": fr.UserName,
             })
-            .setDescription(fr.UserDescription)
+            .setDescription(en.UserDescription)
             .setDescriptionLocalizations({
-                "fr": en.UserDescription,
+                "fr": fr.UserDescription,
             })
             .setRequired(false))
         .addStringOption(option => option
-            .setName(fr.PronounsName)
+            .setName(en.PronounsName)
             .setNameLocalizations({
-                "fr": en.PronounsName,
+                "fr": fr.PronounsName,
             })
-            .setDescription(fr.PronounsDescription)
+            .setDescription(en.PronounsDescription)
             .setDescriptionLocalizations({
-                "fr": en.PronounsDescription,
+                "fr": fr.PronounsDescription,
             })
             .addChoices(
                 { name: Pronouns.th, value: Pronouns.th },
@@ -51,13 +58,13 @@ module.exports = {
             )
             .setRequired(false))
         .addStringOption(option => option
-            .setName(fr.GenderName)
+            .setName(en.GenderName)
             .setNameLocalizations({
-                "fr": en.GenderName,
+                "fr": fr.GenderName,
             })
-            .setDescription(fr.GenderDescription)
+            .setDescription(en.GenderDescription)
             .setDescriptionLocalizations({
-                "fr": en.GenderDescription,
+                "fr": fr.GenderDescription,
             })
             .addChoices(
                 { name: Gender.ml, value: Gender.ml },
@@ -70,13 +77,13 @@ module.exports = {
             )
             .setRequired(false))
         .addStringOption(option => option
-            .setName(fr.AgeName)
+            .setName(en.AgeName)
             .setNameLocalizations({
-                "fr": en.AgeName,
+                "fr": fr.AgeName,
             })
-            .setDescription(fr.AgeDescription)
+            .setDescription(en.AgeDescription)
             .setDescriptionLocalizations({
-                "fr": en.AgeDescription,
+                "fr": fr.AgeDescription,
             })
             .addChoices(
                 { name: Age.mn, value: Age.mn },
@@ -241,15 +248,18 @@ module.exports = {
 
         let user = interaction.options.getUser("user");
         let MemberData = "";
+        let UserPinged = "";
 
         if (user) {
             MemberData = user;
             CheckDaysCreatedAt = user.createdAt;
+            UserPinged = user.id;
         }
 
         if (!user) {
             MemberData = interaction.member;
             CheckDaysCreatedAt = interaction.user.createdAt;
+            UserPinged = interaction.user.id;
         }
 
         let member = interaction.guild.members.cache.get(MemberData.id) || await interaction.guild.members.fetch(MemberData.id).catch(err => { });
@@ -282,14 +292,16 @@ module.exports = {
             CheckDaysJoinedAt = "`No Data Found`";
         }
 
-        if (ProfileCheck) ProfilePronouns = "`" + ProfileCheck.Pronouns + "`";
-        if (!ProfileCheck || !ProfileCheck.Pronouns) ProfilePronouns = "`No Data Found`";
+        let ProfileCheck2 = await Profile.findOne({ where: { UserID: UserPinged } })
 
-        if (ProfileCheck) ProfileGender = "`" + ProfileCheck.Gender + "`";
-        if (!ProfileCheck || !ProfileCheck.Gender) ProfileGender = "`No Data Found`";
+        if (ProfileCheck2) ProfilePronouns = "`" + ProfileCheck2.Pronouns + "`";
+        if (!ProfileCheck2 || !ProfileCheck2.Pronouns) ProfilePronouns = "`No Data Found`";
 
-        if (ProfileCheck) ProfileAge = "`" + ProfileCheck.Age + "`";
-        if (!ProfileCheck || !ProfileCheck.Age) ProfileAge = "`No Data Found`";
+        if (ProfileCheck2) ProfileGender = "`" + ProfileCheck2.Gender + "`";
+        if (!ProfileCheck2 || !ProfileCheck2.Gender) ProfileGender = "`No Data Found`";
+
+        if (ProfileCheck2) ProfileAge = "`" + ProfileCheck2.Age + "`";
+        if (!ProfileCheck2 || !ProfileCheck2.Age) ProfileAge = "`No Data Found`";
 
         const userinfoEmbed = new MessageEmbed()
             .addFields(

@@ -3,9 +3,15 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const Logging = require("../config/logging.json");
 const LanguageFR = require("../languages/fr.json");
 const LanguageEN = require("../languages/en.json");
+const LanguageDE = require("../languages/de.json");
+const LanguageSP = require("../languages/sp.json");
+const LanguageNL = require("../languages/nl.json");
 
 const fr = LanguageFR.settings;
 const en = LanguageEN.settings;
+const de = LanguageDE.settings;
+const sp = LanguageSP.settings;
+const nl = LanguageNL.settings;
 
 const dateTime = new Date();
 console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");

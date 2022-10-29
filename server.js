@@ -668,7 +668,7 @@ bot.on('interactionCreate', async (interaction) => {
           }
         }
 
-        interaction.channel.messages.fetch(ApplicationLog.MessageID).then(async (UpdateMessage) => {
+        interaction.channel.messages.fetch(interaction.message.id).then(async (UpdateMessage) => {
           const staffApplicationEmbed2 = new MessageEmbed()
             .addFields(
               { name: "**__Age__**", value: ApplicationLog.AgeData },
@@ -704,7 +704,7 @@ bot.on('interactionCreate', async (interaction) => {
           }
         }
 
-        interaction.channel.messages.fetch(ApplicationLog.MessageID).then(async (UpdateMessage) => {
+        interaction.channel.messages.fetch(interaction.message.id).then(async (UpdateMessage) => {
           const staffApplicationEmbed2 = new MessageEmbed()
             .addFields(
               { name: "**__Age__**", value: ApplicationLog.AgeData },
@@ -822,11 +822,9 @@ bot.on('interactionCreate', async (interaction) => {
           })
         };
       case ("buttonToAcceptVerify"):
-        let MessageUpdate = VerificationLog.MessageID;
-
         if (VerificationLog) {
           if (!guild.members.cache.find(m => m.id === VerificationLog.UserID)?.id) {
-            interaction.channel.messages.fetch(MessageUpdate).then(async (UpdateMessage) => {
+            interaction.channel.messages.fetch(interaction.message.id).then(async (UpdateMessage) => {
               const verificationEmbedAccepted = new MessageEmbed()
                 .addFields(
                   { name: "**__Age__**", value: VerificationLog.AgeData },
@@ -868,7 +866,7 @@ bot.on('interactionCreate', async (interaction) => {
 
             const generalMessage = interaction.guild.channels.cache.get(LoggingData.ChannelIDVerify);
 
-            interaction.channel.messages.fetch(MessageUpdate).then(async (UpdateMessage) => {
+            interaction.channel.messages.fetch(interaction.message.id).then(async (UpdateMessage) => {
               const verificationEmbedAccepted = new MessageEmbed()
                 .addFields(
                   { name: "**__Age__**", value: VerificationLog.AgeData },
@@ -935,11 +933,9 @@ bot.on('interactionCreate', async (interaction) => {
 
         break;
       case ("buttonToDenyVerify"):
-        let MessageUpdateTwo = VerificationLog.MessageID;
-
         if (VerificationLog) {
           if (!guild.members.cache.find(m => m.id === VerificationLog.UserID)?.id) {
-            interaction.channel.messages.fetch(MessageUpdateTwo).then(async (UpdateMessage) => {
+            interaction.channel.messages.fetch(interaction.message.id).then(async (UpdateMessage) => {
               const verificationEmbedAccepted = new MessageEmbed()
                 .addFields(
                   { name: "**__Age__**", value: VerificationLog.AgeData },
@@ -958,7 +954,7 @@ bot.on('interactionCreate', async (interaction) => {
               })
             })
           } else {
-            interaction.channel.messages.fetch(MessageUpdateTwo).then(async (UpdateMessage) => {
+            interaction.channel.messages.fetch(interaction.message.id).then(async (UpdateMessage) => {
               const reasonDeny = new MessageActionRow()
                 .addComponents(
                   new MessageSelectMenu()
