@@ -134,7 +134,7 @@
         "SetupBlacklistAutobanDescription": "Enable/Disable",
         "SetupActionName": "action",
         "SetupActionDescription": "Change the settings of the command: Action.",
-        "SetupActionOptionsName": "status",
+        "SetupActionOptionsName": "options",
         "SetupActionOptionsDescription": "Features to enable/disable.",
         "SetupActionStatusName": "status",
         "SetupActionStatusDescription": "Enable/Disable",
