@@ -20,11 +20,17 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName(en.Name)
         .setNameLocalizations({
-            "fr": fr.Name,
+            fr: fr.Name,
+            de: de.Name,
+            SpanishES: sp.Name,
+            nl: nl.Name
         })
         .setDescription(en.Description)
         .setDescriptionLocalizations({
-            "fr": fr.Description,
+            fr: fr.Description,
+            de: de.Description,
+            SpanishES: sp.Description,
+            nl: nl.Description
         })
 
         // Setup
@@ -32,78 +38,162 @@ module.exports = {
         .addSubcommandGroup(group => group
             .setName(en.SetupName)
             .setNameLocalizations({
-                "fr": fr.SetupName,
+                fr: fr.SetupName,
+                de: de.SetupName,
+                SpanishES: sp.SetupName,
+                nl: nl.SetupName
             })
             .setDescription(en.SetupDescription)
             .setDescriptionLocalizations({
-                "fr": fr.SetupDescription,
+                fr: fr.SetupDescription,
+                de: de.SetupDescription,
+                SpanishES: sp.SetupDescription,
+                nl: nl.SetupDescription
             })
             .addSubcommand(subcommand => subcommand
                 .setName(en.SetupReportName)
                 .setNameLocalizations({
-                    "fr": fr.SetupReportName,
+                    fr: fr.SetupReportName,
+                    de: de.SetupReportName,
+                    SpanishES: sp.SetupReportName,
+                    nl: nl.SetupReportName
                 })
                 .setDescription(en.SetupReportDescription)
                 .setDescriptionLocalizations({
-                    "fr": fr.SetupReportDescription,
+                    fr: fr.SetupReportDescription,
+                    de: de.SetupReportDescription,
+                    SpanishES: sp.SetupReportDescription,
+                    nl: nl.SetupReportDescription
                 })
                 .addChannelOption(option => option
                     .setName(en.SetupReportChannelName)
                     .setNameLocalizations({
-                        "fr": fr.SetupReportChannelName,
+                        fr: fr.SetupReportChannelName,
+                        de: de.SetupReportChannelName,
+                        SpanishES: sp.SetupReportChannelName,
+                        nl: nl.SetupReportChannelName
                     })
                     .setDescription(en.SetupReportChannelDescription)
                     .setDescriptionLocalizations({
-                        "fr": fr.SetupReportChannelDescription,
+                        fr: fr.SetupReportChannelDescription,
+                        de: de.SetupReportChannelDescription,
+                        SpanishES: sp.SetupReportChannelDescription,
+                        nl: nl.SetupReportChannelDescription
                     })
                     .setRequired(true))
                 .addRoleOption(option => option
                     .setName(en.SetupReportRoleName)
                     .setNameLocalizations({
-                        "fr": fr.SetupReportRoleName,
+                        fr: fr.SetupReportRoleName,
+                        de: de.SetupReportRoleName,
+                        SpanishES: sp.SetupReportRoleName,
+                        nl: nl.SetupReportRoleName
                     })
                     .setDescription(en.SetupReportRoleDescription)
                     .setDescriptionLocalizations({
-                        "fr": fr.SetupReportRoleDescription,
+                        fr: fr.SetupReportRoleDescription,
+                        de: de.SetupReportRoleDescription,
+                        SpanishES: sp.SetupReportRoleDescription,
+                        nl: nl.SetupReportRoleDescription
                     })
                     .setRequired(false)))
             .addSubcommand(subcommand => subcommand
                 .setName(en.SetupWelcomeName)
                 .setNameLocalizations({
-                    "fr": fr.SetupWelcomeName,
+                    fr: fr.SetupWelcomeName,
+                    de: de.SetupWelcomeName,
+                    SpanishES: sp.SetupWelcomeName,
+                    nl: nl.SetupWelcomeName
                 })
                 .setDescription(en.SetupWelcomeDescription)
                 .setDescriptionLocalizations({
-                    "fr": fr.SetupWelcomeDescription,
+                    fr: fr.SetupWelcomeDescription,
+                    de: de.SetupWelcomeDescription,
+                    SpanishES: sp.SetupWelcomeDescription,
+                    nl: nl.SetupWelcomeDescription
                 })
                 .addChannelOption(option => option
                     .setName(en.SetupWelcomeChannelName)
                     .setNameLocalizations({
-                        "fr": fr.SetupWelcomeChannelName,
+                        fr: fr.SetupWelcomeChannelName,
+                        de: de.SetupWelcomeChannelName,
+                        SpanishES: sp.SetupWelcomeChannelName,
+                        nl: nl.SetupWelcomeChannelName
                     })
                     .setDescription(en.SetupWelcomeChannelDescription)
                     .setDescriptionLocalizations({
-                        "fr": fr.SetupWelcomeChannelDescription,
+                        fr: fr.SetupWelcomeChannelDescription,
+                        de: de.SetupWelcomeChannelDescription,
+                        SpanishES: sp.SetupWelcomeChannelDescription,
+                        nl: nl.SetupWelcomeChannelDescription
                     })
                     .setRequired(true)))
             .addSubcommand(subcommand => subcommand
-                .setName("blacklist")
-                .setDescription("Change the settings of the Blacklist System.")
+                .setName(en.SetupBlacklistName)
+                .setNameLocalizations({
+                    fr: fr.SetupBlacklistName,
+                    de: de.SetupBlacklistName,
+                    SpanishES: sp.SetupBlacklistName,
+                    nl: nl.SetupBlacklistName
+                })
+                .setDescription(en.SetupBlacklistDescription)
+                .setDescriptionLocalizations({
+                    fr: fr.SetupBlacklistDescription,
+                    de: de.SetupBlacklistDescription,
+                    SpanishES: sp.SetupBlacklistDescription,
+                    nl: nl.SetupBlacklistDescription
+                })
                 .addStringOption(option => option
-                    .setName("status")
-                    .setDescription("Enable/Disable")
+                    .setName(en.SetupBlacklistStatusName)
+                    .setNameLocalizations({
+                        fr: fr.SetupBlacklistStatusName,
+                        de: de.SetupBlacklistStatusName,
+                        SpanishES: sp.SetupBlacklistStatusName,
+                        nl: nl.SetupBlacklistStatusName
+                    })
+                    .setDescription(en.SetupBlacklistStatusDescription)
+                    .setDescriptionLocalizations({
+                        fr: fr.SetupBlacklistStatusDescription,
+                        de: de.SetupBlacklistStatusDescription,
+                        SpanishES: sp.SetupBlacklistStatusDescription,
+                        nl: nl.SetupBlacklistStatusDescription
+                    })
                     .setRequired(true)
                     .addChoices(
                         { name: "Enable", value: "true" },
                         { name: "Disable", value: "false" },
                     ))
                 .addChannelOption(option => option
-                    .setName("channel")
-                    .setDescription("Channel to receive the alert.")
+                    .setName(en.SetupBlacklistChannelName)
+                    .setNameLocalizations({
+                        fr: fr.SetupBlacklistChannelName,
+                        de: de.SetupBlacklistChannelName,
+                        SpanishES: sp.SetupBlacklistChannelName,
+                        nl: nl.SetupBlacklistChannelName
+                    })
+                    .setDescription(en.SetupBlacklistChannelDescription)
+                    .setDescriptionLocalizations({
+                        fr: fr.SetupBlacklistChannelDescription,
+                        de: de.SetupBlacklistChannelDescription,
+                        SpanishES: sp.SetupBlacklistChannelDescription,
+                        nl: nl.SetupBlacklistChannelDescription
+                    })
                     .setRequired(false))
                 .addStringOption(option => option
-                    .setName("autoban")
-                    .setDescription("Enable/Disable")
+                    .setName(en.SetupBlacklistAutobanName)
+                    .setNameLocalizations({
+                        fr: fr.SetupBlacklistAutobanName,
+                        de: de.SetupBlacklistAutobanName,
+                        SpanishES: sp.SetupBlacklistAutobanName,
+                        nl: nl.SetupBlacklistAutobanName
+                    })
+                    .setDescription(en.SetupBlacklistAutobanDescription)
+                    .setDescriptionLocalizations({
+                        fr: fr.SetupBlacklistAutobanDescription,
+                        de: de.SetupBlacklistAutobanDescription,
+                        SpanishES: sp.SetupBlacklistAutobanDescription,
+                        nl: nl.SetupBlacklistAutobanDescription
+                    })
                     .setRequired(false)
                     .addChoices(
                         { name: "Low+", value: "low" },
@@ -112,19 +202,55 @@ module.exports = {
                         { name: "Disable", value: "disable" },
                     )))
             .addSubcommand(subcommand => subcommand
-                .setName("action")
-                .setDescription("Change the settings of the action command.")
+                .setName(en.SetupActionName)
+                .setNameLocalizations({
+                    fr: fr.SetupActionName,
+                    de: de.SetupActionName,
+                    SpanishES: sp.SetupActionName,
+                    nl: nl.SetupActionName
+                })
+                .setDescription(en.SetupActionDescription)
+                .setDescriptionLocalizations({
+                    fr: fr.SetupActionDescription,
+                    de: de.SetupActionDescription,
+                    SpanishES: sp.SetupActionDescription,
+                    nl: nl.SetupActionDescription
+                })
                 .addStringOption(option => option
-                    .setName("options")
-                    .setDescription("Which command to change the settings.")
+                    .setName(en.SetupActionOptionsName)
+                    .setNameLocalizations({
+                        fr: fr.SetupActionOptionsName,
+                        de: de.SetupActionOptionsName,
+                        SpanishES: sp.SetupActionOptionsName,
+                        nl: nl.SetupActionOptionsName
+                    })
+                    .setDescription(en.SetupActionOptionsDescription)
+                    .setDescriptionLocalizations({
+                        fr: fr.SetupActionOptionsDescription,
+                        de: de.SetupActionOptionsDescription,
+                        SpanishES: sp.SetupActionOptionsDescription,
+                        nl: nl.SetupActionOptionsDescription
+                    })
                     .setRequired(true)
                     .addChoices(
                         { name: "Image", value: "image" },
                         { name: "Message", value: "message" },
                     ))
                 .addStringOption(option => option
-                    .setName("status")
-                    .setDescription("Enable/Disable")
+                    .setName(en.SetupActionStatusName)
+                    .setNameLocalizations({
+                        fr: fr.SetupActionStatusName,
+                        de: de.SetupActionStatusName,
+                        SpanishES: sp.SetupActionStatusName,
+                        nl: nl.SetupActionStatusName
+                    })
+                    .setDescription(en.SetupActionStatusDescription)
+                    .setDescriptionLocalizations({
+                        fr: fr.SetupActionStatusDescription,
+                        de: de.SetupActionStatusDescription,
+                        SpanishES: sp.SetupActionStatusDescription,
+                        nl: nl.SetupActionStatusDescription
+                    })
                     .setRequired(true)
                     .addChoices(
                         { name: "Enable", value: "true" },
@@ -134,32 +260,227 @@ module.exports = {
         // Verification
 
         .addSubcommandGroup(group => group
-            .setName("verification")
-            .setDescription("Change the settings of the verification system.")
+            .setName(en.VerificationName)
+            .setNameLocalizations({
+                fr: fr.VerificationName,
+                de: de.VerificationName,
+                SpanishES: sp.VerificationName,
+                nl: nl.VerificationName
+            })
+            .setDescription(en.VerificationDescription)
+            .setDescriptionLocalizations({
+                fr: fr.VerificationDescription,
+                de: de.VerificationDescription,
+                SpanishES: sp.VerificationDescription,
+                nl: nl.VerificationDescription
+            })
             .addSubcommand(subcommand => subcommand
-                .setName("command")
-                .setDescription("Change the settings of the verification command.")
-                .addChannelOption(option => option.setName("welcome").setDescription("Channel to send the welcome message.").setRequired(true))
-                .addRoleOption(option => option.setName("staff").setDescription("Role that can verify.").setRequired(true))
-                .addRoleOption(option => option.setName("add").setDescription("Role to give.").setRequired(true))
-                .addRoleOption(option => option.setName("remove").setDescription("Role to remove.").setRequired(false)))
+                .setName(en.VerificationCommandName)
+                .setNameLocalizations({
+                    fr: fr.VerificationCommandName,
+                    de: de.VerificationCommandName,
+                    SpanishES: sp.VerificationCommandName,
+                    nl: nl.VerificationCommandName
+                })
+                .setDescription(en.VerificationCommandDescription)
+                .setDescriptionLocalizations({
+                    fr: fr.VerificationCommandDescription,
+                    de: de.VerificationCommandDescription,
+                    SpanishES: sp.VerificationCommandDescription,
+                    nl: nl.VerificationCommandDescription
+                })
+                .addChannelOption(option => option
+                    .setName(en.VerificationWelcomeName)
+                    .setNameLocalizations({
+                        fr: fr.VerificationWelcomeName,
+                        de: de.VerificationWelcomeName,
+                        SpanishES: sp.VerificationWelcomeName,
+                        nl: nl.VerificationWelcomeName
+                    })
+                    .setDescription(en.VerificationWelcomeDescription)
+                    .setDescriptionLocalizations({
+                        fr: fr.VerificationWelcomeDescription,
+                        de: de.VerificationWelcomeDescription,
+                        SpanishES: sp.VerificationWelcomeDescription,
+                        nl: nl.VerificationWelcomeDescription
+                    })
+                    .setRequired(true))
+                .addRoleOption(option => option
+                    .setName(en.VerificationWelcomeStaffName)
+                    .setNameLocalizations({
+                        fr: fr.VerificationWelcomeStaffName,
+                        de: de.VerificationWelcomeStaffName,
+                        SpanishES: sp.VerificationWelcomeStaffName,
+                        nl: nl.VerificationWelcomeStaffName
+                    })
+                    .setDescription(en.VerificationWelcomeStaffDescription)
+                    .setDescriptionLocalizations({
+                        fr: fr.VerificationWelcomeStaffDescription,
+                        de: de.VerificationWelcomeStaffDescription,
+                        SpanishES: sp.VerificationWelcomeStaffDescription,
+                        nl: nl.VerificationWelcomeStaffDescription
+                    })
+                    .setRequired(true))
+                .addRoleOption(option => option
+                    .setName(en.VerificationWelcomeAddName)
+                    .setNameLocalizations({
+                        fr: fr.VerificationWelcomeAddName,
+                        de: de.VerificationWelcomeAddName,
+                        SpanishES: sp.VerificationWelcomeAddName,
+                        nl: nl.VerificationWelcomeAddName
+                    })
+                    .setDescription(en.VerificationWelcomeAddDescription)
+                    .setDescriptionLocalizations({
+                        fr: fr.VerificationWelcomeAddDescription,
+                        de: de.VerificationWelcomeAddDescription,
+                        SpanishES: sp.VerificationWelcomeAddDescription,
+                        nl: nl.VerificationWelcomeAddDescription
+                    })
+                    .setRequired(true))
+                .addRoleOption(option => option
+                    .setName(en.VerificationWelcomeRemoveName)
+                    .setNameLocalizations({
+                        fr: fr.VerificationWelcomeRemoveName,
+                        de: de.VerificationWelcomeRemoveName,
+                        SpanishES: sp.VerificationWelcomeRemoveName,
+                        nl: nl.VerificationWelcomeRemoveName
+                    })
+                    .setDescription(en.VerificationWelcomeRemoveDescription)
+                    .setDescriptionLocalizations({
+                        fr: fr.VerificationWelcomeRemoveDescription,
+                        de: de.VerificationWelcomeRemoveDescription,
+                        SpanishES: sp.VerificationWelcomeRemoveDescription,
+                        nl: nl.VerificationWelcomeRemoveDescription
+                    })
+                    .setRequired(false)))
             .addSubcommand(subcommand => subcommand
-                .setName("menu")
-                .setDescription("Change the settings of the verification menu.")
-                .addChannelOption(option => option.setName("welcome").setDescription("Channel to send the welcome message.").setRequired(true))
-                .addChannelOption(option => option.setName("receive").setDescription("Channel to receive the verification.").setRequired(true))
-                .addRoleOption(option => option.setName("staff").setDescription("Role that can verify.").setRequired(true))
-                .addRoleOption(option => option.setName("add").setDescription("Role to give.").setRequired(true))
-                .addRoleOption(option => option.setName("remove").setDescription("Role to remove.").setRequired(false))))
+                .setName(en.VerificationMenuName)
+                .setNameLocalizations({
+                    fr: fr.VerificationMenuName,
+                    de: de.VerificationMenuName,
+                    SpanishES: sp.VerificationMenuName,
+                    nl: nl.VerificationMenuName
+                })
+                .setDescription(en.VerificationMenuDescription)
+                .setDescriptionLocalizations({
+                    fr: fr.VerificationMenuDescription,
+                    de: de.VerificationMenuDescription,
+                    SpanishES: sp.VerificationMenuDescription,
+                    nl: nl.VerificationMenuDescription
+                })
+                .addChannelOption(option => option
+                    .setName(en.VerificationMenuWelcomeName)
+                    .setNameLocalizations({
+                        fr: fr.VerificationMenuWelcomeName,
+                        de: de.VerificationMenuWelcomeName,
+                        SpanishES: sp.VerificationMenuWelcomeName,
+                        nl: nl.VerificationMenuWelcomeName
+                    })
+                    .setDescription(en.VerificationMenuWelcomeDescription)
+                    .setDescriptionLocalizations({
+                        fr: fr.VerificationMenuWelcomeDescription,
+                        de: de.VerificationMenuWelcomeDescription,
+                        SpanishES: sp.VerificationMenuWelcomeDescription,
+                        nl: nl.VerificationMenuWelcomeDescription
+                    })
+                    .setRequired(true))
+                .addChannelOption(option => option
+                    .setName(en.VerificationMenuWelcomeReceiveName)
+                    .setNameLocalizations({
+                        fr: fr.VerificationMenuWelcomeReceiveName,
+                        de: de.VerificationMenuWelcomeReceiveName,
+                        SpanishES: sp.VerificationMenuWelcomeReceiveName,
+                        nl: nl.VerificationMenuWelcomeReceiveName
+                    })
+                    .setDescription(en.VerificationMenuWelcomeReceiveDescription)
+                    .setDescriptionLocalizations({
+                        fr: fr.VerificationMenuWelcomeReceiveDescription,
+                        de: de.VerificationMenuWelcomeReceiveDescription,
+                        SpanishES: sp.VerificationMenuWelcomeReceiveDescription,
+                        nl: nl.VerificationMenuWelcomeReceiveDescription
+                    })
+                    .setRequired(true))
+                .addRoleOption(option => option
+                    .setName(en.VerificationMenuWelcomeStaffName)
+                    .setNameLocalizations({
+                        fr: fr.VerificationMenuWelcomeStaffName,
+                        de: de.VerificationMenuWelcomeStaffName,
+                        SpanishES: sp.VerificationMenuWelcomeStaffName,
+                        nl: nl.VerificationMenuWelcomeStaffName
+                    })
+                    .setDescription(en.VerificationMenuWelcomeStaffDescription)
+                    .setDescriptionLocalizations({
+                        fr: fr.VerificationMenuWelcomeStaffDescription,
+                        de: de.VerificationMenuWelcomeStaffDescription,
+                        SpanishES: sp.VerificationMenuWelcomeStaffDescription,
+                        nl: nl.VerificationMenuWelcomeStaffDescription
+                    })
+                    .setRequired(true))
+                .addRoleOption(option => option
+                    .setName(en.VerificationMenuWelcomeAddName)
+                    .setNameLocalizations({
+                        fr: fr.VerificationMenuWelcomeAddName,
+                        de: de.VerificationMenuWelcomeAddName,
+                        SpanishES: sp.VerificationMenuWelcomeAddName,
+                        nl: nl.VerificationMenuWelcomeAddName
+                    })
+                    .setDescription(en.VerificationMenuWelcomeAddDescription)
+                    .setDescriptionLocalizations({
+                        fr: fr.VerificationMenuWelcomeAddDescription,
+                        de: de.VerificationMenuWelcomeAddDescription,
+                        SpanishES: sp.VerificationMenuWelcomeAddDescription,
+                        nl: nl.VerificationMenuWelcomeAddDescription
+                    })
+                    .setRequired(true))
+                .addRoleOption(option => option
+                    .setName(en.VerificationMenuWelcomeRemoveName)
+                    .setNameLocalizations({
+                        fr: fr.VerificationMenuWelcomeRemoveName,
+                        de: de.VerificationMenuWelcomeRemoveName,
+                        SpanishES: sp.VerificationMenuWelcomeRemoveName,
+                        nl: nl.VerificationMenuWelcomeRemoveName
+                    })
+                    .setDescription(en.VerificationMenuWelcomeRemoveDescription)
+                    .setDescriptionLocalizations({
+                        fr: fr.VerificationMenuWelcomeRemoveDescription,
+                        de: de.VerificationMenuWelcomeRemoveDescription,
+                        SpanishES: sp.VerificationMenuWelcomeRemoveDescription,
+                        nl: nl.VerificationMenuWelcomeRemoveDescription
+                    })
+                    .setRequired(false))))
 
         // Logging
 
         .addSubcommand(subcommand => subcommand
-            .setName("logging")
-            .setDescription(Logging.LoggingDescription)
+            .setName(en.LoggingName)
+            .setNameLocalizations({
+                fr: fr.LoggingName,
+                de: de.LoggingName,
+                SpanishES: sp.LoggingName,
+                nl: nl.LoggingName
+            })
+            .setDescription(en.LoggingDescription)
+            .setDescriptionLocalizations({
+                fr: fr.LoggingDescription,
+                de: de.LoggingDescription,
+                SpanishES: sp.LoggingDescription,
+                nl: nl.LoggingDescription
+            })
             .addStringOption(option => option
-                .setName("options")
-                .setDescription(Logging.OptionsLog)
+                .setName(en.LoggingOptionsName)
+                .setNameLocalizations({
+                    fr: fr.LoggingOptionsName,
+                    de: de.LoggingOptionsName,
+                    SpanishES: sp.LoggingOptionsName,
+                    nl: nl.LoggingOptionsName
+                })
+                .setDescription(en.LoggingOptionsDescription)
+                .setDescriptionLocalizations({
+                    fr: fr.LoggingOptionsDescription,
+                    de: de.LoggingOptionsDescription,
+                    SpanishES: sp.LoggingOptionsDescription,
+                    nl: nl.LoggingOptionsDescription
+                })
                 .setRequired(true)
                 .addChoices(
                     { name: "All", value: "all" },
@@ -170,23 +491,35 @@ module.exports = {
                     { name: "Disable", value: "disable" },
                 ))
             .addChannelOption(option => option
-                .setName("channel")
-                .setDescription(Logging.ChannelSendLog)
+                .setName(en.LoggingChannelName)
+                .setNameLocalizations({
+                    fr: fr.LoggingChannelName,
+                    de: de.LoggingChannelName,
+                    SpanishES: sp.LoggingChannelName,
+                    nl: nl.LoggingChannelName
+                })
+                .setDescription(en.LoggingChannelDescription)
+                .setDescriptionLocalizations({
+                    fr: fr.LoggingChannelDescription,
+                    de: de.LoggingChannelDescription,
+                    SpanishES: sp.LoggingChannelDescription,
+                    nl: nl.LoggingChannelDescription
+                })
                 .setRequired(false))),
 
     execute: async (interaction, bot, sequelize, Sequelize) => {
         if (interaction.member.permissions.has("ADMINISTRATOR") | interaction.member.permissions.has("MANAGE_GUILD") | interaction.user.id === '291262778730217472') {
             let options = interaction.options.getSubcommand();
-            let channelOptions = interaction.options.getChannel("channel");
-            let channelOptions2 = interaction.options.getChannel("welcome");
-            let channelOptions3 = interaction.options.getChannel("receive");
-            let roleOptions = interaction.options.getRole("role");
-            let addRoleOptions = interaction.options.getRole("add");
-            let removeRoleOptions = interaction.options.getRole("remove");
-            let staffRoleOptions = interaction.options.getRole("staff");
-            let booleanBlacklist = interaction.options.getString("status");
-            let autobanStatus = interaction.options.getString("autoban");
-            let optionsLogging = interaction.options.getString("options");
+            let channelOptions = interaction.options.getChannel(en.LoggingChannelName);
+            let channelOptions2 = interaction.options.getChannel(en.SetupWelcomeChannelName);
+            let channelOptions3 = interaction.options.getChannel(en.VerificationMenuWelcomeReceiveName);
+            let roleOptions = interaction.options.getRole(en.SetupReportRoleName);
+            let addRoleOptions = interaction.options.getRole(en.VerificationMenuWelcomeAddName);
+            let removeRoleOptions = interaction.options.getRole(en.VerificationMenuWelcomeRemoveName);
+            let staffRoleOptions = interaction.options.getRole(en.VerificationMenuWelcomeStaffName);
+            let booleanBlacklist = interaction.options.getString(en.SetupActionStatusName);
+            let autobanStatus = interaction.options.getString(en.SetupBlacklistAutobanName);
+            let optionsLogging = interaction.options.getString(en.LoggingOptionsName);
 
             const Logging = sequelize.define("Logging", {
                 GuildID: {

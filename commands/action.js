@@ -240,7 +240,7 @@ module.exports = {
                     .setStyle('DANGER'),
             );
 
-        let ActionImageData = await ActionImage.findAll({ where: { category: choice }, order: sequelize.random(), limit: 1 });
+        let ActionImageData = await ActionImage.findAll({ where: { Category: choice }, order: sequelize.random(), limit: 1 });
         let LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } })
 
         let ProfileCheck1 = await ProfileData.findOne({ where: { UserID: interaction.user.id } })
@@ -312,8 +312,7 @@ module.exports = {
             User1 + " strokes " + User2 + " head, messing with " + Pronouns4 + " hair!~"
         ];
         const BiteSentence = [
-            User1 + " bites " + User2 + " nose!~",
-            User1 + " nom " + User2 + " ear!~",
+            User1 + " decide to taste " + User2 + " a little!~",
         ];
         const BonkSentence = [
             User1 + " swing a baseball bat on " + User2 + "'s head. Bonking " + Pronouns2 + "!~"
