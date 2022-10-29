@@ -103,8 +103,12 @@
         "AgeName": "edad",
         "AgeDescription": "cambia tu edad."
     },
-    "report": {},
-    "serverinfo": {},
+    "report": {
+        "Name": "report"
+    },
+    "serverinfo": {
+        "Name": "serverinfo"
+    },
     "settings": {
         "Name": "ajustes",
         "Description": "Cambia la configuración de tu servidor.",
@@ -120,6 +124,20 @@
         "SetupWelcomeDescription": "Cambie la configuración del Sistema de Bienvenida.",
         "SetupWelcomeChannelName": "canal",
         "SetupWelcomeChannelDescription": "Canal para enviar el mensaje de bienvenida.",
+        "SetupBlacklistName": "blacklist",
+        "SetupBlacklistDescription": "Change the settings of the Blacklist System.",
+        "SetupBlacklistStatusName": "status",
+        "SetupBlacklistStatusDescription": "Enable/Disable",
+        "SetupBlacklistChannelName": "channel",
+        "SetupBlacklistChannelDescription": "Channel to send the alert.",
+        "SetupBlacklistAutobanName": "auto-ban",
+        "SetupBlacklistAutobanDescription": "Enable/Disable",
+        "SetupActionName": "action",
+        "SetupActionDescription": "Change the settings of the command: Action.",
+        "SetupActionOptionsName": "status",
+        "SetupActionOptionsDescription": "Features to enable/disable.",
+        "SetupActionStatusName": "status",
+        "SetupActionStatusDescription": "Enable/Disable",
         "VerificationName": "verification",
         "VerificationDescription": "Change the settings of the Verification System.",
         "VerificationCommandName": "command",
@@ -149,13 +167,27 @@
         "LoggingOptionsName": "options",
         "LoggingOptionsDescription": "Change the logging channel of a certain event.",
         "LoggingChannelName": "channel",
-        "LoggingChanelDescription": "What channel should I send the logging to?"
+        "LoggingChannelDescription": "What channel should I send the logging to?"
     },
-    "staff": {},
-    "unban": {},
-    "unlock": {},
-    "verify": {},
-    "warn": {},
-    "warns": {},
-    "welcomemenu": {}
+    "staff": {
+        "Name": "staff"
+    },
+    "unban": {
+        "Name": "unban"
+    },
+    "unlock": {
+        "Name": "unlock"
+    },
+    "verify": {
+        "Name": "verify"
+    },
+    "warn": {
+        "Name": "warn"
+    },
+    "warns": {
+        "Name": "warns"
+    },
+    "welcomemenu": {
+        "Name": "welcomemenu"
+    }
 }
