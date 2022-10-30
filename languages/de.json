@@ -54,42 +54,42 @@
         "SuggestEvidenceDescription": "Nachweis der vom Nutzer durchgeführten Aktion."
     },
     "help": {
-        "Name": "help",
-        "Description": "Display the commands available (or information about a certain command).",
-        "InfoName": "info",
-        "InfoDescription": "Display information about certain commands/functionalities."
+        "Name": "hilfe",
+        "Description": "Anzeige der verfügbaren Befehle (oder Informationen über einen bestimmten Befehl).",
+        "InfoName": "infos",
+        "InfoDescription": "Informationen über bestimmte Befehle/Funktionen anzeigen."
     },
     "kick": {
-        "Name": "kick",
-        "Description": "Kick a user.",
-        "UserName": "user",
-        "UserDescription": "User to kick.",
-        "ReasonName": "reason",
-        "ReasonDescription": "Reason of the kick."
+        "Name": "kicken",
+        "Description": "Einen Benutzer treten.",
+        "UserName": "benutzer",
+        "UserDescription": "Benutzer zu treten.",
+        "ReasonName": "grund",
+        "ReasonDescription": "Der Grund für den Tritt."
     },
     "lock": {
-        "Name": "lock",
-        "Description": "Lock the channel."
+        "Name": "verriegeln",
+        "Description": "Sperren Sie den Kanal."
     },
     "permission": {
-        "Name": "permission",
-        "Description": "Give permission to a user/server.",
-        "UserName": "user",
-        "UserDescription": "Give permission to a user [Staff Cheryl].",
-        "UserUserName": "user",
-        "UserUserDescription": "User to add/remove permission.",
-        "UserOptionsName": "options",
-        "UserOptionsDescription": "Add/Remove",
-        "UserPermissionName": "permission",
-        "UserPermissionDescription": "Permission to add/remove.",
+        "Name": "genehmigung",
+        "Description": "Einem Benutzer/Server die Erlaubnis erteilen.",
+        "UserName": "benutzer",
+        "UserDescription": "Einem Benutzer [Staff Cheryl] die Erlaubnis erteilen.",
+        "UserUserName": "benutzer",
+        "UserUserDescription": "Benutzer zum Hinzufügen/Entfernen von Berechtigungen.",
+        "UserOptionsName": "optionen",
+        "UserOptionsDescription": "Hinzufügen/Entfernen",
+        "UserPermissionName": "genehmigung",
+        "UserPermissionDescription": "Genehmigung zum Hinzufügen/Entfernen.",
         "ServerName": "server",
-        "ServerDescription": "Give permission to a server [Staff Cheryl].",
+        "ServerDescription": "Erlaubnis für einen Server erteilen [Staff Cheryl].",
         "ServerUserName": "server",
-        "ServerUserDescription": "Server to add/remove permission.",
-        "ServerOptionsName": "options",
-        "ServerOptionsDescription": "Add/Remove",
-        "ServerPermissionName": "permission",
-        "ServerPermissionDescription": "Permission to add/remove."
+        "ServerUserDescription": "Server zum Hinzufügen/Entfernen von Berechtigungen.",
+        "ServerOptionsName": "optionen",
+        "ServerOptionsDescription": "Hinzufügen/Entfernen",
+        "ServerPermissionName": "genehmigung",
+        "ServerPermissionDescription": "Genehmigung zum Hinzufügen/Entfernen."
     },
     "profile": {
         "Name": "profil",
@@ -104,7 +104,7 @@
         "AgeDescription": "Ändern Sie Ihr Alter."
     },
     "report": {
-        "Name": "report"
+        "Name": "bericht"
     },
     "serverinfo": {
         "Name": "serverinfo"
@@ -170,24 +170,24 @@
         "LoggingChannelDescription": "What channel should I send the logging to?"
     },
     "staff": {
-        "Name": "staff"
+        "Name": "mitarbeiter"
     },
     "unban": {
-        "Name": "unban"
+        "Name": "entsperren"
     },
     "unlock": {
-        "Name": "unlock"
+        "Name": "freischalten"
     },
     "verify": {
-        "Name": "verify"
+        "Name": "überprüfen"
     },
     "warn": {
-        "Name": "warn"
+        "Name": "warnen"
     },
     "warns": {
-        "Name": "warns"
+        "Name": "warnt"
     },
     "welcomemenu": {
-        "Name": "welcomemenu"
+        "Name": "willkommensmenü"
     }
 }
