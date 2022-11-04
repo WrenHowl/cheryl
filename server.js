@@ -1106,11 +1106,11 @@ bot.on('interactionCreate', async (interaction) => {
 
         const staffApplicationEmbed = new MessageEmbed()
           .addFields(
-            { name: "**__Age__**", value: age },
-            { name: "**__Timezone__**", value: timezone },
-            { name: "**__How long have you been on the server?__**", value: beenOnServer },
-            { name: "**__Do you have any experience?__**", value: experience },
-            { name: "**__Why do you want to be staff?__**", value: whyDoYouWant },
+            { name: "Age", value: age },
+            { name: "Timezone", value: timezone },
+            { name: "How long have you been on the server?", value: beenOnServer },
+            { name: "Do you have any experience?", value: experience },
+            { name: "Why do you want to be staff?", value: whyDoYouWant },
           )
           .setColor("2f3136")
           .setTimestamp()
@@ -1176,11 +1176,11 @@ bot.on('interactionCreate', async (interaction) => {
 
         const verificationEmbed = new MessageEmbed()
           .addFields(
-            { name: "**__Age__**", value: ageVerify },
-            { name: "**__How did you find our server?__**", value: howServer },
-            { name: "**__Why are you joining us?__**", value: joining },
-            { name: "**__What do you think about the furry fandom?__**", value: furryFandom },
-            { name: "**__Do you have any sona? Tell us about it__**", value: sona },
+            { name: "Age", value: ageVerify },
+            { name: "How did you find our server?", value: howServer },
+            { name: "Why are you joining us?", value: joining },
+            { name: "What do you think about the furry fandom?", value: furryFandom },
+            { name: "Do you have any sona? Tell us about it.", value: sona },
           )
           .setColor("2f3136")
           .setTimestamp()
