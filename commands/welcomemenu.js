@@ -1,5 +1,6 @@
 const { MessageActionRow, MessageButton, MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const Color = require("../config/color.json");
 const LanguageFR = require("../languages/fr.json");
 const LanguageEN = require("../languages/en.json");
 const LanguageDE = require("../languages/de.json");
@@ -104,7 +105,7 @@ module.exports = {
                     content: "There's some setting that aren't setup on that server for that command. Please use ``/settings`` to start setting it up.",
                     ephemeral: true,
                 });
-            } else if (!LoggingData.ChannelIDReceiveVerification | !LoggingData.ChannelIDVerify | !LoggingData.RoleToAddVerify | !LoggingData.StaffRoleVerify) {
+            } else if (!LoggingData.ChannelIDVerify || !LoggingData.ChannelIDReceiveVerification || !LoggingData.StaffRoleVerify || !LoggingData.RoleToAddVerify) {
                 return interaction.reply({
                     content: "There's some setting that aren't setup on that server for that command. Please use ``/settings`` to start setting it up.",
                     ephemeral: true,
@@ -112,7 +113,7 @@ module.exports = {
             }
 
             await interaction.reply({
-                content: "Welcome message/menu sent!",
+                content: "Welcome verification message sent!",
                 ephemeral: true,
             });
 
@@ -134,7 +135,7 @@ module.exports = {
                     `\n> :warning: If the button doesn't do anything, please make sure your discord is updated!\n` +
                     `\n*When clicking on the button 'Verify' you accept the <#` + rulesOptions.id + `> and it's consequences if you're breaking them.*`
                 )
-                .setColor("2f3136")
+                .setColor(Color.Green)
 
             return channelToSend.send({
                 embeds: [secondMessage],

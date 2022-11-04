@@ -312,7 +312,7 @@ module.exports = {
             User1 + " strokes " + User2 + " head, messing with " + Pronouns4 + " hair!~"
         ];
         const BiteSentence = [
-            User1 + " decide to taste " + User2 + " a little!~",
+            User1 + " decided to bite " + User2 + " a little!~",
         ];
         const BonkSentence = [
             User1 + " swing a baseball bat on " + User2 + "'s head. Bonking " + Pronouns2 + "!~"

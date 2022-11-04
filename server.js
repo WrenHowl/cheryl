@@ -417,7 +417,7 @@ bot.on("guildMemberAdd", async (NewMember) => {
           });
         } else {
           const WelcomeMessage = new MessageEmbed()
-            .setDescription("Welcome <@" + NewMember.id + "> ``(" + NewMember.user.tag + ")``!\n\n> **Created At:** ``" + moment(NewMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") + "``\n> **Joined At:** ``" + moment(NewMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') + "``\n> **Member Count:** ``" + memberCount + "``")
+            .setDescription("Welcome <@" + NewMember.id + "> ``(" + NewMember.user.tag + ")``!\n\n> Created At: ``" + moment(NewMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") + "``\n> Joined At:``" + moment(NewMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') + "``\n> **Member Count:** ``" + memberCount + "``")
             .setColor(Color.Green)
             .setThumbnail(NewMember.user.displayAvatarURL())
 
@@ -443,32 +443,36 @@ bot.on("guildMemberAdd", async (NewMember) => {
             if (VerifBlacklist.Risk === "High") ColorEmbed = Color.RiskHigh;
 
             const BlacklistedUserJoined = new MessageEmbed()
-              .setDescription("<:BanHammer:997932635454197790>  User <@" + VerifBlacklist.UserID + "> is blacklisted for ``" + VerifBlacklist.Reason + "``.\n\n**Evidence:** " + VerifBlacklist.Proof + "\n\nWe suggest you to be careful with that user!\n*If you have the autoban enabled, that person will be automatically ban in function of your settings!*")
+              .setTitle("<:BanHammer:997932635454197790> New Alert")
+              .setDescription("*If this server has the auto-ban enabled to this level of risk, the user is instantly ban!*")
+              .addFields(
+                { name: "User", value: NewMember.user.toString(), inline: true },
+                { name: "Reason", value: "``" + VerifBlacklist.Reason + "``", inline: true },
+                { name: "Evidence", value: VerifBlacklist.Proof + "** **", inline: true }
+              )
               .setColor(ColorEmbed)
               .setFooter({
-                text: "ID: " + VerifBlacklist.UserID
+                text: "ID: " + NewMember.user.id
               })
               .setTimestamp()
 
             await ChannelToSendAt.send({ embeds: [BlacklistedUserJoined] })
 
-            const ban = NewMember.guild.members.ban(VerifBlacklist.UserID, { reason: [VerifBlacklist.Reason + " | " + MessageConfig.BlacklistBanReason] });
-
             if (LoggingData.AutoBanStatus) {
               if (LoggingData.AutoBanStatus === "Disable") return;
 
               if (LoggingData.AutoBanStatus === "Low+") {
-                if (VerifBlacklist.Risk === ["Low", "Medium", "High"])
-
-                  return ban;
+                if (VerifBlacklist.Risk === ["Low", "Medium", "High"]) {
+                  return NewMember.guild.members.ban(VerifBlacklist.UserID, { reason: [VerifBlacklist.Reason + " | " + MessageConfig.BlacklistBanReason] });
+                }
               } else if (LoggingData.AutoBanStatus === "Medium+") {
-                if (VerifBlacklist.Risk === ["Medium", "High"])
-
-                  return ban;
+                if (VerifBlacklist.Risk === ["Medium", "High"]) {
+                  return NewMember.guild.members.ban(VerifBlacklist.UserID, { reason: [VerifBlacklist.Reason + " | " + MessageConfig.BlacklistBanReason] });
+                }
               } else if (LoggingData.AutoBanStatus === "High+") {
-                if (VerifBlacklist.Risk === ["High"])
-
-                  return ban;
+                if (VerifBlacklist.Risk === ["High"]) {
+                  return NewMember.guild.members.ban(VerifBlacklist.UserID, { reason: [VerifBlacklist.Reason + " | " + MessageConfig.BlacklistBanReason] });
+                }
               }
             };
 
@@ -490,7 +494,7 @@ bot.on("guildMemberUpdate", async (OldMember, NewMember) => {
 
       const NewBoost = new MessageEmbed()
         .setTitle("New Boost")
-        .setDescription("Thank you <@" + NewMember.user.id + "> for Boosting our server!")
+        .setDescription("Thank you <@" + NewMember.user.id + "> for boosting " + NewMember.guild.name + " !")
         .setColor(Color.Pink)
 
       ChannelToSend.send({
@@ -505,15 +509,13 @@ bot.on("guildMemberUpdate", async (OldMember, NewMember) => {
 });
 
 bot.on("userUpdate", async (NewUser, OldUser) => {
-  if (OldUser.userModName !== NewUser.userModName) {
+  if (OldUser.username !== NewUser.username) {
     const UpdateThisOne = Verifier.update({ ModName: NewUser.tag }, { where: { ModID: NewUser.id } })
     const UpdateThisOneToo = Blacklist.update({ ModName: NewUser.tag }, { where: { ModID: NewUser.id } })
-
   }
   if (OldUser.discriminator !== NewUser.discriminator) {
     const UpdateThisOne = Verifier.update({ ModName: NewUser.tag }, { where: { ModID: NewUser.id } })
     const UpdateThisOneToo = Blacklist.update({ ModName: NewUser.tag }, { where: { ModID: NewUser.id } })
-
   }
 });
 
@@ -523,28 +525,38 @@ bot.on("guildMemberRemove", async (LeavingMember) => {
     const FourthRowToDelete = await Staff_Application.destroy({ where: { UserID: LeavingMember.user.id } })
     const LogChannel = LeavingMember.guild.channels.cache.get("898366209827954718");
 
+    let Status = "";
+
+    const LeavingMemberEmbed = new MessageEmbed()
+      .setTitle("Member Left")
+      .addFields(
+        { name: "User", value: LeavingMember.user.tag },
+        { name: "Created At", value: moment(LeavingMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") },
+        { name: "Joined At", value: moment(LeavingMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') },
+      )
+      .setColor(Color.Green)
+      .setFooter(
+        { text: LeavingMember.user.id }
+      )
+      .setThumbnail(LeavingMember.user.displayAvatarURL())
+
     if (FirstRowToDelete | FourthRowToDelete) {
+      Status = "``Was Verified``";
 
-      const LeavingMemberEmbedData = new MessageEmbed()
-        .setTitle("Member Left")
-        .setDescription("**__User:__** ``" + LeavingMember.user.tag + "``.\n__**Created At:**__ ``" + moment(LeavingMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") + "``\n**__Joined At:__** ``" + moment(LeavingMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') + "``\n**__Data:__** ``Deleted``")
-        .setColor(Color.Green)
-        .setThumbnail(LeavingMember.user.displayAvatarURL())
-
-      LogChannel.send({
-        embeds: [LeavingMemberEmbedData]
-      });
+      LeavingMemberEmbed.addFields(
+        { name: "Status", value: Status }
+      )
     } else {
-      const LeavingMemberEmbedData2 = new MessageEmbed()
-        .setTitle("Member Left")
-        .setDescription("**__User:__** ``" + LeavingMember.user.tag + "``.\n__**Created At:**__ ``" + moment(LeavingMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") + "``\n**__Joined At:__** ``" + moment(LeavingMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') + "``\n**__Data:__** ``Not Found``")
-        .setColor(Color.Green)
-        .setThumbnail(LeavingMember.user.displayAvatarURL())
+      Status = "``Wasn't Verified``";
 
-      LogChannel.send({
-        embeds: [LeavingMemberEmbedData2]
-      });
+      LeavingMemberEmbed.addFields(
+        { name: "Status", value: Status }
+      )
     }
+
+    LogChannel.send({
+      embeds: [LeavingMemberEmbed]
+    });
   }
 });
 
@@ -741,6 +753,7 @@ bot.on('interactionCreate', async (interaction) => {
             const howServerOption = new TextInputComponent()
               .setCustomId('howServer2')
               .setLabel("How did you find our server?")
+              .setPlaceholder("If it was a website, what website? If it was a friend, what friend?")
               .setStyle('SHORT')
               .setRequired();
 
@@ -753,6 +766,7 @@ bot.on('interactionCreate', async (interaction) => {
             const furryFandomOption = new TextInputComponent()
               .setCustomId('furryFandom2')
               .setLabel("What do you think about the furry fandom?")
+              .setPlaceholder("Give us your opinion about it, we need a lot of information.")
               .setStyle('PARAGRAPH')
               .setRequired();
 
@@ -785,6 +799,7 @@ bot.on('interactionCreate', async (interaction) => {
           const howServerOption = new TextInputComponent()
             .setCustomId('howServer')
             .setLabel("How did you find our server?")
+            .setPlaceholder("If it was a website, what website? If it was a friend, what friend?")
             .setStyle('SHORT')
             .setRequired();
 
@@ -827,13 +842,13 @@ bot.on('interactionCreate', async (interaction) => {
             interaction.channel.messages.fetch(interaction.message.id).then(async (UpdateMessage) => {
               const verificationEmbedAccepted = new MessageEmbed()
                 .addFields(
-                  { name: "**__Age__**", value: VerificationLog.AgeData },
-                  { name: "**__How did you find our server?__**", value: VerificationLog.HowServerData },
-                  { name: "**__Why are you joining us?__**", value: VerificationLog.JoiningData },
-                  { name: "**__What do you think about the furry fandom?__**", value: VerificationLog.FurryFandomData },
-                  { name: "**__Do you have any sona? Tell us about it__**", value: VerificationLog.SonaData },
+                  { name: "Age", value: VerificationLog.AgeData },
+                  { name: "How did you find our server?", value: VerificationLog.HowServerData },
+                  { name: "Why are you joining us?", value: VerificationLog.JoiningData },
+                  { name: "What do you think about the furry fandom?", value: VerificationLog.FurryFandomData },
+                  { name: "Do you have any sona? Tell us about it.", value: VerificationLog.SonaData },
                 )
-                .setColor("929292")
+                .setColor(Color.Gray)
                 .setTimestamp()
 
               await interaction.update({
@@ -869,13 +884,13 @@ bot.on('interactionCreate', async (interaction) => {
             interaction.channel.messages.fetch(interaction.message.id).then(async (UpdateMessage) => {
               const verificationEmbedAccepted = new MessageEmbed()
                 .addFields(
-                  { name: "**__Age__**", value: VerificationLog.AgeData },
-                  { name: "**__How did you find our server?__**", value: VerificationLog.HowServerData },
-                  { name: "**__Why are you joining us?__**", value: VerificationLog.JoiningData },
-                  { name: "**__What do you think about the furry fandom?__**", value: VerificationLog.FurryFandomData },
-                  { name: "**__Do you have any sona? Tell us about it__**", value: VerificationLog.SonaData },
+                  { name: "Age", value: VerificationLog.AgeData },
+                  { name: "How did you find our server?", value: VerificationLog.HowServerData },
+                  { name: "Why are you joining us?", value: VerificationLog.JoiningData },
+                  { name: "What do you think about the furry fandom?", value: VerificationLog.FurryFandomData },
+                  { name: "Do you have any sona? Tell us about it.", value: VerificationLog.SonaData },
                 )
-                .setColor("00FF00")
+                .setColor(Color.Green)
                 .setTimestamp()
 
               await interaction.update({
@@ -893,8 +908,8 @@ bot.on('interactionCreate', async (interaction) => {
               const generalMessage = interaction.guild.channels.cache.get("898361230010482688")
 
               const AdsInGeneral = new MessageEmbed()
-                .setDescription("__**Read the rules:**__ <#898360656175198249>\n__**Get your roles:**__ <#898360376654188557>\n__**Join an event:**__ <#898360298552037426>")
-                .setColor("2f3136")
+                .setDescription("Read the Rules: <#898360656175198249>\nGet your Roles: <#898360376654188557>\nJoin an Event: <#898360298552037426>")
+                .setColor(Color.Green)
 
               await generalMessage.send({
                 embeds: [AdsInGeneral],
@@ -938,13 +953,13 @@ bot.on('interactionCreate', async (interaction) => {
             interaction.channel.messages.fetch(interaction.message.id).then(async (UpdateMessage) => {
               const verificationEmbedAccepted = new MessageEmbed()
                 .addFields(
-                  { name: "**__Age__**", value: VerificationLog.AgeData },
-                  { name: "**__How did you find our server?__**", value: VerificationLog.HowServerData },
-                  { name: "**__Why are you joining us?__**", value: VerificationLog.JoiningData },
-                  { name: "**__What do you think about the furry fandom?__**", value: VerificationLog.FurryFandomData },
-                  { name: "**__Do you have any sona? Tell us about it__**", value: VerificationLog.SonaData },
+                  { name: "Age", value: VerificationLog.AgeData },
+                  { name: "How did you find our server?", value: VerificationLog.HowServerData },
+                  { name: "Why are you joining us?", value: VerificationLog.JoiningData },
+                  { name: "What do you think about the furry fandom?", value: VerificationLog.FurryFandomData },
+                  { name: "Do you have any sona? Tell us about it", value: VerificationLog.SonaData },
                 )
-                .setColor("929292")
+                .setColor(Color.Gray)
                 .setTimestamp()
 
               return interaction.update({
@@ -978,13 +993,13 @@ bot.on('interactionCreate', async (interaction) => {
 
               const verificationEmbedDenied = new MessageEmbed()
                 .addFields(
-                  { name: "**__Age__**", value: VerificationLog.AgeData },
-                  { name: "**__How did you find our server?__**", value: VerificationLog.HowServerData },
-                  { name: "**__Why are you joining us?__**", value: VerificationLog.JoiningData },
-                  { name: "**__What do you think about the furry fandom?__**", value: VerificationLog.FurryFandomData },
-                  { name: "**__Do you have any sona? Tell us about it__**", value: VerificationLog.SonaData },
+                  { name: "Age", value: VerificationLog.AgeData },
+                  { name: "How did you find our server?", value: VerificationLog.HowServerData },
+                  { name: "Why are you joining us?", value: VerificationLog.JoiningData },
+                  { name: "What do you think about the furry fandom?", value: VerificationLog.FurryFandomData },
+                  { name: "Do you have any sona? Tell us about it", value: VerificationLog.SonaData },
                 )
-                .setColor("FF0000")
+                .setColor(Color.Green)
                 .setTimestamp()
 
               return interaction.update({
