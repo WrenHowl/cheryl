@@ -2,6 +2,7 @@
     "RiskLow": "fdcb58",
     "RiskMedium": "f4900c",
     "RiskHigh": "dd2e44",
-    "Green": "00FF00",
-    "Pink": "f47fff"
+    "Green": "00ff00",
+    "Pink": "f47fff",
+    "Gray": "929292"
 }
