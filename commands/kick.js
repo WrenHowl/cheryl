@@ -71,70 +71,10 @@ module.exports = {
                 type: Sequelize.STRING,
                 unique: false,
             },
-            ChannelIDReport: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            ChannelIDBan: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            ChannelIDVerify: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            ChannelIDEnterServer: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            ChannelIDWelcome: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            StaffRoleReport: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            StaffRoleVerify: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            RoleToAddVerify: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            RoleToRemoveVerify: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            EnableDisableBlacklistLogger: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            ChannelIDBlacklist: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            ChannelIDWarn: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            ChannelIDUnban: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
             ChannelIDKick: {
                 type: Sequelize.STRING,
                 unique: false,
             },
-            ChannelIDReceiveVerification: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            AutoBanStatus: {
-                type: Sequelize.STRING,
-                unique: false,
-            }
         });
         const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
 

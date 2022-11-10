@@ -128,7 +128,23 @@ module.exports = {
                         SpanishES: sp.SetupWelcomeChannelDescription,
                         nl: nl.SetupWelcomeChannelDescription
                     })
-                    .setRequired(true)))
+                    .setRequired(false))
+                .addRoleOption(option => option
+                    .setName(en.SetupWelcomeRoleName)
+                    .setNameLocalizations({
+                        fr: fr.SetupWelcomeRoleName,
+                        de: de.SetupWelcomeRoleName,
+                        SpanishES: sp.SetupWelcomeRoleName,
+                        nl: nl.SetupWelcomeRoleName
+                    })
+                    .setDescription(en.SetupWelcomeRoleDescription)
+                    .setDescriptionLocalizations({
+                        fr: fr.SetupWelcomeRoleDescription,
+                        de: de.SetupWelcomeRoleDescription,
+                        SpanishES: sp.SetupWelcomeRoleDescription,
+                        nl: nl.SetupWelcomeRoleDescription
+                    })
+                    .setRequired(false)))
             .addSubcommand(subcommand => subcommand
                 .setName(en.SetupBlacklistName)
                 .setNameLocalizations({
@@ -521,6 +537,7 @@ module.exports = {
             let booleanBlacklist = interaction.options.getString(en.SetupActionStatusName);
             let autobanStatus = interaction.options.getString(en.SetupBlacklistAutobanName);
             let optionsLogging = interaction.options.getString(en.LoggingOptionsName);
+            let AutoRoleOptions = interaction.options.getRole(en.SetupWelcomeRoleName);
 
             const Logging = sequelize.define("Logging", {
                 GuildID: {
@@ -598,7 +615,15 @@ module.exports = {
                 SettingsActionImage: {
                     type: Sequelize.STRING,
                     unique: false,
-                }
+                },
+                AutoRole: {
+                    type: Sequelize.STRING,
+                    unique: false,
+                },
+                ChannelIDLeaving: {
+                    type: Sequelize.STRING,
+                    unique: false,
+                },
             });
 
             const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
@@ -611,8 +636,11 @@ module.exports = {
 
             let removeRole = removeRoleOptions;
 
-            if (removeRole) removeRole = removeRoleOptions.name;
-            if (!removeRole) removeRole = removeRoleOptions;
+            if (removeRole) {
+                removeRole = removeRoleOptions.name;
+            } else {
+                removeRole = removeRoleOptions;
+            }
 
             switch (options) {
                 case (en.SetupReportName):
@@ -640,12 +668,12 @@ module.exports = {
                         )
 
                     if (!roleOptions) {
-                        const ReportChannelChangeData = await Logging.update({
+                        await Logging.update({
                             ChannelIDReport: channelOptions.id
                         }, { where: { GuildID: interaction.guild.id } })
 
                     } else {
-                        const ReportChannelChangeData = await Logging.update({
+                        await Logging.update({
                             ChannelIDReport: channelOptions.id,
                             StaffRoleReport: roleOptions.id
                         }, { where: { GuildID: interaction.guild.id } })
@@ -669,7 +697,7 @@ module.exports = {
                         .setDescription(LoggingMessage.SettingsUpdated)
 
                     if (optionsLogging === "Image") {
-                        const ActionData = await Logging.update({
+                        await Logging.update({
                             SettingsActionMessage: booleanBlacklist,
                         }, { where: { GuildID: interaction.guild.id } })
 
@@ -684,7 +712,7 @@ module.exports = {
                     }
 
                     if (optionsLogging === "Message") {
-                        const ActionData = await Logging.update({
+                        await Logging.update({
                             SettingsActionImage: booleanBlacklist,
                         }, { where: { GuildID: interaction.guild.id } })
 
@@ -698,18 +726,35 @@ module.exports = {
                         ephemeral: true,
                     });
                 case (en.SetupWelcomeName):
-                    const ReportChannelChangeData = await Logging.update({ ChannelIDWelcome: channelOptions.id }, { where: { GuildID: interaction.guild.id } })
+                    if (!AutoRoleOptions) {
+                        await Logging.update({ ChannelIDWelcome: channelOptions.id }, { where: { GuildID: interaction.guild.id } })
 
-                    const embed = new MessageEmbed()
-                        .setDescription(LoggingMessage.SettingsUpdated)
-                        .addFields(
-                            { name: "**Welcome Channel**", value: channelOptions.toLocaleString(), inline: true },
-                        )
+                        const embed = new MessageEmbed()
+                            .setDescription(LoggingMessage.SettingsUpdated)
+                            .addFields(
+                                { name: "**Welcome Channel**", value: channelOptions.toLocaleString(), inline: true },
+                            )
 
-                    return interaction.reply({
-                        embeds: [embed],
-                        ephemeral: true,
-                    });
+                        return interaction.reply({
+                            embeds: [embed],
+                            ephemeral: true,
+                        });
+                    }
+
+                    if (!channelOptions) {
+                        await Logging.update({ AutoRole: AutoRoleOptions.id }, { where: { GuildID: interaction.guild.id } })
+
+                        const embed = new MessageEmbed()
+                            .setDescription(LoggingMessage.SettingsUpdated)
+                            .addFields(
+                                { name: "**Auto-Role**", value: AutoRoleOptions.toLocaleString(), inline: true },
+                            )
+
+                        return interaction.reply({
+                            embeds: [embed],
+                            ephemeral: true,
+                        });
+                    };
                 case (en.SetupBlacklistName):
                     if (booleanBlacklist) {
                         if (booleanBlacklist === "true") booleanBlacklist = "Enabled";
@@ -726,7 +771,7 @@ module.exports = {
                             )
 
                         if (!channelOptions) {
-                            const BlacklistChangeData = await Logging.update({
+                            await Logging.update({
                                 EnableDisableBlacklistLogger: booleanBlacklist,
                                 AutoBanStatus: autobanStatus
                             }, { where: { GuildID: interaction.guild.id } })
@@ -737,7 +782,7 @@ module.exports = {
                         }
 
                         if (!autobanStatus) {
-                            const BlacklistChangeData = await Logging.update({
+                            await Logging.update({
                                 EnableDisableBlacklistLogger: booleanBlacklist,
                                 ChannelIDBlacklist: channelOptions.id,
                             }, { where: { GuildID: interaction.guild.id } })
@@ -748,7 +793,7 @@ module.exports = {
                         }
 
                         if (channelOptions && autobanStatus) {
-                            const BlacklistChangeData = await Logging.update({
+                            await Logging.update({
                                 EnableDisableBlacklistLogger: booleanBlacklist,
                                 AutoBanStatus: autobanStatus,
                                 ChannelIDBlacklist: channelOptions.id,
@@ -772,7 +817,7 @@ module.exports = {
                     switch (optionsLogging) {
                         case ("all"):
                             if (channelOptions) {
-                                const allChannelChangeData = await Logging.update({
+                                await Logging.update({
                                     ChannelIDBan: channelOptions.id,
                                     ChannelIDUnban: channelOptions.id,
                                     ChannelIDKick: channelOptions.id,
@@ -791,7 +836,7 @@ module.exports = {
                             break;
                         case ("ban"):
                             if (channelOptions) {
-                                const allChannelChangeData = await Logging.update({
+                                await Logging.update({
                                     ChannelIDBan: channelOptions.id,
                                 }, { where: { GuildID: interaction.guild.id } })
 
@@ -807,7 +852,7 @@ module.exports = {
                             break;
                         case ("kick"):
                             if (channelOptions) {
-                                const allChannelChangeData = await Logging.update({
+                                await Logging.update({
                                     ChannelIDKick: channelOptions.id,
                                 }, { where: { GuildID: interaction.guild.id } })
 
@@ -822,7 +867,7 @@ module.exports = {
                             break;
                         case ("warn"):
                             if (channelOptions) {
-                                const allChannelChangeData = await Logging.update({
+                                await Logging.update({
                                     ChannelIDWarn: channelOptions.id,
                                 }, { where: { GuildID: interaction.guild.id } })
 
@@ -837,7 +882,7 @@ module.exports = {
                             break;
                         case ("unban"):
                             if (channelOptions) {
-                                const allChannelChangeData = await Logging.update({
+                                await Logging.update({
                                     ChannelIDUnban: channelOptions.id,
                                 }, { where: { GuildID: interaction.guild.id } })
 
@@ -851,7 +896,7 @@ module.exports = {
                             };
                             break;
                         case ("disable"):
-                            const AllChannelChangeData = await Logging.update({
+                            await Logging.update({
                                 ChannelIDBan: null,
                                 ChannelIDUnban: null,
                                 ChannelIDKick: null,
@@ -891,13 +936,13 @@ module.exports = {
                         )
 
                     if (!removeRoleOptions) {
-                        const VerificationChannelChangeData1 = await Logging.update({
+                        await Logging.update({
                             ChannelIDVerify: channelOptions2.id,
                             StaffRoleVerify: staffRoleOptions.id,
                             RoleToAddVerify: addRoleOptions.id
                         }, { where: { GuildID: interaction.guild.id } })
                     } else {
-                        const VerificationChannelChangeData1 = await Logging.update({
+                        await Logging.update({
                             ChannelIDVerify: channelOptions2.id,
                             StaffRoleVerify: staffRoleOptions.id,
                             RoleToAddVerify: addRoleOptions.id,
@@ -914,7 +959,6 @@ module.exports = {
                         ephemeral: true,
                     });
                 case (en.VerificationMenuName):
-
                     if (staffRoleOptions.name === "@everyone" | addRoleOptions.name === "@everyone" | removeRole === "@everyone") {
                         const embed = new MessageEmbed()
                             .setDescription(LoggingMessage.SettingsError)
@@ -938,14 +982,14 @@ module.exports = {
                         )
 
                     if (!removeRoleOptions) {
-                        const VerificationChannelChangeData1 = await Logging.update({
+                        await Logging.update({
                             ChannelIDVerify: channelOptions2.id,
                             ChannelIDReceiveVerification: channelOptions3.id,
                             StaffRoleVerify: staffRoleOptions.id,
                             RoleToAddVerify: addRoleOptions.id
                         }, { where: { GuildID: interaction.guild.id } })
                     } else {
-                        const VerificationChannelChangeData1 = await Logging.update({
+                        await Logging.update({
                             ChannelIDVerify: channelOptions2.id,
                             ChannelIDReceiveVerification: channelOptions3.id,
                             StaffRoleVerify: staffRoleOptions.id,

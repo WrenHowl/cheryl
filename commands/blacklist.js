@@ -458,7 +458,9 @@ module.exports = {
                                     });
                             };
                     }
-                } else if (PermissionCheck3) {
+                }
+
+                if (PermissionCheck3) {
                     const proof2 = interaction.options.getAttachment(en.AddEvidenceName);
 
                     switch (options) {

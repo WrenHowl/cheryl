@@ -86,36 +86,6 @@ const Verifier = sequelize.define("Verifier", {
     unique: false,
   },
 });
-const Staff_Application = sequelize.define("Staff_Application", {
-  MessageID: {
-    type: Sequelize.STRING,
-    unique: true,
-  },
-  UserID: {
-    type: Sequelize.STRING,
-    unique: true
-  },
-  AgeData: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  TimeZoneData: {
-    type: Sequelize.STRING,
-    unique: false
-  },
-  BeenOnServerData: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  ExperienceData: {
-    type: Sequelize.STRING,
-    unique: false
-  },
-  WhyDoYouWantStaffData: {
-    type: Sequelize.STRING,
-    unique: false
-  },
-});
 const Verification = sequelize.define("Verification", {
   MessageID: {
     type: Sequelize.STRING,
@@ -184,28 +154,24 @@ const Blacklist = sequelize.define("Blacklist", {
     unique: false,
   },
 });
-const Warns = sequelize.define("Warns", {
+const ActionImage = sequelize.define("ActionImage", {
+  ImageURL: {
+    type: Sequelize.STRING,
+    unique: false,
+  },
+  Category: {
+    type: Sequelize.STRING,
+    unique: false,
+  },
+  MessageID: {
+    type: Sequelize.STRING,
+    unique: false,
+  },
   UserName: {
     type: Sequelize.STRING,
     unique: false,
   },
   UserID: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  ModName: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  ModID: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  Reason: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  GuildID: {
     type: Sequelize.STRING,
     unique: false,
   },
@@ -286,70 +252,20 @@ const Logging = sequelize.define("Logging", {
   SettingsActionImage: {
     type: Sequelize.STRING,
     unique: false,
-  }
-});
-const Permission = sequelize.define("Permission", {
-  UserName: {
+  },
+  AutoRole: {
     type: Sequelize.STRING,
     unique: false,
   },
-  UserID: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  GuildID: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  BlacklistPermission: {
+  ChannelIDLeaving: {
     type: Sequelize.STRING,
     unique: false,
   },
 });
-const ActionImage = sequelize.define("ActionImage", {
-  ImageURL: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  Category: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  MessageID: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  UserName: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  UserID: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-});
-const Profile = sequelize.define("Profile", {
-  UserName: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  UserID: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  Age: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  Pronouns: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  Gender: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-})
+
+const Warns = sequelize.define("Warns")
+const Permission = sequelize.define("Permission")
+const Profile = sequelize.define("Profile")
 
 bot.once("ready", async () => {
   bot.user.setStatus("dnd")
@@ -376,7 +292,6 @@ bot.once("ready", async () => {
   setInterval(function () {
     Verification_Count.sync();
     Verifier.sync();
-    Staff_Application.sync();
     Verification.sync();
     Blacklist.sync();
     Warns.sync();
@@ -408,7 +323,7 @@ bot.on("guildMemberAdd", async (NewMember) => {
           await NewMember.roles.add("1001111992834211921");
 
           const WelcomeMessage = new MessageEmbed()
-            .setDescription("Welcome <@" + NewMember.id + "> ``(" + NewMember.user.tag + ")``!\n\n> **Created At:** ``" + moment(NewMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") + "``\n> **Joined At:** ``" + moment(NewMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') + "``\n> **Furries Count:** ``" + memberCount + "``")
+            .setDescription("Welcome " + NewMember.toString() + " ``(" + NewMember.user.tag + ")``!\n\n> **Created At:** ``" + moment(NewMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") + "``\n> **Joined At:** ``" + moment(NewMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') + "``\n> **Furries Count:** ``" + memberCount + "``")
             .setColor(Color.Green)
             .setThumbnail(NewMember.user.displayAvatarURL())
 
@@ -417,7 +332,7 @@ bot.on("guildMemberAdd", async (NewMember) => {
           });
         } else {
           const WelcomeMessage = new MessageEmbed()
-            .setDescription("Welcome <@" + NewMember.id + "> ``(" + NewMember.user.tag + ")``!\n\n> Created At: ``" + moment(NewMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") + "``\n> Joined At:``" + moment(NewMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') + "``\n> **Member Count:** ``" + memberCount + "``")
+            .setDescription("Welcome " + NewMember.toString() + " ``(" + NewMember.user.tag + ")``!\n\n> Created At: ``" + moment(NewMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") + "``\n> Joined At:``" + moment(NewMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') + "``\n> **Member Count:** ``" + memberCount + "``")
             .setColor(Color.Green)
             .setThumbnail(NewMember.user.displayAvatarURL())
 
@@ -426,6 +341,9 @@ bot.on("guildMemberAdd", async (NewMember) => {
           });
         }
       } else return;
+    }
+    if (LoggingData.AutoRole) {
+      return NewMember.roles.add(LoggingData.AutoRole)
     }
   }
 
@@ -522,7 +440,6 @@ bot.on("userUpdate", async (NewUser, OldUser) => {
 bot.on("guildMemberRemove", async (LeavingMember) => {
   if (LeavingMember.guild.id === "821241527941726248") {
     const FirstRowToDelete = await Verifier.destroy({ where: { GuildID: LeavingMember.guild.id, VerifierID: LeavingMember.user.id } })
-    const FourthRowToDelete = await Staff_Application.destroy({ where: { UserID: LeavingMember.user.id } })
     const LogChannel = LeavingMember.guild.channels.cache.get("898366209827954718");
 
     let Status = "";
@@ -540,7 +457,7 @@ bot.on("guildMemberRemove", async (LeavingMember) => {
       )
       .setThumbnail(LeavingMember.user.displayAvatarURL())
 
-    if (FirstRowToDelete | FourthRowToDelete) {
+    if (FirstRowToDelete) {
       Status = "``Was Verified``";
 
       LeavingMemberEmbed.addFields(
@@ -585,14 +502,15 @@ bot.on("messageCreate", async (message) => {
   const args = message.content.slice(prefix.length).trim().split(/ +/);
   const command = args.shift().toLowerCase();
 
-  if (command === "application") {
-    bot.commands.get("application").execute(bot, message, args, MessageEmbed);
-  }
-  if (command === "serverlist") {
-    bot.commands.get("serverlist").execute(bot, message, args, MessageEmbed);
-  }
-  if (command === "role") {
-    bot.commands.get("role").execute(bot, message, args, MessageEmbed, sequelize, Sequelize);
+  switch (command) {
+    case ("application"):
+      return bot.commands.get("application").execute(bot, message, args, MessageEmbed);
+    case ("serverlist"):
+      return bot.commands.get("serverlist").execute(bot, message, args, MessageEmbed);
+    case ("role"):
+      return bot.commands.get("role").execute(bot, message, args, MessageEmbed, sequelize, Sequelize);
+    case ("e621"):
+      return bot.commands.get("e621").execute(bot, message, args, MessageEmbed);
   }
 });
 
@@ -614,135 +532,10 @@ bot.on('interactionCreate', async (interaction) => {
 
   if (interaction.isButton()) {
     let VerificationLog = await Verification.findOne({ where: { MessageID: interaction.message.id } });
-    let ApplicationLog = await Staff_Application.findOne({ where: { MessageID: interaction.message.id } });
     let ActionImageData = await ActionImage.findOne({ where: { MessageID: interaction.message.id } });
     let guild = bot.guilds.cache.get(interaction.guild.id);
 
     switch (interaction.customId) {
-      case ("applyForStaff"):
-        if (!interaction.member.roles.cache.some(role => role.name === MessageConfig.StaffRoleApplication)) {
-          const modalStaff = new Modal()
-            .setCustomId('modalStaff')
-            .setTitle('Staff Application');
-
-          const ageOption = new TextInputComponent()
-            .setCustomId('Age')
-            .setLabel("Age")
-            .setStyle('SHORT')
-            .setRequired();
-
-          const timezoneOption = new TextInputComponent()
-            .setCustomId('Timezone')
-            .setLabel("Timezone")
-            .setStyle('SHORT')
-            .setRequired();
-
-          const beenOnOption = new TextInputComponent()
-            .setCustomId('beenOnServer')
-            .setLabel("How long have you been on the server?")
-            .setStyle('SHORT')
-            .setRequired();
-
-          const experienceOption = new TextInputComponent()
-            .setCustomId('experience')
-            .setLabel("Do you have any experience?")
-            .setStyle('PARAGRAPH')
-            .setRequired();
-
-          const whyDoYouWantOption = new TextInputComponent()
-            .setCustomId('whydoYou')
-            .setLabel("Why do you want to be staff?")
-            .setStyle('PARAGRAPH')
-            .setRequired();
-
-          const ageRow = new MessageActionRow().addComponents(ageOption);
-          const timezoneRow = new MessageActionRow().addComponents(timezoneOption);
-          const beenOnRow = new MessageActionRow().addComponents(beenOnOption);
-          const experienceRow = new MessageActionRow().addComponents(experienceOption);
-          const whyDoYouWantRow = new MessageActionRow().addComponents(whyDoYouWantOption);
-
-          modalStaff.addComponents(ageRow, timezoneRow, beenOnRow, experienceRow, whyDoYouWantRow);
-
-          return interaction.showModal(modalStaff)
-        } else {
-          return interaction.reply({
-            content: MessageConfig.AlreadyAppliedStaffApplicationError,
-            ephemeral: true,
-          })
-        };
-      case ("buttonToAcceptApplication"):
-        if (ApplicationLog) {
-          if (!ApplicationLog.MessageID) {
-            return interaction.reply({
-              content: MessageConfig.CannotFindDataOfMessage,
-              ephemeral: true,
-            })
-          }
-        }
-
-        interaction.channel.messages.fetch(interaction.message.id).then(async (UpdateMessage) => {
-          const staffApplicationEmbed2 = new MessageEmbed()
-            .addFields(
-              { name: "**__Age__**", value: ApplicationLog.AgeData },
-              { name: "**__Timezone__**", value: ApplicationLog.TimeZoneData },
-              { name: "**__How long have you been on the server?__**", value: ApplicationLog.BeenOnServerData },
-              { name: "**__Do you have any experience?__**", value: ApplicationLog.ExperienceData },
-              { name: "**__Why do you want to be staff?__**", value: ApplicationLog.WhyDoYouWantStaffData },
-            )
-            .setColor("00FF00")
-            .setTimestamp()
-
-          await interaction.update({
-            content: "Application from <@" + ApplicationLog.UserID + "> accepted by <@" + interaction.user.id + ">",
-            embeds: [staffApplicationEmbed2],
-            components: [],
-          })
-
-          await bot.users.cache.get(ApplicationLog.UserID).send({
-            content: MessageConfig.StaffApplicationAccepted,
-          }).catch(() => { return })
-
-          const ApplicationDeleteLog = await Staff_Application.destroy({ where: { MessageID: interaction.message.id } });
-        });
-
-        break;
-      case ("buttonToDenyApplication"):
-        if (ApplicationLog) {
-          if (!ApplicationLog.MessageID) {
-            return interaction.reply({
-              content: MessageConfig.CannotFindDataOfMessage,
-              ephemeral: true,
-            })
-          }
-        }
-
-        interaction.channel.messages.fetch(interaction.message.id).then(async (UpdateMessage) => {
-          const staffApplicationEmbed2 = new MessageEmbed()
-            .addFields(
-              { name: "**__Age__**", value: ApplicationLog.AgeData },
-              { name: "**__Timezone__**", value: ApplicationLog.TimeZoneData },
-              { name: "**__How long have you been on the server?__**", value: ApplicationLog.BeenOnServerData },
-              { name: "**__Do you have any experience?__**", value: ApplicationLog.ExperienceData },
-              { name: "**__Why do you want to be staff?__**", value: ApplicationLog.WhyDoYouWantStaffData },
-            )
-            .setColor("FF0000")
-            .setTimestamp()
-
-
-          await interaction.update({
-            content: "Application from <@" + ApplicationLog.UserID + "> denied by <@" + interaction.user.id + ">",
-            embeds: [staffApplicationEmbed2],
-            components: [],
-          });
-
-          await bot.users.cache.get(ApplicationLog.UserID).send({
-            content: MessageConfig.StaffApplicationDenied,
-          }).catch(() => { return });
-        })
-
-        const ApplicationDeleteLog = await Staff_Application.destroy({ where: { MessageID: interaction.message.id } });
-
-        break;
       case ("buttonToVerify"):
         if (interaction.guild.id === "815422069234860073") {
           if (interaction.member.roles.cache.some(role => role.id === "817245431296950282")) {
@@ -900,25 +693,7 @@ bot.on('interactionCreate', async (interaction) => {
               })
             })
 
-
-            if (interaction.guild.id === "821241527941726248") {
-              await member.roles.add("898354377503432734")
-              await member.roles.remove("940140000916430848")
-
-              const generalMessage = interaction.guild.channels.cache.get("898361230010482688")
-
-              const AdsInGeneral = new MessageEmbed()
-                .setDescription("Read the Rules: <#898360656175198249>\nGet your Roles: <#898360376654188557>\nJoin an Event: <#898360298552037426>")
-                .setColor(Color.Green)
-
-              await generalMessage.send({
-                embeds: [AdsInGeneral],
-                content: "<@" + VerificationLog.UserID + ">"
-              });
-
-            } else {
-              await generalMessage.send({ content: "Welcome <@" + VerificationLog.UserID + ">!" });
-            };
+            await generalMessage.send({ content: "Welcome <@" + VerificationLog.UserID + "> to **" + interaction.guild.name + "**!" });
 
             const Verification_CountData = await Verification_Count.findOne({ where: { ModID: interaction.user.id, GuildID: interaction.guild.id } });
 
@@ -977,7 +752,7 @@ bot.on('interactionCreate', async (interaction) => {
                     .setPlaceholder('Please select a reason')
                     .addOptions(
                       {
-                        label: 'Not enough details',
+                        label: 'Not Enough Details',
                         value: 'noDetails',
                       },
                       {
@@ -985,8 +760,12 @@ bot.on('interactionCreate', async (interaction) => {
                         value: 'troll',
                       },
                       {
-                        label: 'New account',
+                        label: 'New Account',
                         value: 'new',
+                      },
+                      {
+                        label: 'To Young',
+                        value: 'young',
                       },
                     ),
                 );
@@ -999,7 +778,7 @@ bot.on('interactionCreate', async (interaction) => {
                   { name: "What do you think about the furry fandom?", value: VerificationLog.FurryFandomData },
                   { name: "Do you have any sona? Tell us about it", value: VerificationLog.SonaData },
                 )
-                .setColor(Color.Green)
+                .setColor(Color.RiskHigh)
                 .setTimestamp()
 
               return interaction.update({
@@ -1075,90 +854,15 @@ bot.on('interactionCreate', async (interaction) => {
 
   if (interaction.isModalSubmit()) {
     switch (interaction.customId) {
-      case ("modalStaff"):
-        const button = new MessageActionRow()
-          .addComponents(
-            new MessageButton()
-              .setCustomId('buttonToAcceptApplication')
-              .setLabel('Accept')
-              .setStyle('SUCCESS'),
-          )
-          .addComponents(
-            new MessageButton()
-              .setCustomId('buttonToDenyApplication')
-              .setLabel('Deny')
-              .setStyle('DANGER'),
-          );
-
-        const ChannelForApplication = interaction.guild.channels.cache.get("993999178042712174");
-
-        let age = interaction.fields.getTextInputValue('Age');
-        let timezone = interaction.fields.getTextInputValue('Timezone');
-        let beenOnServer = interaction.fields.getTextInputValue('beenOnServer');
-        let experience = interaction.fields.getTextInputValue('experience');
-        let whyDoYouWant = interaction.fields.getTextInputValue('whydoYou');
-
-        if (!age) age = "N/A";
-        if (!timezone) timezone = "N/A";
-        if (!beenOnServer) beenOnServer = "N/A";
-        if (!experience) experience = "N/A";
-        if (!whyDoYouWant) whyDoYouWant = "N/A";
-
-        const staffApplicationEmbed = new MessageEmbed()
-          .addFields(
-            { name: "Age", value: age },
-            { name: "Timezone", value: timezone },
-            { name: "How long have you been on the server?", value: beenOnServer },
-            { name: "Do you have any experience?", value: experience },
-            { name: "Why do you want to be staff?", value: whyDoYouWant },
-          )
-          .setColor("2f3136")
-          .setTimestamp()
-
-        let AlreadySent = await Staff_Application.findOne({ where: { UserID: interaction.user.id } });
-
-        if (AlreadySent) return interaction.reply({
-          content: "You have sent a staff application already.",
-          ephemeral: true
-        })
-
-        await ChannelForApplication.send({
-          content: "<@&991769060956192799> | Application from <@" + interaction.user.id + ">",
-          embeds: [staffApplicationEmbed],
-          components: [button],
-        }).then(async sent => {
-          let MessageID = sent.id
-
-          const Staff_ApplicationCreateData = await Staff_Application.create({
-            MessageID: MessageID,
-            UserID: interaction.user.id,
-            UserName: interaction.user.tag,
-            AgeData: age,
-            TimeZoneData: timezone,
-            BeenOnServerData: beenOnServer,
-            ExperienceData: experience,
-            WhyDoYouWantStaffData: whyDoYouWant,
-          })
-
-        })
-        return interaction.reply({
-          content: "We received your application, you will receive a response soon!",
-          ephemeral: true
-        });
       case ("verificationModal"):
-        const buttonVerify = new MessageActionRow()
-          .addComponents(
-            new MessageButton()
-              .setCustomId('buttonToAcceptVerify')
-              .setLabel('Accept')
-              .setStyle('SUCCESS'),
-          )
-          .addComponents(
-            new MessageButton()
-              .setCustomId('buttonToDenyVerify')
-              .setLabel('Deny')
-              .setStyle('DANGER'),
-          );
+        let idExist = await Verification.findOne({ where: { UserID: interaction.user.id } });
+
+        if (idExist) {
+          return interaction.reply({
+            content: "You're already waiting to be verified, please be patient while our staff look at your verification.",
+            ephemeral: true
+          })
+        }
 
         const channelForVerification = interaction.guild.channels.cache.get(LoggingData.ChannelIDReceiveVerification);
 
@@ -1174,6 +878,20 @@ bot.on('interactionCreate', async (interaction) => {
         if (!furryFandom) furryFandom = "N/A";
         if (!sona) sona = "N/A";
 
+        const buttonVerify = new MessageActionRow()
+          .addComponents(
+            new MessageButton()
+              .setCustomId('buttonToAcceptVerify')
+              .setLabel('Accept')
+              .setStyle('SUCCESS'),
+          )
+          .addComponents(
+            new MessageButton()
+              .setCustomId('buttonToDenyVerify')
+              .setLabel('Deny')
+              .setStyle('DANGER'),
+          );
+
         const verificationEmbed = new MessageEmbed()
           .addFields(
             { name: "Age", value: ageVerify },
@@ -1182,25 +900,16 @@ bot.on('interactionCreate', async (interaction) => {
             { name: "What do you think about the furry fandom?", value: furryFandom },
             { name: "Do you have any sona? Tell us about it.", value: sona },
           )
-          .setColor("2f3136")
+          .setColor(Color.Transparent)
           .setTimestamp()
 
-        let idExist = await Verification.findOne({ where: { UserID: interaction.user.id } });
-
-        if (idExist) return interaction.reply({
-          content: "You're already waiting to be verified, please be patient while our staff look at your verification.",
-          ephemeral: true
-        })
-
         await channelForVerification.send({
-          content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + interaction.user.id + ">",
+          content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from " + interaction.user.toString(),
           embeds: [verificationEmbed],
           components: [buttonVerify],
-        }).then(async sent => {
-          let MessageID = sent.id
-
+        }).then(async (sent) => {
           const VerificationCreate = await Verification.create({
-            MessageID: MessageID,
+            MessageID: sent.id,
             UserID: interaction.user.id,
             UserName: interaction.user.tag,
             AgeData: ageVerify,
@@ -1212,12 +921,10 @@ bot.on('interactionCreate', async (interaction) => {
           })
         })
 
-        await interaction.reply({
-          content: "We received your verification, you will be verified soon!",
+        return interaction.reply({
+          content: "We received your verification, please wait while we review your verification.!",
           ephemeral: true
         });
-
-        break;
     }
   }
 
@@ -1227,76 +934,23 @@ bot.on('interactionCreate', async (interaction) => {
     switch (interaction.customId) {
       case ("reasonDeny"):
         let VerificationLog = await Verification.findOne({ where: { MessageID: interaction.message.id } });
-        const MessageToUpdate = VerificationLog.MessageID;
 
-        if (interaction.guild.id === "815422069234860073") {
-          const verificationEmbedDenied = new MessageEmbed()
-            .addFields(
-              { name: "**__How did you find our server?__**", value: VerificationLog.HowServerData },
-              { name: "**__Why are you joining us?__**", value: VerificationLog.JoiningData },
-              { name: "**__What do you think about the furry fandom?__**", value: VerificationLog.FurryFandomData },
-            )
-            .setColor("FF0000")
-            .setTimestamp()
-
-          let verificationDeleteLog = await Verification.destroy({ where: { MessageID: interaction.message.id } });
-
-          switch (args) {
-            case ("noDetails"):
-              interaction.channel.messages.fetch(MessageToUpdate).then(async (UpdateMessage) => {
-                await interaction.update({
-                  content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> denied by <@" + interaction.user.id + ">",
-                  embeds: [verificationEmbedDenied],
-                  components: [],
-                })
-              });
-
-              return bot.users.cache.get(VerificationLog.UserID).send({
-                content: "Your verification has been denied.\n\n*Reason: You did not put enough details.*",
-              }).catch(() => { return });
-            case ("troll"):
-              interaction.channel.messages.fetch(MessageToUpdate).then(async (UpdateMessage) => {
-                await interaction.update({
-                  content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> denied by <@" + interaction.user.id + ">",
-                  embeds: [verificationEmbedDenied],
-                  components: [],
-                })
-              });
-
-              return bot.users.cache.get(VerificationLog.UserID).send({
-                content: "Your verification has been denied.\n\n*Reason: You've been flagged for trolling.*",
-              }).catch(() => { return });
-            case ("new"):
-              interaction.channel.messages.fetch(MessageToUpdate).then(async (UpdateMessage) => {
-                await interaction.update({
-                  content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> denied by <@" + interaction.user.id + ">",
-                  embeds: [verificationEmbedDenied],
-                  components: [],
-                })
-              });
-
-              return bot.users.cache.get(VerificationLog.UserID).send({
-                content: "Your verification has been denied.\n\n*Reason: Your account is too new to be accepted.*",
-              }).catch(() => { return });
-          }
-
-        }
         const verificationEmbedDenied = new MessageEmbed()
           .addFields(
-            { name: "**__Age__**", value: VerificationLog.AgeData },
-            { name: "**__How did you find our server?__**", value: VerificationLog.HowServerData },
-            { name: "**__Why are you joining us?__**", value: VerificationLog.JoiningData },
-            { name: "**__What do you think about the furry fandom?__**", value: VerificationLog.FurryFandomData },
-            { name: "**__Do you have any sona? Tell us about it__**", value: VerificationLog.SonaData },
+            { name: "Age", value: VerificationLog.AgeData },
+            { name: "How did you find our server?", value: VerificationLog.HowServerData },
+            { name: "Why are you joining us?", value: VerificationLog.JoiningData },
+            { name: "What do you think about the furry fandom?", value: VerificationLog.FurryFandomData },
+            { name: "Do you have any sona? Tell us about it", value: VerificationLog.SonaData },
           )
-          .setColor("FF0000")
+          .setColor(Color.RiskHigh)
           .setTimestamp()
 
-        let verificationDeleteLog = await Verification.destroy({ where: { MessageID: interaction.message.id } });
+        await Verification.destroy({ where: { MessageID: interaction.message.id } });
 
         switch (args) {
           case ("noDetails"):
-            interaction.channel.messages.fetch(MessageToUpdate).then(async (UpdateMessage) => {
+            interaction.channel.messages.fetch(interaction.message.id).then(async () => {
               await interaction.update({
                 content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> denied by <@" + interaction.user.id + ">",
                 embeds: [verificationEmbedDenied],
@@ -1308,7 +962,7 @@ bot.on('interactionCreate', async (interaction) => {
               content: "Your verification has been denied.\n\n*Reason: You did not put enough details.*",
             }).catch(() => { return });
           case ("troll"):
-            interaction.channel.messages.fetch(MessageToUpdate).then(async (UpdateMessage) => {
+            interaction.channel.messages.fetch(interaction.message.id).then(async () => {
               await interaction.update({
                 content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> denied by <@" + interaction.user.id + ">",
                 embeds: [verificationEmbedDenied],
@@ -1320,7 +974,7 @@ bot.on('interactionCreate', async (interaction) => {
               content: "Your verification has been denied.\n\n*Reason: You've been flagged for trolling.*",
             }).catch(() => { return });
           case ("new"):
-            interaction.channel.messages.fetch(MessageToUpdate).then(async (UpdateMessage) => {
+            interaction.channel.messages.fetch(interaction.message.id).then(async () => {
               await interaction.update({
                 content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> denied by <@" + interaction.user.id + ">",
                 embeds: [verificationEmbedDenied],
@@ -1330,6 +984,18 @@ bot.on('interactionCreate', async (interaction) => {
 
             return bot.users.cache.get(VerificationLog.UserID).send({
               content: "Your verification has been denied.\n\n*Reason: Your account is too new to be accepted.*",
+            }).catch(() => { return });
+          case ("young"):
+            interaction.channel.messages.fetch(interaction.message.id).then(async () => {
+              await interaction.update({
+                content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> denied by <@" + interaction.user.id + ">",
+                embeds: [verificationEmbedDenied],
+                components: [],
+              })
+            });
+
+            return bot.users.cache.get(VerificationLog.UserID).send({
+              content: "Your verification has been denied.\n\n*Reason: You're too young to join this server.*",
             }).catch(() => { return });
         };
     }

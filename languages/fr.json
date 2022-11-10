@@ -104,90 +104,95 @@
         "AgeDescription": "Changez votre âge."
     },
     "report": {
-        "Name": "report"
+        "Name": "signaler"
     },
     "serverinfo": {
-        "Name": "serverinfo"
+        "Name": "infos_serveur"
     },
     "settings": {
         "Name": "réglages",
         "Description": "Changez les paramètres du serveur.",
         "SetupName": "configurer",
         "SetupDescription": "Configurer une commande.",
-        "SetupReportName": "rapport",
-        "SetupReportDescription": "Changez les paramètres du système de rapport.",
+        "SetupReportName": "signaler",
+        "SetupReportDescription": "Changez les paramètres du système de signalement.",
         "SetupReportChannelName": "canal",
-        "SetupReportChannelDescription": "Canal a envoyer le rapport.",
+        "SetupReportChannelDescription": "Canal a envoyer le signalement.",
         "SetupReportRoleName": "rôle",
-        "SetupReportRoleDescription": "Rôle a mentionner lorsqu'un rapport est reçu.",
+        "SetupReportRoleDescription": "Rôle a mentionner lorsqu'un signalement est reçu.",
         "SetupWelcomeName": "bienvenue",
         "SetupWelcomeDescription": "Changez les paramètres du système de bienvenue.",
         "SetupWelcomeChannelName": "canal",
         "SetupWelcomeChannelDescription": "Canal a envoyer le message de bienvenue.",
-        "SetupBlacklistName": "blacklist",
-        "SetupBlacklistDescription": "Change the settings of the Blacklist System.",
-        "SetupBlacklistStatusName": "status",
-        "SetupBlacklistStatusDescription": "Enable/Disable",
-        "SetupBlacklistChannelName": "channel",
-        "SetupBlacklistChannelDescription": "Channel to send the alert.",
+        "SetupWelcomeRoleName": "auto-rôle",
+        "SetupWelcomeRoleDescription": "Rôle à rajouter automatiquement quand un utilisateur rejoint le serveur.",
+        "SetupBlacklistName": "liste_noire",
+        "SetupBlacklistDescription": "Modifiez les paramètres du système de liste noire.",
+        "SetupBlacklistStatusName": "statut",
+        "SetupBlacklistStatusDescription": "Activer/Désactiver",
+        "SetupBlacklistChannelName": "canal",
+        "SetupBlacklistChannelDescription": "Canal pour envoyer l'alerte.",
         "SetupBlacklistAutobanName": "auto-ban",
-        "SetupBlacklistAutobanDescription": "Enable/Disable",
+        "SetupBlacklistAutobanDescription": "Activer/Désactiver",
         "SetupActionName": "action",
-        "SetupActionDescription": "Change the settings of the command: Action.",
-        "SetupActionOptionsName": "options",
-        "SetupActionOptionsDescription": "Features to enable/disable.",
-        "SetupActionStatusName": "status",
-        "SetupActionStatusDescription": "Enable/Disable",
-        "VerificationName": "verification",
+        "SetupActionDescription": "Modifiez les paramètres de la commande : Action.",
+        "SetupActionOptionsName": "choix",
+        "SetupActionOptionsDescription": "Fonctionnalités à Activer/Désactiver.",
+        "SetupActionStatusName": "statut",
+        "SetupActionStatusDescription": "Activer/Désactiver",
+        "VerificationName": "vérification",
         "VerificationDescription": "Change the settings of the Verification System.",
-        "VerificationCommandName": "command",
-        "VerificationCommandDescription": "Change the settings of the command: Verify.",
-        "VerificationWelcomeName": "welcome",
-        "VerificationWelcomeDescription": "Channel to send the welcome message.",
-        "VerificationWelcomeStaffName": "staff",
+        "VerificationCommandName": "commande",
+        "VerificationCommandDescription": "Modifiez les paramètres de la commande : Vérifier.",
+        "VerificationWelcomeName": "bienvenue",
+        "VerificationWelcomeDescription": "Canal pour envoyer le message de bienvenue.",
+        "VerificationWelcomeStaffName": "personnel",
         "VerificationWelcomeStaffDescription": "Role that can verify.",
-        "VerificationWelcomeAddName": "add",
-        "VerificationWelcomeAddDescription": "Role to give.",
-        "VerificationWelcomeRemoveName": "remove",
-        "VerificationWelcomeRemoveDescription": "Role to remove.",
+        "VerificationWelcomeAddName": "ajouter",
+        "VerificationWelcomeAddDescription": "Rôle à donner.",
+        "VerificationWelcomeRemoveName": "retirer",
+        "VerificationWelcomeRemoveDescription": "Rôle à retirer.",
         "VerificationMenuName": "menu",
-        "VerificationMenuDescription": "Change the settings of the Verification Menu.",
-        "VerificationMenuWelcomeName": "welcome",
-        "VerificationMenuWelcomeDescription": "Channel to send the welcome message.",
-        "VerificationMenuWelcomeReceiveName": "receive",
-        "VerificationMenuWelcomeReceiveDescription": "Channel to send the verification.",
+        "VerificationMenuDescription": "Modifiez les paramètres du menu de vérification.",
+        "VerificationMenuWelcomeName": "bienvenue",
+        "VerificationMenuWelcomeDescription": "Canal pour envoyer le message de bienvenue.",
+        "VerificationMenuWelcomeReceiveName": "recevoir",
+        "VerificationMenuWelcomeReceiveDescription": "Canal pour envoyer la vérification.",
         "VerificationMenuWelcomeStaffName": "staff",
-        "VerificationMenuWelcomeStaffDescription": "Role that can verify members.",
-        "VerificationMenuWelcomeAddName": "add",
-        "VerificationMenuWelcomeAddDescription": "Role to give.",
-        "VerificationMenuWelcomeRemoveName": "remove",
-        "VerificationMenuWelcomeRemoveDescription": "Role to remove.",
-        "LoggingName": "logging",
-        "LoggingDescription": "Change the settings of the logging system.",
-        "LoggingOptionsName": "options",
+        "VerificationMenuWelcomeStaffDescription": "Rôle qui peut vérifier les membres.",
+        "VerificationMenuWelcomeAddName": "ajouter",
+        "VerificationMenuWelcomeAddDescription": "Rôle à donner.",
+        "VerificationMenuWelcomeRemoveName": "retirer",
+        "VerificationMenuWelcomeRemoveDescription": "Rôle à retirer.",
+        "LoggingName": "enregistrement",
+        "LoggingDescription": "Modifiez les paramètres du système de journalisation.",
+        "LoggingOptionsName": "choix",
         "LoggingOptionsDescription": "Change the logging channel of a certain event.",
-        "LoggingChannelName": "channel",
-        "LoggingChannelDescription": "What channel should I send the logging to?"
+        "LoggingChannelName": "canal",
+        "LoggingChannelDescription": "À quel canal dois-je envoyer la journalisation ?"
     },
     "staff": {
-        "Name": "staff"
+        "Name": "personnel",
+        "Description": "Indique si un utilisateur fait partie du personnel de Cheryl.",
+        "UserName": "utilisateur",
+        "UserDescription": "Utilisateur à vérifier."
     },
     "unban": {
-        "Name": "unban"
+        "Name": "débannir"
     },
     "unlock": {
-        "Name": "unlock"
+        "Name": "déverrouiller"
     },
     "verify": {
-        "Name": "verify"
+        "Name": "verifier"
     },
     "warn": {
-        "Name": "warn"
+        "Name": "avertir"
     },
     "warns": {
-        "Name": "warns"
+        "Name": "avertissements"
     },
     "welcomemenu": {
-        "Name": "welcomemenu"
+        "Name": "menu_de_bienvenue"
     }
 }

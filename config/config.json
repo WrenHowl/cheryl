@@ -11,5 +11,10 @@
     "x": "https://i.imgur.com/PSnQhmR.png",
     "ReceiveSuggestedBlacklist": "1033159311326715944",
     "SuggestImage": "1033214759421612142",
-    "ImgurID": ""
+    "ImgurID": "",
+    "e621APIKey": "",
+    "e621UserName": "",
+    "e621AgentName": "",
+    "DevID": "1030630693413343324",
+    "StaffID": "1030518144088932413"
 }

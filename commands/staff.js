@@ -19,50 +19,57 @@ console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is lo
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('staff')
-        .setDescription('Show the staff of Cheryl.')
+        .setName(en.Name)
+        .setNameLocalizations({
+            fr: fr.Name,
+            de: de.Name,
+            SpanishES: sp.Name,
+            nl: nl.Name
+        })
+        .setDescription(en.Description)
+        .setDescriptionLocalizations({
+            fr: fr.Description,
+            de: de.Description,
+            SpanishES: sp.Description,
+            nl: nl.Description
+        })
         .addUserOption(option => option
-            .setName("user")
-            .setDescription("Check if a user is a staff of Cheryl.")
+            .setName(en.UserName)
+            .setNameLocalizations({
+                fr: fr.Name,
+                de: de.Name,
+                SpanishES: sp.Name,
+                nl: nl.Name
+            })
+            .setDescription(en.UserDescription)
+            .setDescriptionLocalizations({
+                fr: fr.UserDescription,
+                de: de.UserDescription,
+                SpanishES: sp.UserDescription,
+                nl: nl.UserDescription
+            })
             .setRequired(false)),
     execute: async (interaction, bot) => {
-        const user = interaction.options.getUser("user");
+        const user = interaction.options.getUser(en.UserName);
 
         let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
         await fetchGuild.members.fetch();
 
-        let DevId = "1030630693413343324";
-        let StaffId = "1030518144088932413";
+        let MemberData = user ? user : interaction.user;
 
-        let MemberData = "";
+        const StaffMember = fetchGuild.members.cache.get(MemberData.id);
+        let StaffCheck = StaffMember ? StaffMember.roles.cache.has(Config.DevID) | StaffMember.roles.cache.has(Config.StaffID) : false;
 
-        if (user) MemberData = user;
-        if (!user) MemberData = interaction.user;
+        StaffCheck ? Thumbnail = Config.CheckMark : Thumbnail = Config.x;
+        StaffCheck ? IsOrIsnt = "is" : IsOrIsnt = "isn't";
 
-        const StaffMember = fetchGuild.members.cache.get(MemberData.id)
-        let StaffCheck = StaffMember ? StaffMember.roles.cache.has(StaffId) | StaffMember.roles.cache.has(DevId) : false
+        const staffList = new MessageEmbed()
+            .setDescription(MemberData.toString() + " " + IsOrIsnt + " a staff member of `" + bot.user.username + "`")
+            .setThumbnail(Thumbnail)
+            .setColor(Color.Green)
 
-        if (StaffCheck) StaffCheck = "Yes";
-        if (!StaffCheck) StaffCheck = "No";
-
-        if (StaffCheck === "Yes") {
-            const staffList = new MessageEmbed()
-                .setDescription("<@" + MemberData.id + "> is a staff member of `" + bot.user.username + "`")
-                .setThumbnail(Config.CheckMark)
-                .setColor(Color.Green)
-
-            return interaction.reply({
-                embeds: [staffList]
-            });
-        } else {
-            const staffList = new MessageEmbed()
-                .setDescription("<@" + MemberData.id + "> isn't a staff member of `" + bot.user.username + "`")
-                .setThumbnail(Config.x)
-                .setColor(Color.RiskHigh)
-
-            return interaction.reply({
-                embeds: [staffList]
-            });
-        }
+        return interaction.reply({
+            embeds: [staffList]
+        });
     }
 };

@@ -124,6 +124,8 @@
         "SetupWelcomeDescription": "Cambie la configuración del Sistema de Bienvenida.",
         "SetupWelcomeChannelName": "canal",
         "SetupWelcomeChannelDescription": "Canal para enviar el mensaje de bienvenida.",
+        "SetupWelcomeRoleName": "auto-role",
+        "SetupWelcomeRoleDescription": "Role to automatically give when a user join.",
         "SetupBlacklistName": "blacklist",
         "SetupBlacklistDescription": "Change the settings of the Blacklist System.",
         "SetupBlacklistStatusName": "status",
@@ -170,7 +172,10 @@
         "LoggingChannelDescription": "What channel should I send the logging to?"
     },
     "staff": {
-        "Name": "staff"
+        "Name": "staff",
+        "Description": "Show if a user is a staff of Cheryl.",
+        "UserName": "user",
+        "UserDescription": "User to check."
     },
     "unban": {
         "Name": "unban"

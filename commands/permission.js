@@ -80,8 +80,8 @@ module.exports = {
                 })
                 .setRequired(true)
                 .addChoices(
-                    { name: 'add', value: 'addOptions' },
-                    { name: 'remove', value: 'removeOptions' },
+                    { name: 'add', value: 'Add_Options' },
+                    { name: 'remove', value: 'Remove_Options' },
                 ))
             .addStringOption(option => option
                 .setName(en.UserPermissionName)
@@ -100,7 +100,7 @@ module.exports = {
                 })
                 .setRequired(true)
                 .addChoices(
-                    { name: 'Blacklist', value: "blacklistPermission" },
+                    { name: 'Blacklist', value: "Blacklist_Permission" },
                 )))
         .addSubcommand(subcommand => subcommand
             .setName(en.ServerName)
@@ -150,8 +150,8 @@ module.exports = {
                 })
                 .setRequired(true)
                 .addChoices(
-                    { name: 'add', value: 'addOptions' },
-                    { name: 'remove', value: 'removeOptions' },
+                    { name: 'add', value: 'Add_Options' },
+                    { name: 'remove', value: 'Remove_Options' },
                 ))
             .addStringOption(option => option
                 .setName(en.ServerPermissionName)
@@ -170,7 +170,7 @@ module.exports = {
                 })
                 .setRequired(true)
                 .addChoices(
-                    { name: 'Blacklist', value: "blacklistPermission" },
+                    { name: 'Blacklist', value: "Blacklist_Permission" },
                 ))),
     execute: async (interaction, bot, sequelize, Sequelize) => {
         if (interaction.user.id === config.ownerId) {
@@ -194,12 +194,12 @@ module.exports = {
             });
 
             let option = interaction.options.getSubcommand();
-            const options = interaction.options.getString("options");
-            const addOptions = interaction.options.getString("whitelist");
+            const options = interaction.options.getString(en.UserOptionsName);
+            const addOptions = interaction.options.getString(en.UserPermissionName);
 
             switch (option) {
-                case ("user"):
-                    const user = interaction.options.getUser("user");
+                case (en.UserName):
+                    const user = interaction.options.getUser(en.UserName);
                     const member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(err => { });
 
                     switch (member.id) {
@@ -215,96 +215,87 @@ module.exports = {
                             })
                         default:
                             switch (options) {
-                                case ("addOptions"):
+                                case ("Add_Options"):
                                     switch (addOptions) {
-                                        case ("blacklistPermission"):
-                                            if (user) PermissionCheck = await Permission.findOne({ where: { UserID: user.id } });
+                                        case ("Blacklist_Permission"):
+                                            const PermissionCheck = await Permission.findOne({ where: { UserID: user.id } });
 
-                                            if (PermissionCheck) {
-                                                const PermissionChange = await Permission.update({ BlacklistPermission: true }, { where: { UserID: user.id } })
-                                            } else {
-                                                const PermissionCreate = await Permission.create({
+                                            PermissionCheck ? await Permission.update({ BlacklistPermission: true }, { where: { UserID: user.id } }) :
+                                                await Permission.create({
                                                     UserName: user.tag,
                                                     UserID: user.id,
                                                     BlacklistPermission: true,
                                                 });
-                                            }
 
                                             return interaction.reply({
                                                 content: message.AddedWhitelistBlacklist,
                                                 ephemeral: true,
                                             })
                                     };
-                                case ("removeOptions"):
+                                case ("Remove_Options"):
                                     switch (addOptions) {
-                                        case ("blacklistPermission"):
+                                        case ("Blacklist_Permission"):
                                             if (interaction.user.id === config.ownerId) {
-                                                if (user) PermissionCheck = await Permission.findOne({ where: { UserID: user.id } });
+                                                const PermissionCheck = await Permission.findOne({ where: { UserID: user.id } });
 
-                                                if (PermissionCheck) {
-                                                    const PermissionChange = await Permission.update({ BlacklistPermission: false }, { where: { UserID: user.id } })
-                                                } else {
-                                                    const PermissionCreate = await Permission.create({
+                                                PermissionCheck ? await Permission.update({ BlacklistPermission: false }, { where: { UserID: user.id } }) :
+                                                    await Permission.create({
                                                         UserName: user.tag,
                                                         UserID: user.id,
                                                         BlacklistPermission: false,
                                                     });
-                                                }
 
                                                 return interaction.reply({
                                                     content: message.RemovedWhitelistBlacklist,
                                                     ephemeral: true,
                                                 })
                                             };
-                                    }
+                                    };
                             }
                     };
                 case ("server"):
-                    const server = interaction.options.getString("server");
+                    const server = interaction.options.getString(en.ServerName);
 
                     switch (options) {
-                        case ("addOptions"):
+                        case ("Add_Options"):
                             switch (addOptions) {
-                                case ("blacklistPermission"):
-                                    if (server) PermissionCheck = await Permission.findOne({ where: { GuildID: server } });
+                                case ("Blacklist_Permission"):
+                                    const PermissionCheck = await Permission.findOne({ where: { GuildID: server } });
 
-                                    if (PermissionCheck) {
-                                        const PermissionChange = await Permission.update({ BlacklistPermission: true }, { where: { GuildID: server } })
-                                    } else {
-                                        const PermissionCreate = await Permission.create({
+                                    PermissionCheck ? await Permission.update({ BlacklistPermission: true }, { where: { UserID: user.id } }) :
+                                        await Permission.create({
                                             GuildID: server,
                                             BlacklistPermission: true,
                                         });
-                                    }
 
                                     return interaction.reply({
                                         content: message.AddedWhitelistBlacklist,
                                         ephemeral: true,
                                     })
                             };
-                        case ("removeOptions"):
+                        case ("Remove_Options"):
                             switch (addOptions) {
-                                case ("blacklistPermission"):
-                                    if (interaction.user.id === config.ownerId) {
-                                        if (user) PermissionCheck = await Permission.findOne({ where: { GuildID: server } });
+                                case ("Blacklist_Permission"):
+                                    const PermissionCheck = await Permission.findOne({ where: { GuildID: server } });
 
-                                        if (PermissionCheck) {
-                                            const PermissionChange = await Permission.update({ BlacklistPermission: false }, { where: { GuildID: server } })
-                                        } else {
-                                            const PermissionCreate = await Permission.create({
-                                                GuildID: server,
-                                                BlacklistPermission: false,
-                                            });
-                                        }
+                                    PermissionCheck ? await Permission.update({ BlacklistPermission: true }, { where: { UserID: user.id } }) :
+                                        await Permission.create({
+                                            GuildID: server,
+                                            BlacklistPermission: true,
+                                        });
 
-                                        return interaction.reply({
-                                            content: message.RemovedWhitelistBlacklist,
-                                            ephemeral: true,
-                                        })
-                                    };
+                                    return interaction.reply({
+                                        content: message.RemovedWhitelistBlacklist,
+                                        ephemeral: true,
+                                    })
                             }
                     };
             }
+        } else {
+            return interaction.reply({
+                content: "You do not have access to this command.",
+                ephemeral: true
+            });
         }
     }
 };

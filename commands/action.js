@@ -59,7 +59,7 @@ module.exports = {
                 { name: "yeet", value: "yeet" },
                 { name: "pat", value: "pat" },
                 { name: "bite", value: "bite" },
-                { name: "bonk", value: "bonk" }
+                { name: "bonk", value: "bonk" },
             ))
         .addAttachmentOption(option => option
             .setName(en.SuggestName)
@@ -285,21 +285,21 @@ module.exports = {
         const HugSentence = [
             User1 + " approaches " + User2 + " gently and hugs " + Pronouns2 + " from behind!~",
             User1 + " wraps " + Pronouns1 + " arms around " + User2 + ", taking " + Pronouns2 + " into " + Pronouns1 + " warm embrace!~",
-            User1 + " jump on " + User2 + "'s back and hug " + Pronouns2 + " thightly"
+            User1 + " jump on " + User2 + "'s back and hug " + Pronouns2 + " thightly!~"
         ];
         const KissSentence = [
-            User1 + " approches slowly " + User2 + "'s face and gently kiss " + Pronouns2 + " on the lips!~",
-            User1 + " wraps " + Pronouns1 + " arms around " + User2 + ", place " + Pronouns1 + " lips to " + Pronouns2 + " lips and kiss " + Pronouns2 + " deeply!~"
+            User1 + " approches slowly " + User2 + "'s face and gently kiss " + Pronouns2 + "!~",
+            User1 + " gets close to " + User2 + " and kiss " + Pronouns2 + "!~"
         ];
         const BoopSentence = [
             User1 + " raises their paw and places it apon " + User2 + "'s snoot!~",
         ];
         const LickSentence = [
             User1 + " gets really close to " + User2 + " face and lick " + Pronouns2 + "!~",
-            User1 + " licks " + User2 + " rapidly, and runs away!",
         ];
         const CuddleSentence = [
-            User1 + " sneaks up behind " + User2 + " and pounces, cuddling the suprised floofer!~"
+            User1 + " approches " + User2 + " and pounces, cuddling the suprised floofer!~",
+            User1 + " join " + User2 + " and cuddle " + Pronouns2 + "!~",
         ];
         const YeetSentence = [
             User1 + " yeeted " + User2 + " into the stratosphere!~",
@@ -313,6 +313,7 @@ module.exports = {
         ];
         const BiteSentence = [
             User1 + " decided to bite " + User2 + " a little!~",
+            User1 + " bite " + User2 + " to taste " + Pronouns2 + "!~",
         ];
         const BonkSentence = [
             User1 + " swing a baseball bat on " + User2 + "'s head. Bonking " + Pronouns2 + "!~"
