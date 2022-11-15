@@ -18,8 +18,20 @@ console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is lo
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName('serverinfo')
-    .setDescription('Get some information on the server.'),
+    .setName(en.Name)
+    .setNameLocalizations({
+      fr: fr.Name,
+      de: de.Name,
+      SpanishES: sp.Name,
+      nl: nl.Name
+    })
+    .setDescription(en.Description)
+    .setDescriptionLocalizations({
+      fr: fr.Description,
+      de: de.Description,
+      SpanishES: sp.Description,
+      nl: nl.Description
+    }),
   execute: async (interaction, bot) => {
     function checkDays(date) {
       let now = new Date();
@@ -35,12 +47,12 @@ module.exports = {
 
     const serverinfo = new MessageEmbed()
       .addFields(
-        { name: "Name:", value: interaction.guild.name },
-        { name: "ID:", value: interaction.guild.id },
-        { name: "Owner:", value: "<@" + interaction.guild.ownerId + "> *(" + interaction.guild.ownerId + ")*" },
-        { name: "Created the:", value: interaction.channel.guild.createdAt.toUTCString().substr(0, 16) + " / " + (checkDays(interaction.channel.guild.createdAt)) },
-        { name: "Members", value: memberCount + " ** **" },
-        { name: "Roles:", value: roleCount + " ** **" },
+        { name: "Name", value: "``" + interaction.guild.name + "``", inline: true },
+        { name: "ID", value: "``" + interaction.guild.id + "``", inline: true },
+        { name: "Owner", value: "<@" + interaction.guild.ownerId + "> ``(" + interaction.guild.ownerId + ")``" },
+        { name: "Created The", value: "``" + interaction.channel.guild.createdAt.toUTCString().substr(0, 16) + " / " + (checkDays(interaction.channel.guild.createdAt)) + "``" },
+        { name: "Member Count", value: "``" + memberCount + "``", inline: true },
+        { name: "Roles", value: "``" + roleCount + "``", inline: true },
       )
       .setThumbnail(interaction.guild.iconURL())
       .setColor(Color.Green)

@@ -346,6 +346,12 @@ module.exports = {
             default:
                 if (PermissionCheck & options === "add" | options === "remove") {
                     const proof = interaction.options.getString(en.AddEvidenceName);
+                    let fetchGuild = interaction.client.guilds.cache.get(Config.guildId)
+                    const blacklistChannel = fetchGuild.channels.cache.get(Config.BlacklistChannel)
+
+                    if (risk === "Low") ColorEmbed = Color.RiskLow;
+                    if (risk === "Medium") ColorEmbed = Color.RiskMedium;
+                    if (risk === "High") ColorEmbed = Color.RiskHigh;
 
                     switch (options) {
                         case ("add"):
@@ -378,7 +384,7 @@ module.exports = {
                                         ephemeral: true
                                     });
                                 default:
-                                    const BlacklistData = await Blacklist.create({
+                                    await Blacklist.create({
                                         UserName: user.tag,
                                         UserID: user.id,
                                         ModName: interaction.user.tag,
@@ -392,22 +398,13 @@ module.exports = {
                                         content: message.AddedToBlacklist,
                                         ephemeral: true,
                                     }).then(() => {
-                                        let fetchGuild = interaction.client.guilds.cache.get(Config.guildId)
-
-                                        const blacklistChannel = fetchGuild.channels.cache.get(Config.BlacklistChannel)
-
-                                        if (risk === "Low") ColorEmbed = Color.RiskLow;
-                                        if (risk === "Medium") ColorEmbed = Color.RiskMedium;
-                                        if (risk === "High") ColorEmbed = Color.RiskHigh;
-
                                         const Name = "``" + user.tag + "``";
                                         const ID = "``" + user.id + "``";
                                         const Reason = "``" + reason + "``";
                                         const ModeratorName = "``" + interaction.user.tag + "``";
                                         const ModeratorID = "``" + interaction.user.id + "``";
 
-                                        if (proof) Evidence = proof;
-                                        if (!proof) Evidence = "``None``";
+                                        proof ? Evidence = proof : Evidence = "``No Evidence Found``"
 
                                         const InfoBlacklist = new MessageEmbed()
                                             .addFields(
@@ -450,12 +447,38 @@ module.exports = {
                                         ephemeral: true
                                     });
                                 default:
-                                    const unblacklistUser = Blacklist.destroy({ where: { UserID: user.id } });
-
                                     return interaction.reply({
                                         content: "The user has been successfully removed of the blacklist.",
                                         ephemeral: true,
-                                    });
+                                    }).then(async () => {
+
+                                        const blacklistChannel = fetchGuild.channels.cache.get(Config.BlacklistChannel)
+
+                                        const Name = "``" + user.tag + "``";
+                                        const ID = "``" + user.id + "``";
+                                        const Reason = "``" + reason + "``";
+                                        const ModeratorName = "``" + interaction.user.tag + "``";
+                                        const ModeratorID = "``" + interaction.user.id + "``";
+
+                                        proof ? Evidence = proof : Evidence = "``No Evidence Found``"
+
+                                        const InfoBlacklist = new MessageEmbed()
+                                            .addFields(
+                                                { name: "User", value: Name, inline: true },
+                                                { name: "ID", value: ID, inline: true },
+                                                { name: "Reason", value: Reason, inline: true },
+                                                { name: "Moderator Name", value: ModeratorName, inline: true },
+                                                { name: "Moderator ID", value: ModeratorID, inline: true },
+                                                { name: "Evidence", value: Evidence, inline: true }
+                                            )
+                                            .setColor(ColorEmbed)
+
+                                        await blacklistChannel.send({
+                                            embeds: [InfoBlacklist]
+                                        })
+
+                                        return Blacklist.destroy({ where: { UserID: user.id } });
+                                    })
                             };
                     }
                 }

@@ -3,7 +3,6 @@ const fs = require("node:fs");
 const path = require('node:path');
 const Sequelize = require('sequelize');
 const moment = require("moment");
-const { Login, user } = require('furaffinity-api');
 const Config = require("./config/config.json");
 const MessageConfig = require("./config/message.json");
 const Color = require("./config/color.json");
@@ -262,9 +261,13 @@ const Logging = sequelize.define("Logging", {
     unique: false,
   },
 });
+const Permission = sequelize.define("Permission", {
+  UserID: {
+    type: Sequelize.STRING,
+  }
+});
 
 const Warns = sequelize.define("Warns")
-const Permission = sequelize.define("Permission")
 const Profile = sequelize.define("Profile")
 
 bot.once("ready", async () => {
@@ -313,33 +316,31 @@ bot.on("guildMemberAdd", async (NewMember) => {
         const ChannelGuild = NewMember.guild.channels.cache.get(LoggingData.ChannelIDWelcome);
         const guild = bot.guilds.cache.get(NewMember.guild.id);
         var memberCount = guild.members.cache.filter(newMember => !newMember.user.bot).size;
+        if (NewMember.user.bot) return;
 
         if (NewMember.guild.id === "821241527941726248") {
-          if (NewMember.user.bot) return;
-
           await NewMember.roles.add("940140000916430848");
           await NewMember.roles.add("1000236020517834844");
           await NewMember.roles.add("1000236337900818533");
           await NewMember.roles.add("1001111992834211921");
-
-          const WelcomeMessage = new MessageEmbed()
-            .setDescription("Welcome " + NewMember.toString() + " ``(" + NewMember.user.tag + ")``!\n\n> **Created At:** ``" + moment(NewMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") + "``\n> **Joined At:** ``" + moment(NewMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') + "``\n> **Furries Count:** ``" + memberCount + "``")
-            .setColor(Color.Green)
-            .setThumbnail(NewMember.user.displayAvatarURL())
-
-          await ChannelGuild.send({
-            embeds: [WelcomeMessage]
-          });
-        } else {
-          const WelcomeMessage = new MessageEmbed()
-            .setDescription("Welcome " + NewMember.toString() + " ``(" + NewMember.user.tag + ")``!\n\n> Created At: ``" + moment(NewMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") + "``\n> Joined At:``" + moment(NewMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') + "``\n> **Member Count:** ``" + memberCount + "``")
-            .setColor(Color.Green)
-            .setThumbnail(NewMember.user.displayAvatarURL())
-
-          await ChannelGuild.send({
-            embeds: [WelcomeMessage]
-          });
         }
+
+        const WelcomeMessage = new MessageEmbed()
+          .setDescription("Welcome " + NewMember.toString() + "!")
+          .addFields(
+            { name: "Created At", value: "``" + moment(NewMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") + "``" },
+            { name: "Member Count", value: "``" + memberCount + "``" }
+          )
+          .setColor(Color.Green)
+          .setThumbnail(NewMember.user.displayAvatarURL())
+          .setFooter({
+            text: "ID:" + NewMember.user.id
+          })
+          .setTimestamp()
+
+        await ChannelGuild.send({
+          embeds: [WelcomeMessage]
+        });
       } else return;
     }
     if (LoggingData.AutoRole) {
@@ -428,12 +429,12 @@ bot.on("guildMemberUpdate", async (OldMember, NewMember) => {
 
 bot.on("userUpdate", async (NewUser, OldUser) => {
   if (OldUser.username !== NewUser.username) {
-    const UpdateThisOne = Verifier.update({ ModName: NewUser.tag }, { where: { ModID: NewUser.id } })
-    const UpdateThisOneToo = Blacklist.update({ ModName: NewUser.tag }, { where: { ModID: NewUser.id } })
+    Verifier.update({ ModName: NewUser.tag }, { where: { ModID: NewUser.id } })
+    Blacklist.update({ ModName: NewUser.tag }, { where: { ModID: NewUser.id } })
   }
   if (OldUser.discriminator !== NewUser.discriminator) {
-    const UpdateThisOne = Verifier.update({ ModName: NewUser.tag }, { where: { ModID: NewUser.id } })
-    const UpdateThisOneToo = Blacklist.update({ ModName: NewUser.tag }, { where: { ModID: NewUser.id } })
+    Verifier.update({ ModName: NewUser.tag }, { where: { ModID: NewUser.id } })
+    Blacklist.update({ ModName: NewUser.tag }, { where: { ModID: NewUser.id } })
   }
 });
 
@@ -474,6 +475,9 @@ bot.on("guildMemberRemove", async (LeavingMember) => {
     LogChannel.send({
       embeds: [LeavingMemberEmbed]
     });
+  }
+  if (LeavingMember.guild.id === Config.guildId) {
+    return Permission.destroy({ where: { UserID: LeavingMember.user.id } })
   }
 });
 
@@ -537,47 +541,6 @@ bot.on('interactionCreate', async (interaction) => {
 
     switch (interaction.customId) {
       case ("buttonToVerify"):
-        if (interaction.guild.id === "815422069234860073") {
-          if (interaction.member.roles.cache.some(role => role.id === "817245431296950282")) {
-            const ModalVerification = new Modal()
-              .setCustomId('verificationModal2')
-              .setTitle('Verification');
-
-            const howServerOption = new TextInputComponent()
-              .setCustomId('howServer2')
-              .setLabel("How did you find our server?")
-              .setPlaceholder("If it was a website, what website? If it was a friend, what friend?")
-              .setStyle('SHORT')
-              .setRequired();
-
-            const joiningOption = new TextInputComponent()
-              .setCustomId('joining2')
-              .setLabel("Why are you joining us?")
-              .setStyle('PARAGRAPH')
-              .setRequired();
-
-            const furryFandomOption = new TextInputComponent()
-              .setCustomId('furryFandom2')
-              .setLabel("What do you think about the furry fandom?")
-              .setPlaceholder("Give us your opinion about it, we need a lot of information.")
-              .setStyle('PARAGRAPH')
-              .setRequired();
-
-            const howServerRow = new MessageActionRow().addComponents(howServerOption);
-            const joiningRow = new MessageActionRow().addComponents(joiningOption);
-            const furryFandomRow = new MessageActionRow().addComponents(furryFandomOption);
-
-            ModalVerification.addComponents(howServerRow, joiningRow, furryFandomRow);
-
-            return interaction.showModal(ModalVerification)
-          } else {
-            return interaction.reply({
-              content: "You cannot verify yourself, because you're already verified.",
-              ephemeral: true,
-            })
-          }
-        };
-
         if (!interaction.member.roles.cache.some(role => role.id === LoggingData.RoleToAddVerify)) {
           const ModalVerification = new Modal()
             .setCustomId('verificationModal')
@@ -650,9 +613,7 @@ bot.on('interactionCreate', async (interaction) => {
                 components: [],
               })
 
-              const verificationDeleteLog = await Verification.destroy({ where: { MessageID: interaction.message.id } });
-
-              return;
+              return Verification.destroy({ where: { MessageID: interaction.message.id } });
             })
           } else {
             switch (!interaction.guild.me.permissions.has) {
@@ -664,7 +625,7 @@ bot.on('interactionCreate', async (interaction) => {
 
             const member = interaction.guild.members.cache.get(VerificationLog.UserID)
 
-            const RowToUpdate = await Verification_Count.update({ ModName: interaction.user.tag }, { where: { ModID: interaction.user.id } })
+            await Verification_Count.update({ ModName: interaction.user.tag }, { where: { ModID: interaction.user.id } })
 
             await member.roles.add(LoggingData.RoleToAddVerify);
 
@@ -674,7 +635,7 @@ bot.on('interactionCreate', async (interaction) => {
 
             const generalMessage = interaction.guild.channels.cache.get(LoggingData.ChannelIDVerify);
 
-            interaction.channel.messages.fetch(interaction.message.id).then(async (UpdateMessage) => {
+            interaction.channel.messages.fetch(interaction.message.id).then(async () => {
               const verificationEmbedAccepted = new MessageEmbed()
                 .addFields(
                   { name: "Age", value: VerificationLog.AgeData },
@@ -687,11 +648,11 @@ bot.on('interactionCreate', async (interaction) => {
                 .setTimestamp()
 
               await interaction.update({
-                content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> accepted by <@" + interaction.user.id + ">",
+                content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> accepted by " + interaction.user.toString(),
                 embeds: [verificationEmbedAccepted],
                 components: [],
-              })
-            })
+              });
+            });
 
             await generalMessage.send({ content: "Welcome <@" + VerificationLog.UserID + "> to **" + interaction.guild.name + "**!" });
 
@@ -702,30 +663,30 @@ bot.on('interactionCreate', async (interaction) => {
                 await Verification_CountData.increment('Usage_Count');
               };
             } else {
-              const Verification_CountCreate = await Verification_Count.create({
+              await Verification_Count.create({
                 ModID: interaction.user.id,
                 ModName: interaction.user.tag,
                 GuildID: interaction.guild.id,
               });
             };
 
-            const VerifierCreateData = await Verifier.create({
+            await Verifier.create({
               VerifierName: VerificationLog.UserName,
               VerifierID: VerificationLog.UserID,
               ModName: interaction.user.tag,
               ModID: interaction.user.id,
               GuildID: interaction.guild.id,
-            })
+            });
 
-            const verificationDeleteLog = await Verification.destroy({ where: { MessageID: interaction.message.id } });
+            return Verification.destroy({ where: { MessageID: interaction.message.id } });
           }
-        }
+        };
 
         break;
       case ("buttonToDenyVerify"):
         if (VerificationLog) {
           if (!guild.members.cache.find(m => m.id === VerificationLog.UserID)?.id) {
-            interaction.channel.messages.fetch(interaction.message.id).then(async (UpdateMessage) => {
+            interaction.channel.messages.fetch(interaction.message.id).then(async () => {
               const verificationEmbedAccepted = new MessageEmbed()
                 .addFields(
                   { name: "Age", value: VerificationLog.AgeData },
@@ -744,7 +705,7 @@ bot.on('interactionCreate', async (interaction) => {
               })
             })
           } else {
-            interaction.channel.messages.fetch(interaction.message.id).then(async (UpdateMessage) => {
+            interaction.channel.messages.fetch(interaction.message.id).then(async () => {
               const reasonDeny = new MessageActionRow()
                 .addComponents(
                   new MessageSelectMenu()
@@ -782,13 +743,15 @@ bot.on('interactionCreate', async (interaction) => {
                 .setTimestamp()
 
               return interaction.update({
-                content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> denied by <@" + interaction.user.id + ">",
+                content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> denied by " + interaction.user.toString(),
                 embeds: [verificationEmbedDenied],
                 components: [reasonDeny],
               })
             });
           }
         };
+
+        break;
       case ("AcceptSuggestion"):
         if (ActionImageData) {
           if (!ActionImageData.MessageID) {
@@ -798,7 +761,7 @@ bot.on('interactionCreate', async (interaction) => {
             });
           };
 
-          interaction.channel.messages.fetch(interaction.message.id).then(async (UpdateMessage) => {
+          interaction.channel.messages.fetch(interaction.message.id).then(async () => {
             const ImageEmbed = new MessageEmbed()
               .addFields(
                 { name: "Category:", value: ActionImageData.Category, inline: true },
@@ -817,10 +780,11 @@ bot.on('interactionCreate', async (interaction) => {
             image: ActionImageData.ImageURL,
           });
 
-          let ActionImageDataUpdate = await ActionImage.update({ ImageURL: response.data.link }, { where: { MessageID: interaction.message.id } });
+          return ActionImage.update({ ImageURL: response.data.link }, { where: { MessageID: interaction.message.id } });
 
         };
-        return;
+
+        break;
       case ("DenySuggestion"):
         if (ActionImageData) {
           if (!ActionImageData.MessageID) {
@@ -830,7 +794,7 @@ bot.on('interactionCreate', async (interaction) => {
             });
           };
 
-          interaction.channel.messages.fetch(interaction.message.id).then(async (UpdateMessage) => {
+          interaction.channel.messages.fetch(interaction.message.id).then(async () => {
             const ImageEmbed = new MessageEmbed()
               .addFields(
                 { name: "Category:", value: ActionImageData.Category, inline: true },
@@ -845,21 +809,21 @@ bot.on('interactionCreate', async (interaction) => {
             })
           })
 
-          let ActionImageDataDelete = await ActionImage.destroy({ where: { MessageID: interaction.message.id } });
+          return ActionImage.destroy({ where: { MessageID: interaction.message.id } });
         };
 
-        return;
+        break;
     }
   }
 
   if (interaction.isModalSubmit()) {
     switch (interaction.customId) {
       case ("verificationModal"):
-        let idExist = await Verification.findOne({ where: { UserID: interaction.user.id } });
+        let VerificationData = await Verification.findOne({ where: { UserID: interaction.user.id } });
 
-        if (idExist) {
+        if (VerificationData) {
           return interaction.reply({
-            content: "You're already waiting to be verified, please be patient while our staff look at your verification.",
+            content: MessageConfig.AlreadyWaitingVerification,
             ephemeral: true
           })
         }
@@ -908,7 +872,7 @@ bot.on('interactionCreate', async (interaction) => {
           embeds: [verificationEmbed],
           components: [buttonVerify],
         }).then(async (sent) => {
-          const VerificationCreate = await Verification.create({
+          return Verification.create({
             MessageID: sent.id,
             UserID: interaction.user.id,
             UserName: interaction.user.tag,
@@ -948,52 +912,28 @@ bot.on('interactionCreate', async (interaction) => {
 
         await Verification.destroy({ where: { MessageID: interaction.message.id } });
 
+        interaction.channel.messages.fetch(interaction.message.id).then(async () => {
+          await interaction.update({
+            content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> denied by " + interaction.user.toString(),
+            embeds: [verificationEmbedDenied],
+            components: [],
+          })
+        });
+
         switch (args) {
           case ("noDetails"):
-            interaction.channel.messages.fetch(interaction.message.id).then(async () => {
-              await interaction.update({
-                content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> denied by <@" + interaction.user.id + ">",
-                embeds: [verificationEmbedDenied],
-                components: [],
-              })
-            });
-
             return bot.users.cache.get(VerificationLog.UserID).send({
-              content: "Your verification has been denied.\n\n*Reason: You did not put enough details.*",
+              content: a,
             }).catch(() => { return });
           case ("troll"):
-            interaction.channel.messages.fetch(interaction.message.id).then(async () => {
-              await interaction.update({
-                content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> denied by <@" + interaction.user.id + ">",
-                embeds: [verificationEmbedDenied],
-                components: [],
-              })
-            });
-
             return bot.users.cache.get(VerificationLog.UserID).send({
               content: "Your verification has been denied.\n\n*Reason: You've been flagged for trolling.*",
             }).catch(() => { return });
           case ("new"):
-            interaction.channel.messages.fetch(interaction.message.id).then(async () => {
-              await interaction.update({
-                content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> denied by <@" + interaction.user.id + ">",
-                embeds: [verificationEmbedDenied],
-                components: [],
-              })
-            });
-
             return bot.users.cache.get(VerificationLog.UserID).send({
               content: "Your verification has been denied.\n\n*Reason: Your account is too new to be accepted.*",
             }).catch(() => { return });
           case ("young"):
-            interaction.channel.messages.fetch(interaction.message.id).then(async () => {
-              await interaction.update({
-                content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> denied by <@" + interaction.user.id + ">",
-                embeds: [verificationEmbedDenied],
-                components: [],
-              })
-            });
-
             return bot.users.cache.get(VerificationLog.UserID).send({
               content: "Your verification has been denied.\n\n*Reason: You're too young to join this server.*",
             }).catch(() => { return });
@@ -1570,4 +1510,3 @@ bot.on("messageReactionRemove", async (reaction, user) => {
 });
 
 bot.login(Config.token);
-Login("cookie_a", "cookie_b");

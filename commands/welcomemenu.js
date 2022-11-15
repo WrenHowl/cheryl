@@ -18,11 +18,29 @@ console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is lo
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName("welcomemenu")
-        .setDescription('Send your verification message in a channel.')
-        .addChannelOption(option => option.setName("welcome").setDescription("Channel to send the verification message").setRequired(true))
-        .addChannelOption(option => option.setName("rules").setDescription("Channel of the rules to mention in this message").setRequired(true)),
-    execute: async (interaction, bot, sequelize, Sequelize) => {
+        .setName(en.Name)
+        .setNameLocalizations({
+            fr: fr.Name,
+            de: de.Name,
+            SpanishES: sp.Name,
+            nl: nl.Name
+        })
+        .setDescription(en.Description)
+        .setDescriptionLocalizations({
+            fr: fr.Description,
+            de: de.Description,
+            SpanishES: sp.Description,
+            nl: nl.Description
+        })
+        .addChannelOption(option => option
+            .setName("welcome")
+            .setDescription("Channel to send the verification message")
+            .setRequired(true))
+        .addChannelOption(option => option
+            .setName("rules")
+            .setDescription("Channel of the rules to mention in this message")
+            .setRequired(true)),
+    execute: async (interaction, sequelize, Sequelize) => {
         const welcomeOptions = interaction.options.getChannel("welcome");
         const rulesOptions = interaction.options.getChannel("rules");
 
@@ -32,27 +50,7 @@ module.exports = {
                     type: Sequelize.STRING,
                     unique: false,
                 },
-                ChannelIDReport: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                ChannelIDBan: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
                 ChannelIDVerify: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                ChannelIDEnterServer: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                ChannelIDWelcome: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                StaffRoleReport: {
                     type: Sequelize.STRING,
                     unique: false,
                 },
@@ -64,38 +62,10 @@ module.exports = {
                     type: Sequelize.STRING,
                     unique: false,
                 },
-                RoleToRemoveVerify: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                EnableDisableBlacklistLogger: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                ChannelIDBlacklist: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                ChannelIDWarn: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                ChannelIDUnban: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                ChannelIDKick: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
                 ChannelIDReceiveVerification: {
                     type: Sequelize.STRING,
                     unique: false,
                 },
-                AutoBanStatus: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                }
             });
 
             const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });

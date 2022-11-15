@@ -51,10 +51,7 @@ module.exports = {
     execute: async (interaction) => {
         const user = interaction.options.getUser(en.UserName);
 
-        let MemberData = "";
-
-        if (user) MemberData = user;
-        if (!user) MemberData = interaction.user;
+        let MemberData = user ? user : interaction.user;
 
         const AvatarShown = new MessageEmbed()
             .setTitle("Avatar of " + MemberData.tag)

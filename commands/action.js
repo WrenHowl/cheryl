@@ -121,70 +121,6 @@ module.exports = {
                 type: Sequelize.STRING,
                 unique: false,
             },
-            ChannelIDReport: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            ChannelIDBan: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            ChannelIDVerify: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            ChannelIDEnterServer: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            ChannelIDWelcome: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            StaffRoleReport: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            StaffRoleVerify: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            RoleToAddVerify: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            RoleToRemoveVerify: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            EnableDisableBlacklistLogger: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            ChannelIDBlacklist: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            ChannelIDWarn: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            ChannelIDUnban: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            ChannelIDKick: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            ChannelIDReceiveVerification: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            AutoBanStatus: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
             SettingsActionMessage: {
                 type: Sequelize.STRING,
                 unique: false,
@@ -214,39 +150,16 @@ module.exports = {
         let image = interaction.options.getAttachment(en.SuggestName);
 
         const User1 = interaction.user.toString();
-        let User2 = "";
 
-        if (user) User2 = user.toString();
-        if (!user) User2 = bot.user.toString();
+        let User2 = user ? user.toString() : bot.user.toString();
 
-        let User3 = "";
-
-        if (user) User3 = user.id;
-        if (!user) User3 = bot.user.id;
-
-        const embedDescription = "**[COPYRIGHT CLAIM](" + Config.SupportDiscord + ")**";
-
-        const buttonToAcceptSuggestion = new MessageActionRow()
-            .addComponents(
-                new MessageButton()
-                    .setCustomId('AcceptSuggestion')
-                    .setLabel('Accept')
-                    .setStyle('SUCCESS'),
-            )
-            .addComponents(
-                new MessageButton()
-                    .setCustomId('DenySuggestion')
-                    .setLabel('Deny')
-                    .setStyle('DANGER'),
-            );
+        let User3 = user ? user.id : bot.user.id;
 
         let ActionImageData = await ActionImage.findAll({ where: { Category: choice }, order: sequelize.random(), limit: 1 });
         let LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } })
 
         let ProfileCheck1 = await ProfileData.findOne({ where: { UserID: interaction.user.id } })
         let ProfileCheck2 = await ProfileData.findOne({ where: { UserID: User3 } })
-
-        let Pronouns1 = "";
 
         if (ProfileCheck1) {
             if (!ProfileCheck1.Pronouns) {
@@ -259,9 +172,6 @@ module.exports = {
         } else {
             Pronouns1 = "their";
         }
-
-        let Pronouns2 = "";
-        let Pronouns4 = "";
 
         if (ProfileCheck2) {
             if (!ProfileCheck2.Pronouns) {
@@ -282,612 +192,371 @@ module.exports = {
             Pronouns4 = "their";
         }
 
-        const HugSentence = [
-            User1 + " approaches " + User2 + " gently and hugs " + Pronouns2 + " from behind!~",
-            User1 + " wraps " + Pronouns1 + " arms around " + User2 + ", taking " + Pronouns2 + " into " + Pronouns1 + " warm embrace!~",
-            User1 + " jump on " + User2 + "'s back and hug " + Pronouns2 + " thightly!~"
-        ];
-        const KissSentence = [
-            User1 + " approches slowly " + User2 + "'s face and gently kiss " + Pronouns2 + "!~",
-            User1 + " gets close to " + User2 + " and kiss " + Pronouns2 + "!~"
-        ];
-        const BoopSentence = [
-            User1 + " raises their paw and places it apon " + User2 + "'s snoot!~",
-        ];
-        const LickSentence = [
-            User1 + " gets really close to " + User2 + " face and lick " + Pronouns2 + "!~",
-        ];
-        const CuddleSentence = [
-            User1 + " approches " + User2 + " and pounces, cuddling the suprised floofer!~",
-            User1 + " join " + User2 + " and cuddle " + Pronouns2 + "!~",
-        ];
-        const YeetSentence = [
-            User1 + " yeeted " + User2 + " into the stratosphere!~",
-            User1 + " grabbed " + User2 + " by the scruff and yeeted " + Pronouns2 + " 10 miles into the sky!",
-            User1 + " grabs " + User2 + " by " + Pronouns4 + " tail and throws " + Pronouns2 + " to Ohio!"
-        ];
-        const PatSentence = [
-            User1 + " rub " + User2 + " on the head!~",
-            User1 + " mess " + User2 + " hair!~",
-            User1 + " strokes " + User2 + " head, messing with " + Pronouns4 + " hair!~"
-        ];
-        const BiteSentence = [
-            User1 + " decided to bite " + User2 + " a little!~",
-            User1 + " bite " + User2 + " to taste " + Pronouns2 + "!~",
-        ];
-        const BonkSentence = [
-            User1 + " swing a baseball bat on " + User2 + "'s head. Bonking " + Pronouns2 + "!~"
-        ];
+        const embedDescription = "**[COPYRIGHT CLAIM](" + Config.SupportDiscord + ")**";
 
-        switch (choice) {
-            case ("hug"):
-                if (image) {
-                    let fetchGuild = interaction.client.guilds.cache.get(Config.guildId)
-                    const suggestChannel = fetchGuild.channels.cache.get(Config.SuggestImage)
+        const buttonToAcceptSuggestion = new MessageActionRow()
+            .addComponents(
+                new MessageButton()
+                    .setCustomId('AcceptSuggestion')
+                    .setLabel('Accept')
+                    .setStyle('SUCCESS'),
+            )
+            .addComponents(
+                new MessageButton()
+                    .setCustomId('DenySuggestion')
+                    .setLabel('Deny')
+                    .setStyle('DANGER'),
+            );
 
-                    await interaction.reply({
-                        content: "Your image has been successfully sent to the staff of ``Cheryl``!",
-                        ephemeral: true
-                    })
+        if (image) {
+            let fetchGuild = interaction.client.guilds.cache.get(Config.guildId)
+            const suggestChannel = fetchGuild.channels.cache.get(Config.SuggestImage)
 
-                    const ImageEmbed = new MessageEmbed()
-                        .addFields(
-                            { name: "Category:", value: choice, inline: true },
-                            { name: "Author:", value: interaction.user.tag + " ``(" + interaction.user.id + ")``", inline: true }
-                        )
-                        .setImage(image.url)
-                        .setColor(Color.RiskLow)
+            await interaction.reply({
+                content: "Your image has been successfully sent to the staff of ``Cheryl``!",
+                ephemeral: true
+            })
 
-                    return suggestChannel.send({
-                        embeds: [ImageEmbed],
-                        components: [buttonToAcceptSuggestion]
-                    }).then(async sent => {
-                        let MessageID = sent.id
-                        const ActionImageCreate = await ActionImage.create({
-                            MessageID: MessageID,
-                            Category: choice,
-                            ImageURL: image.url,
-                            UserName: interaction.user.tag,
-                            UserID: interaction.user.id,
-                        });
-                    });
-                };
+            const ImageEmbed = new MessageEmbed()
+                .addFields(
+                    { name: "Category:", value: choice, inline: true },
+                    { name: "Author:", value: interaction.user.tag + " ``(" + interaction.user.id + ")``", inline: true }
+                )
+                .setImage(image.url)
+                .setColor(Color.RiskLow)
 
-                let RandomAnswer = HugSentence[Math.floor(Math.random() * HugSentence.length)];
-                let RandomImage = ActionImageData[Math.floor(Math.random() * ActionImageData.length)];
-
-                const imageEmbed = new MessageEmbed()
-                    .setDescription(embedDescription)
-                    .setImage(RandomImage.ImageURL)
-                    .setColor(Color.Green)
-
-                if (LoggingData) {
-                    if (LoggingData.SettingsActionImage === "Disabled" && LoggingData.SettingsActionMessage === "Disabled") {
-                        return interaction.reply({
-                            content: "This command has been disabled in this server.",
-                            ephemeral: true,
-                        });
-                    }
-                    if (LoggingData.SettingsActionImage === "Disabled") {
-                        return interaction.reply({
-                            content: RandomAnswer,
-                        });
-                    }
-                    if (LoggingData.SettingsActionMessage === "Disabled") {
-                        return interaction.reply({
-                            embeds: [imageEmbed]
-                        });
-                    }
-                }
-
-                return interaction.reply({
-                    content: RandomAnswer,
-                    embeds: [imageEmbed]
+            return suggestChannel.send({
+                embeds: [ImageEmbed],
+                components: [buttonToAcceptSuggestion]
+            }).then(async (sent) => {
+                await ActionImage.create({
+                    MessageID: sent.id,
+                    Category: choice,
+                    ImageURL: image.url,
+                    UserName: interaction.user.tag,
+                    UserID: interaction.user.id,
                 });
-            case ("kiss"):
-                if (image) {
-                    let fetchGuild = interaction.client.guilds.cache.get(Config.guildId)
-                    const suggestChannel = fetchGuild.channels.cache.get(Config.SuggestImage)
+            });
+        } else {
+            const HugSentence = [
+                User1 + " approaches " + User2 + " gently and hugs " + Pronouns2 + " from behind!~",
+                User1 + " wraps " + Pronouns1 + " arms around " + User2 + ", taking " + Pronouns2 + " into " + Pronouns1 + " warm embrace!~",
+                User1 + " jump on " + User2 + "'s back and hug " + Pronouns2 + " thightly!~"
+            ];
+            const KissSentence = [
+                User1 + " approches slowly " + User2 + "'s face and gently kiss " + Pronouns2 + "!~",
+                User1 + " gets close to " + User2 + " and kiss " + Pronouns2 + "!~"
+            ];
+            const BoopSentence = [
+                User1 + " raises their paw and places it apon " + User2 + "'s snoot!~",
+            ];
+            const LickSentence = [
+                User1 + " gets really close to " + User2 + " face and lick " + Pronouns2 + "!~",
+            ];
+            const CuddleSentence = [
+                User1 + " approches " + User2 + " and pounces, cuddling the suprised floofer!~",
+                User1 + " join " + User2 + " and cuddle " + Pronouns2 + "!~",
+            ];
+            const YeetSentence = [
+                User1 + " yeeted " + User2 + " into the stratosphere!~",
+                User1 + " grabbed " + User2 + " and yeeted " + Pronouns2 + " 10 miles into the sky!",
+                User1 + " grabs " + User2 + " and throws " + Pronouns2 + " to Ohio!"
+            ];
+            const PatSentence = [
+                User1 + " rub " + User2 + " on the head!~",
+                User1 + " mess " + User2 + " hair!~",
+                User1 + " strokes " + User2 + " head, messing with " + Pronouns4 + " hair!~"
+            ];
+            const BiteSentence = [
+                User1 + " decided to bite " + User2 + " a little!~",
+                User1 + " bite " + User2 + " to taste " + Pronouns2 + "!~",
+            ];
+            const BonkSentence = [
+                User1 + " swing a baseball bat on " + User2 + "'s head. Bonking " + Pronouns2 + "!~"
+            ];
 
-                    const ImageEmbed = new MessageEmbed()
-                        .addFields(
-                            { name: "Category:", value: choice, inline: true },
-                            { name: "Author:", value: interaction.user.tag + " ``(" + interaction.user.id + ")``", inline: true }
-                        )
-                        .setImage(image.url)
-                        .setColor(Color.RiskLow)
+            switch (choice) {
+                case ("hug"):
+                    let RandomAnswer = HugSentence[Math.floor(Math.random() * HugSentence.length)];
+                    let RandomImage = ActionImageData[Math.floor(Math.random() * ActionImageData.length)];
 
-                    await interaction.reply({
-                        content: "Your image has been successfully sent to the staff of ``Cheryl``!",
-                        ephemeral: true
-                    })
+                    const imageEmbed = new MessageEmbed()
+                        .setDescription(embedDescription)
+                        .setImage(RandomImage.ImageURL)
+                        .setColor(Color.Green)
 
-                    return suggestChannel.send({
-                        embeds: [ImageEmbed],
-                        components: [buttonToAcceptSuggestion]
-                    }).then(async sent => {
-                        let MessageID = sent.id
-                        const ActionImageCreate = await ActionImage.create({
-                            MessageID: MessageID,
-                            Category: choice,
-                            ImageURL: image.url,
-                            UserName: interaction.user.tag,
-                            UserID: interaction.user.id,
-                        });
+                    if (LoggingData) {
+                        if (LoggingData.SettingsActionImage === "Disabled" && LoggingData.SettingsActionMessage === "Disabled") {
+                            return interaction.reply({
+                                content: "This command has been disabled in this server.",
+                                ephemeral: true,
+                            });
+                        }
+                        if (LoggingData.SettingsActionImage === "Disabled") {
+                            return interaction.reply({
+                                content: RandomAnswer,
+                            });
+                        }
+                        if (LoggingData.SettingsActionMessage === "Disabled") {
+                            return interaction.reply({
+                                embeds: [imageEmbed]
+                            });
+                        }
+                    }
+
+                    return interaction.reply({
+                        content: RandomAnswer,
+                        embeds: [imageEmbed]
                     });
-                }
+                case ("kiss"):
+                    const RandomKissSentence = KissSentence[Math.floor(Math.random() * KissSentence.length)];
+                    let RandomImage2 = ActionImageData[Math.floor(Math.random() * ActionImageData.length)];
 
-                const RandomKissSentence = KissSentence[Math.floor(Math.random() * KissSentence.length)];
-                let RandomImage2 = ActionImageData[Math.floor(Math.random() * ActionImageData.length)];
+                    const imageEmbed2 = new MessageEmbed()
+                        .setDescription(embedDescription)
+                        .setImage(RandomImage2.ImageURL)
+                        .setColor(Color.Green)
 
-                const imageEmbed2 = new MessageEmbed()
-                    .setDescription(embedDescription)
-                    .setImage(RandomImage2.ImageURL)
-                    .setColor(Color.Green)
-
-                if (LoggingData) {
-                    if (LoggingData.SettingsActionImage === "Disabled" & LoggingData.SettingsActionMessage === "Disabled") {
-                        return interaction.reply({
-                            content: ["This command has been disabled in this server."],
-                        });
+                    if (LoggingData) {
+                        if (LoggingData.SettingsActionImage === "Disabled" & LoggingData.SettingsActionMessage === "Disabled") {
+                            return interaction.reply({
+                                content: ["This command has been disabled in this server."],
+                            });
+                        }
+                        if (LoggingData.SettingsActionImage === "Disabled") {
+                            return interaction.reply({
+                                content: RandomKissSentence,
+                            });
+                        }
+                        if (LoggingData.SettingsActionMessage === "Disabled") {
+                            return interaction.reply({
+                                embeds: [imageEmbed2]
+                            });
+                        }
                     }
-                    if (LoggingData.SettingsActionImage === "Disabled") {
-                        return interaction.reply({
-                            content: RandomKissSentence,
-                        });
-                    }
-                    if (LoggingData.SettingsActionMessage === "Disabled") {
-                        return interaction.reply({
-                            embeds: [imageEmbed2]
-                        });
-                    }
-                }
 
-                return interaction.reply({
-                    content: RandomKissSentence,
-                    embeds: [imageEmbed2]
-                });
-            case ("boop"):
-                if (image) {
-                    let fetchGuild = interaction.client.guilds.cache.get(Config.guildId)
-                    const suggestChannel = fetchGuild.channels.cache.get(Config.SuggestImage)
-
-                    const ImageEmbed = new MessageEmbed()
-                        .addFields(
-                            { name: "Category:", value: choice, inline: true },
-                            { name: "Author:", value: interaction.user.tag + " ``(" + interaction.user.id + ")``", inline: true }
-                        )
-                        .setImage(image.url)
-                        .setColor(Color.RiskLow)
-
-                    await interaction.reply({
-                        content: "Your image has been successfully sent to the staff of ``Cheryl``!",
-                        ephemeral: true
-                    })
-
-                    return suggestChannel.send({
-                        embeds: [ImageEmbed],
-                        components: [buttonToAcceptSuggestion]
-                    }).then(async sent => {
-                        let MessageID = sent.id
-                        const ActionImageCreate = await ActionImage.create({
-                            MessageID: MessageID,
-                            Category: choice,
-                            ImageURL: image.url,
-                            UserName: interaction.user.tag,
-                            UserID: interaction.user.id,
-                        });
+                    return interaction.reply({
+                        content: RandomKissSentence,
+                        embeds: [imageEmbed2]
                     });
-                }
+                case ("boop"):
+                    const RandomBoopSentence = BoopSentence[Math.floor(Math.random() * BoopSentence.length)];
+                    let RandomImage3 = ActionImageData[Math.floor(Math.random() * ActionImageData.length)];
 
-                const RandomBoopSentence = BoopSentence[Math.floor(Math.random() * BoopSentence.length)];
-                let RandomImage3 = ActionImageData[Math.floor(Math.random() * ActionImageData.length)];
+                    const imageEmbed3 = new MessageEmbed()
+                        .setDescription(embedDescription)
+                        .setImage(RandomImage3.ImageURL)
+                        .setColor(Color.Green)
 
-                const imageEmbed3 = new MessageEmbed()
-                    .setDescription(embedDescription)
-                    .setImage(RandomImage3.ImageURL)
-                    .setColor(Color.Green)
-
-                if (LoggingData) {
-                    if (LoggingData.SettingsActionImage === "Disabled" & LoggingData.SettingsActionMessage === "Disabled") {
-                        return interaction.reply({
-                            content: ["This command has been disabled in this server."],
-                        });
+                    if (LoggingData) {
+                        if (LoggingData.SettingsActionImage === "Disabled" & LoggingData.SettingsActionMessage === "Disabled") {
+                            return interaction.reply({
+                                content: ["This command has been disabled in this server."],
+                            });
+                        }
+                        if (LoggingData.SettingsActionImage === "Disabled") {
+                            return interaction.reply({
+                                content: RandomBoopSentence,
+                            });
+                        }
+                        if (LoggingData.SettingsActionMessage === "Disabled") {
+                            return interaction.reply({
+                                embeds: [imageEmbed3]
+                            });
+                        }
                     }
-                    if (LoggingData.SettingsActionImage === "Disabled") {
-                        return interaction.reply({
-                            content: RandomBoopSentence,
-                        });
-                    }
-                    if (LoggingData.SettingsActionMessage === "Disabled") {
-                        return interaction.reply({
-                            embeds: [imageEmbed3]
-                        });
-                    }
-                }
 
-                return interaction.reply({
-                    content: RandomBoopSentence,
-                    embeds: [imageEmbed3]
-                });
-            case ("lick"):
-                if (image) {
-                    let fetchGuild = interaction.client.guilds.cache.get(Config.guildId)
-                    const suggestChannel = fetchGuild.channels.cache.get(Config.SuggestImage)
-
-                    const ImageEmbed = new MessageEmbed()
-                        .addFields(
-                            { name: "Category:", value: choice, inline: true },
-                            { name: "Author:", value: interaction.user.tag + " ``(" + interaction.user.id + ")``", inline: true }
-                        )
-                        .setImage(image.url)
-                        .setColor(Color.RiskLow)
-
-                    await interaction.reply({
-                        content: "Your image has been successfully sent to the staff of ``Cheryl``!",
-                        ephemeral: true
-                    })
-
-                    return suggestChannel.send({
-                        embeds: [ImageEmbed],
-                        components: [buttonToAcceptSuggestion]
-                    }).then(async sent => {
-                        let MessageID = sent.id
-                        const ActionImageCreate = await ActionImage.create({
-                            MessageID: MessageID,
-                            Category: choice,
-                            ImageURL: image.url,
-                            UserName: interaction.user.tag,
-                            UserID: interaction.user.id,
-                        });
+                    return interaction.reply({
+                        content: RandomBoopSentence,
+                        embeds: [imageEmbed3]
                     });
-                }
+                case ("lick"):
+                    const RandomLickSentence = LickSentence[Math.floor(Math.random() * LickSentence.length)];
+                    let RandomImage4 = ActionImageData[Math.floor(Math.random() * ActionImageData.length)];
 
-                const RandomLickSentence = LickSentence[Math.floor(Math.random() * LickSentence.length)];
-                let RandomImage4 = ActionImageData[Math.floor(Math.random() * ActionImageData.length)];
+                    const imageEmbed4 = new MessageEmbed()
+                        .setDescription(embedDescription)
+                        .setImage(RandomImage4.ImageURL)
+                        .setColor(Color.Green)
 
-                const imageEmbed4 = new MessageEmbed()
-                    .setDescription(embedDescription)
-                    .setImage(RandomImage4.ImageURL)
-                    .setColor(Color.Green)
-
-                if (LoggingData) {
-                    if (LoggingData.SettingsActionImage === "Disabled" & LoggingData.SettingsActionMessage === "Disabled") {
-                        return interaction.reply({
-                            content: ["This command has been disabled in this server."],
-                        });
+                    if (LoggingData) {
+                        if (LoggingData.SettingsActionImage === "Disabled" & LoggingData.SettingsActionMessage === "Disabled") {
+                            return interaction.reply({
+                                content: ["This command has been disabled in this server."],
+                            });
+                        }
+                        if (LoggingData.SettingsActionImage === "Disabled") {
+                            return interaction.reply({
+                                content: RandomLickSentence,
+                            });
+                        }
+                        if (LoggingData.SettingsActionMessage === "Disabled") {
+                            return interaction.reply({
+                                embeds: [imageEmbed4]
+                            });
+                        }
                     }
-                    if (LoggingData.SettingsActionImage === "Disabled") {
-                        return interaction.reply({
-                            content: RandomLickSentence,
-                        });
-                    }
-                    if (LoggingData.SettingsActionMessage === "Disabled") {
-                        return interaction.reply({
-                            embeds: [imageEmbed4]
-                        });
-                    }
-                }
 
-                return interaction.reply({
-                    content: RandomLickSentence,
-                    embeds: [imageEmbed4]
-                });
-            case ("cuddle"):
-                if (image) {
-                    let fetchGuild = interaction.client.guilds.cache.get(Config.guildId)
-                    const suggestChannel = fetchGuild.channels.cache.get(Config.SuggestImage)
-
-                    const ImageEmbed = new MessageEmbed()
-                        .addFields(
-                            { name: "Category:", value: choice, inline: true },
-                            { name: "Author:", value: interaction.user.tag + " ``(" + interaction.user.id + ")``", inline: true }
-                        )
-                        .setImage(image.url)
-                        .setColor(Color.RiskLow)
-
-                    await interaction.reply({
-                        content: "Your image has been successfully sent to the staff of ``Cheryl``!",
-                        ephemeral: true
-                    })
-
-                    return suggestChannel.send({
-                        embeds: [ImageEmbed],
-                        components: [buttonToAcceptSuggestion]
-                    }).then(async sent => {
-                        let MessageID = sent.id
-                        const ActionImageCreate = await ActionImage.create({
-                            MessageID: MessageID,
-                            Category: choice,
-                            ImageURL: image.url,
-                            UserName: interaction.user.tag,
-                            UserID: interaction.user.id,
-                        });
+                    return interaction.reply({
+                        content: RandomLickSentence,
+                        embeds: [imageEmbed4]
                     });
-                }
+                case ("cuddle"):
+                    const RandomCuddleSentence = CuddleSentence[Math.floor(Math.random() * CuddleSentence.length)];
+                    let RandomImage5 = ActionImageData[Math.floor(Math.random() * ActionImageData.length)];
 
-                const RandomCuddleSentence = CuddleSentence[Math.floor(Math.random() * CuddleSentence.length)];
-                let RandomImage5 = ActionImageData[Math.floor(Math.random() * ActionImageData.length)];
+                    const imageEmbed5 = new MessageEmbed()
+                        .setDescription(embedDescription)
+                        .setImage(RandomImage5.ImageURL)
+                        .setColor(Color.Green)
 
-                const imageEmbed5 = new MessageEmbed()
-                    .setDescription(embedDescription)
-                    .setImage(RandomImage5.ImageURL)
-                    .setColor(Color.Green)
-
-                if (LoggingData) {
-                    if (LoggingData.SettingsActionImage === "Disabled" & LoggingData.SettingsActionMessage === "Disabled") {
-                        return interaction.reply({
-                            content: ["This command has been disabled in this server."],
-                        });
+                    if (LoggingData) {
+                        if (LoggingData.SettingsActionImage === "Disabled" & LoggingData.SettingsActionMessage === "Disabled") {
+                            return interaction.reply({
+                                content: ["This command has been disabled in this server."],
+                            });
+                        }
+                        if (LoggingData.SettingsActionImage === "Disabled") {
+                            return interaction.reply({
+                                content: RandomCuddleSentence,
+                            });
+                        }
+                        if (LoggingData.SettingsActionMessage === "Disabled") {
+                            return interaction.reply({
+                                embeds: [imageEmbed5]
+                            });
+                        }
                     }
-                    if (LoggingData.SettingsActionImage === "Disabled") {
-                        return interaction.reply({
-                            content: RandomCuddleSentence,
-                        });
-                    }
-                    if (LoggingData.SettingsActionMessage === "Disabled") {
-                        return interaction.reply({
-                            embeds: [imageEmbed5]
-                        });
-                    }
-                }
 
-                return interaction.reply({
-                    content: RandomCuddleSentence,
-                    embeds: [imageEmbed5]
-                });
-            case ("yeet"):
-                if (image) {
-                    let fetchGuild = interaction.client.guilds.cache.get(Config.guildId)
-                    const suggestChannel = fetchGuild.channels.cache.get(Config.SuggestImage)
-
-                    const ImageEmbed = new MessageEmbed()
-                        .addFields(
-                            { name: "Category:", value: choice, inline: true },
-                            { name: "Author:", value: interaction.user.tag + " ``(" + interaction.user.id + ")``", inline: true }
-                        )
-                        .setImage(image.url)
-                        .setColor(Color.RiskLow)
-
-                    await interaction.reply({
-                        content: "Your image has been successfully sent to the staff of ``Cheryl``!",
-                        ephemeral: true
-                    })
-
-                    return suggestChannel.send({
-                        embeds: [ImageEmbed],
-                        components: [buttonToAcceptSuggestion]
-                    }).then(async sent => {
-                        let MessageID = sent.id
-                        const ActionImageCreate = await ActionImage.create({
-                            MessageID: MessageID,
-                            Category: choice,
-                            ImageURL: image.url,
-                            UserName: interaction.user.tag,
-                            UserID: interaction.user.id,
-                        });
+                    return interaction.reply({
+                        content: RandomCuddleSentence,
+                        embeds: [imageEmbed5]
                     });
-                }
+                case ("yeet"):
+                    const RandomYeetSentence = YeetSentence[Math.floor(Math.random() * YeetSentence.length)];
+                    let RandomImage6 = ActionImageData[Math.floor(Math.random() * ActionImageData.length)];
 
-                const RandomYeetSentence = YeetSentence[Math.floor(Math.random() * YeetSentence.length)];
-                let RandomImage6 = ActionImageData[Math.floor(Math.random() * ActionImageData.length)];
+                    const imageEmbed6 = new MessageEmbed()
+                        .setDescription(embedDescription)
+                        .setImage(RandomImage6.ImageURL)
+                        .setColor(Color.Green)
 
-                const imageEmbed6 = new MessageEmbed()
-                    .setDescription(embedDescription)
-                    .setImage(RandomImage6.ImageURL)
-                    .setColor(Color.Green)
-
-                if (LoggingData) {
-                    if (LoggingData.SettingsActionImage === "Disabled" & LoggingData.SettingsActionMessage === "Disabled") {
-                        return interaction.reply({
-                            content: ["This command has been disabled in this server."],
-                        });
+                    if (LoggingData) {
+                        if (LoggingData.SettingsActionImage === "Disabled" & LoggingData.SettingsActionMessage === "Disabled") {
+                            return interaction.reply({
+                                content: ["This command has been disabled in this server."],
+                            });
+                        }
+                        if (LoggingData.SettingsActionImage === "Disabled") {
+                            return interaction.reply({
+                                content: RandomYeetSentence,
+                            });
+                        }
+                        if (LoggingData.SettingsActionMessage === "Disabled") {
+                            return interaction.reply({
+                                embeds: [imageEmbed6]
+                            });
+                        }
                     }
-                    if (LoggingData.SettingsActionImage === "Disabled") {
-                        return interaction.reply({
-                            content: RandomYeetSentence,
-                        });
-                    }
-                    if (LoggingData.SettingsActionMessage === "Disabled") {
-                        return interaction.reply({
-                            embeds: [imageEmbed6]
-                        });
-                    }
-                }
 
-                return interaction.reply({
-                    content: RandomYeetSentence,
-                    embeds: [imageEmbed6]
-                });
-            case ("pat"):
-                if (image) {
-                    let fetchGuild = interaction.client.guilds.cache.get(Config.guildId)
-                    const suggestChannel = fetchGuild.channels.cache.get(Config.SuggestImage)
-
-                    const ImageEmbed = new MessageEmbed()
-                        .addFields(
-                            { name: "Category:", value: choice, inline: true },
-                            { name: "Author:", value: interaction.user.tag + " ``(" + interaction.user.id + ")``", inline: true }
-                        )
-                        .setImage(image.url)
-                        .setColor(Color.RiskLow)
-
-                    await interaction.reply({
-                        content: "Your image has been successfully sent to the staff of ``Cheryl``!",
-                        ephemeral: true
-                    })
-
-                    return suggestChannel.send({
-                        embeds: [ImageEmbed],
-                        components: [buttonToAcceptSuggestion]
-                    }).then(async sent => {
-                        let MessageID = sent.id
-                        const ActionImageCreate = await ActionImage.create({
-                            MessageID: MessageID,
-                            Category: choice,
-                            ImageURL: image.url,
-                            UserName: interaction.user.tag,
-                            UserID: interaction.user.id,
-                        });
+                    return interaction.reply({
+                        content: RandomYeetSentence,
+                        embeds: [imageEmbed6]
                     });
-                }
+                case ("pat"):
+                    const RandomPatSentence = PatSentence[Math.floor(Math.random() * PatSentence.length)];
+                    let RandomImage7 = ActionImageData[Math.floor(Math.random() * ActionImageData.length)];
 
-                const RandomPatSentence = PatSentence[Math.floor(Math.random() * PatSentence.length)];
-                let RandomImage7 = ActionImageData[Math.floor(Math.random() * ActionImageData.length)];
+                    const imageEmbed7 = new MessageEmbed()
+                        .setDescription(embedDescription)
+                        .setImage(RandomImage7.ImageURL)
+                        .setColor(Color.Green)
 
-                const imageEmbed7 = new MessageEmbed()
-                    .setDescription(embedDescription)
-                    .setImage(RandomImage7.ImageURL)
-                    .setColor(Color.Green)
-
-                if (LoggingData) {
-                    if (LoggingData.SettingsActionImage === "Disabled" & LoggingData.SettingsActionMessage === "Disabled") {
-                        return interaction.reply({
-                            content: ["This command has been disabled in this server."],
-                        });
+                    if (LoggingData) {
+                        if (LoggingData.SettingsActionImage === "Disabled" & LoggingData.SettingsActionMessage === "Disabled") {
+                            return interaction.reply({
+                                content: ["This command has been disabled in this server."],
+                            });
+                        }
+                        if (LoggingData.SettingsActionImage === "Disabled") {
+                            return interaction.reply({
+                                content: RandomPatSentence,
+                            });
+                        }
+                        if (LoggingData.SettingsActionMessage === "Disabled") {
+                            return interaction.reply({
+                                embeds: [imageEmbed7]
+                            });
+                        }
                     }
-                    if (LoggingData.SettingsActionImage === "Disabled") {
-                        return interaction.reply({
-                            content: RandomPatSentence,
-                        });
-                    }
-                    if (LoggingData.SettingsActionMessage === "Disabled") {
-                        return interaction.reply({
-                            embeds: [imageEmbed7]
-                        });
-                    }
-                }
 
-                return interaction.reply({
-                    content: RandomPatSentence,
-                    embeds: [imageEmbed7]
-                });
-            case ("bite"):
-                if (image) {
-                    let fetchGuild = interaction.client.guilds.cache.get(Config.guildId)
-                    const suggestChannel = fetchGuild.channels.cache.get(Config.SuggestImage)
-
-                    const ImageEmbed = new MessageEmbed()
-                        .addFields(
-                            { name: "Category:", value: choice, inline: true },
-                            { name: "Author:", value: interaction.user.tag + " ``(" + interaction.user.id + ")``", inline: true }
-                        )
-                        .setImage(image.url)
-                        .setColor(Color.RiskLow)
-
-                    await interaction.reply({
-                        content: "Your image has been successfully sent to the staff of ``Cheryl``!",
-                        ephemeral: true
-                    })
-
-                    return suggestChannel.send({
-                        embeds: [ImageEmbed],
-                        components: [buttonToAcceptSuggestion]
-                    }).then(async sent => {
-                        let MessageID = sent.id
-                        const ActionImageCreate = await ActionImage.create({
-                            MessageID: MessageID,
-                            Category: choice,
-                            ImageURL: image.url,
-                            UserName: interaction.user.tag,
-                            UserID: interaction.user.id,
-                        });
+                    return interaction.reply({
+                        content: RandomPatSentence,
+                        embeds: [imageEmbed7]
                     });
-                }
+                case ("bite"):
+                    const RandomBiteSentence = BiteSentence[Math.floor(Math.random() * BiteSentence.length)];
+                    let RandomImage8 = ActionImageData[Math.floor(Math.random() * ActionImageData.length)];
 
-                const RandomBiteSentence = BiteSentence[Math.floor(Math.random() * BiteSentence.length)];
-                let RandomImage8 = ActionImageData[Math.floor(Math.random() * ActionImageData.length)];
+                    const imageEmbed8 = new MessageEmbed()
+                        .setDescription(embedDescription)
+                        .setImage(RandomImage8.ImageURL)
+                        .setColor(Color.Green)
 
-                const imageEmbed8 = new MessageEmbed()
-                    .setDescription(embedDescription)
-                    .setImage(RandomImage8.ImageURL)
-                    .setColor(Color.Green)
-
-                if (LoggingData) {
-                    if (LoggingData.SettingsActionImage === "Disabled" & LoggingData.SettingsActionMessage === "Disabled") {
-                        return interaction.reply({
-                            content: ["This command has been disabled in this server."],
-                        });
+                    if (LoggingData) {
+                        if (LoggingData.SettingsActionImage === "Disabled" & LoggingData.SettingsActionMessage === "Disabled") {
+                            return interaction.reply({
+                                content: ["This command has been disabled in this server."],
+                            });
+                        }
+                        if (LoggingData.SettingsActionImage === "Disabled") {
+                            return interaction.reply({
+                                content: RandomBiteSentence,
+                            });
+                        }
+                        if (LoggingData.SettingsActionMessage === "Disabled") {
+                            return interaction.reply({
+                                embeds: [imageEmbed8]
+                            });
+                        }
                     }
-                    if (LoggingData.SettingsActionImage === "Disabled") {
-                        return interaction.reply({
-                            content: RandomBiteSentence,
-                        });
-                    }
-                    if (LoggingData.SettingsActionMessage === "Disabled") {
-                        return interaction.reply({
-                            embeds: [imageEmbed8]
-                        });
-                    }
-                }
 
-                return interaction.reply({
-                    content: RandomBiteSentence,
-                    embeds: [imageEmbed8]
-                });
-            case ("bonk"):
-                if (image) {
-                    let fetchGuild = interaction.client.guilds.cache.get(Config.guildId)
-                    const suggestChannel = fetchGuild.channels.cache.get(Config.SuggestImage)
-
-                    const ImageEmbed = new MessageEmbed()
-                        .addFields(
-                            { name: "Category:", value: choice, inline: true },
-                            { name: "Author:", value: interaction.user.tag + " ``(" + interaction.user.id + ")``", inline: true }
-                        )
-                        .setImage(image.url)
-                        .setColor(Color.RiskLow)
-
-                    await interaction.reply({
-                        content: "Your image has been successfully sent to the staff of ``Cheryl``!",
-                        ephemeral: true
-                    })
-
-                    return suggestChannel.send({
-                        embeds: [ImageEmbed],
-                        components: [buttonToAcceptSuggestion]
-                    }).then(async sent => {
-                        let MessageID = sent.id
-                        const ActionImageCreate = await ActionImage.create({
-                            MessageID: MessageID,
-                            Category: choice,
-                            ImageURL: image.url,
-                            UserName: interaction.user.tag,
-                            UserID: interaction.user.id,
-                        });
+                    return interaction.reply({
+                        content: RandomBiteSentence,
+                        embeds: [imageEmbed8]
                     });
-                }
+                case ("bonk"):
+                    const RandomBonkSentence = BonkSentence[Math.floor(Math.random() * BonkSentence.length)];
+                    let RandomImage9 = ActionImageData[Math.floor(Math.random() * ActionImageData.length)];
 
-                const RandomBonkSentence = BonkSentence[Math.floor(Math.random() * BonkSentence.length)];
-                let RandomImage9 = ActionImageData[Math.floor(Math.random() * ActionImageData.length)];
+                    const imageEmbed9 = new MessageEmbed()
+                        .setDescription(embedDescription)
+                        .setImage(RandomImage9.ImageURL)
+                        .setColor(Color.Green)
 
-                const imageEmbed9 = new MessageEmbed()
-                    .setDescription(embedDescription)
-                    .setImage(RandomImage9.ImageURL)
-                    .setColor(Color.Green)
-
-                if (LoggingData) {
-                    if (LoggingData.SettingsActionImage === "Disabled" & LoggingData.SettingsActionMessage === "Disabled") {
-                        return interaction.reply({
-                            content: ["This command has been disabled in this server."],
-                        });
+                    if (LoggingData) {
+                        if (LoggingData.SettingsActionImage === "Disabled" & LoggingData.SettingsActionMessage === "Disabled") {
+                            return interaction.reply({
+                                content: ["This command has been disabled in this server."],
+                            });
+                        }
+                        if (LoggingData.SettingsActionImage === "Disabled") {
+                            return interaction.reply({
+                                content: RandomBonkSentence,
+                            });
+                        }
+                        if (LoggingData.SettingsActionMessage === "Disabled") {
+                            return interaction.reply({
+                                embeds: [imageEmbed9]
+                            });
+                        }
                     }
-                    if (LoggingData.SettingsActionImage === "Disabled") {
-                        return interaction.reply({
-                            content: RandomBonkSentence,
-                        });
-                    }
-                    if (LoggingData.SettingsActionMessage === "Disabled") {
-                        return interaction.reply({
-                            embeds: [imageEmbed9]
-                        });
-                    }
-                }
 
-                return interaction.reply({
-                    content: RandomBonkSentence,
-                    embeds: [imageEmbed9]
-                });
-        };
+                    return interaction.reply({
+                        content: RandomBonkSentence,
+                        embeds: [imageEmbed9]
+                    });
+            };
+        }
     }
 };

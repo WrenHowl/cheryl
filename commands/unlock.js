@@ -18,12 +18,23 @@ console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is lo
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('unlock')
-        .setDescription('Unlock a channel.'),
-    execute: async (interaction, bot) => {
+        .setName(en.Name)
+        .setNameLocalizations({
+            fr: fr.Name,
+            de: de.Name,
+            SpanishES: sp.Name,
+            nl: nl.Name
+        })
+        .setDescription(en.Description)
+        .setDescriptionLocalizations({
+            fr: fr.Description,
+            de: de.Description,
+            SpanishES: sp.Description,
+            nl: nl.Description
+        }),
+    execute: async (interaction) => {
         if (interaction.member.permissions.has("MANAGE_MESSAGES")) {
             if (interaction.guild.me.permissions.has("MANAGE_CHANNELS")) {
-
                 await interaction.channel.permissionOverwrites.edit(interaction.channel.guild.roles.everyone, { SEND_MESSAGES: true })
 
                 const unLockdownSuccess = new MessageEmbed()

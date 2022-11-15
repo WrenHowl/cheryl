@@ -104,10 +104,12 @@
         "AgeDescription": "Changez votre âge."
     },
     "report": {
-        "Name": "signaler"
+        "Name": "signaler",
+        "Description": "Signaler un membre au staff du serveur."
     },
     "serverinfo": {
-        "Name": "infos_serveur"
+        "Name": "infos_serveur",
+        "Description": "Afficher des informations sur le serveur."
     },
     "settings": {
         "Name": "réglages",
@@ -135,7 +137,7 @@
         "SetupBlacklistAutobanName": "auto-ban",
         "SetupBlacklistAutobanDescription": "Activer/Désactiver",
         "SetupActionName": "action",
-        "SetupActionDescription": "Modifiez les paramètres de la commande : Action.",
+        "SetupActionDescription": "Modifiez les paramètres de la commande: Action.",
         "SetupActionOptionsName": "choix",
         "SetupActionOptionsDescription": "Fonctionnalités à Activer/Désactiver.",
         "SetupActionStatusName": "statut",
@@ -143,7 +145,7 @@
         "VerificationName": "vérification",
         "VerificationDescription": "Change the settings of the Verification System.",
         "VerificationCommandName": "commande",
-        "VerificationCommandDescription": "Modifiez les paramètres de la commande : Vérifier.",
+        "VerificationCommandDescription": "Modifiez les paramètres de la commande: Vérifier.",
         "VerificationWelcomeName": "bienvenue",
         "VerificationWelcomeDescription": "Canal pour envoyer le message de bienvenue.",
         "VerificationWelcomeStaffName": "personnel",
@@ -169,7 +171,7 @@
         "LoggingOptionsName": "choix",
         "LoggingOptionsDescription": "Change the logging channel of a certain event.",
         "LoggingChannelName": "canal",
-        "LoggingChannelDescription": "À quel canal dois-je envoyer la journalisation ?"
+        "LoggingChannelDescription": "À quel canal dois-je envoyer la journalisation?"
     },
     "staff": {
         "Name": "personnel",
@@ -178,21 +180,27 @@
         "UserDescription": "Utilisateur à vérifier."
     },
     "unban": {
-        "Name": "débannir"
+        "Name": "débannir",
+        "Description": "Débannir un utilisateur."
     },
     "unlock": {
-        "Name": "déverrouiller"
+        "Name": "déverrouiller",
+        "Description": "Déverrouiller le canal."
     },
     "verify": {
-        "Name": "verifier"
+        "Name": "verifier",
+        "Description": "Vérifier manuellement un membre."
     },
     "warn": {
-        "Name": "avertir"
+        "Name": "avertir",
+        "Description": "Avertir un membre."
     },
     "warns": {
-        "Name": "avertissements"
+        "Name": "avertissements",
+        "Description": "Montrez vos avertissements ou les avertissements d'un autre membre."
     },
     "welcomemenu": {
-        "Name": "menu_de_bienvenue"
+        "Name": "menu_de_bienvenue",
+        "Description": "Envoyez l'embed de vérification dans le canal."
     }
 }

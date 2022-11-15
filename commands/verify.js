@@ -7,19 +7,31 @@ const LanguageDE = require("../languages/de.json");
 const LanguageSP = require("../languages/sp.json");
 const LanguageNL = require("../languages/nl.json");
 
-const fr = LanguageFR.avatar;
-const en = LanguageEN.avatar;
-const de = LanguageDE.avatar;
-const sp = LanguageSP.avatar;
-const nl = LanguageNL.avatar;
+const fr = LanguageFR.verify;
+const en = LanguageEN.verify;
+const de = LanguageDE.verify;
+const sp = LanguageSP.verify;
+const nl = LanguageNL.verify;
 
 const dateTime = new Date();
 console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('verify')
-        .setDescription('Verify a member.')
+        .setName(en.Name)
+        .setNameLocalizations({
+            fr: fr.Name,
+            de: de.Name,
+            SpanishES: sp.Name,
+            nl: nl.Name
+        })
+        .setDescription(en.Description)
+        .setDescriptionLocalizations({
+            fr: fr.Description,
+            de: de.Description,
+            SpanishES: sp.Description,
+            nl: nl.Description
+        })
         .addUserOption((option) => option
             .setName("user")
             .setDescription("Member to verify.")
@@ -55,6 +67,47 @@ module.exports = {
                 unique: false,
             },
         });
+        const Verification_Count = sequelize.define("Verification_Count", {
+            ModName: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            ModID: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            Usage_Count: {
+                type: Sequelize.INTEGER,
+                defaultValue: 1,
+                allowNull: false,
+            },
+            GuildID: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+        });
+        const Verifier = sequelize.define("Verifier", {
+            VerifierName: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            VerifierID: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            ModName: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            ModID: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            GuildID: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+        });
         const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
 
         if (!LoggingData) {
@@ -69,52 +122,11 @@ module.exports = {
             });
         };
 
+        const user = interaction.options.getUser("user");
+        const member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(err => { });
+        const name = interaction.options.getString("name");
+
         if (interaction.member.roles.cache.some(role => role.id === LoggingData.StaffRoleVerify) | interaction.member.permissions.has("MODERATE_MEMBERS")) {
-            const user = interaction.options.getUser("user");
-            const member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(err => { });
-
-            const Verification_Count = sequelize.define("Verification_Count", {
-                ModName: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                ModID: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                Usage_Count: {
-                    type: Sequelize.INTEGER,
-                    defaultValue: 1,
-                    allowNull: false,
-                },
-                GuildID: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-            });
-            const Verifier = sequelize.define("Verifier", {
-                VerifierName: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                VerifierID: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                ModName: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                ModID: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                GuildID: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-            });
-
             switch (member.id) {
                 case (!member):
                     return interaction.reply({
@@ -143,7 +155,7 @@ module.exports = {
                         }
                     };
 
-                    const VerifierCreateData = await Verifier.create({
+                    await Verifier.create({
                         VerifierName: member.user.tag,
                         VerifierID: member.user.id,
                         ModName: interaction.user.tag,
@@ -159,16 +171,16 @@ module.exports = {
                         if (Verification_CountData.GuildID === interaction.guild.id) {
                             await Verification_CountData.increment('Usage_Count');
 
-                            let VerificationCount = Verification_CountData.Usage_Count;
+                            VerificationCount = Verification_CountData.Usage_Count;
                         };
                     } else {
-                        const Verification_CountCreate = await Verification_Count.create({
+                        await Verification_Count.create({
                             ModID: interaction.user.id,
                             ModName: interaction.user.tag,
                             GuildID: interaction.guild.id,
                         });
 
-                        let VerificationCount = "1";
+                        VerificationCount = "1";
                     };
 
                     const SetRoleSuccess = new MessageEmbed()
@@ -176,8 +188,6 @@ module.exports = {
                         .setColor(Color.Green)
 
                     await interaction.reply({ embeds: [SetRoleSuccess], ephemeral: true });
-
-                    const name = interaction.options.getString("name");
 
                     await member.setNickname(name);
 

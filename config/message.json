@@ -1,14 +1,18 @@
 {
     "StaffRoleApplication": "Staff",
-    "AlreadyAppliedStaffApplicationError": "You can't send a staff application, because you're already part of the staff team.",
-    "CannotFindDataOfMessage": "I can't find the data of this message.",
-    "StaffApplicationAccepted": "Your staff application has been accepted. Congratulations!",
-    "StaffApplicationDenied": "Your staff application has been denied. You can try again in 2 weeks!",
-    "BlacklistBanReason": "Cheryl - Autoban",
-    "StaffOnlyCommand": "You cannot execute this command! You need the following role ``STAFF``.",
+    "CannotFindDataOfMessage": "No Data Found - If this persist, please contact us!",
+    "BlacklistBanReason": "Cheryl - Auto-Ban",
+    "StaffOnlyCommand": "You cannot execute this command! You need the following role ``Staff``.",
     "OCFOnlyCommand": "This command can only be used on ``Over Control Furry``!",
     "AddedWhitelistBlacklist": "The user/server has been successfully added to the following whitelist: ``Blacklist``.",
     "RemovedWhitelistBlacklist": "The user/server has been successfully removed of the following whitelist: ``Blacklist``.",
     "AddedToBlacklist": "The user has been successfully added to the blacklist.",
-    "SuggestedToBlacklist": "The user has been successfully suggested to be added to the blacklist."
+    "SuggestedToBlacklist": "The user has been successfully suggested to be added to the blacklist.",
+    "AlreadyWaitingVerification": "You already have a pending verification, please be patient while our staff review your verification.",
+    "ReasonToDeny": {
+        "NoDetails": "Your verification has been denied.\n\n*Reason: You did not put enough details.*",
+        "Troll": "Your verification has been denied.\n\n*Reason: You've been flagged for trolling.*",
+        "NewAccount": "Your verification has been denied.\n\n*Reason: Your account is too new to be accepted.*",
+        "TooYoung": "Your verification has been denied.\n\n*Reason: You're too young to join this server.*"
+    }
 }

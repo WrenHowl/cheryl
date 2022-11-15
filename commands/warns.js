@@ -17,56 +17,27 @@ console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is lo
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('warns')
-        .setDescription('Check warns of a user.')
-        .addUserOption(option => option.setName("user").setDescription("User to check warns").setRequired(false)),
+        .setName(en.Name)
+        .setNameLocalizations({
+            fr: fr.Name,
+            de: de.Name,
+            SpanishES: sp.Name,
+            nl: nl.Name
+        })
+        .setDescription(en.Description)
+        .setDescriptionLocalizations({
+            fr: fr.Description,
+            de: de.Description,
+            SpanishES: sp.Description,
+            nl: nl.Description
+        })
+        .addUserOption(option => option
+            .setName("user")
+            .setDescription("User to check warns")
+            .setRequired(false)),
     execute: async (interaction, bot, sequelize, Sequelize) => {
         const Logging = sequelize.define("Logging", {
             GuildID: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            ChannelIDReport: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            ChannelIDBan: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            ChannelIDVerify: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            ChannelIDEnterServer: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            ChannelIDWelcome: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            StaffRoleReport: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            StaffRoleVerify: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            RoleToAddVerify: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            RoleToRemoveVerify: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            EnableDisableBlacklistLogger: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            ChannelIDBlacklist: {
                 type: Sequelize.STRING,
                 unique: false,
             },
@@ -74,22 +45,6 @@ module.exports = {
                 type: Sequelize.STRING,
                 unique: false,
             },
-            ChannelIDUnban: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            ChannelIDKick: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            ChannelIDReceiveVerification: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            AutoBanStatus: {
-                type: Sequelize.STRING,
-                unique: false,
-            }
         });
         const Warns = sequelize.define("Warns", {
             UserName: {

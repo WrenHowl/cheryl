@@ -104,10 +104,12 @@
         "AgeDescription": "Ändern Sie Ihr Alter."
     },
     "report": {
-        "Name": "bericht"
+        "Name": "bericht",
+        "Description": "Report a member to the staff of the server."
     },
     "serverinfo": {
-        "Name": "serverinfo"
+        "Name": "serverinfo",
+        "Description": "Show information about the server."
     },
     "settings": {
         "Name": "einstellungen",
@@ -178,21 +180,27 @@
         "UserDescription": "User to check."
     },
     "unban": {
-        "Name": "entsperren"
+        "Name": "entsperren",
+        "Description": "Unban a user."
     },
     "unlock": {
-        "Name": "freischalten"
+        "Name": "freischalten",
+        "Description": "Unlock the channel."
     },
     "verify": {
-        "Name": "überprüfen"
+        "Name": "überprüfen",
+        "Description": "Manually verify a member."
     },
     "warn": {
-        "Name": "warnen"
+        "Name": "warnen",
+        "Description": "Warn a member."
     },
     "warns": {
-        "Name": "warnt"
+        "Name": "warnt",
+        "Description": "Show your warn(s) or the warn(s) of another member."
     },
     "welcomemenu": {
-        "Name": "willkommensmenü"
+        "Name": "willkommensmenü",
+        "Description": "Send the verification embed in a channel."
     }
 }

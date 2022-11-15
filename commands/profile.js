@@ -165,30 +165,40 @@ module.exports = {
                 type: Sequelize.STRING,
                 unique: false,
             },
-        })
+        });
+        const Logging = sequelize.define("Logging", {
+            GuildID: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            ChannelIDVerify: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+        });
 
         const pronounsOptions = interaction.options.getString(en.PronounsName);
         const genderOptions = interaction.options.getString(en.GenderName);
         const ageOptions = interaction.options.getString(en.AgeName);
 
-        let ProfileCheck = await Profile.findOne({ where: { UserID: interaction.user.id } })
+        let ProfileCheck = await Profile.findOne({ where: { UserID: interaction.user.id } });
+        let LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
 
         if (pronounsOptions || genderOptions || ageOptions) {
             const ChangeOptions = new MessageEmbed()
                 .setDescription("Profile Updated")
 
+            if (!ProfileCheck) {
+                await Profile.create({
+                    UserName: interaction.user.tag,
+                    UserID: interaction.user.id,
+                });
+            }
+
             if (genderOptions) {
-                if (!ProfileCheck) {
-                    await Profile.create({
-                        UserName: interaction.user.tag,
-                        UserID: interaction.user.id,
-                        Gender: pronounsOptions,
-                    });
-                } else {
-                    await Profile.update({
-                        Gender: genderOptions
-                    }, { where: { UserID: interaction.user.id } })
-                }
+                await Profile.update({
+                    Gender: genderOptions
+                }, { where: { UserID: interaction.user.id } })
 
                 ChangeOptions.addFields(
                     { name: "**Gender**", value: genderOptions, inline: true },
@@ -196,15 +206,9 @@ module.exports = {
             }
 
             if (pronounsOptions) {
-                if (!ProfileCheck) {
-                    await Profile.create({
-                        UserName: interaction.user.tag,
-                        UserID: interaction.user.id,
-                        Pronouns: pronounsOptions,
-                    });
-                } else {
-                    await Profile.update({ Pronouns: pronounsOptions }, { where: { UserID: interaction.user.id } })
-                }
+                await Profile.update({
+                    Pronouns: pronounsOptions
+                }, { where: { UserID: interaction.user.id } })
 
                 ChangeOptions.addFields(
                     { name: "**Pronoun**", value: pronounsOptions, inline: true },
@@ -212,15 +216,9 @@ module.exports = {
             }
 
             if (ageOptions) {
-                if (!ProfileCheck) {
-                    await Profile.create({
-                        UserName: interaction.user.tag,
-                        UserID: interaction.user.id,
-                        Age: ageOptions,
-                    });
-                } else {
-                    await Profile.update({ Age: ageOptions }, { where: { UserID: interaction.user.id } })
-                }
+                await Profile.update({
+                    Age: ageOptions
+                }, { where: { UserID: interaction.user.id } })
 
                 ChangeOptions.addFields(
                     { name: "**Age**", value: ageOptions, inline: true },
@@ -232,7 +230,6 @@ module.exports = {
                 ephemeral: true
             });
         } else {
-
             function checkDays(date) {
                 let now = new Date();
                 let diff = now.getTime() - date.getTime();
@@ -260,11 +257,7 @@ module.exports = {
 
             let verifLog = await Verifier.findOne({ where: { VerifierID: MemberData.id, GuildID: interaction.guild.id } });
 
-            if (verifLog) {
-                verifLog = "`" + verifLog.ModName + "`";
-            } else {
-                verifLog = "`No Data Found`";
-            }
+            verifLog ? verifLog = "`" + verifLog.ModName + "`" : verifLog = "`No Data Found`";
 
             let roleMap = "";
 
@@ -309,14 +302,25 @@ module.exports = {
                 .addFields(
                     { name: "Name", value: MemberData.toString(), inline: true },
                     { name: "ID", value: "`" + MemberData.id + "`", inline: true },
-                    { name: "Verifier", value: verifLog, inline: true },
-                    { name: "Created At", value: "`" + moment(CheckDaysCreatedAt).format("Do MMMM YYYY hh:ss:mm A") + " / " + (checkDays(CheckDaysCreatedAt)) + "`" },
-                    { name: "Joined At", value: CheckDaysJoinedAt },
-                    { name: "Age", value: ProfileAge, inline: true },
-                    { name: "Pronouns", value: ProfilePronouns, inline: true },
-                    { name: "Gender", value: ProfileGender, inline: true },
-                    { name: "Roles", value: roleMap },
                 )
+
+            if (LoggingData) {
+                if (LoggingData.ChannelIDVerify) {
+                    userinfoEmbed.addFields(
+                        { name: "Verifier", value: verifLog, inline: true },
+                    )
+                };
+            };
+
+            userinfoEmbed.addFields(
+                { name: "Created At", value: "`" + moment(CheckDaysCreatedAt).format("Do MMMM YYYY hh:ss:mm A") + " / " + (checkDays(CheckDaysCreatedAt)) + "`" },
+                { name: "Joined At", value: CheckDaysJoinedAt },
+                { name: "Age", value: ProfileAge, inline: true },
+                { name: "Pronouns", value: ProfilePronouns, inline: true },
+                { name: "Gender", value: ProfileGender, inline: true },
+                { name: "Roles", value: roleMap },
+            )
+
                 .setThumbnail(MemberData.displayAvatarURL())
                 .setColor(Color.Green)
 
