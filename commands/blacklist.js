@@ -287,6 +287,10 @@ module.exports = {
                 type: Sequelize.STRING,
                 unique: false,
             },
+            GuildID: {
+                type: Sequelize.STRING,
+                unique: false,
+            }
         });
 
         const options = interaction.options.getSubcommand();
@@ -296,15 +300,13 @@ module.exports = {
 
         let PermissionCheck = await Permission.findOne({ where: { UserID: interaction.user.id } });
         let PermissionCheck2 = await Permission.findOne({ where: { UserID: user.id } });
-        let PermissionCheck3 = await Permission.findOne({ where: { guildId: interaction.guild.id } });
+        let PermissionCheck3 = await Permission.findOne({ where: { GuildID: interaction.guild.id } });
 
-        if (user) CheckBlacklist = await Blacklist.findOne({ where: { UserID: user.id } });
+        user ? CheckBlacklist = await Blacklist.findOne({ where: { UserID: user.id } }) : false;
+        PermissionCheck ? PermissionCheck = PermissionCheck.BlacklistPermission === "1" : PermissionCheck = false;
+        PermissionCheck2 ? PermissionDouble = PermissionCheck2.UserID : PermissionDouble = false;
 
-        if (PermissionCheck) PermissionCheck = PermissionCheck.BlacklistPermission === "1";
-        if (!PermissionCheck) PermissionCheck = "";
-
-        if (PermissionCheck2 === null) PermissionDouble = "";
-        if (PermissionCheck2) PermissionDouble = PermissionCheck2.UserID;
+        let MessageReason = message.Blacklist;
 
         switch (options) {
             case ("check"):
@@ -320,8 +322,7 @@ module.exports = {
                         const ModeratorName = "``" + CheckBlacklist.ModName + "``";
                         const ModeratorID = "``" + CheckBlacklist.ModID + "``";
 
-                        if (CheckBlacklist.Proof) Evidence = CheckBlacklist.Proof;
-                        if (!CheckBlacklist.Proof) Evidence = "``None``";
+                        CheckBlacklist.Proof ? Evidence = CheckBlacklist.Proof : Evidence = "``No Evidence Found``";
 
                         const InfoBlacklist = new MessageEmbed()
                             .addFields(
@@ -339,7 +340,7 @@ module.exports = {
                         });
                     } else {
                         return interaction.reply({
-                            content: "This user isn't blacklisted.",
+                            content: MessageReason.NotBlacklisted,
                         });
                     }
                 };
@@ -357,7 +358,7 @@ module.exports = {
                         case ("add"):
                             if (CheckBlacklist) {
                                 return interaction.reply({
-                                    content: "This user is blacklisted already.",
+                                    content: MessageReason.AlreadyBlacklisted,
                                     ephemeral: true,
                                 });
                             }
@@ -365,7 +366,7 @@ module.exports = {
                             switch (user.id) {
                                 case (!user):
                                     return interaction.reply({
-                                        content: "I can't find this user!",
+                                        content: message.UnknownUser,
                                         ephemeral: true
                                     });
                                 case (interaction.user.id):
@@ -395,7 +396,7 @@ module.exports = {
                                     });
 
                                     return interaction.reply({
-                                        content: message.AddedToBlacklist,
+                                        content: MessageReason.AddedToBlacklist,
                                         ephemeral: true,
                                     }).then(() => {
                                         const Name = "``" + user.tag + "``";
@@ -425,7 +426,7 @@ module.exports = {
                         case ("remove"):
                             if (!CheckBlacklist) {
                                 return interaction.reply({
-                                    content: "This user isn't blacklisted.",
+                                    content: MessageReason.NotBlacklisted,
                                     ephemeral: true,
                                 });
                             }
@@ -448,7 +449,7 @@ module.exports = {
                                     });
                                 default:
                                     return interaction.reply({
-                                        content: "The user has been successfully removed of the blacklist.",
+                                        content: MessageReason.RemovedToBlacklist,
                                         ephemeral: true,
                                     }).then(async () => {
 
@@ -490,7 +491,7 @@ module.exports = {
                         case ("suggest"):
                             if (CheckBlacklist) {
                                 return interaction.reply({
-                                    content: "This user is blacklisted already.",
+                                    content: MessageReason.AlreadyBlacklisted,
                                     ephemeral: true,
                                 });
                             }
@@ -498,7 +499,7 @@ module.exports = {
                             switch (user.id) {
                                 case (!user):
                                     return interaction.reply({
-                                        content: "I can't find this user!",
+                                        content: message.UnknownUser,
                                         ephemeral: true
                                     });
                                 case (interaction.user.id):
@@ -518,7 +519,7 @@ module.exports = {
                                     });
                                 default:
                                     return interaction.reply({
-                                        content: message.SuggestedToBlacklist,
+                                        content: MessageReason.SuggestedToBlacklist,
                                         ephemeral: true,
                                     }).then(() => {
                                         let fetchGuild = interaction.client.guilds.cache.get(Config.guildId)
@@ -537,8 +538,7 @@ module.exports = {
                                         const ServerName = "``" + interaction.guild.name + "``";
                                         const ServerID = "``" + interaction.guild.id + "``";
 
-                                        if (proof2) Evidence = proof2;
-                                        if (!proof2) Evidence = Config.x;
+                                        proof2 ? Evidence = proof2 : Evidence = Config.x;
 
                                         const InfoBlacklist = new MessageEmbed()
                                             .addFields(

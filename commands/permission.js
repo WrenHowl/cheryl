@@ -197,6 +197,8 @@ module.exports = {
             const options = interaction.options.getString(en.UserOptionsName);
             const addOptions = interaction.options.getString(en.UserPermissionName);
 
+            let MessageReason = message.Permission;
+
             switch (option) {
                 case (en.UserName):
                     const user = interaction.options.getUser(en.UserName);
@@ -220,6 +222,13 @@ module.exports = {
                                         case ("Blacklist_Permission"):
                                             const PermissionCheck = await Permission.findOne({ where: { UserID: user.id } });
 
+                                            if (PermissionCheck) {
+                                                return interaction.reply({
+                                                    content: MessageReason.AlreadyWhitelistedBlacklist,
+                                                    ephemeral: true
+                                                });
+                                            };
+
                                             PermissionCheck ? await Permission.update({ BlacklistPermission: true }, { where: { UserID: user.id } }) :
                                                 await Permission.create({
                                                     UserName: user.tag,
@@ -228,28 +237,33 @@ module.exports = {
                                                 });
 
                                             return interaction.reply({
-                                                content: message.AddedWhitelistBlacklist,
+                                                content: MessageReason.AddedWhitelistBlacklist,
                                                 ephemeral: true,
                                             })
                                     };
                                 case ("Remove_Options"):
                                     switch (addOptions) {
                                         case ("Blacklist_Permission"):
-                                            if (interaction.user.id === config.ownerId) {
-                                                const PermissionCheck = await Permission.findOne({ where: { UserID: user.id } });
+                                            const PermissionCheck = await Permission.findOne({ where: { UserID: user.id } });
 
-                                                PermissionCheck ? await Permission.update({ BlacklistPermission: false }, { where: { UserID: user.id } }) :
-                                                    await Permission.create({
-                                                        UserName: user.tag,
-                                                        UserID: user.id,
-                                                        BlacklistPermission: false,
-                                                    });
-
+                                            if (PermissionCheck) {
                                                 return interaction.reply({
-                                                    content: message.RemovedWhitelistBlacklist,
-                                                    ephemeral: true,
-                                                })
+                                                    content: MessageReason.AlreadyWhitelistedBlacklist,
+                                                    ephemeral: true
+                                                });
                                             };
+
+                                            PermissionCheck ? await Permission.update({ BlacklistPermission: false }, { where: { UserID: user.id } }) :
+                                                await Permission.create({
+                                                    UserName: user.tag,
+                                                    UserID: user.id,
+                                                    BlacklistPermission: false,
+                                                });
+
+                                            return interaction.reply({
+                                                content: MessageReason.RemovedWhitelistBlacklist,
+                                                ephemeral: true,
+                                            })
                                     };
                             }
                     };
@@ -262,14 +276,21 @@ module.exports = {
                                 case ("Blacklist_Permission"):
                                     const PermissionCheck = await Permission.findOne({ where: { GuildID: server } });
 
-                                    PermissionCheck ? await Permission.update({ BlacklistPermission: true }, { where: { UserID: user.id } }) :
+                                    if (PermissionCheck) {
+                                        return interaction.reply({
+                                            content: MessageReason.AlreadyWhitelistedBlacklist,
+                                            ephemeral: true
+                                        });
+                                    };
+
+                                    PermissionCheck ? await Permission.update({ BlacklistPermission: true }, { where: { GuildID: interaction.guild.id } }) :
                                         await Permission.create({
                                             GuildID: server,
                                             BlacklistPermission: true,
                                         });
 
                                     return interaction.reply({
-                                        content: message.AddedWhitelistBlacklist,
+                                        content: MessageReason.AddedWhitelistBlacklist,
                                         ephemeral: true,
                                     })
                             };
@@ -278,14 +299,21 @@ module.exports = {
                                 case ("Blacklist_Permission"):
                                     const PermissionCheck = await Permission.findOne({ where: { GuildID: server } });
 
-                                    PermissionCheck ? await Permission.update({ BlacklistPermission: true }, { where: { UserID: user.id } }) :
+                                    if (!PermissionCheck) {
+                                        return interaction.reply({
+                                            content: MessageReason.AlreadyWhitelistedBlacklist,
+                                            ephemeral: true
+                                        });
+                                    };
+
+                                    PermissionCheck ? await Permission.update({ BlacklistPermission: true }, { where: { GuildID: interaction.guild.id } }) :
                                         await Permission.create({
                                             GuildID: server,
                                             BlacklistPermission: true,
                                         });
 
                                     return interaction.reply({
-                                        content: message.RemovedWhitelistBlacklist,
+                                        content: MessageReason.RemovedWhitelistBlacklist,
                                         ephemeral: true,
                                     })
                             }

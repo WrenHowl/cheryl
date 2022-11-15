@@ -272,7 +272,9 @@ const Profile = sequelize.define("Profile")
 
 bot.once("ready", async () => {
   bot.user.setStatus("dnd")
+
   let counter = 0;
+
   setInterval(async function () {
     const MemberCount = bot.guilds.cache.reduce((a, g) => a + g.memberCount, 0)
     const AllServers = bot.guilds.cache.size;
@@ -350,6 +352,8 @@ bot.on("guildMemberAdd", async (NewMember) => {
 
   const VerifBlacklist = await Blacklist.findOne({ where: { UserID: NewMember.user.id } })
 
+  let Blacklist = MessageConfig.Blacklist;
+
   if (VerifBlacklist) {
     if (LoggingData) {
       if (LoggingData.EnableDisableBlacklistLogger === "Enabled") {
@@ -363,7 +367,7 @@ bot.on("guildMemberAdd", async (NewMember) => {
 
             const BlacklistedUserJoined = new MessageEmbed()
               .setTitle("<:BanHammer:997932635454197790> New Alert")
-              .setDescription("*If this server has the auto-ban enabled to this level of risk, the user is instantly ban!*")
+              .setDescription(Blacklist.InstantBan)
               .addFields(
                 { name: "User", value: NewMember.user.toString(), inline: true },
                 { name: "Reason", value: "``" + VerifBlacklist.Reason + "``", inline: true },
@@ -377,20 +381,22 @@ bot.on("guildMemberAdd", async (NewMember) => {
 
             await ChannelToSendAt.send({ embeds: [BlacklistedUserJoined] })
 
+            let AutoBanMessage = Blacklist.AutoBanMessage;
+
             if (LoggingData.AutoBanStatus) {
               if (LoggingData.AutoBanStatus === "Disable") return;
 
               if (LoggingData.AutoBanStatus === "Low+") {
                 if (VerifBlacklist.Risk === ["Low", "Medium", "High"]) {
-                  return NewMember.guild.members.ban(VerifBlacklist.UserID, { reason: [VerifBlacklist.Reason + " | " + MessageConfig.BlacklistBanReason] });
+                  return NewMember.guild.members.ban(VerifBlacklist.UserID, { reason: [VerifBlacklist.Reason + " | " + AutoBanMessage] });
                 }
               } else if (LoggingData.AutoBanStatus === "Medium+") {
                 if (VerifBlacklist.Risk === ["Medium", "High"]) {
-                  return NewMember.guild.members.ban(VerifBlacklist.UserID, { reason: [VerifBlacklist.Reason + " | " + MessageConfig.BlacklistBanReason] });
+                  return NewMember.guild.members.ban(VerifBlacklist.UserID, { reason: [VerifBlacklist.Reason + " | " + AutoBanMessage] });
                 }
               } else if (LoggingData.AutoBanStatus === "High+") {
                 if (VerifBlacklist.Risk === ["High"]) {
-                  return NewMember.guild.members.ban(VerifBlacklist.UserID, { reason: [VerifBlacklist.Reason + " | " + MessageConfig.BlacklistBanReason] });
+                  return NewMember.guild.members.ban(VerifBlacklist.UserID, { reason: [VerifBlacklist.Reason + " | " + AutoBanMessage] });
                 }
               }
             };
@@ -413,16 +419,17 @@ bot.on("guildMemberUpdate", async (OldMember, NewMember) => {
 
       const NewBoost = new MessageEmbed()
         .setTitle("New Boost")
-        .setDescription("Thank you <@" + NewMember.user.id + "> for boosting " + NewMember.guild.name + " !")
+        .setDescription("Thank you " + NewMember.user.toString() + " for boosting **" + NewMember.guild.name + "** !")
         .setColor(Color.Pink)
 
       ChannelToSend.send({
         embeds: [NewBoost]
       })
-      NewMember.roles.add("1001111992834211921")
+
+      return NewMember.roles.add("1001111992834211921")
     }
     if (OldStatus && !NewStatus) {
-      NewMember.roles.remove("1001111992834211921")
+      return NewMember.roles.remove("1001111992834211921")
     }
   }
 });
@@ -443,7 +450,7 @@ bot.on("guildMemberRemove", async (LeavingMember) => {
     const FirstRowToDelete = await Verifier.destroy({ where: { GuildID: LeavingMember.guild.id, VerifierID: LeavingMember.user.id } })
     const LogChannel = LeavingMember.guild.channels.cache.get("898366209827954718");
 
-    let Status = "";
+    FirstRowToDelete ? Status = "``Was Verified``" : Status = "``Wasn't Verified``";
 
     const LeavingMemberEmbed = new MessageEmbed()
       .setTitle("Member Left")
@@ -451,6 +458,7 @@ bot.on("guildMemberRemove", async (LeavingMember) => {
         { name: "User", value: LeavingMember.user.tag },
         { name: "Created At", value: moment(LeavingMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") },
         { name: "Joined At", value: moment(LeavingMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') },
+        { name: "Status", value: Status }
       )
       .setColor(Color.Green)
       .setFooter(
@@ -458,21 +466,7 @@ bot.on("guildMemberRemove", async (LeavingMember) => {
       )
       .setThumbnail(LeavingMember.user.displayAvatarURL())
 
-    if (FirstRowToDelete) {
-      Status = "``Was Verified``";
-
-      LeavingMemberEmbed.addFields(
-        { name: "Status", value: Status }
-      )
-    } else {
-      Status = "``Wasn't Verified``";
-
-      LeavingMemberEmbed.addFields(
-        { name: "Status", value: Status }
-      )
-    }
-
-    LogChannel.send({
+    await LogChannel.send({
       embeds: [LeavingMemberEmbed]
     });
   }
@@ -920,22 +914,24 @@ bot.on('interactionCreate', async (interaction) => {
           })
         });
 
+        let Reason = MessageConfig.Verification.ReasonToDeny;
+
         switch (args) {
           case ("noDetails"):
             return bot.users.cache.get(VerificationLog.UserID).send({
-              content: a,
+              content: Reason,
             }).catch(() => { return });
           case ("troll"):
             return bot.users.cache.get(VerificationLog.UserID).send({
-              content: "Your verification has been denied.\n\n*Reason: You've been flagged for trolling.*",
+              content: Reason.Troll,
             }).catch(() => { return });
           case ("new"):
             return bot.users.cache.get(VerificationLog.UserID).send({
-              content: "Your verification has been denied.\n\n*Reason: Your account is too new to be accepted.*",
+              content: Reason.NewAccount,
             }).catch(() => { return });
           case ("young"):
             return bot.users.cache.get(VerificationLog.UserID).send({
-              content: "Your verification has been denied.\n\n*Reason: You're too young to join this server.*",
+              content: Reason.TooYoung,
             }).catch(() => { return });
         };
     }
