@@ -269,6 +269,7 @@ const Permission = sequelize.define("Permission", {
 
 const Warns = sequelize.define("Warns")
 const Profile = sequelize.define("Profile")
+const CommandFunction = sequelize.define("CommandFunction")
 
 bot.once("ready", async () => {
   bot.user.setStatus("dnd")
@@ -304,9 +305,20 @@ bot.once("ready", async () => {
     ActionImage.sync();
     Permission.sync();
     Profile.sync();
+    CommandFunction.sync();
   }, 5000);
 
-  console.log(dateTime.toLocaleString() + " -> The bot is ready!");
+  bot.guilds.cache.forEach(async (guild) => {
+    const LoggingData = await Logging.findOne({ where: { GuildID: guild.id } });
+
+    if (!LoggingData) {
+      await Logging.create({
+        GuildID: guild.id,
+      });
+    };
+  });
+
+  return console.log(dateTime.toLocaleString() + " -> The bot is ready!");
 });
 
 bot.on("guildMemberAdd", async (NewMember) => {
@@ -352,7 +364,7 @@ bot.on("guildMemberAdd", async (NewMember) => {
 
   const VerifBlacklist = await Blacklist.findOne({ where: { UserID: NewMember.user.id } })
 
-  let Blacklist = MessageConfig.Blacklist;
+  let MessageBlacklist = MessageConfig.Blacklist;
 
   if (VerifBlacklist) {
     if (LoggingData) {
@@ -367,7 +379,7 @@ bot.on("guildMemberAdd", async (NewMember) => {
 
             const BlacklistedUserJoined = new MessageEmbed()
               .setTitle("<:BanHammer:997932635454197790> New Alert")
-              .setDescription(Blacklist.InstantBan)
+              .setDescription(MessageBlacklist.InstantBan)
               .addFields(
                 { name: "User", value: NewMember.user.toString(), inline: true },
                 { name: "Reason", value: "``" + VerifBlacklist.Reason + "``", inline: true },
@@ -381,7 +393,7 @@ bot.on("guildMemberAdd", async (NewMember) => {
 
             await ChannelToSendAt.send({ embeds: [BlacklistedUserJoined] })
 
-            let AutoBanMessage = Blacklist.AutoBanMessage;
+            let AutoBanMessage = MessageBlacklist.AutoBanMessage;
 
             if (LoggingData.AutoBanStatus) {
               if (LoggingData.AutoBanStatus === "Disable") return;
@@ -447,10 +459,11 @@ bot.on("userUpdate", async (NewUser, OldUser) => {
 
 bot.on("guildMemberRemove", async (LeavingMember) => {
   if (LeavingMember.guild.id === "821241527941726248") {
-    const FirstRowToDelete = await Verifier.destroy({ where: { GuildID: LeavingMember.guild.id, VerifierID: LeavingMember.user.id } })
+    const VerifierData = await Verifier.destroy({ where: { GuildID: LeavingMember.guild.id, VerifierID: LeavingMember.user.id } });
+    const LoggingData = await Logging.findOne({ where: { GuildID: LeavingMember.guild.id } });
     const LogChannel = LeavingMember.guild.channels.cache.get("898366209827954718");
 
-    FirstRowToDelete ? Status = "``Was Verified``" : Status = "``Wasn't Verified``";
+    VerifierData ? Status = "``Was Verified``" : Status = "``Wasn't Verified``";
 
     const LeavingMemberEmbed = new MessageEmbed()
       .setTitle("Member Left")
@@ -458,13 +471,18 @@ bot.on("guildMemberRemove", async (LeavingMember) => {
         { name: "User", value: LeavingMember.user.tag },
         { name: "Created At", value: moment(LeavingMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") },
         { name: "Joined At", value: moment(LeavingMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') },
-        { name: "Status", value: Status }
       )
       .setColor(Color.Green)
       .setFooter(
         { text: LeavingMember.user.id }
       )
       .setThumbnail(LeavingMember.user.displayAvatarURL())
+
+    if (LoggingData.ChannelIDVerify) {
+      LeavingMemberEmbed.addFields(
+        { name: "Status", value: Status }
+      );
+    };
 
     await LogChannel.send({
       embeds: [LeavingMemberEmbed]
@@ -473,6 +491,65 @@ bot.on("guildMemberRemove", async (LeavingMember) => {
   if (LeavingMember.guild.id === Config.guildId) {
     return Permission.destroy({ where: { UserID: LeavingMember.user.id } })
   }
+});
+
+bot.on("guildCreate", async (guild) => {
+  const LoggingData = await Logging.findOne({ where: { GuildID: guild.id } });
+
+  if (!LoggingData) {
+    await Logging.create({
+      GuildID: guild.id,
+    });
+  };
+
+  const owner = await guild.fetchOwner();
+  const BlacklistData = await Blacklist.findOne({ where: { UserID: owner.user.id } });
+
+  BlacklistData ? Boo = "Yes" : Boo = "No";
+
+  const NewGuild = new MessageEmbed()
+    .setTitle("Bot Added")
+    .addFields(
+      { name: "Server Name", value: "``" + guild.name + "``", inline: true },
+      { name: "Server ID", value: "``" + guild.id + "``", inline: true },
+      { name: "Members", value: "``" + guild.memberCount + "``", inline: true },
+      { name: "Owner Name", value: "``" + owner.user.tag + "``", inline: true },
+      { name: "Owner ID", value: "``" + owner.user.id + "``", inline: true },
+      { name: "Owner Blacklisted", value: "``" + Boo + "``", inline: true },
+    )
+    .setColor(Color.Green)
+
+  let fetchGuild = guild.client.guilds.cache.get(Config.guildId);
+
+  fetchGuild.channels.cache.get(Config.BotAdded).send({
+    embeds: [NewGuild]
+  });
+});
+
+bot.on("guildDelete", async (guild) => {
+  const owner = await guild.fetchOwner();
+  const BlacklistData = await Blacklist.findOne({ where: { UserID: owner.user.id } });
+
+  BlacklistData ? Boo = "Yes" : Boo = "No";
+
+  const NewGuild = new MessageEmbed()
+    .setTitle("Bot Removed")
+    .addFields(
+      { name: "Server Name", value: "``" + guild.name + "``", inline: true },
+      { name: "Server ID", value: "``" + guild.id + "``", inline: true },
+      { name: "Members", value: "``" + guild.memberCount + "``", inline: true },
+      { name: "Owner Name", value: "``" + owner.user.tag + "``", inline: true },
+      { name: "Owner ID", value: "``" + owner.user.id + "``", inline: true },
+      { name: "Owner Blacklisted", value: "``" + Boo + "``", inline: true },
+
+    )
+    .setColor(Color.RiskHigh)
+
+  let fetchGuild = guild.client.guilds.cache.get(Config.guildId);
+
+  fetchGuild.channels.cache.get(Config.BotRemoved).send({
+    embeds: [NewGuild]
+  });
 });
 
 bot.on("messageCreate", async (message) => {
@@ -500,15 +577,19 @@ bot.on("messageCreate", async (message) => {
   const args = message.content.slice(prefix.length).trim().split(/ +/);
   const command = args.shift().toLowerCase();
 
+  const fr = require("./languages/fr.json");
+  const en = require("./languages/en.json");
+  const de = require("./languages/de.json");
+  const sp = require("./languages/sp.json");
+  const nl = require("./languages/nl.json");
+
   switch (command) {
-    case ("application"):
-      return bot.commands.get("application").execute(bot, message, args, MessageEmbed);
     case ("serverlist"):
       return bot.commands.get("serverlist").execute(bot, message, args, MessageEmbed);
-    case ("role"):
-      return bot.commands.get("role").execute(bot, message, args, MessageEmbed, sequelize, Sequelize);
-    case ("e621"):
-      return bot.commands.get("e621").execute(bot, message, args, MessageEmbed);
+    case ("cmd"):
+      return bot.commands.get("cmd").execute(bot, message, args, MessageEmbed, sequelize, Sequelize);
+    case (en.language.Name || fr.language.Name || de.language.Name || nl.language.Name || sp.language.Name):
+      return bot.commands.get(en.language.Name).execute(bot, message, args, MessageEmbed, sequelize, Sequelize);
   }
 });
 

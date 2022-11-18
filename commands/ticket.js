@@ -1,17 +1,16 @@
-const { MessageEmbed, Message } = require('discord.js');
+const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const Color = require("../config/color.json");
 const LanguageFR = require("../languages/fr.json");
 const LanguageEN = require("../languages/en.json");
 const LanguageDE = require("../languages/de.json");
 const LanguageSP = require("../languages/sp.json");
 const LanguageNL = require("../languages/nl.json");
 
-const fr = LanguageFR.avatar;
-const en = LanguageEN.avatar;
-const de = LanguageDE.avatar;
-const sp = LanguageSP.avatar;
-const nl = LanguageNL.avatar;
+const fr = LanguageFR.ticket;
+const en = LanguageEN.ticket;
+const de = LanguageDE.ticket;
+const sp = LanguageSP.ticket;
+const nl = LanguageNL.ticket;
 
 const dateTime = new Date();
 console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");
@@ -32,23 +31,14 @@ module.exports = {
             SpanishES: sp.Description,
             nl: nl.Description
         })
-        .addUserOption(option => option
-            .setName(en.UserName)
-            .setNameLocalizations({
-                fr: fr.UserName,
-                de: de.UserName,
-                SpanishES: sp.UserName,
-                nl: nl.UserName
-            })
-            .setDescription(en.UserDescription)
-            .setDescriptionLocalizations({
-                fr: fr.UserDescription,
-                de: de.UserDescription,
-                SpanishES: sp.UserDescription,
-                nl: nl.UserDescription
-            })
-            .setRequired(false)),
-    execute: async (interaction) => {
+        .addSubcommand(subcommand => subcommand
+            .setName("setup")
+            .setDescription("Setup the ticket system.")
+            .addNumberOption(option => option
+                .setName("panelid")
+                .setDescription("Set the panel ID to easily retrieve it when needed.")
+                .setRequired(true))),
+    execute: async (interaction, bot, sequelize, Sequelize) => {
         const CommandFunction = sequelize.define("CommandFunction", {
             name: {
                 type: Sequelize.STRING,
@@ -71,17 +61,20 @@ module.exports = {
             };
         };
 
-        const user = interaction.options.getUser(en.UserName);
+        if (interaction.member.permissions.has("MANAGE_MESSAGES")) {
+            if (interaction.guild.me.permissions.has("MANAGE_CHANNELS")) {
 
-        let MemberData = user ? user : interaction.user;
-
-        const AvatarShown = new MessageEmbed()
-            .setTitle("Avatar of " + MemberData.tag)
-            .setImage(MemberData.displayAvatarURL({ dynamic: true, size: 512 }))
-            .setColor(Color.Green)
-
-        return interaction.reply({
-            embeds: [AvatarShown]
-        });
+            } else {
+                return interaction.reply({
+                    content: "I need the following permission ```MANAGE_CHANNELS``.",
+                    ephemeral: true,
+                });
+            };
+        } else {
+            return interaction.reply({
+                content: "You cannot execute this command! You need the following permission ```MANAGE_MESSAGES``.",
+                ephemeral: true,
+            });
+        };
     }
 };

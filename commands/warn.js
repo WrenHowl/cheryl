@@ -38,6 +38,28 @@ module.exports = {
             .setRequired(true)
         ),
     execute: async (interaction, bot, sequelize, Sequelize) => {
+        const CommandFunction = sequelize.define("CommandFunction", {
+            name: {
+                type: Sequelize.STRING,
+            },
+            value: {
+                type: Sequelize.STRING,
+            },
+        });
+
+        const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
+
+        const MessageReason = require("../config/message.json");
+
+        if (FindCommand) {
+            if (FindCommand.value === "Disable") {
+                return interaction.reply({
+                    content: MessageReason.CommandDisabled,
+                    ephemeral: true,
+                });
+            };
+        };
+
         const Logging = sequelize.define("Logging", {
             GuildID: {
                 type: Sequelize.STRING,

@@ -1,4 +1,7 @@
 {
+    "default": {
+        "UnknownUser": "I can't find this user!"
+    },
     "action": {
         "Name": "acción",
         "Description": "Realizar una acción (o sugerir una imagen para una acción) en un miembro.",
@@ -21,7 +24,31 @@
         "UserName": "usuario",
         "UserDescription": "Usuario a banear.",
         "ReasonName": "razón",
-        "ReasonDescription": "Motivo de la prohibición."
+        "ReasonDescription": "Motivo de la prohibición.",
+        "default": {
+            "Myself": "You can't ban yourself!",
+            "Me": "You can't ban me!",
+            "Owner": "You can't ban the owner!",
+            "Bannable": "I can't ban this user",
+            "Role": "You can't ban this user, because they're higher than you!",
+            "Banned": "You can't ban this user, since they are banned already!"
+        },
+        "server": {
+            "BanMessage": "has been banned from the server for",
+            "NewBan": "New Ban",
+            "User": "User",
+            "Reason": "Reason",
+            "Mod": "Moderator"
+        },
+        "dm": {
+            "you": "You have been banned on",
+            "for": "for",
+            "by": "by"
+        },
+        "permission": {
+            "Myself": ":warning: Insufficient Permission - You need the following permission: ``Ban Members``.",
+            "Me": ":warning: Insufficient Permission - I need the following permission: ``Ban Members``."
+        }
     },
     "blacklist": {
         "Name": "lista_negra",
@@ -142,6 +169,13 @@
         "SetupActionOptionsDescription": "Features to enable/disable.",
         "SetupActionStatusName": "status",
         "SetupActionStatusDescription": "Enable/Disable",
+        "Verification": {
+            "VerificationAge": "Age",
+            "VerificationHow": "How did you find our server?",
+            "VerificationWhy": "Why are you joining us?",
+            "VerificationWhat": "What do you think about the furry fandom?",
+            "VerificationSona": "Do you have any sona? Tell us about it."
+        },
         "VerificationName": "verification",
         "VerificationDescription": "Change the settings of the Verification System.",
         "VerificationCommandName": "command",
@@ -179,6 +213,10 @@
         "UserName": "user",
         "UserDescription": "User to check."
     },
+    "ticket": {
+        "Name": "ticket",
+        "Description": "Ticket System - Moderate your server easily with tickets."
+    },
     "unban": {
         "Name": "unban",
         "Description": "Unban a user."
@@ -202,5 +240,8 @@
     "welcomemenu": {
         "Name": "welcomemenu",
         "Description": "Send the verification embed in the channel."
+    },
+    "language": {
+        "Name": "language"
     }
 }

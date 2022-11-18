@@ -33,6 +33,28 @@ module.exports = {
             nl: nl.Description
         }),
     execute: async (interaction) => {
+        const CommandFunction = sequelize.define("CommandFunction", {
+            name: {
+                type: Sequelize.STRING,
+            },
+            value: {
+                type: Sequelize.STRING,
+            },
+        });
+
+        const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
+
+        const MessageReason = require("../config/message.json");
+
+        if (FindCommand) {
+            if (FindCommand.value === "Disable") {
+                return interaction.reply({
+                    content: MessageReason.CommandDisabled,
+                    ephemeral: true,
+                });
+            };
+        };
+
         if (interaction.member.permissions.has("MANAGE_MESSAGES")) {
             if (interaction.guild.me.permissions.has("MANAGE_CHANNELS")) {
                 await interaction.channel.permissionOverwrites.edit(interaction.channel.guild.roles.everyone, { SEND_MESSAGES: true })
@@ -46,10 +68,15 @@ module.exports = {
                 });
             } else {
                 return interaction.reply({
-                    content: "You cannot execute this command! You need the following permission: ``MANAGE_MESSAGES``.",
+                    content: "I need the following permission ```MANAGE_CHANNELS``.",
                     ephemeral: true
                 });
             };
+        } else {
+            return interaction.reply({
+                content: "You cannot execute this command! You need the following permission ```MANAGE_MESSAGES``.",
+                ephemeral: true
+            });
         };
     }
 };

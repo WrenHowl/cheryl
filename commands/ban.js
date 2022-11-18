@@ -1,6 +1,8 @@
 const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Color = require("../config/color.json");
+const Permission = require("../config/permission.json");
+
 const LanguageFR = require("../languages/fr.json");
 const LanguageEN = require("../languages/en.json");
 const LanguageDE = require("../languages/de.json");
@@ -66,80 +68,50 @@ module.exports = {
             .setRequired(true)
         ),
     execute: async (interaction, bot, sequelize, Sequelize) => {
+        const CommandFunction = sequelize.define("CommandFunction", {
+            name: {
+                type: Sequelize.STRING,
+            },
+            value: {
+                type: Sequelize.STRING,
+            },
+        });
+
+        const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
+
+        if (FindCommand) {
+            if (FindCommand.value === "Disable") {
+                return interaction.reply({
+                    content: MessageReason.CommandDisabled,
+                    ephemeral: true,
+                });
+            };
+        };
+
         const Logging = sequelize.define("Logging", {
             GuildID: {
                 type: Sequelize.STRING,
-                unique: false,
-            },
-            ChannelIDReport: {
-                type: Sequelize.STRING,
-                unique: false,
             },
             ChannelIDBan: {
                 type: Sequelize.STRING,
-                unique: false,
             },
-            ChannelIDVerify: {
+            Language: {
                 type: Sequelize.STRING,
-                unique: false,
             },
-            ChannelIDEnterServer: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            ChannelIDWelcome: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            StaffRoleReport: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            StaffRoleVerify: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            RoleToAddVerify: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            RoleToRemoveVerify: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            EnableDisableBlacklistLogger: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            ChannelIDBlacklist: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            ChannelIDWarn: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            ChannelIDUnban: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            ChannelIDKick: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            ChannelIDReceiveVerification: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            AutoBanStatus: {
-                type: Sequelize.STRING,
-                unique: false,
-            }
         });
         const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
 
-        if (interaction.member.permissions.has("BAN_MEMBERS")) {
-            if (interaction.guild.me.permissions.has("BAN_MEMBERS")) {
+        let LanguageData = LoggingData.language;
+        let Language = "";
+
+        if (!LanguageData || LanguageData === "en") Language = LanguageEN;
+        if (LanguageData === "fr") Language = LanguageFR;
+        if (LanguageData === "de") Language = LanguageDE;
+        if (LanguageData === "sp") Language = LanguageSP;
+        if (LanguageData === "nl") Language = LanguageNL;
+
+        if (interaction.member.permissions.has(Permission.Ban)) {
+            if (interaction.guild.me.permissions.has(Permission.Ban)) {
                 const user = interaction.options.getUser(en.UserName);
                 const member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(err => { });
                 const banList = await interaction.guild.bans.fetch();
@@ -149,49 +121,49 @@ module.exports = {
                 switch (user.id) {
                     case (!user):
                         return interaction.reply({
-                            content: "I can't find this user!",
+                            content: Language.default.UnknownUser,
                             ephemeral: true,
                         });
                     case (interaction.member.id):
                         return interaction.reply({
-                            content: "You can't ban yourself!",
+                            content: Language.ban.default.Myself,
                             ephemeral: true,
                         });
                     case (bot.user.id):
                         return interaction.reply({
-                            content: "You can't ban me!",
+                            content: Language.ban.default.Me,
                             ephemeral: true,
                         });
                     case (interaction.guild.ownerId):
                         return interaction.reply({
-                            content: "You can't ban the owner!",
+                            content: Language.ban.default.Owner,
                             ephemeral: true,
                         });
                     case (!user.bannable):
                         return interaction.reply({
-                            content: "I can't ban this user!",
+                            content: Language.ban.default.Bannable,
                             ephemeral: true,
                         });
                     default:
                         if (guild.members.cache.find(m => m.id === user.id)?.id) {
                             if (member.roles.highest.position >= interaction.member.roles.highest.position) {
                                 return interaction.reply({
-                                    content: "You can't ban this user, because they're higher than you!",
+                                    content: Language.ban.default.Role,
                                     ephemeral: true
                                 });
-                            }
+                            };
                         } else if (bannedUser) {
                             return interaction.reply({
-                                content: "You can't ban this user, since they are banned already!",
+                                content: Language.ban.default.Banned,
                                 ephemeral: true
                             });
-                        }
+                        };
 
                         const reason = interaction.options.getString(en.ReasonName);
-                        const admin = interaction.user.tag;
+                        const mod = interaction.user.tag;
 
                         const banMessage = new MessageEmbed()
-                            .setDescription("``" + user.tag + "`` has been banned from the server for ``" + reason + "``.")
+                            .setDescription("``" + user.tag + "`` " + Language.ban.server.BanMessage + " ``" + reason + "``.")
                             .setColor(Color.Green)
 
                         await interaction.reply({
@@ -205,9 +177,15 @@ module.exports = {
                                     const logChannel = interaction.guild.channels.cache.get(LoggingData.ChannelIDBan);
 
                                     const logMessage = new MessageEmbed()
-                                        .setTitle("New Ban")
-                                        .setDescription("**__User:__** ``" + user.tag + "``\n**__Reason:__** ``" + reason + "``\n**__Moderator:__** ``" + admin + "``")
-                                        .setFooter({ text: "ID: " + user.id })
+                                        .setTitle(Language.ban.server.NewBan)
+                                        .addFields(
+                                            { name: Language.ban.server.User, value: "``" + user.tag + "``" },
+                                            { name: Language.ban.server.Reason, value: "``" + reason + "``" },
+                                            { name: Language.ban.server.Mod, value: "``" + mod + "``" },
+                                        )
+                                        .setFooter({
+                                            text: "ID: " + user.id
+                                        })
                                         .setTimestamp()
                                         .setColor(Color.RiskHigh)
 
@@ -219,27 +197,26 @@ module.exports = {
                         };
 
                         const banDM = new MessageEmbed()
-                            .setDescription("You have been banned on ``" + interaction.guild.name + "`` for ``" + reason + "`` by ``" + admin + "``.")
+                            .setDescription(Language.ban.dm.you + " ``" + interaction.guild.name + "`` " + Language.ban.dm.for + " ``" + reason + "`` " + Language.ban.dm.by + " ``" + mod + "``.")
                             .setColor(Color.RiskHigh)
 
                         await user.send({
                             embeds: [banDM],
                         }).catch(() => { return });
 
-                        return interaction.guild.members.ban(user.id, { reason: [reason + " | " + admin] });
-                }
+                        return interaction.guild.members.ban(user.id, { reason: [reason + " | " + mod] });
+                };
             } else {
                 return interaction.reply({
-                    content: "I need the following permissions: ``BAN_MEMBERS``.",
+                    content: Language.ban.permission.Me,
                     ephemeral: true,
                 });
             };
         } else {
             return interaction.reply({
-                content: "You cannot execute this command! You need the following permission ``BAN_MEMBERS``.",
+                content: Language.ban.permission.Myself,
                 ephemeral: true
-            })
-        }
-
+            });
+        };
     }
 };

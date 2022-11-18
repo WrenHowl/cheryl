@@ -33,6 +33,28 @@ module.exports = {
       nl: nl.Description
     }),
   execute: async (interaction, bot) => {
+    const CommandFunction = sequelize.define("CommandFunction", {
+      name: {
+        type: Sequelize.STRING,
+      },
+      value: {
+        type: Sequelize.STRING,
+      },
+    });
+
+    const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
+
+    const MessageReason = require("../config/message.json");
+
+    if (FindCommand) {
+      if (FindCommand.value === "Disable") {
+        return interaction.reply({
+          content: MessageReason.CommandDisabled,
+          ephemeral: true,
+        });
+      };
+    };
+
     function checkDays(date) {
       let now = new Date();
       let diff = now.getTime() - date.getTime();

@@ -41,6 +41,28 @@ module.exports = {
             .setDescription('Enter a reason.')
             .setRequired(true)),
     execute: async (interaction, bot, sequelize, Sequelize) => {
+        const CommandFunction = sequelize.define("CommandFunction", {
+            name: {
+                type: Sequelize.STRING,
+            },
+            value: {
+                type: Sequelize.STRING,
+            },
+        });
+
+        const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
+
+        const MessageReason = require("../config/message.json");
+
+        if (FindCommand) {
+            if (FindCommand.value === "Disable") {
+                return interaction.reply({
+                    content: MessageReason.CommandDisabled,
+                    ephemeral: true,
+                });
+            };
+        };
+
         const user = interaction.options.getUser("user");
         const member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(err => { });
 

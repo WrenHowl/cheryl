@@ -41,6 +41,28 @@ module.exports = {
             .setDescription("Channel of the rules to mention in this message")
             .setRequired(true)),
     execute: async (interaction, sequelize, Sequelize) => {
+        const CommandFunction = sequelize.define("CommandFunction", {
+            name: {
+                type: Sequelize.STRING,
+            },
+            value: {
+                type: Sequelize.STRING,
+            },
+        });
+
+        const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
+
+        const MessageReason = require("../config/message.json");
+
+        if (FindCommand) {
+            if (FindCommand.value === "Disable") {
+                return interaction.reply({
+                    content: MessageReason.CommandDisabled,
+                    ephemeral: true,
+                });
+            };
+        };
+
         const welcomeOptions = interaction.options.getChannel("welcome");
         const rulesOptions = interaction.options.getChannel("rules");
 

@@ -244,6 +244,26 @@ module.exports = {
                 })
                 .setRequired(true))),
     execute: async (interaction, bot, sequelize, Sequelize) => {
+        const CommandFunction = sequelize.define("CommandFunction", {
+            name: {
+                type: Sequelize.STRING,
+            },
+            value: {
+                type: Sequelize.STRING,
+            },
+        });
+
+        const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
+
+        if (FindCommand) {
+            if (FindCommand.value === "Disable") {
+                return interaction.reply({
+                    content: MessageReason.CommandDisabled,
+                    ephemeral: true,
+                });
+            };
+        };
+
         const Blacklist = sequelize.define("Blacklist", {
             UserName: {
                 type: Sequelize.STRING,
@@ -434,7 +454,7 @@ module.exports = {
                             switch (user.id) {
                                 case (!user):
                                     return interaction.reply({
-                                        content: "I can't find this user!",
+                                        content: message.UnknownUser,
                                         ephemeral: true
                                     });
                                 case (interaction.user.id):

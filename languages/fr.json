@@ -1,4 +1,7 @@
 {
+    "default": {
+        "UnknownUser": "Je ne trouve pas cet utilisateur!"
+    },
     "action": {
         "Name": "action",
         "Description": "Faire un action (ou suggérer une image pour une action) sur un membre.",
@@ -21,7 +24,31 @@
         "UserName": "utilisateur",
         "UserDescription": "Utilisateur à bannir.",
         "ReasonName": "raison",
-        "ReasonDescription": "Raison du bannissement."
+        "ReasonDescription": "Raison du bannissement.",
+        "default": {
+            "Myself": "Tu ne peux pas te bannir!",
+            "Me": "Tu ne peux pas me bannir!",
+            "Owner": "Vous ne pouvez pas bannir le propriétaire!",
+            "Bannable": "Je ne peux pas bannir cet utilisateur",
+            "Role": "Vous ne pouvez pas bannir cet utilisateur, car il est supérieur à vous!",
+            "Banned": "Vous ne pouvez pas bannir cet utilisateur, car il est déjà banni!"
+        },
+        "server": {
+            "BanMessage": "a été banni du serveur pour",
+            "NewBan": "Nouveau Bannissement",
+            "User": "Utilisateur",
+            "Reason": "Raison",
+            "Mod": "Modérateur"
+        },
+        "dm": {
+            "you": "Vous avez été banni de",
+            "for": "pour",
+            "by": "par"
+        },
+        "permission": {
+            "Myself": ":warning: Permission Insuffisante - Vous avez besoin de l'autorisation suivante: ``Bannir des Membres``.",
+            "Me": ":warning: Permission Insuffisante - J'ai besoin de l'autorisation suivante: ``Bannir des Membres``."
+        }
     },
     "blacklist": {
         "Name": "liste_noire",
@@ -142,6 +169,13 @@
         "SetupActionOptionsDescription": "Fonctionnalités à Activer/Désactiver.",
         "SetupActionStatusName": "statut",
         "SetupActionStatusDescription": "Activer/Désactiver",
+        "Verification": {
+            "VerificationAge": "Âge",
+            "VerificationHow": "Comment as-tu trouvé notre serveur?",
+            "VerificationWhy": "Pourquoi vous rejoignez nous?",
+            "VerificationWhat": "Que pensez-vous du furry fandom?",
+            "VerificationSona": "Avez-vous un sona? Dis nous en à propos de celui-ci."
+        },
         "VerificationName": "vérification",
         "VerificationDescription": "Change the settings of the Verification System.",
         "VerificationCommandName": "commande",
@@ -179,6 +213,10 @@
         "UserName": "utilisateur",
         "UserDescription": "Utilisateur à vérifier."
     },
+    "ticket": {
+        "Name": "ticket",
+        "Description": "Système de tickets - Modérez facilement votre serveur avec des tickets."
+    },
     "unban": {
         "Name": "débannir",
         "Description": "Débannir un utilisateur."
@@ -202,5 +240,8 @@
     "welcomemenu": {
         "Name": "menu_de_bienvenue",
         "Description": "Envoyez l'embed de vérification dans le canal."
+    },
+    "language": {
+        "Name": "langage"
     }
 }

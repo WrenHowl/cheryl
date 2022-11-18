@@ -525,6 +525,28 @@ module.exports = {
                 .setRequired(false))),
 
     execute: async (interaction, bot, sequelize, Sequelize) => {
+        const CommandFunction = sequelize.define("CommandFunction", {
+            name: {
+                type: Sequelize.STRING,
+            },
+            value: {
+                type: Sequelize.STRING,
+            },
+        });
+
+        const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
+
+        const MessageReason = require("../config/message.json");
+
+        if (FindCommand) {
+            if (FindCommand.value === "Disable") {
+                return interaction.reply({
+                    content: MessageReason.CommandDisabled,
+                    ephemeral: true,
+                });
+            };
+        };
+
         if (interaction.member.permissions.has("ADMINISTRATOR") | interaction.member.permissions.has("MANAGE_GUILD") | interaction.user.id === Config.ownerId) {
             let options = interaction.options.getSubcommand();
             let channelOptions = interaction.options.getChannel(en.LoggingChannelName);

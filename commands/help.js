@@ -53,17 +53,41 @@ module.exports = {
         { name: "verification", value: "verificationInfo" },
       )),
   execute: async (interaction, bot) => {
+    const CommandFunction = sequelize.define("CommandFunction", {
+      name: {
+        type: Sequelize.STRING,
+      },
+      value: {
+        type: Sequelize.STRING,
+      },
+    });
+
+    const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
+
+    const MessageReason = require("../config/message.json");
+
+    if (FindCommand) {
+      if (FindCommand.value === "Disable") {
+        return interaction.reply({
+          content: MessageReason.CommandDisabled,
+          ephemeral: true,
+        });
+      };
+    };
+
     const infoOptions = interaction.options.getString(en.InfoName);
 
     if (!infoOptions) {
       let arrayStaffCheryl = [
         "blacklist",
         "permission",
+        "cmd",
       ].join("``, ``");
 
       let arrayAdminGlobal = [
         "settings",
         "welcomemenu",
+        "language",
       ].join("``, ``");
 
       let arrayModGlobal = [
@@ -87,7 +111,7 @@ module.exports = {
 
       let arrayFunGlobal = [
         "avatar",
-        "action"
+        "action",
       ].join("``, ``");
 
       if (arrayStaffCheryl) arrayStaffCheryl = "``" + arrayStaffCheryl + "``";
