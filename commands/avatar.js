@@ -48,7 +48,7 @@ module.exports = {
                 nl: nl.UserDescription
             })
             .setRequired(false)),
-    execute: async (interaction) => {
+    execute: async (interaction, bot, sequelize, Sequelize) => {
         const CommandFunction = sequelize.define("CommandFunction", {
             name: {
                 type: Sequelize.STRING,

@@ -40,7 +40,7 @@ module.exports = {
             .setName("rules")
             .setDescription("Channel of the rules to mention in this message")
             .setRequired(true)),
-    execute: async (interaction, sequelize, Sequelize) => {
+    execute: async (interaction, bot, sequelize, Sequelize) => {
         const CommandFunction = sequelize.define("CommandFunction", {
             name: {
                 type: Sequelize.STRING,

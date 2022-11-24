@@ -52,7 +52,7 @@ module.exports = {
         { name: "blacklist", value: "blacklistInfo" },
         { name: "verification", value: "verificationInfo" },
       )),
-  execute: async (interaction, bot) => {
+  execute: async (interaction, bot, sequelize, Sequelize) => {
     const CommandFunction = sequelize.define("CommandFunction", {
       name: {
         type: Sequelize.STRING,
@@ -121,7 +121,7 @@ module.exports = {
       if (arrayFunGlobal) arrayFunGlobal = "``" + arrayFunGlobal + "``";
 
       const helpMenu = new MessageEmbed()
-        .setDescription("Here's all the command available on `" + bot.user.username + "`. [Support Discord](" + Config.SupportDiscord + ")")
+        .setDescription("Prefix of `" + bot.user.username + "` is ``c.`` -> [Support Discord](" + Config.SupportDiscord + ")")
         .addFields(
           { name: "Staff Cheryl:", value: arrayStaffCheryl },
           { name: "Administration:", value: arrayAdminGlobal },

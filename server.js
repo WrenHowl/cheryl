@@ -322,15 +322,16 @@ bot.once("ready", async () => {
 });
 
 bot.on("guildMemberAdd", async (NewMember) => {
-  const LoggingData = await Logging.findOne({ where: { GuildID: NewMember.guild.id } });
+  try {
+    let LoggingData = await Logging.findOne({ where: { GuildID: NewMember.guild.id } });
 
-  if (LoggingData) {
     if (LoggingData.ChannelIDWelcome) {
       if (NewMember.guild.members.guild.me.permissionsIn(LoggingData.ChannelIDWelcome).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
+        if (NewMember.user.bot) return;
+
         const ChannelGuild = NewMember.guild.channels.cache.get(LoggingData.ChannelIDWelcome);
         const guild = bot.guilds.cache.get(NewMember.guild.id);
-        var memberCount = guild.members.cache.filter(newMember => !newMember.user.bot).size;
-        if (NewMember.user.bot) return;
+        const memberCount = guild.members.cache.filter(newMember => !newMember.user.bot).size;
 
         if (NewMember.guild.id === "821241527941726248") {
           await NewMember.roles.add("940140000916430848");
@@ -354,20 +355,25 @@ bot.on("guildMemberAdd", async (NewMember) => {
 
         await ChannelGuild.send({
           embeds: [WelcomeMessage]
+        }).catch(error => {
+          console.log(error)
         });
-      } else return;
-    }
+      };
+    };
     if (LoggingData.AutoRole) {
       return NewMember.roles.add(LoggingData.AutoRole)
-    }
-  }
+    };
 
-  const VerifBlacklist = await Blacklist.findOne({ where: { UserID: NewMember.user.id } })
+    let VerifierData = await Verifier.findOne({ where: { UserID: NewMember.user.id } });
 
-  let MessageBlacklist = MessageConfig.Blacklist;
+    if (VerifierData) {
 
-  if (VerifBlacklist) {
-    if (LoggingData) {
+    };
+
+    let VerifBlacklist = await Blacklist.findOne({ where: { UserID: NewMember.user.id } });
+    let MessageBlacklist = MessageConfig.Blacklist;
+
+    if (VerifBlacklist) {
       if (LoggingData.EnableDisableBlacklistLogger === "Enabled") {
         if (LoggingData.ChannelIDBlacklist) {
           if (NewMember.guild.members.guild.me.permissionsIn(LoggingData.ChannelIDBlacklist).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
@@ -417,31 +423,87 @@ bot.on("guildMemberAdd", async (NewMember) => {
           }
         }
       }
-    }
-  }
+    };
+  } catch (error) {
+    let fetchGuild = interaction.client.guilds.cache.get(Config.guildId)
+    let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel)
+
+    CrashChannel.send({ content: error });
+  };
 });
 
 bot.on("guildMemberUpdate", async (OldMember, NewMember) => {
-  const OldStatus = OldMember.premiumSince;
-  const NewStatus = NewMember.premiumSince;
+  try {
+    const OldStatus = OldMember.premiumSince;
+    const NewStatus = NewMember.premiumSince;
 
-  if (NewMember.guild.id === "821241527941726248") {
-    if (!OldStatus && NewStatus) {
-      const ChannelToSend = bot.channels.cache.get("898361230010482688")
+    if (NewMember.guild.id === "821241527941726248") {
+      if (!OldStatus && NewStatus) {
+        const ChannelToSend = bot.channels.cache.get("898361230010482688")
 
-      const NewBoost = new MessageEmbed()
-        .setTitle("New Boost")
-        .setDescription("Thank you " + NewMember.user.toString() + " for boosting **" + NewMember.guild.name + "** !")
-        .setColor(Color.Pink)
+        const NewBoost = new MessageEmbed()
+          .setTitle("New Boost")
+          .setDescription("Thank you " + NewMember.user.toString() + " for boosting **" + NewMember.guild.name + "** !")
+          .setColor(Color.Pink)
 
-      ChannelToSend.send({
-        embeds: [NewBoost]
-      })
+        ChannelToSend.send({
+          embeds: [NewBoost]
+        })
 
-      return NewMember.roles.add("1001111992834211921")
-    }
-    if (OldStatus && !NewStatus) {
-      return NewMember.roles.remove("1001111992834211921")
+        return NewMember.roles.add("1001111992834211921")
+      }
+      if (OldStatus && !NewStatus) {
+        return NewMember.roles.remove("1001111992834211921")
+      }
+    };
+  } catch (error) {
+    let fetchGuild = interaction.client.guilds.cache.get(Config.guildId)
+    let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel)
+
+    CrashChannel.send({ content: error });
+  };
+});
+
+bot.on("guildMemberRemove", async (LeavingMember) => {
+  if (LeavingMember.guild.id === Config.guildId) {
+    return Permission.destroy({ where: { UserID: LeavingMember.user.id } })
+  }
+
+  const LoggingData = await Logging.findOne({ where: { GuildID: LeavingMember.guild.id } });
+
+  if (LoggingData.ChannelIDLeaving) {
+    if (NewMember.guild.members.guild.me.permissionsIn(LoggingData.ChannelIDLeaving).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
+      if (NewMember.user.bot) return;
+
+      const VerifierData = await Verifier.findOne({ where: { GuildID: LeavingMember.guild.id, VerifierID: LeavingMember.user.id } });
+      const ChannelGuild = NewMember.guild.channels.cache.get(LoggingData.ChannelIDLeaving);
+
+      VerifierData ? Status = "``Was Verified``" : Status = "``Wasn't Verified``";
+
+      const LeavingMemberEmbed = new MessageEmbed()
+        .setTitle("Member Left")
+        .addFields(
+          { name: "User", value: LeavingMember.user.tag },
+          { name: "Created At", value: moment(LeavingMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") },
+          { name: "Joined At", value: moment(LeavingMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') },
+        )
+        .setColor(Color.Green)
+        .setFooter(
+          { text: LeavingMember.user.id }
+        )
+        .setThumbnail(LeavingMember.user.displayAvatarURL())
+
+      if (LoggingData.ChannelIDVerify) {
+        LeavingMemberEmbed.addFields(
+          { name: "Status", value: Status }
+        );
+      };
+
+      return ChannelGuild.send({
+        embeds: [LeavingMemberEmbed]
+      }).catch(error => {
+        console.log(error)
+      });
     }
   }
 });
@@ -454,42 +516,6 @@ bot.on("userUpdate", async (NewUser, OldUser) => {
   if (OldUser.discriminator !== NewUser.discriminator) {
     Verifier.update({ ModName: NewUser.tag }, { where: { ModID: NewUser.id } })
     Blacklist.update({ ModName: NewUser.tag }, { where: { ModID: NewUser.id } })
-  }
-});
-
-bot.on("guildMemberRemove", async (LeavingMember) => {
-  if (LeavingMember.guild.id === "821241527941726248") {
-    const VerifierData = await Verifier.destroy({ where: { GuildID: LeavingMember.guild.id, VerifierID: LeavingMember.user.id } });
-    const LoggingData = await Logging.findOne({ where: { GuildID: LeavingMember.guild.id } });
-    const LogChannel = LeavingMember.guild.channels.cache.get("898366209827954718");
-
-    VerifierData ? Status = "``Was Verified``" : Status = "``Wasn't Verified``";
-
-    const LeavingMemberEmbed = new MessageEmbed()
-      .setTitle("Member Left")
-      .addFields(
-        { name: "User", value: LeavingMember.user.tag },
-        { name: "Created At", value: moment(LeavingMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") },
-        { name: "Joined At", value: moment(LeavingMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') },
-      )
-      .setColor(Color.Green)
-      .setFooter(
-        { text: LeavingMember.user.id }
-      )
-      .setThumbnail(LeavingMember.user.displayAvatarURL())
-
-    if (LoggingData.ChannelIDVerify) {
-      LeavingMemberEmbed.addFields(
-        { name: "Status", value: Status }
-      );
-    };
-
-    await LogChannel.send({
-      embeds: [LeavingMemberEmbed]
-    });
-  }
-  if (LeavingMember.guild.id === Config.guildId) {
-    return Permission.destroy({ where: { UserID: LeavingMember.user.id } })
   }
 });
 
@@ -599,10 +625,16 @@ bot.on('interactionCreate', async (interaction) => {
   const command = bot.commands.get(interaction.commandName);
 
   try {
-    await command.execute(interaction, bot, sequelize, Sequelize);
+    return command.execute(interaction, bot, sequelize, Sequelize);
   } catch (error) {
-    console.error(error);
-    await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+    let fetchGuild = interaction.client.guilds.cache.get(Config.guildId)
+    let crashChannel = fetchGuild.channels.cache.get(Config.CrashChannel)
+
+    crashChannel.send({ content: error }).catch(error => {
+      crashChannel.send({ content: error })
+    });
+
+    return interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
   }
 });
 
@@ -673,11 +705,11 @@ bot.on('interactionCreate', async (interaction) => {
             interaction.channel.messages.fetch(interaction.message.id).then(async (UpdateMessage) => {
               const verificationEmbedAccepted = new MessageEmbed()
                 .addFields(
-                  { name: "Age", value: VerificationLog.AgeData },
-                  { name: "How did you find our server?", value: VerificationLog.HowServerData },
-                  { name: "Why are you joining us?", value: VerificationLog.JoiningData },
-                  { name: "What do you think about the furry fandom?", value: VerificationLog.FurryFandomData },
-                  { name: "Do you have any sona? Tell us about it.", value: VerificationLog.SonaData },
+                  { name: "Age", value: VerificationLog.AgeData + "** **" },
+                  { name: "How did you find our server?", value: VerificationLog.HowServerData + "** **" },
+                  { name: "Why are you joining us?", value: VerificationLog.JoiningData + "** **" },
+                  { name: "What do you think about the furry fandom?", value: VerificationLog.FurryFandomData + "** **" },
+                  { name: "Do you have any sona? Tell us about it.", value: VerificationLog.SonaData + "** **" },
                 )
                 .setColor(Color.Gray)
                 .setTimestamp()
@@ -713,11 +745,11 @@ bot.on('interactionCreate', async (interaction) => {
             interaction.channel.messages.fetch(interaction.message.id).then(async () => {
               const verificationEmbedAccepted = new MessageEmbed()
                 .addFields(
-                  { name: "Age", value: VerificationLog.AgeData },
-                  { name: "How did you find our server?", value: VerificationLog.HowServerData },
-                  { name: "Why are you joining us?", value: VerificationLog.JoiningData },
-                  { name: "What do you think about the furry fandom?", value: VerificationLog.FurryFandomData },
-                  { name: "Do you have any sona? Tell us about it.", value: VerificationLog.SonaData },
+                  { name: "Age", value: VerificationLog.AgeData + "** **" },
+                  { name: "How did you find our server?", value: VerificationLog.HowServerData + "** **" },
+                  { name: "Why are you joining us?", value: VerificationLog.JoiningData + "** **" },
+                  { name: "What do you think about the furry fandom?", value: VerificationLog.FurryFandomData + "** **" },
+                  { name: "Do you have any sona? Tell us about it.", value: VerificationLog.SonaData + "** **" },
                 )
                 .setColor(Color.Green)
                 .setTimestamp()
@@ -764,11 +796,11 @@ bot.on('interactionCreate', async (interaction) => {
             interaction.channel.messages.fetch(interaction.message.id).then(async () => {
               const verificationEmbedAccepted = new MessageEmbed()
                 .addFields(
-                  { name: "Age", value: VerificationLog.AgeData },
-                  { name: "How did you find our server?", value: VerificationLog.HowServerData },
-                  { name: "Why are you joining us?", value: VerificationLog.JoiningData },
-                  { name: "What do you think about the furry fandom?", value: VerificationLog.FurryFandomData },
-                  { name: "Do you have any sona? Tell us about it", value: VerificationLog.SonaData },
+                  { name: "Age", value: VerificationLog.AgeData + "** **" },
+                  { name: "How did you find our server?", value: VerificationLog.HowServerData + "** **" },
+                  { name: "Why are you joining us?", value: VerificationLog.JoiningData + "** **" },
+                  { name: "What do you think about the furry fandom?", value: VerificationLog.FurryFandomData + "** **" },
+                  { name: "Do you have any sona? Tell us about it", value: VerificationLog.SonaData + "** **" },
                 )
                 .setColor(Color.Gray)
                 .setTimestamp()
@@ -808,11 +840,11 @@ bot.on('interactionCreate', async (interaction) => {
 
               const verificationEmbedDenied = new MessageEmbed()
                 .addFields(
-                  { name: "Age", value: VerificationLog.AgeData },
-                  { name: "How did you find our server?", value: VerificationLog.HowServerData },
-                  { name: "Why are you joining us?", value: VerificationLog.JoiningData },
-                  { name: "What do you think about the furry fandom?", value: VerificationLog.FurryFandomData },
-                  { name: "Do you have any sona? Tell us about it", value: VerificationLog.SonaData },
+                  { name: "Age", value: VerificationLog.AgeData + "** **" },
+                  { name: "How did you find our server?", value: VerificationLog.HowServerData + "** **" },
+                  { name: "Why are you joining us?", value: VerificationLog.JoiningData + "** **" },
+                  { name: "What do you think about the furry fandom?", value: VerificationLog.FurryFandomData + "** **" },
+                  { name: "Do you have any sona? Tell us about it", value: VerificationLog.SonaData + "** **" },
                 )
                 .setColor(Color.RiskHigh)
                 .setTimestamp()
@@ -976,11 +1008,11 @@ bot.on('interactionCreate', async (interaction) => {
 
         const verificationEmbedDenied = new MessageEmbed()
           .addFields(
-            { name: "Age", value: VerificationLog.AgeData },
-            { name: "How did you find our server?", value: VerificationLog.HowServerData },
-            { name: "Why are you joining us?", value: VerificationLog.JoiningData },
-            { name: "What do you think about the furry fandom?", value: VerificationLog.FurryFandomData },
-            { name: "Do you have any sona? Tell us about it", value: VerificationLog.SonaData },
+            { name: "Age", value: VerificationLog.AgeData + "** **" },
+            { name: "How did you find our server?", value: VerificationLog.HowServerData + "** **" },
+            { name: "Why are you joining us?", value: VerificationLog.JoiningData + "** **" },
+            { name: "What do you think about the furry fandom?", value: VerificationLog.FurryFandomData + "** **" },
+            { name: "Do you have any sona? Tell us about it", value: VerificationLog.SonaData + "** **" },
           )
           .setColor(Color.RiskHigh)
           .setTimestamp()

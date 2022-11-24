@@ -650,12 +650,6 @@ module.exports = {
 
             const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
 
-            if (!LoggingData) {
-                const DataCreate = await Logging.create({
-                    GuildID: interaction.guild.id,
-                })
-            }
-
             let removeRole = removeRoleOptions;
 
             if (removeRole) {
@@ -1020,7 +1014,7 @@ module.exports = {
                         }, { where: { GuildID: interaction.guild.id } })
 
                         VerificationMenuEmbed.addFields(
-                            { name: "**Role to Remove:**", value: RoleToRemoveVerify.toLocaleString(), inline: true },
+                            { name: "**Role to Remove:**", value: removeRoleOptions.toLocaleString(), inline: true },
                         )
                     }
 

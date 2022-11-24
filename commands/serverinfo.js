@@ -32,7 +32,7 @@ module.exports = {
       SpanishES: sp.Description,
       nl: nl.Description
     }),
-  execute: async (interaction, bot) => {
+  execute: async (interaction, bot, sequelize, Sequelize) => {
     const CommandFunction = sequelize.define("CommandFunction", {
       name: {
         type: Sequelize.STRING,

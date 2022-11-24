@@ -37,7 +37,8 @@ module.exports = {
                 "ticket",
                 "report",
                 "avatar",
-                "action"
+                "action",
+                "language"
             ];
 
             let EnableDisable = [
