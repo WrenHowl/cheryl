@@ -33,50 +33,56 @@ module.exports = {
             nl: nl.Description
         }),
     execute: async (interaction, bot, sequelize, Sequelize) => {
-        const CommandFunction = sequelize.define("CommandFunction", {
-            name: {
-                type: Sequelize.STRING,
-            },
-            value: {
-                type: Sequelize.STRING,
-            },
-        });
+        try {
+            const CommandFunction = sequelize.define("CommandFunction", {
+                name: {
+                    type: Sequelize.STRING,
+                },
+                value: {
+                    type: Sequelize.STRING,
+                },
+            });
 
-        const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
+            const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
+            const MessageReason = require("../config/message.json");
 
-        const MessageReason = require("../config/message.json");
+            if (FindCommand) {
+                if (FindCommand.value === "Disable") {
+                    return interaction.reply({
+                        content: MessageReason.CommandDisabled,
+                        ephemeral: true,
+                    });
+                };
+            };
 
-        if (FindCommand) {
-            if (FindCommand.value === "Disable") {
+            if (interaction.member.permissions.has("MANAGE_MESSAGES")) {
+                if (interaction.guild.me.permissions.has("MANAGE_CHANNELS")) {
+                    await interaction.channel.permissionOverwrites.edit(interaction.channel.guild.roles.everyone, { SEND_MESSAGES: true });
+
+                    const unLockdownSuccess = new MessageEmbed()
+                        .setDescription("The channel has been successfully unlock.")
+                        .setColor(Color.Green);
+
+                    return interaction.reply({
+                        embeds: [unLockdownSuccess]
+                    });
+                } else {
+                    return interaction.reply({
+                        content: "I need the following permission ```MANAGE_CHANNELS``.",
+                        ephemeral: true,
+                    });
+                };
+            } else {
                 return interaction.reply({
-                    content: MessageReason.CommandDisabled,
+                    content: "You cannot execute this command! You need the following permission ```MANAGE_MESSAGES``.",
                     ephemeral: true,
                 });
             };
-        };
+        } catch (error) {
+            let fetchGuild = message.client.guilds.cache.get(Config.guildId);
+            let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
 
-        if (interaction.member.permissions.has("MANAGE_MESSAGES")) {
-            if (interaction.guild.me.permissions.has("MANAGE_CHANNELS")) {
-                await interaction.channel.permissionOverwrites.edit(interaction.channel.guild.roles.everyone, { SEND_MESSAGES: true })
-
-                const unLockdownSuccess = new MessageEmbed()
-                    .setDescription("The channel has been successfully unlock.")
-                    .setColor(Color.Green)
-
-                return interaction.reply({
-                    embeds: [unLockdownSuccess]
-                });
-            } else {
-                return interaction.reply({
-                    content: "I need the following permission ```MANAGE_CHANNELS``.",
-                    ephemeral: true
-                });
-            };
-        } else {
-            return interaction.reply({
-                content: "You cannot execute this command! You need the following permission ```MANAGE_MESSAGES``.",
-                ephemeral: true
-            });
+            CrashChannel.send({ content: "**Error in the " + en.Name + " Command:** \n\n```javascript\n" + error + "```" });
         };
     }
 };

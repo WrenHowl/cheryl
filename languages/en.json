@@ -241,6 +241,9 @@
         "Name": "welcomemenu",
         "Description": "Send the verification embed in the channel."
     },
+    "cmd": {
+        "Name": "cmd"
+    },
     "language": {
         "Name": "language"
     }

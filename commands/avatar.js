@@ -49,39 +49,46 @@ module.exports = {
             })
             .setRequired(false)),
     execute: async (interaction, bot, sequelize, Sequelize) => {
-        const CommandFunction = sequelize.define("CommandFunction", {
-            name: {
-                type: Sequelize.STRING,
-            },
-            value: {
-                type: Sequelize.STRING,
-            },
-        });
+        try {
+            const CommandFunction = sequelize.define("CommandFunction", {
+                name: {
+                    type: Sequelize.STRING,
+                },
+                value: {
+                    type: Sequelize.STRING,
+                },
+            });
 
-        const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
+            const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
 
-        const MessageReason = require("../config/message.json");
+            const MessageReason = require("../config/message.json");
 
-        if (FindCommand) {
-            if (FindCommand.value === "Disable") {
-                return interaction.reply({
-                    content: MessageReason.CommandDisabled,
-                    ephemeral: true,
-                });
+            if (FindCommand) {
+                if (FindCommand.value === "Disable") {
+                    return interaction.reply({
+                        content: MessageReason.CommandDisabled,
+                        ephemeral: true,
+                    });
+                };
             };
+
+            const user = interaction.options.getUser(en.UserName);
+
+            let MemberData = user ? user : interaction.user;
+
+            const AvatarShown = new MessageEmbed()
+                .setTitle("Avatar of " + MemberData.tag)
+                .setImage(MemberData.displayAvatarURL({ dynamic: true, size: 512 }))
+                .setColor(Color.Green)
+
+            return interaction.reply({
+                embeds: [AvatarShown]
+            });
+        } catch (error) {
+            let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
+            let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+
+            CrashChannel.send({ content: "**Error in the " + en.Name + " Command:** \n\n```javascript\n" + error + "```" });
         };
-
-        const user = interaction.options.getUser(en.UserName);
-
-        let MemberData = user ? user : interaction.user;
-
-        const AvatarShown = new MessageEmbed()
-            .setTitle("Avatar of " + MemberData.tag)
-            .setImage(MemberData.displayAvatarURL({ dynamic: true, size: 512 }))
-            .setColor(Color.Green)
-
-        return interaction.reply({
-            embeds: [AvatarShown]
-        });
     }
 };

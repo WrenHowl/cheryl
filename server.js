@@ -364,32 +364,35 @@ bot.on("guildMemberAdd", async (NewMember) => {
       return NewMember.roles.add(LoggingData.AutoRole)
     };
 
-    let VerifierData = await Verifier.findOne({ where: { UserID: NewMember.user.id } });
+    let VerifierData = await Verifier.findOne({ where: { VerifierID: NewMember.user.id } });
 
     if (VerifierData) {
-
+      if (LoggingData.RoleToAddVerify || LoggingData.RoleToRemoveVerify) {
+        await NewMember.roles.add(LoggingData.RoleToAddVerify);
+        await NewMember.roles.remove(LoggingData.RoleToRemoveVerify);
+      };
     };
 
-    let VerifBlacklist = await Blacklist.findOne({ where: { UserID: NewMember.user.id } });
+    let BlacklistData = await Blacklist.findOne({ where: { UserID: NewMember.user.id } });
     let MessageBlacklist = MessageConfig.Blacklist;
 
-    if (VerifBlacklist) {
+    if (BlacklistData) {
       if (LoggingData.EnableDisableBlacklistLogger === "Enabled") {
         if (LoggingData.ChannelIDBlacklist) {
           if (NewMember.guild.members.guild.me.permissionsIn(LoggingData.ChannelIDBlacklist).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
             const ChannelToSendAt = await NewMember.guild.channels.fetch(LoggingData.ChannelIDBlacklist)
 
-            if (VerifBlacklist.Risk === "Low") ColorEmbed = Color.RiskLow;
-            if (VerifBlacklist.Risk === "Medium") ColorEmbed = Color.RiskMedium;
-            if (VerifBlacklist.Risk === "High") ColorEmbed = Color.RiskHigh;
+            if (BlacklistData.Risk === "Low") ColorEmbed = Color.RiskLow;
+            if (BlacklistData.Risk === "Medium") ColorEmbed = Color.RiskMedium;
+            if (BlacklistData.Risk === "High") ColorEmbed = Color.RiskHigh;
 
             const BlacklistedUserJoined = new MessageEmbed()
               .setTitle("<:BanHammer:997932635454197790> New Alert")
               .setDescription(MessageBlacklist.InstantBan)
               .addFields(
                 { name: "User", value: NewMember.user.toString(), inline: true },
-                { name: "Reason", value: "``" + VerifBlacklist.Reason + "``", inline: true },
-                { name: "Evidence", value: VerifBlacklist.Proof + "** **", inline: true }
+                { name: "Reason", value: "``" + BlacklistData.Reason + "``", inline: true },
+                { name: "Evidence", value: BlacklistData.Proof + "** **", inline: true }
               )
               .setColor(ColorEmbed)
               .setFooter({
@@ -405,16 +408,16 @@ bot.on("guildMemberAdd", async (NewMember) => {
               if (LoggingData.AutoBanStatus === "Disable") return;
 
               if (LoggingData.AutoBanStatus === "Low+") {
-                if (VerifBlacklist.Risk === ["Low", "Medium", "High"]) {
-                  return NewMember.guild.members.ban(VerifBlacklist.UserID, { reason: [VerifBlacklist.Reason + " | " + AutoBanMessage] });
+                if (BlacklistData.Risk === ["Low", "Medium", "High"]) {
+                  return NewMember.guild.members.ban(BlacklistData.UserID, { reason: [BlacklistData.Reason + " | " + AutoBanMessage] });
                 }
               } else if (LoggingData.AutoBanStatus === "Medium+") {
-                if (VerifBlacklist.Risk === ["Medium", "High"]) {
-                  return NewMember.guild.members.ban(VerifBlacklist.UserID, { reason: [VerifBlacklist.Reason + " | " + AutoBanMessage] });
+                if (BlacklistData.Risk === ["Medium", "High"]) {
+                  return NewMember.guild.members.ban(BlacklistData.UserID, { reason: [BlacklistData.Reason + " | " + AutoBanMessage] });
                 }
               } else if (LoggingData.AutoBanStatus === "High+") {
-                if (VerifBlacklist.Risk === ["High"]) {
-                  return NewMember.guild.members.ban(VerifBlacklist.UserID, { reason: [VerifBlacklist.Reason + " | " + AutoBanMessage] });
+                if (BlacklistData.Risk === ["High"]) {
+                  return NewMember.guild.members.ban(BlacklistData.UserID, { reason: [BlacklistData.Reason + " | " + AutoBanMessage] });
                 }
               }
             };
@@ -425,10 +428,10 @@ bot.on("guildMemberAdd", async (NewMember) => {
       }
     };
   } catch (error) {
-    let fetchGuild = interaction.client.guilds.cache.get(Config.guildId)
+    let fetchGuild = NewMember.client.guilds.cache.get(Config.guildId)
     let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel)
 
-    CrashChannel.send({ content: error });
+    CrashChannel.send({ content: "**Error in 'guildMemberAdd' Event:** \n\n```javascript\n" + error + "```" });
   };
 });
 
@@ -457,125 +460,149 @@ bot.on("guildMemberUpdate", async (OldMember, NewMember) => {
       }
     };
   } catch (error) {
-    let fetchGuild = interaction.client.guilds.cache.get(Config.guildId)
-    let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel)
+    let fetchGuild = NewMember.client.guilds.cache.get(Config.guildId);
+    let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
 
-    CrashChannel.send({ content: error });
+    CrashChannel.send({ content: "**Error in 'guildMemberUpdate' Event:** \n\n```javascript\n" + error + "```" });
   };
 });
 
 bot.on("guildMemberRemove", async (LeavingMember) => {
-  if (LeavingMember.guild.id === Config.guildId) {
-    return Permission.destroy({ where: { UserID: LeavingMember.user.id } })
-  }
+  try {
+    if (LeavingMember.guild.id === Config.guildId) {
+      return Permission.destroy({ where: { UserID: LeavingMember.user.id } });
+    };
 
-  const LoggingData = await Logging.findOne({ where: { GuildID: LeavingMember.guild.id } });
+    const LoggingData = await Logging.findOne({ where: { GuildID: LeavingMember.guild.id } });
 
-  if (LoggingData.ChannelIDLeaving) {
-    if (NewMember.guild.members.guild.me.permissionsIn(LoggingData.ChannelIDLeaving).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
-      if (NewMember.user.bot) return;
+    if (LoggingData.ChannelIDLeaving) {
+      if (LeavingMember.guild.members.guild.me.permissionsIn(LoggingData.ChannelIDLeaving).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
+        if (LeavingMember.user.bot) return;
 
-      const VerifierData = await Verifier.findOne({ where: { GuildID: LeavingMember.guild.id, VerifierID: LeavingMember.user.id } });
-      const ChannelGuild = NewMember.guild.channels.cache.get(LoggingData.ChannelIDLeaving);
+        const VerifierData = await Verifier.findOne({ where: { GuildID: LeavingMember.guild.id, VerifierID: LeavingMember.user.id } });
+        const ChannelGuild = LeavingMember.guild.channels.cache.get(LoggingData.ChannelIDLeaving);
 
-      VerifierData ? Status = "``Was Verified``" : Status = "``Wasn't Verified``";
+        VerifierData ? Status = "``Was Verified``" : Status = "``Wasn't Verified``";
 
-      const LeavingMemberEmbed = new MessageEmbed()
-        .setTitle("Member Left")
-        .addFields(
-          { name: "User", value: LeavingMember.user.tag },
-          { name: "Created At", value: moment(LeavingMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") },
-          { name: "Joined At", value: moment(LeavingMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') },
-        )
-        .setColor(Color.Green)
-        .setFooter(
-          { text: LeavingMember.user.id }
-        )
-        .setThumbnail(LeavingMember.user.displayAvatarURL())
+        const LeavingMemberEmbed = new MessageEmbed()
+          .setTitle("Member Left")
+          .addFields(
+            { name: "User", value: LeavingMember.user.tag },
+            { name: "Created At", value: moment(LeavingMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") },
+            { name: "Joined At", value: moment(LeavingMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') },
+          )
+          .setColor(Color.Green)
+          .setFooter(
+            { text: LeavingMember.user.id }
+          )
+          .setThumbnail(LeavingMember.user.displayAvatarURL())
 
-      if (LoggingData.ChannelIDVerify) {
-        LeavingMemberEmbed.addFields(
-          { name: "Status", value: Status }
-        );
+        if (LoggingData.ChannelIDVerify) {
+          LeavingMemberEmbed.addFields(
+            { name: "Status", value: Status }
+          );
+        };
+
+        return ChannelGuild.send({
+          embeds: [LeavingMemberEmbed]
+        });
       };
+    };
+  } catch (error) {
+    let fetchGuild = LeavingMember.client.guilds.cache.get(Config.guildId);
+    let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
 
-      return ChannelGuild.send({
-        embeds: [LeavingMemberEmbed]
-      }).catch(error => {
-        console.log(error)
-      });
-    }
-  }
+    CrashChannel.send({ content: "**Error in 'guildMemberRemove' Event:** \n\n```javascript\n" + error + "```" });
+  };
 });
 
 bot.on("userUpdate", async (NewUser, OldUser) => {
-  if (OldUser.username !== NewUser.username) {
-    Verifier.update({ ModName: NewUser.tag }, { where: { ModID: NewUser.id } })
-    Blacklist.update({ ModName: NewUser.tag }, { where: { ModID: NewUser.id } })
-  }
-  if (OldUser.discriminator !== NewUser.discriminator) {
-    Verifier.update({ ModName: NewUser.tag }, { where: { ModID: NewUser.id } })
-    Blacklist.update({ ModName: NewUser.tag }, { where: { ModID: NewUser.id } })
-  }
+  try {
+    if (OldUser.username !== NewUser.username || OldUser.discriminator !== NewUser.discriminator) {
+      Verifier.update({ ModName: NewUser.tag }, { where: { ModID: NewUser.id } });
+      Blacklist.update({ ModName: NewUser.tag }, { where: { ModID: NewUser.id } });
+    };
+  } catch (error) {
+    let fetchGuild = LeavingMember.client.guilds.cache.get(Config.guildId);
+    let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+
+    CrashChannel.send({ content: "**Error in 'userUpdate' Event:** \n\n```javascript\n" + error + "```" });
+  };
 });
 
 bot.on("guildCreate", async (guild) => {
-  const LoggingData = await Logging.findOne({ where: { GuildID: guild.id } });
+  try {
+    const LoggingData = await Logging.findOne({ where: { GuildID: guild.id } });
 
-  if (!LoggingData) {
-    await Logging.create({
-      GuildID: guild.id,
+    if (!LoggingData) {
+      await Logging.create({
+        GuildID: guild.id,
+      });
+    };
+
+    const owner = await guild.fetchOwner();
+    const BlacklistData = await Blacklist.findOne({ where: { UserID: owner.user.id } });
+
+    BlacklistData ? Boo = "Yes" : Boo = "No";
+
+    const NewGuild = new MessageEmbed()
+      .setTitle("Bot Added")
+      .addFields(
+        { name: "Server Name", value: "``" + guild.name + "``", inline: true },
+        { name: "Server ID", value: "``" + guild.id + "``", inline: true },
+        { name: "Members", value: "``" + guild.memberCount + "``", inline: true },
+        { name: "Owner Name", value: "``" + owner.user.tag + "``", inline: true },
+        { name: "Owner ID", value: "``" + owner.user.id + "``", inline: true },
+        { name: "Owner Blacklisted", value: "``" + Boo + "``", inline: true },
+      )
+      .setColor(Color.Green)
+
+    let fetchGuild = guild.client.guilds.cache.get(Config.guildId);
+    let ChannelAddition = fetchGuild.channels.cache.get(Config.BotAdded);
+
+    ChannelAddition.send({
+      embeds: [NewGuild]
     });
+  } catch (error) {
+    let fetchGuild = LeavingMember.client.guilds.cache.get(Config.guildId);
+    let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+
+    CrashChannel.send({ content: "**Error in 'guildCreate' Event:** \n\n```javascript\n" + error + "```" });
   };
-
-  const owner = await guild.fetchOwner();
-  const BlacklistData = await Blacklist.findOne({ where: { UserID: owner.user.id } });
-
-  BlacklistData ? Boo = "Yes" : Boo = "No";
-
-  const NewGuild = new MessageEmbed()
-    .setTitle("Bot Added")
-    .addFields(
-      { name: "Server Name", value: "``" + guild.name + "``", inline: true },
-      { name: "Server ID", value: "``" + guild.id + "``", inline: true },
-      { name: "Members", value: "``" + guild.memberCount + "``", inline: true },
-      { name: "Owner Name", value: "``" + owner.user.tag + "``", inline: true },
-      { name: "Owner ID", value: "``" + owner.user.id + "``", inline: true },
-      { name: "Owner Blacklisted", value: "``" + Boo + "``", inline: true },
-    )
-    .setColor(Color.Green)
-
-  let fetchGuild = guild.client.guilds.cache.get(Config.guildId);
-
-  fetchGuild.channels.cache.get(Config.BotAdded).send({
-    embeds: [NewGuild]
-  });
 });
 
 bot.on("guildDelete", async (guild) => {
-  const owner = await guild.fetchOwner();
-  const BlacklistData = await Blacklist.findOne({ where: { UserID: owner.user.id } });
+  try {
+    const owner = await guild.fetchOwner();
+    const BlacklistData = await Blacklist.findOne({ where: { UserID: owner.user.id } });
 
-  BlacklistData ? Boo = "Yes" : Boo = "No";
+    BlacklistData ? Boo = "Yes" : Boo = "No";
 
-  const NewGuild = new MessageEmbed()
-    .setTitle("Bot Removed")
-    .addFields(
-      { name: "Server Name", value: "``" + guild.name + "``", inline: true },
-      { name: "Server ID", value: "``" + guild.id + "``", inline: true },
-      { name: "Members", value: "``" + guild.memberCount + "``", inline: true },
-      { name: "Owner Name", value: "``" + owner.user.tag + "``", inline: true },
-      { name: "Owner ID", value: "``" + owner.user.id + "``", inline: true },
-      { name: "Owner Blacklisted", value: "``" + Boo + "``", inline: true },
+    const NewGuild = new MessageEmbed()
+      .setTitle("Bot Removed")
+      .addFields(
+        { name: "Server Name", value: "``" + guild.name + "``", inline: true },
+        { name: "Server ID", value: "``" + guild.id + "``", inline: true },
+        { name: "Members", value: "``" + guild.memberCount + "``", inline: true },
+        { name: "Owner Name", value: "``" + owner.user.tag + "``", inline: true },
+        { name: "Owner ID", value: "``" + owner.user.id + "``", inline: true },
+        { name: "Owner Blacklisted", value: "``" + Boo + "``", inline: true },
 
-    )
-    .setColor(Color.RiskHigh)
+      )
+      .setColor(Color.RiskHigh)
 
-  let fetchGuild = guild.client.guilds.cache.get(Config.guildId);
+    let fetchGuild = guild.client.guilds.cache.get(Config.guildId);
+    let BotRemoval = fetchGuild.channels.cache.get(Config.BotRemoved);
 
-  fetchGuild.channels.cache.get(Config.BotRemoved).send({
-    embeds: [NewGuild]
-  });
+    BotRemoval.send({
+      embeds: [NewGuild]
+    });
+  } catch (error) {
+    let fetchGuild = guild.client.guilds.cache.get(Config.guildId);
+    let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+
+    CrashChannel.send({ content: "**Error in 'guildDelete' Event:** \n\n```javascript\n" + error + "```" });
+  };
 });
 
 bot.on("messageCreate", async (message) => {
@@ -620,435 +647,467 @@ bot.on("messageCreate", async (message) => {
 });
 
 bot.on('interactionCreate', async (interaction) => {
-  if (!interaction.isCommand()) return;
-
-  const command = bot.commands.get(interaction.commandName);
-
   try {
+    if (!interaction.isCommand()) return;
+
+    const command = bot.commands.get(interaction.commandName);
+
     return command.execute(interaction, bot, sequelize, Sequelize);
   } catch (error) {
-    let fetchGuild = interaction.client.guilds.cache.get(Config.guildId)
-    let crashChannel = fetchGuild.channels.cache.get(Config.CrashChannel)
+    let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
+    let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
 
-    crashChannel.send({ content: error }).catch(error => {
-      crashChannel.send({ content: error })
+    CrashChannel.send({ content: "**Error in 'interactionCreate' Event:** \n\n```javascript\n" + error + "```" });
+
+    return interaction.reply({
+      content: 'There was an error while executing this command, the developer has been alerted!',
+      ephemeral: true
     });
-
-    return interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
   }
 });
 
 bot.on('interactionCreate', async (interaction) => {
-  let LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } })
+  try {
+    let LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
 
-  if (interaction.isButton()) {
-    let VerificationLog = await Verification.findOne({ where: { MessageID: interaction.message.id } });
-    let ActionImageData = await ActionImage.findOne({ where: { MessageID: interaction.message.id } });
-    let guild = bot.guilds.cache.get(interaction.guild.id);
+    if (interaction.isButton()) {
+      let VerificationLog = await Verification.findOne({ where: { MessageID: interaction.message.id } });
+      let ActionImageData = await ActionImage.findOne({ where: { MessageID: interaction.message.id } });
+      let guild = bot.guilds.cache.get(interaction.guild.id);
 
-    switch (interaction.customId) {
-      case ("buttonToVerify"):
-        if (!interaction.member.roles.cache.some(role => role.id === LoggingData.RoleToAddVerify)) {
-          const ModalVerification = new Modal()
-            .setCustomId('verificationModal')
-            .setTitle('Verification');
+      switch (interaction.customId) {
+        case ("buttonToVerify"):
+          if (!interaction.member.roles.cache.some(role => role.id === LoggingData.RoleToAddVerify)) {
+            const ModalVerification = new Modal()
+              .setCustomId('verificationModal')
+              .setTitle('Verification');
 
-          const ageOption = new TextInputComponent()
-            .setCustomId('ageVerify')
-            .setLabel("Age")
-            .setStyle('SHORT')
-            .setRequired();
+            const ageOption = new TextInputComponent()
+              .setCustomId('ageVerify')
+              .setLabel("Age")
+              .setStyle('SHORT')
+              .setRequired();
 
-          const howServerOption = new TextInputComponent()
-            .setCustomId('howServer')
-            .setLabel("How did you find our server?")
-            .setPlaceholder("If it was a website, what website? If it was a friend, what friend?")
-            .setStyle('SHORT')
-            .setRequired();
+            const howServerOption = new TextInputComponent()
+              .setCustomId('howServer')
+              .setLabel("How did you find our server?")
+              .setPlaceholder("If it was a website, what website? If it was a friend, what friend?")
+              .setStyle('SHORT')
+              .setRequired();
 
-          const joiningOption = new TextInputComponent()
-            .setCustomId('joining')
-            .setLabel("Why are you joining us?")
-            .setStyle('PARAGRAPH')
-            .setRequired();
+            const joiningOption = new TextInputComponent()
+              .setCustomId('joining')
+              .setLabel("Why are you joining us?")
+              .setStyle('PARAGRAPH')
+              .setRequired();
 
-          const furryFandomOption = new TextInputComponent()
-            .setCustomId('furryFandom')
-            .setLabel("What do you think about the furry fandom?")
-            .setStyle('PARAGRAPH')
-            .setRequired();
+            const furryFandomOption = new TextInputComponent()
+              .setCustomId('furryFandom')
+              .setLabel("What do you think about the furry fandom?")
+              .setStyle('PARAGRAPH')
+              .setRequired();
 
-          const sonaOption = new TextInputComponent()
-            .setCustomId('sona')
-            .setLabel("Do you have any sona? Tell us about it")
-            .setStyle('PARAGRAPH')
-            .setRequired();
+            const sonaOption = new TextInputComponent()
+              .setCustomId('sona')
+              .setLabel("Do you have any sona? Tell us about it")
+              .setStyle('PARAGRAPH')
+              .setRequired();
 
-          const ageRow = new MessageActionRow().addComponents(ageOption);
-          const howServerRow = new MessageActionRow().addComponents(howServerOption);
-          const joiningRow = new MessageActionRow().addComponents(joiningOption);
-          const furryFandomRow = new MessageActionRow().addComponents(furryFandomOption);
-          const sonaRow = new MessageActionRow().addComponents(sonaOption);
+            const ageRow = new MessageActionRow().addComponents(ageOption);
+            const howServerRow = new MessageActionRow().addComponents(howServerOption);
+            const joiningRow = new MessageActionRow().addComponents(joiningOption);
+            const furryFandomRow = new MessageActionRow().addComponents(furryFandomOption);
+            const sonaRow = new MessageActionRow().addComponents(sonaOption);
 
-          ModalVerification.addComponents(ageRow, howServerRow, joiningRow, furryFandomRow, sonaRow);
+            ModalVerification.addComponents(ageRow, howServerRow, joiningRow, furryFandomRow, sonaRow);
 
-          return interaction.showModal(ModalVerification)
-        } else {
-          return interaction.reply({
-            content: "You cannot verify yourself, because you're already verified.",
-            ephemeral: true,
-          })
-        };
-      case ("buttonToAcceptVerify"):
-        if (VerificationLog) {
-          if (!guild.members.cache.find(m => m.id === VerificationLog.UserID)?.id) {
-            interaction.channel.messages.fetch(interaction.message.id).then(async (UpdateMessage) => {
-              const verificationEmbedAccepted = new MessageEmbed()
-                .addFields(
-                  { name: "Age", value: VerificationLog.AgeData + "** **" },
-                  { name: "How did you find our server?", value: VerificationLog.HowServerData + "** **" },
-                  { name: "Why are you joining us?", value: VerificationLog.JoiningData + "** **" },
-                  { name: "What do you think about the furry fandom?", value: VerificationLog.FurryFandomData + "** **" },
-                  { name: "Do you have any sona? Tell us about it.", value: VerificationLog.SonaData + "** **" },
-                )
-                .setColor(Color.Gray)
-                .setTimestamp()
-
-              await interaction.update({
-                content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> canceled",
-                embeds: [verificationEmbedAccepted],
-                components: [],
-              })
-
-              return Verification.destroy({ where: { MessageID: interaction.message.id } });
-            })
+            return interaction.showModal(ModalVerification)
           } else {
-            switch (!interaction.guild.me.permissions.has) {
-              case ("MANAGE_ROLES"):
-                return interaction.reply({
-                  content: "Missing permission: MANAGE_ROLES",
-                });
-            };
+            return interaction.reply({
+              content: "You cannot verify yourself, because you're already verified.",
+              ephemeral: true,
+            })
+          };
+        case ("buttonToAcceptVerify"):
+          if (VerificationLog) {
+            if (!guild.members.cache.find(m => m.id === VerificationLog.UserID)?.id) {
+              interaction.channel.messages.fetch(interaction.message.id).then(async (UpdateMessage) => {
+                const verificationEmbedAccepted = new MessageEmbed()
+                  .addFields(
+                    { name: "Age", value: VerificationLog.AgeData + "** **" },
+                    { name: "How did you find our server?", value: VerificationLog.HowServerData + "** **" },
+                    { name: "Why are you joining us?", value: VerificationLog.JoiningData + "** **" },
+                    { name: "What do you think about the furry fandom?", value: VerificationLog.FurryFandomData + "** **" },
+                    { name: "Do you have any sona? Tell us about it.", value: VerificationLog.SonaData + "** **" },
+                  )
+                  .setColor(Color.Gray)
+                  .setTimestamp()
+                  .setFooter({
+                    text: "ID: " + VerificationLog.UserID
+                  })
 
-            const member = interaction.guild.members.cache.get(VerificationLog.UserID)
+                await interaction.update({
+                  content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> canceled",
+                  embeds: [verificationEmbedAccepted],
+                  components: [],
+                })
 
-            await Verification_Count.update({ ModName: interaction.user.tag }, { where: { ModID: interaction.user.id } })
-
-            await member.roles.add(LoggingData.RoleToAddVerify);
-
-            if (LoggingData.RoleToRemoveVerify) {
-              await member.roles.remove(LoggingData.RoleToRemoveVerify);
-            };
-
-            const generalMessage = interaction.guild.channels.cache.get(LoggingData.ChannelIDVerify);
-
-            interaction.channel.messages.fetch(interaction.message.id).then(async () => {
-              const verificationEmbedAccepted = new MessageEmbed()
-                .addFields(
-                  { name: "Age", value: VerificationLog.AgeData + "** **" },
-                  { name: "How did you find our server?", value: VerificationLog.HowServerData + "** **" },
-                  { name: "Why are you joining us?", value: VerificationLog.JoiningData + "** **" },
-                  { name: "What do you think about the furry fandom?", value: VerificationLog.FurryFandomData + "** **" },
-                  { name: "Do you have any sona? Tell us about it.", value: VerificationLog.SonaData + "** **" },
-                )
-                .setColor(Color.Green)
-                .setTimestamp()
-
-              await interaction.update({
-                content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> accepted by " + interaction.user.toString(),
-                embeds: [verificationEmbedAccepted],
-                components: [],
-              });
-            });
-
-            await generalMessage.send({ content: "Welcome <@" + VerificationLog.UserID + "> to **" + interaction.guild.name + "**!" });
-
-            const Verification_CountData = await Verification_Count.findOne({ where: { ModID: interaction.user.id, GuildID: interaction.guild.id } });
-
-            if (Verification_CountData) {
-              if (Verification_CountData.GuildID === interaction.guild.id) {
-                await Verification_CountData.increment('Usage_Count');
-              };
+                return Verification.destroy({ where: { MessageID: interaction.message.id } });
+              })
             } else {
-              await Verification_Count.create({
-                ModID: interaction.user.id,
+              switch (!interaction.guild.me.permissions.has) {
+                case ("MANAGE_ROLES"):
+                  return interaction.reply({
+                    content: "Missing permission: MANAGE_ROLES",
+                  });
+              };
+
+              const member = interaction.guild.members.cache.get(VerificationLog.UserID)
+
+              await Verification_Count.update({ ModName: interaction.user.tag }, { where: { ModID: interaction.user.id } })
+
+              await member.roles.add(LoggingData.RoleToAddVerify);
+
+              if (LoggingData.RoleToRemoveVerify) {
+                await member.roles.remove(LoggingData.RoleToRemoveVerify);
+              };
+
+              const generalMessage = interaction.guild.channels.cache.get(LoggingData.ChannelIDVerify);
+
+              interaction.channel.messages.fetch(interaction.message.id).then(async () => {
+                const verificationEmbedAccepted = new MessageEmbed()
+                  .addFields(
+                    { name: "Age", value: VerificationLog.AgeData + "** **" },
+                    { name: "How did you find our server?", value: VerificationLog.HowServerData + "** **" },
+                    { name: "Why are you joining us?", value: VerificationLog.JoiningData + "** **" },
+                    { name: "What do you think about the furry fandom?", value: VerificationLog.FurryFandomData + "** **" },
+                    { name: "Do you have any sona? Tell us about it.", value: VerificationLog.SonaData + "** **" },
+                  )
+                  .setColor(Color.Green)
+                  .setTimestamp()
+                  .setFooter({
+                    text: "ID: " + VerificationLog.UserID
+                  })
+
+                await interaction.update({
+                  content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> accepted by " + interaction.user.toString(),
+                  embeds: [verificationEmbedAccepted],
+                  components: [],
+                });
+              });
+
+              await generalMessage.send({ content: "Welcome <@" + VerificationLog.UserID + "> to **" + interaction.guild.name + "**!" });
+
+              const Verification_CountData = await Verification_Count.findOne({ where: { ModID: interaction.user.id, GuildID: interaction.guild.id } });
+
+              if (Verification_CountData) {
+                if (Verification_CountData.GuildID === interaction.guild.id) {
+                  await Verification_CountData.increment('Usage_Count');
+                };
+              } else {
+                await Verification_Count.create({
+                  ModID: interaction.user.id,
+                  ModName: interaction.user.tag,
+                  GuildID: interaction.guild.id,
+                });
+              };
+
+              await Verifier.create({
+                VerifierName: VerificationLog.UserName,
+                VerifierID: VerificationLog.UserID,
                 ModName: interaction.user.tag,
+                ModID: interaction.user.id,
                 GuildID: interaction.guild.id,
               });
+
+              return Verification.destroy({ where: { MessageID: interaction.message.id } });
+            }
+          };
+
+          break;
+        case ("buttonToDenyVerify"):
+          if (VerificationLog) {
+            if (!guild.members.cache.find(m => m.id === VerificationLog.UserID)?.id) {
+              interaction.channel.messages.fetch(interaction.message.id).then(async () => {
+                const verificationEmbedAccepted = new MessageEmbed()
+                  .addFields(
+                    { name: "Age", value: VerificationLog.AgeData + "** **" },
+                    { name: "How did you find our server?", value: VerificationLog.HowServerData + "** **" },
+                    { name: "Why are you joining us?", value: VerificationLog.JoiningData + "** **" },
+                    { name: "What do you think about the furry fandom?", value: VerificationLog.FurryFandomData + "** **" },
+                    { name: "Do you have any sona? Tell us about it", value: VerificationLog.SonaData + "** **" },
+                  )
+                  .setColor(Color.Gray)
+                  .setTimestamp()
+                  .setFooter({
+                    text: "ID: " + VerificationLog.UserID
+                  })
+
+                return interaction.update({
+                  content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> canceled",
+                  embeds: [verificationEmbedAccepted],
+                  components: [],
+                })
+              })
+            } else {
+              interaction.channel.messages.fetch(interaction.message.id).then(async () => {
+                const reasonDeny = new MessageActionRow()
+                  .addComponents(
+                    new MessageSelectMenu()
+                      .setCustomId('reasonDeny')
+                      .setPlaceholder('Please select a reason')
+                      .addOptions(
+                        {
+                          label: 'Not Enough Details - Contains barely one line of text',
+                          value: 'noDetails',
+                        },
+                        {
+                          label: 'Troll - Ridiculous Age, etc.',
+                          value: 'troll',
+                        },
+                        {
+                          label: 'New Account - Less than 2 weeks old',
+                          value: 'new',
+                        },
+                        {
+                          label: 'Too Young - 13- Years Old',
+                          value: 'young',
+                        },
+                        {
+                          label: 'Missing Information - How the user joined the server',
+                          value: 'website',
+                        },
+                      ),
+                  );
+
+                const verificationEmbedDenied = new MessageEmbed()
+                  .addFields(
+                    { name: "Age", value: VerificationLog.AgeData + "** **" },
+                    { name: "How did you find our server?", value: VerificationLog.HowServerData + "** **" },
+                    { name: "Why are you joining us?", value: VerificationLog.JoiningData + "** **" },
+                    { name: "What do you think about the furry fandom?", value: VerificationLog.FurryFandomData + "** **" },
+                    { name: "Do you have any sona? Tell us about it", value: VerificationLog.SonaData + "** **" },
+                  )
+                  .setColor(Color.RiskHigh)
+                  .setTimestamp()
+                  .setFooter({
+                    text: "ID: " + VerificationLog.UserID
+                  })
+
+                return interaction.update({
+                  content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> denied by " + interaction.user.toString(),
+                  embeds: [verificationEmbedDenied],
+                  components: [reasonDeny],
+                })
+              });
+            }
+          };
+
+          break;
+        case ("AcceptSuggestion"):
+          if (ActionImageData) {
+            if (!ActionImageData.MessageID) {
+              return interaction.reply({
+                content: MessageConfig.CannotFindDataOfMessage,
+                ephemeral: true
+              });
             };
 
-            await Verifier.create({
-              VerifierName: VerificationLog.UserName,
-              VerifierID: VerificationLog.UserID,
-              ModName: interaction.user.tag,
-              ModID: interaction.user.id,
-              GuildID: interaction.guild.id,
-            });
-
-            return Verification.destroy({ where: { MessageID: interaction.message.id } });
-          }
-        };
-
-        break;
-      case ("buttonToDenyVerify"):
-        if (VerificationLog) {
-          if (!guild.members.cache.find(m => m.id === VerificationLog.UserID)?.id) {
             interaction.channel.messages.fetch(interaction.message.id).then(async () => {
-              const verificationEmbedAccepted = new MessageEmbed()
+              const ImageEmbed = new MessageEmbed()
                 .addFields(
-                  { name: "Age", value: VerificationLog.AgeData + "** **" },
-                  { name: "How did you find our server?", value: VerificationLog.HowServerData + "** **" },
-                  { name: "Why are you joining us?", value: VerificationLog.JoiningData + "** **" },
-                  { name: "What do you think about the furry fandom?", value: VerificationLog.FurryFandomData + "** **" },
-                  { name: "Do you have any sona? Tell us about it", value: VerificationLog.SonaData + "** **" },
+                  { name: "Category:", value: ActionImageData.Category, inline: true },
+                  { name: "Author:", value: ActionImageData.UserName + " ``(" + ActionImageData.UserID + ")``", inline: true }
                 )
-                .setColor(Color.Gray)
-                .setTimestamp()
+                .setImage(ActionImageData.ImageURL)
+                .setColor(Color.Green)
 
               return interaction.update({
-                content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> canceled",
-                embeds: [verificationEmbedAccepted],
-                components: [],
-              })
-            })
-          } else {
-            interaction.channel.messages.fetch(interaction.message.id).then(async () => {
-              const reasonDeny = new MessageActionRow()
-                .addComponents(
-                  new MessageSelectMenu()
-                    .setCustomId('reasonDeny')
-                    .setPlaceholder('Please select a reason')
-                    .addOptions(
-                      {
-                        label: 'Not Enough Details',
-                        value: 'noDetails',
-                      },
-                      {
-                        label: 'Troll',
-                        value: 'troll',
-                      },
-                      {
-                        label: 'New Account',
-                        value: 'new',
-                      },
-                      {
-                        label: 'To Young',
-                        value: 'young',
-                      },
-                    ),
-                );
+                embeds: [ImageEmbed],
+                components: []
+              });
+            });
 
-              const verificationEmbedDenied = new MessageEmbed()
+            const response = await client.upload({
+              image: ActionImageData.ImageURL,
+            });
+
+            return ActionImage.update({ ImageURL: response.data.link }, { where: { MessageID: interaction.message.id } });
+
+          };
+
+          break;
+        case ("DenySuggestion"):
+          if (ActionImageData) {
+            if (!ActionImageData.MessageID) {
+              return interaction.reply({
+                content: MessageConfig.CannotFindDataOfMessage,
+                ephemeral: true
+              });
+            };
+
+            interaction.channel.messages.fetch(interaction.message.id).then(async () => {
+              const ImageEmbed = new MessageEmbed()
                 .addFields(
-                  { name: "Age", value: VerificationLog.AgeData + "** **" },
-                  { name: "How did you find our server?", value: VerificationLog.HowServerData + "** **" },
-                  { name: "Why are you joining us?", value: VerificationLog.JoiningData + "** **" },
-                  { name: "What do you think about the furry fandom?", value: VerificationLog.FurryFandomData + "** **" },
-                  { name: "Do you have any sona? Tell us about it", value: VerificationLog.SonaData + "** **" },
+                  { name: "Category:", value: ActionImageData.Category, inline: true },
+                  { name: "Author:", value: ActionImageData.UserName + " ``(" + ActionImageData.UserID + ")``", inline: true }
                 )
+                .setImage(ActionImageData.ImageURL)
                 .setColor(Color.RiskHigh)
-                .setTimestamp()
 
               return interaction.update({
-                content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> denied by " + interaction.user.toString(),
-                embeds: [verificationEmbedDenied],
-                components: [reasonDeny],
+                embeds: [ImageEmbed],
+                components: []
               })
-            });
+            })
+
+            return ActionImage.destroy({ where: { MessageID: interaction.message.id } });
+          };
+
+          break;
+      };
+    };
+
+    if (interaction.isModalSubmit()) {
+      switch (interaction.customId) {
+        case ("verificationModal"):
+          let VerificationData = await Verification.findOne({ where: { UserID: interaction.user.id } });
+
+          if (VerificationData) {
+            return interaction.reply({
+              content: MessageConfig.AlreadyWaitingVerification,
+              ephemeral: true
+            })
           }
-        };
 
-        break;
-      case ("AcceptSuggestion"):
-        if (ActionImageData) {
-          if (!ActionImageData.MessageID) {
-            return interaction.reply({
-              content: MessageConfig.CannotFindDataOfMessage,
-              ephemeral: true
-            });
-          };
+          const channelForVerification = interaction.guild.channels.cache.get(LoggingData.ChannelIDReceiveVerification);
 
-          interaction.channel.messages.fetch(interaction.message.id).then(async () => {
-            const ImageEmbed = new MessageEmbed()
-              .addFields(
-                { name: "Category:", value: ActionImageData.Category, inline: true },
-                { name: "Author:", value: ActionImageData.UserName + " ``(" + ActionImageData.UserID + ")``", inline: true }
-              )
-              .setImage(ActionImageData.ImageURL)
-              .setColor(Color.Green)
+          let ageVerify = interaction.fields.getTextInputValue('ageVerify');
+          let howServer = interaction.fields.getTextInputValue('howServer');
+          let joining = interaction.fields.getTextInputValue('joining');
+          let furryFandom = interaction.fields.getTextInputValue('furryFandom');
+          let sona = interaction.fields.getTextInputValue('sona');
 
-            return interaction.update({
-              embeds: [ImageEmbed],
-              components: []
-            });
-          });
+          if (!ageVerify) ageVerify = "N/A";
+          if (!howServer) howServer = "N/A";
+          if (!joining) joining = "N/A";
+          if (!furryFandom) furryFandom = "N/A";
+          if (!sona) sona = "N/A";
 
-          const response = await client.upload({
-            image: ActionImageData.ImageURL,
-          });
+          const buttonVerify = new MessageActionRow()
+            .addComponents(
+              new MessageButton()
+                .setCustomId('buttonToAcceptVerify')
+                .setLabel('Accept')
+                .setStyle('SUCCESS'),
+            )
+            .addComponents(
+              new MessageButton()
+                .setCustomId('buttonToDenyVerify')
+                .setLabel('Deny')
+                .setStyle('DANGER'),
+            );
 
-          return ActionImage.update({ ImageURL: response.data.link }, { where: { MessageID: interaction.message.id } });
+          const verificationEmbed = new MessageEmbed()
+            .addFields(
+              { name: "Age", value: ageVerify },
+              { name: "How did you find our server?", value: howServer },
+              { name: "Why are you joining us?", value: joining },
+              { name: "What do you think about the furry fandom?", value: furryFandom },
+              { name: "Do you have any sona? Tell us about it.", value: sona },
+            )
+            .setColor(Color.Transparent)
+            .setTimestamp()
 
-        };
-
-        break;
-      case ("DenySuggestion"):
-        if (ActionImageData) {
-          if (!ActionImageData.MessageID) {
-            return interaction.reply({
-              content: MessageConfig.CannotFindDataOfMessage,
-              ephemeral: true
-            });
-          };
-
-          interaction.channel.messages.fetch(interaction.message.id).then(async () => {
-            const ImageEmbed = new MessageEmbed()
-              .addFields(
-                { name: "Category:", value: ActionImageData.Category, inline: true },
-                { name: "Author:", value: ActionImageData.UserName + " ``(" + ActionImageData.UserID + ")``", inline: true }
-              )
-              .setImage(ActionImageData.ImageURL)
-              .setColor(Color.RiskHigh)
-
-            return interaction.update({
-              embeds: [ImageEmbed],
-              components: []
+          await channelForVerification.send({
+            content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from " + interaction.user.toString(),
+            embeds: [verificationEmbed],
+            components: [buttonVerify],
+          }).then(async (sent) => {
+            return Verification.create({
+              MessageID: sent.id,
+              UserID: interaction.user.id,
+              UserName: interaction.user.tag,
+              AgeData: ageVerify,
+              HowServerData: howServer,
+              JoiningData: joining,
+              FurryFandomData: furryFandom,
+              SonaData: sona,
+              GuildID: interaction.guild.id,
             })
           })
 
-          return ActionImage.destroy({ where: { MessageID: interaction.message.id } });
-        };
-
-        break;
-    }
-  }
-
-  if (interaction.isModalSubmit()) {
-    switch (interaction.customId) {
-      case ("verificationModal"):
-        let VerificationData = await Verification.findOne({ where: { UserID: interaction.user.id } });
-
-        if (VerificationData) {
           return interaction.reply({
-            content: MessageConfig.AlreadyWaitingVerification,
+            content: "We received your verification, please wait while we review your verification.!",
             ephemeral: true
-          })
-        }
+          });
+      };
+    };
 
-        const channelForVerification = interaction.guild.channels.cache.get(LoggingData.ChannelIDReceiveVerification);
+    if (interaction.isSelectMenu()) {
+      let args = interaction.values[0];
 
-        let ageVerify = interaction.fields.getTextInputValue('ageVerify');
-        let howServer = interaction.fields.getTextInputValue('howServer');
-        let joining = interaction.fields.getTextInputValue('joining');
-        let furryFandom = interaction.fields.getTextInputValue('furryFandom');
-        let sona = interaction.fields.getTextInputValue('sona');
+      switch (interaction.customId) {
+        case ("reasonDeny"):
+          let VerificationLog = await Verification.findOne({ where: { MessageID: interaction.message.id } });
 
-        if (!ageVerify) ageVerify = "N/A";
-        if (!howServer) howServer = "N/A";
-        if (!joining) joining = "N/A";
-        if (!furryFandom) furryFandom = "N/A";
-        if (!sona) sona = "N/A";
+          const verificationEmbedDenied = new MessageEmbed()
+            .addFields(
+              { name: "Age", value: VerificationLog.AgeData + "** **" },
+              { name: "How did you find our server?", value: VerificationLog.HowServerData + "** **" },
+              { name: "Why are you joining us?", value: VerificationLog.JoiningData + "** **" },
+              { name: "What do you think about the furry fandom?", value: VerificationLog.FurryFandomData + "** **" },
+              { name: "Do you have any sona? Tell us about it", value: VerificationLog.SonaData + "** **" },
+            )
+            .setColor(Color.RiskHigh)
+            .setTimestamp()
+            .setFooter({
+              text: "ID: " + VerificationLog.UserID
+            });
 
-        const buttonVerify = new MessageActionRow()
-          .addComponents(
-            new MessageButton()
-              .setCustomId('buttonToAcceptVerify')
-              .setLabel('Accept')
-              .setStyle('SUCCESS'),
-          )
-          .addComponents(
-            new MessageButton()
-              .setCustomId('buttonToDenyVerify')
-              .setLabel('Deny')
-              .setStyle('DANGER'),
-          );
+          await Verification.destroy({ where: { MessageID: interaction.message.id } });
 
-        const verificationEmbed = new MessageEmbed()
-          .addFields(
-            { name: "Age", value: ageVerify },
-            { name: "How did you find our server?", value: howServer },
-            { name: "Why are you joining us?", value: joining },
-            { name: "What do you think about the furry fandom?", value: furryFandom },
-            { name: "Do you have any sona? Tell us about it.", value: sona },
-          )
-          .setColor(Color.Transparent)
-          .setTimestamp()
+          interaction.channel.messages.fetch(interaction.message.id).then(async () => {
+            await interaction.update({
+              content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> denied by " + interaction.user.toString(),
+              embeds: [verificationEmbedDenied],
+              components: [],
+            })
+          });
 
-        await channelForVerification.send({
-          content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from " + interaction.user.toString(),
-          embeds: [verificationEmbed],
-          components: [buttonVerify],
-        }).then(async (sent) => {
-          return Verification.create({
-            MessageID: sent.id,
-            UserID: interaction.user.id,
-            UserName: interaction.user.tag,
-            AgeData: ageVerify,
-            HowServerData: howServer,
-            JoiningData: joining,
-            FurryFandomData: furryFandom,
-            SonaData: sona,
-            GuildID: interaction.guild.id,
-          })
-        })
+          let Reason = MessageConfig.Verification.ReasonToDeny;
+          let DM = bot.users.cache.get(VerificationLog.UserID);
 
-        return interaction.reply({
-          content: "We received your verification, please wait while we review your verification.!",
-          ephemeral: true
-        });
-    }
-  }
+          switch (args) {
+            case ("noDetails"):
+              return DM.send({
+                content: Reason,
+              }).catch(() => { return });
+            case ("troll"):
+              return DM.send({
+                content: Reason.Troll,
+              }).catch(() => { return });
+            case ("new"):
+              return DM.send({
+                content: Reason.NewAccount,
+              }).catch(() => { return });
+            case ("young"):
+              return DM.send({
+                content: Reason.TooYoung,
+              }).catch(() => { return });
+            case ("website"):
+              return DM.send({
+                content: Reason.Website,
+              }).catch(() => { return });
+          };
+      };
+    };
+  } catch (error) {
+    let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
+    let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
 
-  if (interaction.isSelectMenu()) {
-    let args = interaction.values[0]
-
-    switch (interaction.customId) {
-      case ("reasonDeny"):
-        let VerificationLog = await Verification.findOne({ where: { MessageID: interaction.message.id } });
-
-        const verificationEmbedDenied = new MessageEmbed()
-          .addFields(
-            { name: "Age", value: VerificationLog.AgeData + "** **" },
-            { name: "How did you find our server?", value: VerificationLog.HowServerData + "** **" },
-            { name: "Why are you joining us?", value: VerificationLog.JoiningData + "** **" },
-            { name: "What do you think about the furry fandom?", value: VerificationLog.FurryFandomData + "** **" },
-            { name: "Do you have any sona? Tell us about it", value: VerificationLog.SonaData + "** **" },
-          )
-          .setColor(Color.RiskHigh)
-          .setTimestamp()
-
-        await Verification.destroy({ where: { MessageID: interaction.message.id } });
-
-        interaction.channel.messages.fetch(interaction.message.id).then(async () => {
-          await interaction.update({
-            content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> denied by " + interaction.user.toString(),
-            embeds: [verificationEmbedDenied],
-            components: [],
-          })
-        });
-
-        let Reason = MessageConfig.Verification.ReasonToDeny;
-
-        switch (args) {
-          case ("noDetails"):
-            return bot.users.cache.get(VerificationLog.UserID).send({
-              content: Reason,
-            }).catch(() => { return });
-          case ("troll"):
-            return bot.users.cache.get(VerificationLog.UserID).send({
-              content: Reason.Troll,
-            }).catch(() => { return });
-          case ("new"):
-            return bot.users.cache.get(VerificationLog.UserID).send({
-              content: Reason.NewAccount,
-            }).catch(() => { return });
-          case ("young"):
-            return bot.users.cache.get(VerificationLog.UserID).send({
-              content: Reason.TooYoung,
-            }).catch(() => { return });
-        };
-    }
-  }
+    CrashChannel.send({ content: "**Error in 'interactionCreate' Event:** \n\n```javascript\n" + error + "```" });
+  };
 });
 
 const Major = "900201076916105306";

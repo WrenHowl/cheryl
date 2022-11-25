@@ -68,155 +68,162 @@ module.exports = {
             .setRequired(true)
         ),
     execute: async (interaction, bot, sequelize, Sequelize) => {
-        const CommandFunction = sequelize.define("CommandFunction", {
-            name: {
-                type: Sequelize.STRING,
-            },
-            value: {
-                type: Sequelize.STRING,
-            },
-        });
+        try {
+            const CommandFunction = sequelize.define("CommandFunction", {
+                name: {
+                    type: Sequelize.STRING,
+                },
+                value: {
+                    type: Sequelize.STRING,
+                },
+            });
 
-        const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
+            const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
 
-        if (FindCommand) {
-            if (FindCommand.value === "Disable") {
-                return interaction.reply({
-                    content: MessageReason.CommandDisabled,
-                    ephemeral: true,
-                });
+            if (FindCommand) {
+                if (FindCommand.value === "Disable") {
+                    return interaction.reply({
+                        content: MessageReason.CommandDisabled,
+                        ephemeral: true,
+                    });
+                };
             };
-        };
 
-        const Logging = sequelize.define("Logging", {
-            GuildID: {
-                type: Sequelize.STRING,
-            },
-            ChannelIDBan: {
-                type: Sequelize.STRING,
-            },
-            Language: {
-                type: Sequelize.STRING,
-            },
-        });
-        const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
+            const Logging = sequelize.define("Logging", {
+                GuildID: {
+                    type: Sequelize.STRING,
+                },
+                ChannelIDBan: {
+                    type: Sequelize.STRING,
+                },
+                Language: {
+                    type: Sequelize.STRING,
+                },
+            });
+            const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
 
-        let LanguageData = LoggingData.language;
-        let Language = "";
+            let LanguageData = LoggingData.language;
+            let Language = "";
 
-        if (!LanguageData || LanguageData === "en") Language = LanguageEN;
-        if (LanguageData === "fr") Language = LanguageFR;
-        if (LanguageData === "de") Language = LanguageDE;
-        if (LanguageData === "sp") Language = LanguageSP;
-        if (LanguageData === "nl") Language = LanguageNL;
+            if (!LanguageData || LanguageData === "en") Language = LanguageEN;
+            if (LanguageData === "fr") Language = LanguageFR;
+            if (LanguageData === "de") Language = LanguageDE;
+            if (LanguageData === "sp") Language = LanguageSP;
+            if (LanguageData === "nl") Language = LanguageNL;
 
-        if (interaction.member.permissions.has(Permission.Ban)) {
-            if (interaction.guild.me.permissions.has(Permission.Ban)) {
-                const user = interaction.options.getUser(en.UserName);
-                const member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(err => { });
-                const banList = await interaction.guild.bans.fetch();
-                const bannedUser = banList.find(user => user.id === user.id);
-                let guild = bot.guilds.cache.get(interaction.guild.id);
+            if (interaction.member.permissions.has(Permission.Ban)) {
+                if (interaction.guild.me.permissions.has(Permission.Ban)) {
+                    const user = interaction.options.getUser(en.UserName);
+                    const member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(err => { });
+                    const banList = await interaction.guild.bans.fetch();
+                    const bannedUser = banList.find(user => user.id === user.id);
+                    let guild = bot.guilds.cache.get(interaction.guild.id);
 
-                switch (user.id) {
-                    case (!user):
-                        return interaction.reply({
-                            content: Language.default.UnknownUser,
-                            ephemeral: true,
-                        });
-                    case (interaction.member.id):
-                        return interaction.reply({
-                            content: Language.ban.default.Myself,
-                            ephemeral: true,
-                        });
-                    case (bot.user.id):
-                        return interaction.reply({
-                            content: Language.ban.default.Me,
-                            ephemeral: true,
-                        });
-                    case (interaction.guild.ownerId):
-                        return interaction.reply({
-                            content: Language.ban.default.Owner,
-                            ephemeral: true,
-                        });
-                    case (!user.bannable):
-                        return interaction.reply({
-                            content: Language.ban.default.Bannable,
-                            ephemeral: true,
-                        });
-                    default:
-                        if (guild.members.cache.find(m => m.id === user.id)?.id) {
-                            if (member.roles.highest.position >= interaction.member.roles.highest.position) {
+                    switch (user.id) {
+                        case (!user):
+                            return interaction.reply({
+                                content: Language.default.UnknownUser,
+                                ephemeral: true,
+                            });
+                        case (interaction.member.id):
+                            return interaction.reply({
+                                content: Language.ban.default.Myself,
+                                ephemeral: true,
+                            });
+                        case (bot.user.id):
+                            return interaction.reply({
+                                content: Language.ban.default.Me,
+                                ephemeral: true,
+                            });
+                        case (interaction.guild.ownerId):
+                            return interaction.reply({
+                                content: Language.ban.default.Owner,
+                                ephemeral: true,
+                            });
+                        case (!user.bannable):
+                            return interaction.reply({
+                                content: Language.ban.default.Bannable,
+                                ephemeral: true,
+                            });
+                        default:
+                            if (guild.members.cache.find(m => m.id === user.id)?.id) {
+                                if (member.roles.highest.position >= interaction.member.roles.highest.position) {
+                                    return interaction.reply({
+                                        content: Language.ban.default.Role,
+                                        ephemeral: true
+                                    });
+                                };
+                            } else if (bannedUser) {
                                 return interaction.reply({
-                                    content: Language.ban.default.Role,
+                                    content: Language.ban.default.Banned,
                                     ephemeral: true
                                 });
                             };
-                        } else if (bannedUser) {
-                            return interaction.reply({
-                                content: Language.ban.default.Banned,
-                                ephemeral: true
+
+                            const reason = interaction.options.getString(en.ReasonName);
+                            const mod = interaction.user.tag;
+
+                            const banMessage = new MessageEmbed()
+                                .setDescription("``" + user.tag + "`` " + Language.ban.server.BanMessage + " ``" + reason + "``.")
+                                .setColor(Color.Green)
+
+                            await interaction.reply({
+                                embeds: [banMessage],
+                                ephemeral: true,
                             });
-                        };
 
-                        const reason = interaction.options.getString(en.ReasonName);
-                        const mod = interaction.user.tag;
+                            if (LoggingData) {
+                                if (LoggingData.ChannelIDBan) {
+                                    if (interaction.guild.members.guild.me.permissionsIn(LoggingData.ChannelIDBan).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
+                                        const logChannel = interaction.guild.channels.cache.get(LoggingData.ChannelIDBan);
 
-                        const banMessage = new MessageEmbed()
-                            .setDescription("``" + user.tag + "`` " + Language.ban.server.BanMessage + " ``" + reason + "``.")
-                            .setColor(Color.Green)
+                                        const logMessage = new MessageEmbed()
+                                            .setTitle(Language.ban.server.NewBan)
+                                            .addFields(
+                                                { name: Language.ban.server.User, value: "``" + user.tag + "``" },
+                                                { name: Language.ban.server.Reason, value: "``" + reason + "``" },
+                                                { name: Language.ban.server.Mod, value: "``" + mod + "``" },
+                                            )
+                                            .setFooter({
+                                                text: "ID: " + user.id
+                                            })
+                                            .setTimestamp()
+                                            .setColor(Color.RiskHigh)
 
-                        await interaction.reply({
-                            embeds: [banMessage],
-                            ephemeral: true,
-                        });
-
-                        if (LoggingData) {
-                            if (LoggingData.ChannelIDBan) {
-                                if (interaction.guild.members.guild.me.permissionsIn(LoggingData.ChannelIDBan).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
-                                    const logChannel = interaction.guild.channels.cache.get(LoggingData.ChannelIDBan);
-
-                                    const logMessage = new MessageEmbed()
-                                        .setTitle(Language.ban.server.NewBan)
-                                        .addFields(
-                                            { name: Language.ban.server.User, value: "``" + user.tag + "``" },
-                                            { name: Language.ban.server.Reason, value: "``" + reason + "``" },
-                                            { name: Language.ban.server.Mod, value: "``" + mod + "``" },
-                                        )
-                                        .setFooter({
-                                            text: "ID: " + user.id
-                                        })
-                                        .setTimestamp()
-                                        .setColor(Color.RiskHigh)
-
-                                    await logChannel.send({
-                                        embeds: [logMessage],
-                                    });
+                                        await logChannel.send({
+                                            embeds: [logMessage],
+                                        });
+                                    };
                                 };
                             };
-                        };
 
-                        const banDM = new MessageEmbed()
-                            .setDescription(Language.ban.dm.you + " ``" + interaction.guild.name + "`` " + Language.ban.dm.for + " ``" + reason + "`` " + Language.ban.dm.by + " ``" + mod + "``.")
-                            .setColor(Color.RiskHigh)
+                            const banDM = new MessageEmbed()
+                                .setDescription(Language.ban.dm.you + " ``" + interaction.guild.name + "`` " + Language.ban.dm.for + " ``" + reason + "`` " + Language.ban.dm.by + " ``" + mod + "``.")
+                                .setColor(Color.RiskHigh)
 
-                        await user.send({
-                            embeds: [banDM],
-                        }).catch(() => { return });
+                            await user.send({
+                                embeds: [banDM],
+                            }).catch(() => { return });
 
-                        return interaction.guild.members.ban(user.id, { reason: [reason + " | " + mod] });
+                            return interaction.guild.members.ban(user.id, { reason: [reason + " | " + mod] });
+                    };
+                } else {
+                    return interaction.reply({
+                        content: Language.ban.permission.Me,
+                        ephemeral: true,
+                    });
                 };
             } else {
                 return interaction.reply({
-                    content: Language.ban.permission.Me,
-                    ephemeral: true,
+                    content: Language.ban.permission.Myself,
+                    ephemeral: true
                 });
             };
-        } else {
-            return interaction.reply({
-                content: Language.ban.permission.Myself,
-                ephemeral: true
-            });
+        } catch (error) {
+            let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
+            let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+
+            CrashChannel.send({ content: "**Error in the " + en.Name + " Command:** \n\n```javascript\n" + error + "```" });
         };
     }
 };

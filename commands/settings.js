@@ -525,509 +525,501 @@ module.exports = {
                 .setRequired(false))),
 
     execute: async (interaction, bot, sequelize, Sequelize) => {
-        const CommandFunction = sequelize.define("CommandFunction", {
-            name: {
-                type: Sequelize.STRING,
-            },
-            value: {
-                type: Sequelize.STRING,
-            },
-        });
-
-        const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
-
-        const MessageReason = require("../config/message.json");
-
-        if (FindCommand) {
-            if (FindCommand.value === "Disable") {
-                return interaction.reply({
-                    content: MessageReason.CommandDisabled,
-                    ephemeral: true,
-                });
-            };
-        };
-
-        if (interaction.member.permissions.has("ADMINISTRATOR") | interaction.member.permissions.has("MANAGE_GUILD") | interaction.user.id === Config.ownerId) {
-            let options = interaction.options.getSubcommand();
-            let channelOptions = interaction.options.getChannel(en.LoggingChannelName);
-            let channelOptions2 = interaction.options.getChannel(en.VerificationWelcomeName);
-            let channelOptions3 = interaction.options.getChannel(en.VerificationMenuWelcomeReceiveName);
-            let roleOptions = interaction.options.getRole(en.SetupReportRoleName);
-            let addRoleOptions = interaction.options.getRole(en.VerificationWelcomeAddName);
-            let removeRoleOptions = interaction.options.getRole(en.VerificationWelcomeRemoveName);
-            let staffRoleOptions = interaction.options.getRole(en.VerificationWelcomeStaffName);
-            let booleanBlacklist = interaction.options.getString(en.SetupActionStatusName);
-            let autobanStatus = interaction.options.getString(en.SetupBlacklistAutobanName);
-            let optionsLogging = interaction.options.getString(en.LoggingOptionsName);
-            let AutoRoleOptions = interaction.options.getRole(en.SetupWelcomeRoleName);
-
-            const Logging = sequelize.define("Logging", {
-                GuildID: {
+        try {
+            const CommandFunction = sequelize.define("CommandFunction", {
+                name: {
                     type: Sequelize.STRING,
-                    unique: false,
                 },
-                ChannelIDReport: {
+                value: {
                     type: Sequelize.STRING,
-                    unique: false,
-                },
-                ChannelIDBan: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                ChannelIDVerify: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                ChannelIDEnterServer: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                ChannelIDWelcome: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                StaffRoleReport: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                StaffRoleVerify: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                RoleToAddVerify: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                RoleToRemoveVerify: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                EnableDisableBlacklistLogger: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                ChannelIDBlacklist: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                ChannelIDWarn: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                ChannelIDUnban: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                ChannelIDKick: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                ChannelIDReceiveVerification: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                AutoBanStatus: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                SettingsActionMessage: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                SettingsActionImage: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                AutoRole: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                ChannelIDLeaving: {
-                    type: Sequelize.STRING,
-                    unique: false,
                 },
             });
 
-            const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
+            const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
+            const MessageReason = require("../config/message.json");
 
-            let removeRole = removeRoleOptions;
-
-            if (removeRole) {
-                removeRole = removeRoleOptions.name;
-            } else {
-                removeRole = removeRoleOptions;
-            }
-
-            switch (options) {
-                case (en.SetupReportName):
-                    let role = roleOptions;
-                    if (role) role = roleOptions.name;
-                    if (!role) role = roleOptions;
-
-                    if (role === "@everyone") {
-                        const embed = new MessageEmbed()
-                            .setDescription(LoggingMessage.SettingsError)
-                            .addFields(
-                                { name: "**Role provided**", value: "The role (@everyone) cannot be used!", inline: true },
-                            )
-
-                        return interaction.reply({
-                            embeds: [embed],
-                            ephemeral: true,
-                        })
-                    }
-
-                    const ReportEmbed = new MessageEmbed()
-                        .setDescription(LoggingMessage.SettingsUpdated)
-                        .addFields(
-                            { name: "**Channel**", value: channelOptions.toLocaleString(), inline: true },
-                        )
-
-                    if (!roleOptions) {
-                        await Logging.update({
-                            ChannelIDReport: channelOptions.id
-                        }, { where: { GuildID: interaction.guild.id } })
-
-                    } else {
-                        await Logging.update({
-                            ChannelIDReport: channelOptions.id,
-                            StaffRoleReport: roleOptions.id
-                        }, { where: { GuildID: interaction.guild.id } })
-
-                        ReportEmbed.addFields(
-                            { name: "**Role to Ping:**", value: roleOptions.toLocaleString(), inline: true }
-                        )
-                    }
-
+            if (FindCommand) {
+                if (FindCommand.value === "Disable") {
                     return interaction.reply({
-                        embeds: [ReportEmbed],
+                        content: MessageReason.CommandDisabled,
                         ephemeral: true,
                     });
-                case (en.SetupActionName):
-                    if (optionsLogging === "image") optionsLogging = "Image";
-                    if (optionsLogging === "message") optionsLogging = "Message";
-                    if (booleanBlacklist === "true") booleanBlacklist = "Enabled";
-                    if (booleanBlacklist === "false") booleanBlacklist = "Disabled";
+                };
+            };
 
-                    const ActionEmbed = new MessageEmbed()
-                        .setDescription(LoggingMessage.SettingsUpdated)
+            if (interaction.member.permissions.has("ADMINISTRATOR") | interaction.member.permissions.has("MANAGE_GUILD") | interaction.user.id === Config.ownerId) {
+                let options = interaction.options.getSubcommand();
+                let channelOptions = interaction.options.getChannel(en.LoggingChannelName);
+                let channelOptions2 = interaction.options.getChannel(en.VerificationWelcomeName);
+                let channelOptions3 = interaction.options.getChannel(en.VerificationMenuWelcomeReceiveName);
+                let roleOptions = interaction.options.getRole(en.SetupReportRoleName);
+                let addRoleOptions = interaction.options.getRole(en.VerificationWelcomeAddName);
+                let removeRoleOptions = interaction.options.getRole(en.VerificationWelcomeRemoveName);
+                let staffRoleOptions = interaction.options.getRole(en.VerificationWelcomeStaffName);
+                let booleanBlacklist = interaction.options.getString(en.SetupActionStatusName);
+                let autobanStatus = interaction.options.getString(en.SetupBlacklistAutobanName);
+                let optionsLogging = interaction.options.getString(en.LoggingOptionsName);
+                let AutoRoleOptions = interaction.options.getRole(en.SetupWelcomeRoleName);
 
-                    if (optionsLogging === "Image") {
-                        await Logging.update({
-                            SettingsActionMessage: booleanBlacklist,
-                        }, { where: { GuildID: interaction.guild.id } })
+                const Logging = sequelize.define("Logging", {
+                    GuildID: {
+                        type: Sequelize.STRING,
+                        unique: false,
+                    },
+                    ChannelIDReport: {
+                        type: Sequelize.STRING,
+                        unique: false,
+                    },
+                    ChannelIDBan: {
+                        type: Sequelize.STRING,
+                        unique: false,
+                    },
+                    ChannelIDVerify: {
+                        type: Sequelize.STRING,
+                        unique: false,
+                    },
+                    ChannelIDEnterServer: {
+                        type: Sequelize.STRING,
+                        unique: false,
+                    },
+                    ChannelIDWelcome: {
+                        type: Sequelize.STRING,
+                        unique: false,
+                    },
+                    StaffRoleReport: {
+                        type: Sequelize.STRING,
+                        unique: false,
+                    },
+                    StaffRoleVerify: {
+                        type: Sequelize.STRING,
+                        unique: false,
+                    },
+                    RoleToAddVerify: {
+                        type: Sequelize.STRING,
+                        unique: false,
+                    },
+                    RoleToRemoveVerify: {
+                        type: Sequelize.STRING,
+                        unique: false,
+                    },
+                    EnableDisableBlacklistLogger: {
+                        type: Sequelize.STRING,
+                        unique: false,
+                    },
+                    ChannelIDBlacklist: {
+                        type: Sequelize.STRING,
+                        unique: false,
+                    },
+                    ChannelIDWarn: {
+                        type: Sequelize.STRING,
+                        unique: false,
+                    },
+                    ChannelIDUnban: {
+                        type: Sequelize.STRING,
+                        unique: false,
+                    },
+                    ChannelIDKick: {
+                        type: Sequelize.STRING,
+                        unique: false,
+                    },
+                    ChannelIDReceiveVerification: {
+                        type: Sequelize.STRING,
+                        unique: false,
+                    },
+                    AutoBanStatus: {
+                        type: Sequelize.STRING,
+                        unique: false,
+                    },
+                    SettingsActionMessage: {
+                        type: Sequelize.STRING,
+                        unique: false,
+                    },
+                    SettingsActionImage: {
+                        type: Sequelize.STRING,
+                        unique: false,
+                    },
+                    AutoRole: {
+                        type: Sequelize.STRING,
+                        unique: false,
+                    },
+                    ChannelIDLeaving: {
+                        type: Sequelize.STRING,
+                        unique: false,
+                    },
+                });
 
-                        ActionEmbed.addFields(
-                            { name: "**Action Message**", value: booleanBlacklist, inline: true }
-                        )
+                removeRole ? removeRole = removeRoleOptions.name : removeRole = removeRoleOptions;
+                let ChannelName = "**Channel**";
+                let RoleProvided = "**Role provided**"
 
-                        return interaction.reply({
-                            embeds: [embed],
-                            ephemeral: true,
-                        })
-                    }
+                switch (options) {
+                    case (en.SetupReportName):
+                        let role = roleOptions;
+                        if (role) role = roleOptions.name;
+                        if (!role) role = roleOptions;
 
-                    if (optionsLogging === "Message") {
-                        await Logging.update({
-                            SettingsActionImage: booleanBlacklist,
-                        }, { where: { GuildID: interaction.guild.id } })
+                        if (role === "@everyone") {
+                            const embed = new MessageEmbed()
+                                .setDescription(LoggingMessage.SettingsError)
+                                .addFields(
+                                    { name: "**Role provided**", value: "The role (@everyone) cannot be used!", inline: true },
+                                );
 
-                        ActionEmbed.addFields(
-                            { name: "**Action Image**", value: booleanBlacklist, inline: true }
-                        )
-                    }
+                            return interaction.reply({
+                                embeds: [embed],
+                                ephemeral: true,
+                            });
+                        };
 
-                    return interaction.reply({
-                        embeds: [ActionEmbed],
-                        ephemeral: true,
-                    });
-                case (en.SetupWelcomeName):
-                    if (!AutoRoleOptions) {
-                        await Logging.update({ ChannelIDWelcome: channelOptions.id }, { where: { GuildID: interaction.guild.id } })
-
-                        const embed = new MessageEmbed()
+                        const ReportEmbed = new MessageEmbed()
                             .setDescription(LoggingMessage.SettingsUpdated)
                             .addFields(
-                                { name: "**Welcome Channel**", value: channelOptions.toLocaleString(), inline: true },
-                            )
+                                { name: ChannelName, value: channelOptions.toLocaleString(), inline: true },
+                            );
+
+                        if (!roleOptions) {
+                            await Logging.update({
+                                ChannelIDReport: channelOptions.id
+                            }, { where: { GuildID: interaction.guild.id } });
+
+                        } else {
+                            await Logging.update({
+                                ChannelIDReport: channelOptions.id,
+                                StaffRoleReport: roleOptions.id
+                            }, { where: { GuildID: interaction.guild.id } });
+
+                            ReportEmbed.addFields(
+                                { name: "**Role to Ping:**", value: roleOptions.toLocaleString(), inline: true }
+                            );
+                        };
 
                         return interaction.reply({
-                            embeds: [embed],
+                            embeds: [ReportEmbed],
                             ephemeral: true,
                         });
-                    }
-
-                    if (!channelOptions) {
-                        await Logging.update({ AutoRole: AutoRoleOptions.id }, { where: { GuildID: interaction.guild.id } })
-
-                        const embed = new MessageEmbed()
-                            .setDescription(LoggingMessage.SettingsUpdated)
-                            .addFields(
-                                { name: "**Auto-Role**", value: AutoRoleOptions.toLocaleString(), inline: true },
-                            )
-
-                        return interaction.reply({
-                            embeds: [embed],
-                            ephemeral: true,
-                        });
-                    };
-                case (en.SetupBlacklistName):
-                    if (booleanBlacklist) {
+                    case (en.SetupActionName):
+                        if (optionsLogging === "image") optionsLogging = "Image";
+                        if (optionsLogging === "message") optionsLogging = "Message";
                         if (booleanBlacklist === "true") booleanBlacklist = "Enabled";
                         if (booleanBlacklist === "false") booleanBlacklist = "Disabled";
-                        if (autobanStatus === "low") autobanStatus = "Low+";
-                        if (autobanStatus === "medium") autobanStatus = "Medium+";
-                        if (autobanStatus === "high") autobanStatus = "High+";
-                        if (autobanStatus === "disable") autobanStatus = "Disabled";
 
-                        const BlacklistEmbed = new MessageEmbed()
+                        const ActionEmbed = new MessageEmbed()
                             .setDescription(LoggingMessage.SettingsUpdated)
-                            .addFields(
-                                { name: "**Status**", value: booleanBlacklist, inline: true },
+
+                        if (optionsLogging === "Image") {
+                            await Logging.update({
+                                SettingsActionMessage: booleanBlacklist,
+                            }, { where: { GuildID: interaction.guild.id } })
+
+                            ActionEmbed.addFields(
+                                { name: "**Action Message**", value: booleanBlacklist, inline: true }
                             )
+
+                            return interaction.reply({
+                                embeds: [embed],
+                                ephemeral: true,
+                            })
+                        }
+
+                        if (optionsLogging === "Message") {
+                            await Logging.update({
+                                SettingsActionImage: booleanBlacklist,
+                            }, { where: { GuildID: interaction.guild.id } })
+
+                            ActionEmbed.addFields(
+                                { name: "**Action Image**", value: booleanBlacklist, inline: true }
+                            )
+                        }
+
+                        return interaction.reply({
+                            embeds: [ActionEmbed],
+                            ephemeral: true,
+                        });
+                    case (en.SetupWelcomeName):
+                        if (!AutoRoleOptions) {
+                            await Logging.update({ ChannelIDWelcome: channelOptions.id }, { where: { GuildID: interaction.guild.id } })
+
+                            const embed = new MessageEmbed()
+                                .setDescription(LoggingMessage.SettingsUpdated)
+                                .addFields(
+                                    { name: "**Welcome Channel**", value: channelOptions.toLocaleString(), inline: true },
+                                )
+
+                            return interaction.reply({
+                                embeds: [embed],
+                                ephemeral: true,
+                            });
+                        }
 
                         if (!channelOptions) {
-                            await Logging.update({
-                                EnableDisableBlacklistLogger: booleanBlacklist,
-                                AutoBanStatus: autobanStatus
-                            }, { where: { GuildID: interaction.guild.id } })
+                            await Logging.update({ AutoRole: AutoRoleOptions.id }, { where: { GuildID: interaction.guild.id } })
 
-                            BlacklistEmbed.addFields(
-                                { name: "**Auto-ban**", value: autobanStatus, inline: true }
-                            )
-                        }
+                            const embed = new MessageEmbed()
+                                .setDescription(LoggingMessage.SettingsUpdated)
+                                .addFields(
+                                    { name: "**Auto-Role**", value: AutoRoleOptions.toLocaleString(), inline: true },
+                                )
 
-                        if (!autobanStatus) {
-                            await Logging.update({
-                                EnableDisableBlacklistLogger: booleanBlacklist,
-                                ChannelIDBlacklist: channelOptions.id,
-                            }, { where: { GuildID: interaction.guild.id } })
+                            return interaction.reply({
+                                embeds: [embed],
+                                ephemeral: true,
+                            });
+                        };
+                    case (en.SetupBlacklistName):
+                        if (booleanBlacklist) {
+                            if (booleanBlacklist === "true") booleanBlacklist = "Enabled";
+                            if (booleanBlacklist === "false") booleanBlacklist = "Disabled";
+                            if (autobanStatus === "low") autobanStatus = "Low+";
+                            if (autobanStatus === "medium") autobanStatus = "Medium+";
+                            if (autobanStatus === "high") autobanStatus = "High+";
+                            if (autobanStatus === "disable") autobanStatus = "Disabled";
 
-                            BlacklistEmbed.addFields(
-                                { name: "**Channel**", value: channelOptions.toLocaleString(), inline: true }
-                            )
-                        }
+                            const BlacklistEmbed = new MessageEmbed()
+                                .setDescription(LoggingMessage.SettingsUpdated)
+                                .addFields(
+                                    { name: "**Status**", value: booleanBlacklist, inline: true },
+                                )
 
-                        if (channelOptions && autobanStatus) {
-                            await Logging.update({
-                                EnableDisableBlacklistLogger: booleanBlacklist,
-                                AutoBanStatus: autobanStatus,
-                                ChannelIDBlacklist: channelOptions.id,
-                            }, { where: { GuildID: interaction.guild.id } })
+                            if (!channelOptions) {
+                                await Logging.update({
+                                    EnableDisableBlacklistLogger: booleanBlacklist,
+                                    AutoBanStatus: autobanStatus
+                                }, { where: { GuildID: interaction.guild.id } })
 
-                            BlacklistEmbed.addFields(
-                                { name: "**Channel**", value: channelOptions.toLocaleString(), inline: true },
-                                { name: "**Auto-ban**", value: autobanStatus, inline: true }
-                            )
-                        }
+                                BlacklistEmbed.addFields(
+                                    { name: "**Auto-ban**", value: autobanStatus, inline: true }
+                                )
+                            }
+
+                            if (!autobanStatus) {
+                                await Logging.update({
+                                    EnableDisableBlacklistLogger: booleanBlacklist,
+                                    ChannelIDBlacklist: channelOptions.id,
+                                }, { where: { GuildID: interaction.guild.id } })
+
+                                BlacklistEmbed.addFields(
+                                    { name: "**Channel**", value: channelOptions.toLocaleString(), inline: true }
+                                )
+                            }
+
+                            if (channelOptions && autobanStatus) {
+                                await Logging.update({
+                                    EnableDisableBlacklistLogger: booleanBlacklist,
+                                    AutoBanStatus: autobanStatus,
+                                    ChannelIDBlacklist: channelOptions.id,
+                                }, { where: { GuildID: interaction.guild.id } })
+
+                                BlacklistEmbed.addFields(
+                                    { name: "**Channel**", value: channelOptions.toLocaleString(), inline: true },
+                                    { name: "**Auto-ban**", value: autobanStatus, inline: true }
+                                )
+                            }
+
+                            return interaction.reply({
+                                embeds: [BlacklistEmbed],
+                                ephemeral: true,
+                            })
+                        };
+                    case (en.LoggingName):
+                        const LoggingEmbed = new MessageEmbed()
+                            .setDescription(LoggingMessage.SettingsUpdated)
+
+                        switch (optionsLogging) {
+                            case ("all"):
+                                if (channelOptions) {
+                                    await Logging.update({
+                                        ChannelIDBan: channelOptions.id,
+                                        ChannelIDUnban: channelOptions.id,
+                                        ChannelIDKick: channelOptions.id,
+                                        ChannelIDWarn: channelOptions.id,
+                                    }, { where: { GuildID: interaction.guild.id } });
+
+                                    return LoggingEmbed.addFields(
+                                        { name: "**Channel**", value: channelOptions.toLocaleString(), inline: true },
+                                    );
+                                } else {
+                                    return interaction.reply({
+                                        content: [LoggingMessage.ChannelNeeded]
+                                    });
+                                };
+                            case ("ban"):
+                                if (channelOptions) {
+                                    await Logging.update({
+                                        ChannelIDBan: channelOptions.id,
+                                    }, { where: { GuildID: interaction.guild.id } });
+
+                                    return LoggingEmbed.addFields(
+                                        { name: "**Channel**", value: channelOptions.toLocaleString(), inline: true },
+                                    );
+                                } else {
+                                    return interaction.reply({
+                                        content: [LoggingMessage.ChannelNeeded]
+                                    });
+                                };
+                            case ("kick"):
+                                if (channelOptions) {
+                                    await Logging.update({
+                                        ChannelIDKick: channelOptions.id,
+                                    }, { where: { GuildID: interaction.guild.id } });
+
+                                    return LoggingEmbed.addFields(
+                                        { name: "**Channel**", value: channelOptions.toLocaleString(), inline: true },
+                                    );
+                                } else {
+                                    return interaction.reply({
+                                        content: [LoggingMessage.ChannelNeeded]
+                                    });
+                                };
+                            case ("warn"):
+                                if (channelOptions) {
+                                    await Logging.update({
+                                        ChannelIDWarn: channelOptions.id,
+                                    }, { where: { GuildID: interaction.guild.id } });
+
+                                    return LoggingEmbed.addFields(
+                                        { name: "**Channel**", value: channelOptions.toLocaleString(), inline: true },
+                                    );
+                                } else {
+                                    return interaction.reply({
+                                        content: [LoggingMessage.ChannelNeeded]
+                                    });
+                                };
+                            case ("unban"):
+                                if (channelOptions) {
+                                    await Logging.update({
+                                        ChannelIDUnban: channelOptions.id,
+                                    }, { where: { GuildID: interaction.guild.id } });
+
+                                    return LoggingEmbed.addFields(
+                                        { name: "**Channel**", value: channelOptions.toLocaleString(), inline: true },
+                                    );
+                                } else {
+                                    return interaction.reply({
+                                        content: [LoggingMessage.ChannelNeeded]
+                                    });
+                                };
+                            case ("disable"):
+                                await Logging.update({
+                                    ChannelIDBan: null,
+                                    ChannelIDUnban: null,
+                                    ChannelIDKick: null,
+                                    ChannelIDWarn: null,
+                                }, { where: { GuildID: interaction.guild.id } });
+
+                                return LoggingEmbed.addFields(
+                                    { name: "**Channel**", value: "Disabled", inline: true },
+                                );
+                        };
 
                         return interaction.reply({
-                            embeds: [BlacklistEmbed],
+                            embeds: [LoggingEmbed],
                             ephemeral: true,
-                        })
-                    };
-                case (en.LoggingName):
-                    const LoggingEmbed = new MessageEmbed()
-                        .setDescription(LoggingMessage.SettingsUpdated)
+                        });
+                    case (en.VerificationCommandName):
+                        if (staffRoleOptions.name === "@everyone" | addRoleOptions.name === "@everyone" | removeRole === "@everyone") {
+                            const embed = new MessageEmbed()
+                                .setDescription(LoggingMessage.SettingsError)
+                                .addFields(
+                                    { name: "**Role provided**", value: "The role (@everyone) cannot be used!", inline: true },
+                                );
 
-                    switch (optionsLogging) {
-                        case ("all"):
-                            if (channelOptions) {
-                                await Logging.update({
-                                    ChannelIDBan: channelOptions.id,
-                                    ChannelIDUnban: channelOptions.id,
-                                    ChannelIDKick: channelOptions.id,
-                                    ChannelIDWarn: channelOptions.id,
-                                }, { where: { GuildID: interaction.guild.id } })
+                            return interaction.reply({
+                                embeds: [embed],
+                                ephemeral: true,
+                            });
+                        };
 
-                                LoggingEmbed.addFields(
-                                    { name: "**Channel**", value: channelOptions.toLocaleString(), inline: true },
-                                )
-                            } else {
-                                return interaction.reply({
-                                    content: [LoggingMessage.ChannelNeeded]
-                                })
-                            };
-
-                            break;
-                        case ("ban"):
-                            if (channelOptions) {
-                                await Logging.update({
-                                    ChannelIDBan: channelOptions.id,
-                                }, { where: { GuildID: interaction.guild.id } })
-
-                                LoggingEmbed.addFields(
-                                    { name: "**Channel**", value: channelOptions.toLocaleString(), inline: true },
-                                )
-                            } else {
-                                return interaction.reply({
-                                    content: [LoggingMessage.ChannelNeeded]
-                                })
-                            };
-
-                            break;
-                        case ("kick"):
-                            if (channelOptions) {
-                                await Logging.update({
-                                    ChannelIDKick: channelOptions.id,
-                                }, { where: { GuildID: interaction.guild.id } })
-
-                                LoggingEmbed.addFields(
-                                    { name: "**Channel**", value: channelOptions.toLocaleString(), inline: true },
-                                )
-                            } else {
-                                return interaction.reply({
-                                    content: [LoggingMessage.ChannelNeeded]
-                                })
-                            };
-                            break;
-                        case ("warn"):
-                            if (channelOptions) {
-                                await Logging.update({
-                                    ChannelIDWarn: channelOptions.id,
-                                }, { where: { GuildID: interaction.guild.id } })
-
-                                LoggingEmbed.addFields(
-                                    { name: "**Channel**", value: channelOptions.toLocaleString(), inline: true },
-                                )
-                            } else {
-                                return interaction.reply({
-                                    content: [LoggingMessage.ChannelNeeded]
-                                })
-                            };
-                            break;
-                        case ("unban"):
-                            if (channelOptions) {
-                                await Logging.update({
-                                    ChannelIDUnban: channelOptions.id,
-                                }, { where: { GuildID: interaction.guild.id } })
-
-                                LoggingEmbed.addFields(
-                                    { name: "**Channel**", value: channelOptions.toLocaleString(), inline: true },
-                                )
-                            } else {
-                                return interaction.reply({
-                                    content: [LoggingMessage.ChannelNeeded]
-                                })
-                            };
-                            break;
-                        case ("disable"):
-                            await Logging.update({
-                                ChannelIDBan: null,
-                                ChannelIDUnban: null,
-                                ChannelIDKick: null,
-                                ChannelIDWarn: null,
-                            }, { where: { GuildID: interaction.guild.id } })
-
-                            LoggingEmbed.addFields(
-                                { name: "**Channel**", value: "Disabled", inline: true },
+                        const VerificationCommandEmbed = new MessageEmbed()
+                            .setDescription("Settings Changed")
+                            .addFields(
+                                { name: "**Welcome Channel:**", value: channelOptions2.toLocaleString(), inline: true },
+                                { name: "**Staff:**", value: staffRoleOptions.toLocaleString(), inline: true },
+                                { name: "**Role to Add:**", value: addRoleOptions.toLocaleString(), inline: true },
                             );
-                            break;
-                    };
 
-                    return interaction.reply({
-                        embeds: [LoggingEmbed],
-                        ephemeral: true,
-                    });
-                case (en.VerificationCommandName):
-                    if (staffRoleOptions.name === "@everyone" | addRoleOptions.name === "@everyone" | removeRole === "@everyone") {
-                        const embed = new MessageEmbed()
-                            .setDescription(LoggingMessage.SettingsError)
-                            .addFields(
-                                { name: "**Role provided**", value: "The role (@everyone) cannot be used!", inline: true },
-                            )
+                        if (!removeRoleOptions) {
+                            await Logging.update({
+                                ChannelIDVerify: channelOptions2.id,
+                                StaffRoleVerify: staffRoleOptions.id,
+                                RoleToAddVerify: addRoleOptions.id
+                            }, { where: { GuildID: interaction.guild.id } });
+                        } else {
+                            await Logging.update({
+                                ChannelIDVerify: channelOptions2.id,
+                                StaffRoleVerify: staffRoleOptions.id,
+                                RoleToAddVerify: addRoleOptions.id,
+                                RoleToRemoveVerify: removeRoleOptions.id
+                            }, { where: { GuildID: interaction.guild.id } });
 
-                        return interaction.reply({
-                            embeds: [embed],
-                            ephemeral: true,
-                        })
-                    }
-
-                    const VerificationCommandEmbed = new MessageEmbed()
-                        .setDescription("Settings Changed")
-                        .addFields(
-                            { name: "**Welcome Channel:**", value: channelOptions2.toLocaleString(), inline: true },
-                            { name: "**Staff:**", value: staffRoleOptions.toLocaleString(), inline: true },
-                            { name: "**Role to Add:**", value: addRoleOptions.toLocaleString(), inline: true },
-                        )
-
-                    if (!removeRoleOptions) {
-                        await Logging.update({
-                            ChannelIDVerify: channelOptions2.id,
-                            StaffRoleVerify: staffRoleOptions.id,
-                            RoleToAddVerify: addRoleOptions.id
-                        }, { where: { GuildID: interaction.guild.id } })
-                    } else {
-                        await Logging.update({
-                            ChannelIDVerify: channelOptions2.id,
-                            StaffRoleVerify: staffRoleOptions.id,
-                            RoleToAddVerify: addRoleOptions.id,
-                            RoleToRemoveVerify: removeRoleOptions.id
-                        }, { where: { GuildID: interaction.guild.id } })
-
-                        VerificationCommandEmbed.addFields(
-                            { name: "**Role to Remove:**", value: removeRoleOptions.toLocaleString(), inline: true },
-                        )
-                    }
-
-                    return interaction.reply({
-                        embeds: [VerificationCommandEmbed],
-                        ephemeral: true,
-                    });
-                case (en.VerificationMenuName):
-                    if (staffRoleOptions.name === "@everyone" | addRoleOptions.name === "@everyone" | removeRole === "@everyone") {
-                        const embed = new MessageEmbed()
-                            .setDescription(LoggingMessage.SettingsError)
-                            .addFields(
-                                { name: "**Role provided**", value: "The role (@everyone) cannot be used!", inline: true },
-                            )
+                            VerificationCommandEmbed.addFields(
+                                { name: "**Role to Remove:**", value: removeRoleOptions.toLocaleString(), inline: true },
+                            );
+                        };
 
                         return interaction.reply({
-                            embeds: [embed],
+                            embeds: [VerificationCommandEmbed],
                             ephemeral: true,
-                        })
-                    }
+                        });
+                    case (en.VerificationMenuName):
+                        if (staffRoleOptions.name === "@everyone" | addRoleOptions.name === "@everyone" | removeRole === "@everyone") {
+                            const embed = new MessageEmbed()
+                                .setDescription(LoggingMessage.SettingsError)
+                                .addFields(
+                                    { name: "**Role provided**", value: "The role (@everyone) cannot be used!", inline: true },
+                                );
 
-                    const VerificationMenuEmbed = new MessageEmbed()
-                        .setDescription(LoggingMessage.SettingsUpdated)
-                        .addFields(
-                            { name: "**Welcome Channel:**", value: "<#" + channelOptions2.toLocaleString(), inline: true },
-                            { name: "**Receive Channel**", value: channelOptions3.toLocaleString(), inline: true },
-                            { name: "**Staff Role:**", value: staffRoleOptions.toLocaleString(), inline: true },
-                            { name: "**Role to Add:**", value: addRoleOptions.toLocaleString(), inline: true },
-                        )
+                            return interaction.reply({
+                                embeds: [embed],
+                                ephemeral: true,
+                            });
+                        };
 
-                    if (!removeRoleOptions) {
-                        await Logging.update({
-                            ChannelIDVerify: channelOptions2.id,
-                            ChannelIDReceiveVerification: channelOptions3.id,
-                            StaffRoleVerify: staffRoleOptions.id,
-                            RoleToAddVerify: addRoleOptions.id
-                        }, { where: { GuildID: interaction.guild.id } })
-                    } else {
-                        await Logging.update({
-                            ChannelIDVerify: channelOptions2.id,
-                            ChannelIDReceiveVerification: channelOptions3.id,
-                            StaffRoleVerify: staffRoleOptions.id,
-                            RoleToAddVerify: addRoleOptions.id,
-                            RoleToRemoveVerify: removeRoleOptions.id
-                        }, { where: { GuildID: interaction.guild.id } })
+                        const VerificationMenuEmbed = new MessageEmbed()
+                            .setDescription(LoggingMessage.SettingsUpdated)
+                            .addFields(
+                                { name: "**Welcome Channel:**", value: "<#" + channelOptions2.toLocaleString(), inline: true },
+                                { name: "**Receive Channel**", value: channelOptions3.toLocaleString(), inline: true },
+                                { name: "**Staff Role:**", value: staffRoleOptions.toLocaleString(), inline: true },
+                                { name: "**Role to Add:**", value: addRoleOptions.toLocaleString(), inline: true },
+                            );
 
-                        VerificationMenuEmbed.addFields(
-                            { name: "**Role to Remove:**", value: removeRoleOptions.toLocaleString(), inline: true },
-                        )
-                    }
+                        if (!removeRoleOptions) {
+                            await Logging.update({
+                                ChannelIDVerify: channelOptions2.id,
+                                ChannelIDReceiveVerification: channelOptions3.id,
+                                StaffRoleVerify: staffRoleOptions.id,
+                                RoleToAddVerify: addRoleOptions.id
+                            }, { where: { GuildID: interaction.guild.id } });
+                        } else {
+                            await Logging.update({
+                                ChannelIDVerify: channelOptions2.id,
+                                ChannelIDReceiveVerification: channelOptions3.id,
+                                StaffRoleVerify: staffRoleOptions.id,
+                                RoleToAddVerify: addRoleOptions.id,
+                                RoleToRemoveVerify: removeRoleOptions.id
+                            }, { where: { GuildID: interaction.guild.id } });
 
-                    return interaction.reply({
-                        embeds: [VerificationMenuEmbed],
-                        ephemeral: true,
-                    });
-            }
-        } else {
-            return interaction.reply({
-                content: "You cannot execute that command! You need the following permission: ``ADMINISTRATOR`` or ``MANAGE_GUILD``.",
-                ephemeral: true,
-            })
-        }
+                            VerificationMenuEmbed.addFields(
+                                { name: "**Role to Remove:**", value: removeRoleOptions.toLocaleString(), inline: true },
+                            );
+                        };
+
+                        return interaction.reply({
+                            embeds: [VerificationMenuEmbed],
+                            ephemeral: true,
+                        });
+                };
+            } else {
+                return interaction.reply({
+                    content: "You cannot execute that command! You need the following permission: ``ADMINISTRATOR`` or ``MANAGE_GUILD``.",
+                    ephemeral: true,
+                });
+            };
+        } catch (error) {
+            let fetchGuild = message.client.guilds.cache.get(Config.guildId);
+            let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+
+            CrashChannel.send({ content: "**Error in the " + en.Name + " Command:** \n\n```javascript\n" + error + "```" });
+        };
     }
 };
