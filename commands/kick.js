@@ -66,124 +66,151 @@ module.exports = {
             .setRequired(true)
         ),
     execute: async (interaction, bot, sequelize, Sequelize) => {
-        const CommandFunction = sequelize.define("CommandFunction", {
-            name: {
-                type: Sequelize.STRING,
-            },
-            value: {
-                type: Sequelize.STRING,
-            },
-        });
+        try {
+            const CommandFunction = sequelize.define("CommandFunction", {
+                name: {
+                    type: Sequelize.STRING,
+                },
+                value: {
+                    type: Sequelize.STRING,
+                },
+            });
 
-        const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
+            const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
+            const MessageReason = require("../config/message.json");
 
-        const MessageReason = require("../config/message.json");
-
-        if (FindCommand) {
-            if (FindCommand.value === "Disable") {
-                return interaction.reply({
-                    content: MessageReason.CommandDisabled,
-                    ephemeral: true,
-                });
+            if (FindCommand) {
+                if (FindCommand.value === "Disable") {
+                    return interaction.reply({
+                        content: MessageReason.CommandDisabled,
+                        ephemeral: true,
+                    });
+                };
             };
-        };
 
-        const Logging = sequelize.define("Logging", {
-            GuildID: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            ChannelIDKick: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-        });
-        const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
+            const Logging = sequelize.define("Logging", {
+                GuildID: {
+                    type: Sequelize.STRING,
+                    unique: false,
+                },
+                ChannelIDKick: {
+                    type: Sequelize.STRING,
+                    unique: false,
+                },
+            });
+            const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
 
-        if (interaction.member.permissions.has("KICK_MEMBERS")) {
-            if (interaction.guild.me.permissions.has("KICK_MEMBERS")) {
-                const user = interaction.options.getUser(en.UserName)
-                const member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(err => { })
-                let guild = bot.guilds.cache.get(interaction.guild.id);
+            let LanguageData = LoggingData.language;
 
-                switch (member.id) {
-                    case (!member):
-                        return interaction.reply({
-                            content: "I can't find this user!",
-                            ephemeral: true
-                        });
-                    case (interaction.member.id):
-                        return interaction.reply({
-                            content: "You can't kick yourself!",
-                            ephemeral: true
-                        });
-                    case (bot.user.id):
-                        return interaction.reply({
-                            content: "You can't kick me!",
-                            ephemeral: true
-                        });
-                    case (!member.kickable):
-                        return interaction.reply({
-                            content: "I can't kick this user!",
-                            ephemeral: true,
-                        });
-                    default:
-                        if (guild.members.cache.find(m => m.id === user.id)?.id) {
-                            if (member.roles.highest.position >= interaction.member.roles.highest.position) {
-                                return interaction.reply({
-                                    content: "You can't kick this user, because he's higher than you!",
-                                    ephemeral: true
-                                });
-                            }
-                        }
+            if (!LanguageData || LanguageData === "en") Language = LanguageEN;
+            if (LanguageData === "fr") Language = LanguageFR;
+            if (LanguageData === "de") Language = LanguageDE;
+            if (LanguageData === "sp") Language = LanguageSP;
+            if (LanguageData === "nl") Language = LanguageNL;
 
-                        const reason = interaction.options.getString(en.ReasonName);
-                        const admin = interaction.user.tag;
+            if (interaction.member.permissions.has("KICK_MEMBERS")) {
+                if (interaction.guild.me.permissions.has("KICK_MEMBERS")) {
+                    const user = interaction.options.getUser(en.UserName);
+                    const member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(error => { });
+                    let guild = bot.guilds.cache.get(interaction.guild.id);
 
-                        const kickMessage = new MessageEmbed()
-                            .setDescription("``" + member.user.tag + "`` has been kicked from the server for ``" + reason + "``.")
-                            .setColor(Color.Green)
+                    switch (member.id) {
+                        case (!member):
+                            return interaction.reply({
+                                content: Language.default.UnknownUser,
+                                ephemeral: true,
+                            });
+                        case (interaction.member.id):
+                            return interaction.reply({
+                                content: Language.kick.default.Myself,
+                                ephemeral: true,
+                            });
+                        case (bot.user.id):
+                            return interaction.reply({
+                                content: Language.kick.default.Me,
+                                ephemeral: true,
+                            });
+                        case (interaction.guild.ownerId):
+                            return interaction.reply({
+                                content: Language.kick.default.Owner,
+                                ephemeral: true,
+                            });
+                        case (!member.kickable):
+                            return interaction.reply({
+                                content: Language.kick.default.Punishable,
+                                ephemeral: true,
+                            });
+                        default:
+                            if (guild.members.cache.find(m => m.id === user.id)?.id) {
+                                if (member.roles.highest.position >= interaction.member.roles.highest.position) {
+                                    return interaction.reply({
+                                        content: Language.kick.default.Role,
+                                        ephemeral: true,
+                                    });
+                                };
+                            };
 
-                        await interaction.reply({
-                            embeds: [kickMessage],
-                            ephemeral: true
-                        })
+                            const reason = interaction.options.getString(en.ReasonName);
+                            const mod = interaction.user.tag;
 
-                        if (LoggingData) {
-                            if (LoggingData.ChannelIDKick) {
-                                const logChannel = interaction.guild.channels.cache.get(LoggingData.ChannelIDKick)
+                            const kickMessage = new MessageEmbed()
+                                .setDescription("``" + user.tag + "`` " + Language.kick.server.Message + " ``" + reason + "``.")
+                                .setColor(Color.Green);
 
-                                const logMessage = new MessageEmbed()
-                                    .setTitle("New Kick")
-                                    .setDescription("**__User:__** ``" + member.user.tag + "``\n**__Reason:__** ``" + reason + "``\n**__Moderator:__** ``" + admin + "``")
-                                    .setFooter({ text: "ID: " + member.id })
-                                    .setTimestamp()
-                                    .setColor(Color.RiskMedium)
+                            await interaction.reply({
+                                embeds: [kickMessage],
+                                ephemeral: true,
+                            });
 
-                                await logChannel.send({ embeds: [logMessage] })
-                            }
-                        }
-                        const kickDM = new MessageEmbed()
-                            .setDescription("You have been kicked on ``" + interaction.guild.name + "`` for ``" + reason + "`` by ``" + admin + "``.")
-                            .setColor(Color.RiskMedium)
+                            if (LoggingData) {
+                                if (LoggingData.ChannelIDKick) {
+                                    const logChannel = interaction.guild.channels.cache.get(LoggingData.ChannelIDKick);
 
-                        await member.send({
-                            embeds: [kickDM],
-                        }).catch(() => { return });
+                                    const logMessage = new MessageEmbed()
+                                        .setTitle(Language.ban.server.NewBan)
+                                        .addFields(
+                                            { name: Language.kick.server.User, value: "``" + user.tag + "``" },
+                                            { name: Language.kick.server.Reason, value: "``" + reason + "``" },
+                                            { name: Language.kick.server.Mod, value: "``" + mod + "``" },
+                                        )
+                                        .setFooter({
+                                            text: "ID: " + user.id
+                                        })
+                                        .setTimestamp()
+                                        .setColor(Color.RiskMedium);
 
-                        return member.kick({ reason: [reason + " | " + admin] });
-                }
+                                    await logChannel.send({
+                                        embeds: [logMessage],
+                                    });
+                                };
+                            };
+                            const kickDM = new MessageEmbed()
+                                .setDescription(Language.kick.dm.you + " ``" + interaction.guild.name + "`` " + Language.kick.dm.for + " ``" + reason + "`` " + Language.kick.dm.by + " ``" + mod + "``.")
+                                .setColor(Color.RiskMedium);
+
+                            await member.send({
+                                embeds: [kickDM],
+                            }).catch(() => { return });
+
+                            return member.kick({ reason: [reason + " | " + mod] });
+                    };
+                } else {
+                    return interaction.reply({
+                        content: Language.kick.permission.Me,
+                        ephemeral: true,
+                    });
+                };
             } else {
                 return interaction.reply({
-                    content: "I need the following permissions: ``KICK_MEMBERS``.",
-                    ephemeral: true,
+                    content: Language.kick.permission.Myself,
+                    ephemeral: true
                 });
-            }
-        } else {
-            return interaction.reply({
-                content: "You cannot execute this command! You need the following permission ``KICK_MEMBERS``.",
-                ephemeral: true
-            })
-        }
+            };
+        } catch (error) {
+            let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
+            let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+
+            CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
+        };
     }
 };

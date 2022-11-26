@@ -21,7 +21,8 @@
             "NoDetails": "Your verification has been denied.\n\n*Reason: You did not put enough details.*",
             "Troll": "Your verification has been denied.\n\n*Reason: You've been flagged for trolling.*",
             "NewAccount": "Your verification has been denied.\n\n*Reason: Your account is too new to be accepted.*",
-            "TooYoung": "Your verification has been denied.\n\n*Reason: You're too young to join this server.*"
+            "TooYoung": "Your verification has been denied.\n\n*Reason: You're too young to join this server.*",
+            "Website": "Your verification has been denied.\n\n*Reason: You haven't provided the website or person who invited you.*"
         },
         "Received": "You've successfully sent your verification! Please wait while our team review your verification.",
         "AlreadyWaitingVerification": "You already have a pending verification, please be patient while our staff review your verification."

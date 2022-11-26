@@ -32,55 +32,62 @@ module.exports = {
       SpanishES: sp.Description,
       nl: nl.Description
     }),
-  execute: async (interaction, bot) => {
-    const CommandFunction = sequelize.define("CommandFunction", {
-      name: {
-        type: Sequelize.STRING,
-      },
-      value: {
-        type: Sequelize.STRING,
-      },
-    });
+  execute: async (interaction, bot, sequelize, Sequelize) => {
+    try {
+      const CommandFunction = sequelize.define("CommandFunction", {
+        name: {
+          type: Sequelize.STRING,
+        },
+        value: {
+          type: Sequelize.STRING,
+        },
+      });
 
-    const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
+      const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
 
-    const MessageReason = require("../config/message.json");
+      const MessageReason = require("../config/message.json");
 
-    if (FindCommand) {
-      if (FindCommand.value === "Disable") {
-        return interaction.reply({
-          content: MessageReason.CommandDisabled,
-          ephemeral: true,
-        });
+      if (FindCommand) {
+        if (FindCommand.value === "Disable") {
+          return interaction.reply({
+            content: MessageReason.CommandDisabled,
+            ephemeral: true,
+          });
+        };
       };
+
+      function checkDays(date) {
+        let now = new Date();
+        let diff = now.getTime() - date.getTime();
+        let days = Math.floor(diff / 86400000);
+        return days + (days == 1 ? " day" : " days") + " ago";
+      };
+
+      let roleCount = interaction.guild.roles.cache.size;
+
+      const guild = bot.guilds.cache.get(interaction.guild.id);
+      var memberCount = guild.memberCount;
+
+      const serverinfo = new MessageEmbed()
+        .addFields(
+          { name: "Name", value: "``" + interaction.guild.name + "``", inline: true },
+          { name: "ID", value: "``" + interaction.guild.id + "``", inline: true },
+          { name: "Owner", value: "<@" + interaction.guild.ownerId + "> ``(" + interaction.guild.ownerId + ")``" },
+          { name: "Created The", value: "``" + interaction.channel.guild.createdAt.toUTCString().substr(0, 16) + " / " + (checkDays(interaction.channel.guild.createdAt)) + "``" },
+          { name: "Member Count", value: "``" + memberCount + "``", inline: true },
+          { name: "Roles", value: "``" + roleCount + "``", inline: true },
+        )
+        .setThumbnail(interaction.guild.iconURL())
+        .setColor(Color.Green);
+
+      return interaction.reply({
+        embeds: [serverinfo]
+      });
+    } catch (error) {
+      let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
+      let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+
+      CrashChannel.send({ content: "**Error in the " + en.Name + " Command:** \n\n```javascript\n" + error + "```" });
     };
-
-    function checkDays(date) {
-      let now = new Date();
-      let diff = now.getTime() - date.getTime();
-      let days = Math.floor(diff / 86400000);
-      return days + (days == 1 ? " day" : " days") + " ago";
-    }
-
-    let roleCount = interaction.guild.roles.cache.size
-
-    const guild = bot.guilds.cache.get(interaction.guild.id);
-    var memberCount = guild.memberCount
-
-    const serverinfo = new MessageEmbed()
-      .addFields(
-        { name: "Name", value: "``" + interaction.guild.name + "``", inline: true },
-        { name: "ID", value: "``" + interaction.guild.id + "``", inline: true },
-        { name: "Owner", value: "<@" + interaction.guild.ownerId + "> ``(" + interaction.guild.ownerId + ")``" },
-        { name: "Created The", value: "``" + interaction.channel.guild.createdAt.toUTCString().substr(0, 16) + " / " + (checkDays(interaction.channel.guild.createdAt)) + "``" },
-        { name: "Member Count", value: "``" + memberCount + "``", inline: true },
-        { name: "Roles", value: "``" + roleCount + "``", inline: true },
-      )
-      .setThumbnail(interaction.guild.iconURL())
-      .setColor(Color.Green)
-
-    return interaction.reply({
-      embeds: [serverinfo]
-    });
   }
 };

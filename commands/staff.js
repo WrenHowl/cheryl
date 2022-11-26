@@ -1,7 +1,8 @@
 const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const Config = require("../config/config.json");
 const Color = require("../config/color.json");
+const Config = require("../config/config.json");
+const Message = require('../config/message.json');
 const LanguageFR = require("../languages/fr.json");
 const LanguageEN = require("../languages/en.json");
 const LanguageDE = require("../languages/de.json");
@@ -49,49 +50,55 @@ module.exports = {
                 nl: nl.UserDescription
             })
             .setRequired(false)),
-    execute: async (interaction, bot) => {
-        const CommandFunction = sequelize.define("CommandFunction", {
-            name: {
-                type: Sequelize.STRING,
-            },
-            value: {
-                type: Sequelize.STRING,
-            },
-        });
+    execute: async (interaction, bot, sequelize, Sequelize) => {
+        try {
+            const CommandFunction = sequelize.define("CommandFunction", {
+                name: {
+                    type: Sequelize.STRING,
+                },
+                value: {
+                    type: Sequelize.STRING,
+                },
+            });
 
-        const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
+            const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
+            const MessageReason = require("../config/message.json");
 
-        const MessageReason = require("../config/message.json");
-
-        if (FindCommand) {
-            if (FindCommand.value === "Disable") {
-                return interaction.reply({
-                    content: MessageReason.CommandDisabled,
-                    ephemeral: true,
-                });
+            if (FindCommand) {
+                if (FindCommand.value === "Disable") {
+                    return interaction.reply({
+                        content: MessageReason.CommandDisabled,
+                        ephemeral: true,
+                    });
+                };
             };
+
+            const user = interaction.options.getUser(en.UserName);
+
+            let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
+            await fetchGuild.members.fetch();
+
+            let MemberData = user ? user : interaction.user;
+
+            const StaffMember = fetchGuild.members.cache.get(MemberData.id);
+            let StaffCheck = StaffMember ? StaffMember.roles.cache.has(Config.DevID) | StaffMember.roles.cache.has(Config.StaffID) : false;
+
+            StaffCheck ? Thumbnail = Config.CheckMark : Thumbnail = Config.x;
+            StaffCheck ? IsOrIsnt = "is" : IsOrIsnt = "isn't";
+
+            const staffList = new MessageEmbed()
+                .setDescription(MemberData.toString() + " " + IsOrIsnt + " a staff member of `" + bot.user.username + "`")
+                .setThumbnail(Thumbnail)
+                .setColor(Color.Green);
+
+            return interaction.reply({
+                embeds: [staffList]
+            });
+        } catch (error) {
+            let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
+            let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+
+            CrashChannel.send({ content: "**Error in the " + en.Name + " Command:** \n\n```javascript\n" + error + "```" });
         };
-
-        const user = interaction.options.getUser(en.UserName);
-
-        let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
-        await fetchGuild.members.fetch();
-
-        let MemberData = user ? user : interaction.user;
-
-        const StaffMember = fetchGuild.members.cache.get(MemberData.id);
-        let StaffCheck = StaffMember ? StaffMember.roles.cache.has(Config.DevID) | StaffMember.roles.cache.has(Config.StaffID) : false;
-
-        StaffCheck ? Thumbnail = Config.CheckMark : Thumbnail = Config.x;
-        StaffCheck ? IsOrIsnt = "is" : IsOrIsnt = "isn't";
-
-        const staffList = new MessageEmbed()
-            .setDescription(MemberData.toString() + " " + IsOrIsnt + " a staff member of `" + bot.user.username + "`")
-            .setThumbnail(Thumbnail)
-            .setColor(Color.Green)
-
-        return interaction.reply({
-            embeds: [staffList]
-        });
     }
 };

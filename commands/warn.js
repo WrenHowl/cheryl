@@ -38,162 +38,164 @@ module.exports = {
             .setRequired(true)
         ),
     execute: async (interaction, bot, sequelize, Sequelize) => {
-        const CommandFunction = sequelize.define("CommandFunction", {
-            name: {
-                type: Sequelize.STRING,
-            },
-            value: {
-                type: Sequelize.STRING,
-            },
-        });
+        try {
+            const CommandFunction = sequelize.define("CommandFunction", {
+                name: {
+                    type: Sequelize.STRING,
+                },
+                value: {
+                    type: Sequelize.STRING,
+                },
+            });
 
-        const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
+            const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
+            const MessageReason = require("../config/message.json");
 
-        const MessageReason = require("../config/message.json");
-
-        if (FindCommand) {
-            if (FindCommand.value === "Disable") {
-                return interaction.reply({
-                    content: MessageReason.CommandDisabled,
-                    ephemeral: true,
-                });
+            if (FindCommand) {
+                if (FindCommand.value === "Disable") {
+                    return interaction.reply({
+                        content: MessageReason.CommandDisabled,
+                        ephemeral: true,
+                    });
+                };
             };
-        };
 
-        const Logging = sequelize.define("Logging", {
-            GuildID: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            ChannelIDWarn: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-        });
-        const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
-
-        if (interaction.member.permissions.has("MODERATE_MEMBERS")) {
-            const user = interaction.options.getUser("user");
-            const member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(error => { });
-
-            const Warns = sequelize.define("Warns", {
-                UserName: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                UserID: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                    primaryKey: false,
-                },
-                ModName: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                ModID: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                Reason: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
+            const Logging = sequelize.define("Logging", {
                 GuildID: {
                     type: Sequelize.STRING,
                     unique: false,
                 },
+                ChannelIDWarn: {
+                    type: Sequelize.STRING,
+                    unique: false,
+                },
             });
+            const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
 
-            let guild = bot.guilds.cache.get(interaction.guild.id);
-            let userInServer = null;
+            if (interaction.member.permissions.has("MODERATE_MEMBERS")) {
+                const user = interaction.options.getUser("user");
+                const member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(error => { });
 
-            if (guild.members.cache.get(user.id)) userInServer = member.roles.highest.position >= interaction.member.roles.highest.position;
-            if (!guild.members.cache.get(user.id)) userInServer;
+                const Warns = sequelize.define("Warns", {
+                    UserName: {
+                        type: Sequelize.STRING,
+                        unique: false,
+                    },
+                    UserID: {
+                        type: Sequelize.STRING,
+                        unique: false,
+                        primaryKey: false,
+                    },
+                    ModName: {
+                        type: Sequelize.STRING,
+                        unique: false,
+                    },
+                    ModID: {
+                        type: Sequelize.STRING,
+                        unique: false,
+                    },
+                    Reason: {
+                        type: Sequelize.STRING,
+                        unique: false,
+                    },
+                    GuildID: {
+                        type: Sequelize.STRING,
+                        unique: false,
+                    },
+                });
 
-            switch (user.id) {
-                case (!user):
+                let guild = bot.guilds.cache.get(interaction.guild.id);
+
+                guild.members.cache.get(user.id) ? userInServer = member.roles.highest.position >= interaction.member.roles.highest.position : userInServer = false;
+
+                switch (user.id) {
+                    case (!user):
+                        return interaction.reply({
+                            content: "I can't find this user!",
+                            ephemeral: true,
+                        });
+                    case (interaction.member.id):
+                        return interaction.reply({
+                            content: "You can't warn yourself!",
+                            ephemeral: true,
+                        });
+                    case (bot.user.id):
+                        return interaction.reply({
+                            content: "You can't warn me!",
+                            ephemeral: true,
+                        });
+                    case (userInServer):
+                        return interaction.reply({
+                            content: "You can't warn this user, because he's higher than you!",
+                            ephemeral: true,
+                        });
+                    default:
+                        const reason = interaction.options.getString("reason");
+                        const admin = interaction.user;
+
+                        const WarnMessage = new MessageEmbed()
+                            .setDescription("``" + user.tag + "`` has been warned for ``" + reason + "``")
+                            .setColor("2f3136");
+
+                        await interaction.reply({
+                            embeds: [WarnMessage],
+                            ephemeral: true,
+                        });
+
+                        if (LoggingData) {
+                            if (LoggingData.ChannelIDWarn) {
+                                if (interaction.guild.members.guild.me.permissionsIn(LoggingData.ChannelIDWarn).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
+                                    const LogChannel = interaction.guild.channels.cache.get(LoggingData.ChannelIDWarn);
+
+                                    const LogMessage = new MessageEmbed()
+                                        .setTitle("New Warn")
+                                        .setDescription("**__User:__** ``" + user.tag + "``\n**__Reason:__** ``" + reason + "``\n**__Moderator:__** ``" + admin.tag + "``")
+                                        .setFooter({ text: "ID: " + user.id })
+                                        .setTimestamp()
+                                        .setColor("2f3136");
+
+                                    await LogChannel.send({
+                                        embeds: [LogMessage]
+                                    });
+                                };
+                            };
+                        };
+
+                        const WarnDm = new MessageEmbed()
+                            .setDescription("You have been warned on ``" + interaction.guild.name + "`` for ``" + reason + "`` by ``" + admin.toLocaleString() + "``.")
+                            .setColor("2f3136");
+
+                        await member.send({
+                            embeds: [WarnDm],
+                        }).catch(() => { return; });
+
+                        return Warns.create({
+                            UserName: user.tag,
+                            UserID: user.id,
+                            ModName: admin.tag,
+                            ModID: admin.id,
+                            Reason: reason,
+                            GuildID: interaction.guild.id,
+                        });
+                };
+            } else {
+                if (interaction.guild.id === "821241527941726248") {
                     return interaction.reply({
-                        content: "I can't find this user!",
-                        ephemeral: true
+                        content: "You cannot execute this command! You need the following roles ``Moderation`` or ``Management``.",
+                        ephemeral: true,
                     });
-                case (interaction.member.id):
-                    return interaction.reply({
-                        content: "You can't warn yourself!",
-                        ephemeral: true
-                    });
-                case (bot.user.id):
-                    return interaction.reply({
-                        content: "You can't warn me!",
-                        ephemeral: true
-                    });
-                case (userInServer):
-                    return interaction.reply({
-                        content: "You can't warn this user, because he's higher than you!",
-                        ephemeral: true
-                    });
-                default:
-                    const reason = interaction.options.getString("reason");
-                    const admin = interaction.user;
+                };
 
-                    const WarnMessage = new MessageEmbed()
-                        .setDescription("``" + user.tag + "`` has been warned for ``" + reason + "``")
-                        .setColor("2f3136")
-
-                    await interaction.reply({
-                        embeds: [WarnMessage],
-                        ephemeral: true
-                    })
-
-                    if (LoggingData) {
-                        if (LoggingData.ChannelIDWarn) {
-                            if (interaction.guild.members.guild.me.permissionsIn(LoggingData.ChannelIDWarn).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
-                                const LogChannel = interaction.guild.channels.cache.get(LoggingData.ChannelIDWarn)
-
-                                const LogMessage = new MessageEmbed()
-                                    .setTitle("New Warn")
-                                    .setDescription("**__User:__** ``" + user.tag + "``\n**__Reason:__** ``" + reason + "``\n**__Moderator:__** ``" + admin.tag + "``")
-                                    .setFooter({ text: "ID: " + user.id })
-                                    .setTimestamp()
-                                    .setColor("2f3136")
-
-                                await LogChannel.send({
-                                    embeds: [LogMessage]
-                                })
-                            }
-                        }
-                    }
-
-                    const WarnDm = new MessageEmbed()
-                        .setDescription("You have been warned on ``" + interaction.guild.name + "`` for ``" + reason + "`` by ``" + admin.toLocaleString() + "``.")
-                        .setColor("2f3136")
-
-                    await member.send({
-                        embeds: [WarnDm],
-                    }).catch(() => {
-                        return;
-                    })
-
-                    return Warns.create({
-                        UserName: user.tag,
-                        UserID: user.id,
-                        ModName: admin.tag,
-                        ModID: admin.id,
-                        Reason: reason,
-                        GuildID: interaction.guild.id,
-                    })
-            }
-        } else {
-            if (interaction.guild.id === "821241527941726248") {
                 return interaction.reply({
-                    content: "You cannot execute this command! You need the following roles ``Moderation`` or ``Management``.",
-                    ephemeral: true
-                })
-            }
+                    content: "You cannot execute this command! You need the following permission ``MODERATE_MEMBERS``.",
+                    ephemeral: true,
+                });
+            };
+        } catch (error) {
+            let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
+            let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
 
-            return interaction.reply({
-                content: "You cannot execute this command! You need the following permission ``MODERATE_MEMBERS``.",
-                ephemeral: true
-            })
-        }
+            CrashChannel.send({ content: "**Error in the " + en.Name + " Command:** \n\n```javascript\n" + error + "```" });
+        };
     }
 };

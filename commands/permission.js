@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const config = require('../config/config.json');
-const message = require('../config/message.json');
+const Color = require("../config/color.json");
+const Config = require("../config/config.json");
+const Message = require('../config/message.json');
 const LanguageFR = require("../languages/fr.json");
 const LanguageEN = require("../languages/en.json");
 const LanguageDE = require("../languages/de.json");
@@ -173,179 +174,185 @@ module.exports = {
                     { name: 'Blacklist', value: "Blacklist_Permission" },
                 ))),
     execute: async (interaction, bot, sequelize, Sequelize) => {
-        const CommandFunction = sequelize.define("CommandFunction", {
-            name: {
-                type: Sequelize.STRING,
-            },
-            value: {
-                type: Sequelize.STRING,
-            },
-        });
+        try {
+            const CommandFunction = sequelize.define("CommandFunction", {
+                name: {
+                    type: Sequelize.STRING,
+                },
+                value: {
+                    type: Sequelize.STRING,
+                },
+            });
 
-        const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
+            const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
+            const MessageReason = require("../config/message.json");
 
-        const MessageReason = require("../config/message.json");
+            if (FindCommand) {
+                if (FindCommand.value === "Disable") {
+                    return interaction.reply({
+                        content: MessageReason.CommandDisabled,
+                        ephemeral: true,
+                    });
+                };
+            };
 
-        if (FindCommand) {
-            if (FindCommand.value === "Disable") {
+            if (interaction.user.id === Config.ownerId) {
+                const Permission = sequelize.define("Permission", {
+                    UserName: {
+                        type: Sequelize.STRING,
+                        unique: false,
+                    },
+                    UserID: {
+                        type: Sequelize.STRING,
+                        unique: false,
+                    },
+                    GuildID: {
+                        type: Sequelize.STRING,
+                        unique: false,
+                    },
+                    BlacklistPermission: {
+                        type: Sequelize.STRING,
+                        unique: false,
+                    },
+                });
+
+                let option = interaction.options.getSubcommand();
+                const options = interaction.options.getString(en.UserOptionsName);
+                const addOptions = interaction.options.getString(en.UserPermissionName);
+
+                let MessageReason = Message.Permission;
+
+                switch (option) {
+                    case (en.UserName):
+                        const user = interaction.options.getUser(en.UserName);
+                        const member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(error => { });
+
+                        switch (member.id) {
+                            case (!member):
+                                return interaction.reply({
+                                    content: "I can't find this user!",
+                                    ephemeral: true
+                                });
+                            case (bot.user.id):
+                                return interaction.reply({
+                                    content: "You can't whitelist me!",
+                                    ephemeral: true
+                                });
+                            default:
+                                switch (options) {
+                                    case ("Add_Options"):
+                                        switch (addOptions) {
+                                            case ("Blacklist_Permission"):
+                                                const PermissionCheck = await Permission.findOne({ where: { UserID: user.id } });
+
+                                                if (PermissionCheck) {
+                                                    return interaction.reply({
+                                                        content: MessageReason.AlreadyWhitelistedBlacklist,
+                                                        ephemeral: true
+                                                    });
+                                                };
+
+                                                PermissionCheck ? await Permission.update({ BlacklistPermission: true }, { where: { UserID: user.id } }) :
+                                                    await Permission.create({
+                                                        UserName: user.tag,
+                                                        UserID: user.id,
+                                                        BlacklistPermission: true,
+                                                    });
+
+                                                return interaction.reply({
+                                                    content: MessageReason.AddedWhitelistBlacklist,
+                                                    ephemeral: true,
+                                                });
+                                        };
+                                    case ("Remove_Options"):
+                                        switch (addOptions) {
+                                            case ("Blacklist_Permission"):
+                                                const PermissionCheck = await Permission.findOne({ where: { UserID: user.id } });
+
+                                                if (PermissionCheck) {
+                                                    return interaction.reply({
+                                                        content: MessageReason.AlreadyWhitelistedBlacklist,
+                                                        ephemeral: true
+                                                    });
+                                                };
+
+                                                PermissionCheck ? await Permission.update({ BlacklistPermission: false }, { where: { UserID: user.id } }) :
+                                                    await Permission.create({
+                                                        UserName: user.tag,
+                                                        UserID: user.id,
+                                                        BlacklistPermission: false,
+                                                    });
+
+                                                return interaction.reply({
+                                                    content: MessageReason.RemovedWhitelistBlacklist,
+                                                    ephemeral: true,
+                                                });
+                                        };
+                                };
+                        };
+                    case ("server"):
+                        const server = interaction.options.getString(en.ServerName);
+
+                        switch (options) {
+                            case ("Add_Options"):
+                                switch (addOptions) {
+                                    case ("Blacklist_Permission"):
+                                        const PermissionCheck = await Permission.findOne({ where: { GuildID: server } });
+
+                                        if (PermissionCheck) {
+                                            return interaction.reply({
+                                                content: MessageReason.AlreadyWhitelistedBlacklist,
+                                                ephemeral: true
+                                            });
+                                        };
+
+                                        PermissionCheck ? await Permission.update({ BlacklistPermission: true }, { where: { GuildID: interaction.guild.id } }) :
+                                            await Permission.create({
+                                                GuildID: server,
+                                                BlacklistPermission: true,
+                                            });
+
+                                        return interaction.reply({
+                                            content: MessageReason.AddedWhitelistBlacklist,
+                                            ephemeral: true,
+                                        });
+                                };
+                            case ("Remove_Options"):
+                                switch (addOptions) {
+                                    case ("Blacklist_Permission"):
+                                        const PermissionCheck = await Permission.findOne({ where: { GuildID: server } });
+
+                                        if (!PermissionCheck) {
+                                            return interaction.reply({
+                                                content: MessageReason.AlreadyWhitelistedBlacklist,
+                                                ephemeral: true
+                                            });
+                                        };
+
+                                        PermissionCheck ? await Permission.update({ BlacklistPermission: true }, { where: { GuildID: interaction.guild.id } }) :
+                                            await Permission.create({
+                                                GuildID: server,
+                                                BlacklistPermission: true,
+                                            });
+
+                                        return interaction.reply({
+                                            content: MessageReason.RemovedWhitelistBlacklist,
+                                            ephemeral: true,
+                                        });
+                                };
+                        };
+                };
+            } else {
                 return interaction.reply({
-                    content: MessageReason.CommandDisabled,
-                    ephemeral: true,
+                    content: "You do not have access to this command.",
+                    ephemeral: true
                 });
             };
+        } catch (error) {
+            let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
+            let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+
+            CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
         };
-
-        if (interaction.user.id === config.ownerId) {
-            const Permission = sequelize.define("Permission", {
-                UserName: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                UserID: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                GuildID: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                BlacklistPermission: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-            });
-
-            let option = interaction.options.getSubcommand();
-            const options = interaction.options.getString(en.UserOptionsName);
-            const addOptions = interaction.options.getString(en.UserPermissionName);
-
-            let MessageReason = message.Permission;
-
-            switch (option) {
-                case (en.UserName):
-                    const user = interaction.options.getUser(en.UserName);
-                    const member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(err => { });
-
-                    switch (member.id) {
-                        case (!member):
-                            return interaction.reply({
-                                content: "I can't find this user!",
-                                ephemeral: true
-                            })
-                        case (bot.user.id):
-                            return interaction.reply({
-                                content: "You can't whitelist me!",
-                                ephemeral: true
-                            })
-                        default:
-                            switch (options) {
-                                case ("Add_Options"):
-                                    switch (addOptions) {
-                                        case ("Blacklist_Permission"):
-                                            const PermissionCheck = await Permission.findOne({ where: { UserID: user.id } });
-
-                                            if (PermissionCheck) {
-                                                return interaction.reply({
-                                                    content: MessageReason.AlreadyWhitelistedBlacklist,
-                                                    ephemeral: true
-                                                });
-                                            };
-
-                                            PermissionCheck ? await Permission.update({ BlacklistPermission: true }, { where: { UserID: user.id } }) :
-                                                await Permission.create({
-                                                    UserName: user.tag,
-                                                    UserID: user.id,
-                                                    BlacklistPermission: true,
-                                                });
-
-                                            return interaction.reply({
-                                                content: MessageReason.AddedWhitelistBlacklist,
-                                                ephemeral: true,
-                                            })
-                                    };
-                                case ("Remove_Options"):
-                                    switch (addOptions) {
-                                        case ("Blacklist_Permission"):
-                                            const PermissionCheck = await Permission.findOne({ where: { UserID: user.id } });
-
-                                            if (PermissionCheck) {
-                                                return interaction.reply({
-                                                    content: MessageReason.AlreadyWhitelistedBlacklist,
-                                                    ephemeral: true
-                                                });
-                                            };
-
-                                            PermissionCheck ? await Permission.update({ BlacklistPermission: false }, { where: { UserID: user.id } }) :
-                                                await Permission.create({
-                                                    UserName: user.tag,
-                                                    UserID: user.id,
-                                                    BlacklistPermission: false,
-                                                });
-
-                                            return interaction.reply({
-                                                content: MessageReason.RemovedWhitelistBlacklist,
-                                                ephemeral: true,
-                                            })
-                                    };
-                            }
-                    };
-                case ("server"):
-                    const server = interaction.options.getString(en.ServerName);
-
-                    switch (options) {
-                        case ("Add_Options"):
-                            switch (addOptions) {
-                                case ("Blacklist_Permission"):
-                                    const PermissionCheck = await Permission.findOne({ where: { GuildID: server } });
-
-                                    if (PermissionCheck) {
-                                        return interaction.reply({
-                                            content: MessageReason.AlreadyWhitelistedBlacklist,
-                                            ephemeral: true
-                                        });
-                                    };
-
-                                    PermissionCheck ? await Permission.update({ BlacklistPermission: true }, { where: { GuildID: interaction.guild.id } }) :
-                                        await Permission.create({
-                                            GuildID: server,
-                                            BlacklistPermission: true,
-                                        });
-
-                                    return interaction.reply({
-                                        content: MessageReason.AddedWhitelistBlacklist,
-                                        ephemeral: true,
-                                    })
-                            };
-                        case ("Remove_Options"):
-                            switch (addOptions) {
-                                case ("Blacklist_Permission"):
-                                    const PermissionCheck = await Permission.findOne({ where: { GuildID: server } });
-
-                                    if (!PermissionCheck) {
-                                        return interaction.reply({
-                                            content: MessageReason.AlreadyWhitelistedBlacklist,
-                                            ephemeral: true
-                                        });
-                                    };
-
-                                    PermissionCheck ? await Permission.update({ BlacklistPermission: true }, { where: { GuildID: interaction.guild.id } }) :
-                                        await Permission.create({
-                                            GuildID: server,
-                                            BlacklistPermission: true,
-                                        });
-
-                                    return interaction.reply({
-                                        content: MessageReason.RemovedWhitelistBlacklist,
-                                        ephemeral: true,
-                                    })
-                            }
-                    };
-            }
-        } else {
-            return interaction.reply({
-                content: "You do not have access to this command.",
-                ephemeral: true
-            });
-        }
     }
 };

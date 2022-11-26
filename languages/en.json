@@ -29,13 +29,13 @@
             "Myself": "You can't ban yourself!",
             "Me": "You can't ban me!",
             "Owner": "You can't ban the owner!",
-            "Bannable": "I can't ban this user",
+            "Punishable": "I can't ban this user",
             "Role": "You can't ban this user, because they're higher than you!",
-            "Banned": "You can't ban this user, since they are banned already!"
+            "Punished": "You can't ban this user, since they are banned already!"
         },
         "server": {
-            "BanMessage": "has been banned from the server for",
-            "NewBan": "New Ban",
+            "Message": "has been banned from the server for",
+            "New": "New Ban",
             "User": "User",
             "Reason": "Reason",
             "Mod": "Moderator"
@@ -92,11 +92,41 @@
         "UserName": "user",
         "UserDescription": "User to kick.",
         "ReasonName": "reason",
-        "ReasonDescription": "Reason of the kick."
+        "ReasonDescription": "Reason of the kick.",
+        "default": {
+            "Myself": "You can't kick yourself!",
+            "Me": "You can't kick me!",
+            "Owner": "You can't kick the owner!",
+            "Punishable": "I can't kick this user",
+            "Role": "You can't kick this user, because they're higher than you!"
+        },
+        "server": {
+            "Message": "has been kicked from the server for",
+            "New": "New Kick",
+            "User": "User",
+            "Reason": "Reason",
+            "Mod": "Moderator"
+        },
+        "dm": {
+            "you": "You have been kicked on",
+            "for": "for",
+            "by": "by"
+        },
+        "permission": {
+            "Myself": ":warning: Insufficient Permission - You need the following permission: ``Kick Members``.",
+            "Me": ":warning: Insufficient Permission - I need the following permission: ``Kick Members``."
+        }
     },
     "lock": {
         "Name": "lock",
-        "Description": "Lock the channel."
+        "Description": "Lock the channel.",
+        "default": {
+            "Done": "The channel has been successfully locked."
+        },
+        "permission": {
+            "Myself": ":warning: Insufficient Permission - You need the following permission: ``Manage Messages``.",
+            "Me": ":warning: Insufficient Permission - I need the following permission: ``Manage Messages``."
+        }
     },
     "permission": {
         "Name": "permission",
@@ -219,11 +249,22 @@
     },
     "unban": {
         "Name": "unban",
-        "Description": "Unban a user."
+        "Description": "Unban a user.",
+        "permission": {
+            "Myself": ":warning: Insufficient Permission - You need the following permission: ``Ban Members``.",
+            "Me": ":warning: Insufficient Permission - I need the following permission: ``Ban Members``."
+        }
     },
     "unlock": {
         "Name": "unlock",
-        "Description": "Unlock the channel."
+        "Description": "Unlock the channel.",
+        "default": {
+            "Done": "The channel has been successfully unlocked."
+        },
+        "permission": {
+            "Myself": ":warning: Insufficient Permission - You need the following permission: ``Manage Messages``.",
+            "Me": ":warning: Insufficient Permission - I need the following permission: ``Manage Messages``."
+        }
     },
     "verify": {
         "Name": "verify",
@@ -240,6 +281,12 @@
     "welcomemenu": {
         "Name": "welcomemenu",
         "Description": "Send the verification embed in the channel."
+    },
+    "cmd": {
+        "Name": "cmd"
+    },
+    "cop": {
+        "Name": "cop"
     },
     "language": {
         "Name": "language"

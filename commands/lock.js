@@ -32,50 +32,76 @@ module.exports = {
             SpanishES: sp.Description,
             nl: nl.Description
         }),
-    execute: async (interaction) => {
-        const CommandFunction = sequelize.define("CommandFunction", {
-            name: {
-                type: Sequelize.STRING,
-            },
-            value: {
-                type: Sequelize.STRING,
-            },
-        });
+    execute: async (interaction, bot, sequelize, Sequelize) => {
+        try {
+            const CommandFunction = sequelize.define("CommandFunction", {
+                name: {
+                    type: Sequelize.STRING,
+                },
+                value: {
+                    type: Sequelize.STRING,
+                },
+            });
 
-        const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
+            const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
+            const MessageReason = require("../config/message.json");
 
-        const MessageReason = require("../config/message.json");
-
-        if (FindCommand) {
-            if (FindCommand.value === "Disable") {
-                return interaction.reply({
-                    content: MessageReason.CommandDisabled,
-                    ephemeral: true,
-                });
+            if (FindCommand) {
+                if (FindCommand.value === "Disable") {
+                    return interaction.reply({
+                        content: MessageReason.CommandDisabled,
+                        ephemeral: true,
+                    });
+                };
             };
-        };
 
-        if (interaction.member.permissions.has("MANAGE_MESSAGES")) {
-            if (interaction.guild.me.permissions.has("MANAGE_CHANNELS")) {
+            const Logging = sequelize.define("Logging", {
+                GuildID: {
+                    type: Sequelize.STRING,
+                },
+                ChannelIDBan: {
+                    type: Sequelize.STRING,
+                },
+                Language: {
+                    type: Sequelize.STRING,
+                },
+            });
+            const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
 
-                await interaction.channel.permissionOverwrites.edit(interaction.channel.guild.roles.everyone, { SEND_MESSAGES: false })
+            let LanguageData = LoggingData.language;
 
-                const lockdownSuccess = new MessageEmbed()
-                    .setDescription("The channel has been successfully lock.")
-                    .setColor(Color.Green)
+            if (!LanguageData || LanguageData === "en") Language = LanguageEN;
+            if (LanguageData === "fr") Language = LanguageFR;
+            if (LanguageData === "de") Language = LanguageDE;
+            if (LanguageData === "sp") Language = LanguageSP;
+            if (LanguageData === "nl") Language = LanguageNL;
 
-                return interaction.reply({ embeds: [lockdownSuccess] });
+            if (interaction.member.permissions.has("MANAGE_MESSAGES")) {
+                if (interaction.guild.me.permissions.has("MANAGE_CHANNELS")) {
+
+                    await interaction.channel.permissionOverwrites.edit(interaction.channel.guild.roles.everyone, { SEND_MESSAGES: false }, "Lockdown initiated by: " + interaction.user.tag);
+                    await interaction.channel.permissionOverwrites.edit(bot.user.id, { SEND_MESSAGES: true });
+
+                    return interaction.reply({
+                        content: Language.lock.default.Done,
+                    });
+                } else {
+                    return interaction.reply({
+                        content: Language.lock.permission.Me,
+                        ephemeral: true,
+                    });
+                };
             } else {
                 return interaction.reply({
-                    content: "I need the following permission ```MANAGE_CHANNELS``.",
+                    content: Language.lock.permission.Myself,
                     ephemeral: true
                 });
             };
-        } else {
-            return interaction.reply({
-                content: "You cannot execute this command! You need the following permission ```MANAGE_MESSAGES``.",
-                ephemeral: true
-            });
+        } catch (error) {
+            let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
+            let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+
+            CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
         };
     }
 };
