@@ -625,25 +625,33 @@ bot.on("messageCreate", async (message) => {
       }
     }
   }
+  try {
+    if (message.author.bot || message.content.indexOf(prefix) !== 0) return;
+    const args = message.content.slice(prefix.length).trim().split(/ +/);
+    const command = args.shift().toLowerCase();
 
-  if (message.author.bot || message.content.indexOf(prefix) !== 0) return;
-  const args = message.content.slice(prefix.length).trim().split(/ +/);
-  const command = args.shift().toLowerCase();
+    const fr = require("./languages/fr.json");
+    const en = require("./languages/en.json");
+    const de = require("./languages/de.json");
+    const sp = require("./languages/sp.json");
+    const nl = require("./languages/nl.json");
 
-  const fr = require("./languages/fr.json");
-  const en = require("./languages/en.json");
-  const de = require("./languages/de.json");
-  const sp = require("./languages/sp.json");
-  const nl = require("./languages/nl.json");
+    switch (command) {
+      case ("serverlist"):
+        return bot.commands.get("serverlist").execute(bot, message, args, MessageEmbed);
+      case (en.cmd.Name):
+        return bot.commands.get(en.cmd.Name).execute(bot, message, args, MessageEmbed, sequelize, Sequelize);
+      case (en.language.Name || fr.language.Name || de.language.Name || nl.language.Name || sp.language.Name):
+        return bot.commands.get(en.language.Name).execute(bot, message, args, MessageEmbed, sequelize, Sequelize);
+      case (en.cop.Name):
+        return bot.commands.get(en.cop.Name).execute(bot, message, args, MessageEmbed, sequelize, Sequelize);
+    };
+  } catch (error) {
+    let fetchGuild = message.client.guilds.cache.get(Config.guildId);
+    let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
 
-  switch (command) {
-    case ("serverlist"):
-      return bot.commands.get("serverlist").execute(bot, message, args, MessageEmbed);
-    case ("cmd"):
-      return bot.commands.get("cmd").execute(bot, message, args, MessageEmbed, sequelize, Sequelize);
-    case (en.language.Name || fr.language.Name || de.language.Name || nl.language.Name || sp.language.Name):
-      return bot.commands.get(en.language.Name).execute(bot, message, args, MessageEmbed, sequelize, Sequelize);
-  }
+    CrashChannel.send({ content: "**Error in the 'messageCreate' Event:** \n\n```javascript\n" + error + "```" });
+  };
 });
 
 bot.on('interactionCreate', async (interaction) => {

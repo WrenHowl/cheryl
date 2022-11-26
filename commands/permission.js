@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const config = require('../config/config.json');
-const message = require('../config/message.json');
+const Color = require("../config/color.json");
+const Config = require("../config/config.json");
+const Message = require('../config/message.json');
 const LanguageFR = require("../languages/fr.json");
 const LanguageEN = require("../languages/en.json");
 const LanguageDE = require("../languages/de.json");
@@ -184,7 +185,6 @@ module.exports = {
             });
 
             const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
-
             const MessageReason = require("../config/message.json");
 
             if (FindCommand) {
@@ -196,7 +196,7 @@ module.exports = {
                 };
             };
 
-            if (interaction.user.id === config.ownerId) {
+            if (interaction.user.id === Config.ownerId) {
                 const Permission = sequelize.define("Permission", {
                     UserName: {
                         type: Sequelize.STRING,
@@ -220,7 +220,7 @@ module.exports = {
                 const options = interaction.options.getString(en.UserOptionsName);
                 const addOptions = interaction.options.getString(en.UserPermissionName);
 
-                let MessageReason = message.Permission;
+                let MessageReason = Message.Permission;
 
                 switch (option) {
                     case (en.UserName):
@@ -349,10 +349,10 @@ module.exports = {
                 });
             };
         } catch (error) {
-            let fetchGuild = message.client.guilds.cache.get(Config.guildId);
+            let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
             let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
 
-            CrashChannel.send({ content: "**Error in the " + en.Name + " Command:** \n\n```javascript\n" + error + "```" });
+            CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
         };
     }
 };

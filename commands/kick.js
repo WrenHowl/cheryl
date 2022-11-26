@@ -77,7 +77,6 @@ module.exports = {
             });
 
             const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
-
             const MessageReason = require("../config/message.json");
 
             if (FindCommand) {
@@ -101,6 +100,14 @@ module.exports = {
             });
             const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
 
+            let LanguageData = LoggingData.language;
+
+            if (!LanguageData || LanguageData === "en") Language = LanguageEN;
+            if (LanguageData === "fr") Language = LanguageFR;
+            if (LanguageData === "de") Language = LanguageDE;
+            if (LanguageData === "sp") Language = LanguageSP;
+            if (LanguageData === "nl") Language = LanguageNL;
+
             if (interaction.member.permissions.has("KICK_MEMBERS")) {
                 if (interaction.guild.me.permissions.has("KICK_MEMBERS")) {
                     const user = interaction.options.getUser(en.UserName);
@@ -110,44 +117,49 @@ module.exports = {
                     switch (member.id) {
                         case (!member):
                             return interaction.reply({
-                                content: "I can't find this user!",
-                                ephemeral: true
+                                content: Language.default.UnknownUser,
+                                ephemeral: true,
                             });
                         case (interaction.member.id):
                             return interaction.reply({
-                                content: "You can't kick yourself!",
-                                ephemeral: true
+                                content: Language.kick.default.Myself,
+                                ephemeral: true,
                             });
                         case (bot.user.id):
                             return interaction.reply({
-                                content: "You can't kick me!",
-                                ephemeral: true
+                                content: Language.kick.default.Me,
+                                ephemeral: true,
+                            });
+                        case (interaction.guild.ownerId):
+                            return interaction.reply({
+                                content: Language.kick.default.Owner,
+                                ephemeral: true,
                             });
                         case (!member.kickable):
                             return interaction.reply({
-                                content: "I can't kick this user!",
+                                content: Language.kick.default.Punishable,
                                 ephemeral: true,
                             });
                         default:
                             if (guild.members.cache.find(m => m.id === user.id)?.id) {
                                 if (member.roles.highest.position >= interaction.member.roles.highest.position) {
                                     return interaction.reply({
-                                        content: "You can't kick this user, because he's higher than you!",
-                                        ephemeral: true
+                                        content: Language.kick.default.Role,
+                                        ephemeral: true,
                                     });
                                 };
                             };
 
                             const reason = interaction.options.getString(en.ReasonName);
-                            const admin = interaction.user.tag;
+                            const mod = interaction.user.tag;
 
                             const kickMessage = new MessageEmbed()
-                                .setDescription("``" + member.user.tag + "`` has been kicked from the server for ``" + reason + "``.")
-                                .setColor(Color.Green)
+                                .setDescription("``" + user.tag + "`` " + Language.kick.server.Message + " ``" + reason + "``.")
+                                .setColor(Color.Green);
 
                             await interaction.reply({
                                 embeds: [kickMessage],
-                                ephemeral: true
+                                ephemeral: true,
                             });
 
                             if (LoggingData) {
@@ -155,34 +167,42 @@ module.exports = {
                                     const logChannel = interaction.guild.channels.cache.get(LoggingData.ChannelIDKick);
 
                                     const logMessage = new MessageEmbed()
-                                        .setTitle("New Kick")
-                                        .setDescription("**__User:__** ``" + member.user.tag + "``\n**__Reason:__** ``" + reason + "``\n**__Moderator:__** ``" + admin + "``")
-                                        .setFooter({ text: "ID: " + member.id })
+                                        .setTitle(Language.ban.server.NewBan)
+                                        .addFields(
+                                            { name: Language.kick.server.User, value: "``" + user.tag + "``" },
+                                            { name: Language.kick.server.Reason, value: "``" + reason + "``" },
+                                            { name: Language.kick.server.Mod, value: "``" + mod + "``" },
+                                        )
+                                        .setFooter({
+                                            text: "ID: " + user.id
+                                        })
                                         .setTimestamp()
-                                        .setColor(Color.RiskMedium)
+                                        .setColor(Color.RiskMedium);
 
-                                    await logChannel.send({ embeds: [logMessage] });
+                                    await logChannel.send({
+                                        embeds: [logMessage],
+                                    });
                                 };
                             };
                             const kickDM = new MessageEmbed()
-                                .setDescription("You have been kicked on ``" + interaction.guild.name + "`` for ``" + reason + "`` by ``" + admin + "``.")
-                                .setColor(Color.RiskMedium)
+                                .setDescription(Language.kick.dm.you + " ``" + interaction.guild.name + "`` " + Language.kick.dm.for + " ``" + reason + "`` " + Language.kick.dm.by + " ``" + mod + "``.")
+                                .setColor(Color.RiskMedium);
 
                             await member.send({
                                 embeds: [kickDM],
                             }).catch(() => { return });
 
-                            return member.kick({ reason: [reason + " | " + admin] });
+                            return member.kick({ reason: [reason + " | " + mod] });
                     };
                 } else {
                     return interaction.reply({
-                        content: "I need the following permissions: ``KICK_MEMBERS``.",
+                        content: Language.kick.permission.Me,
                         ephemeral: true,
                     });
                 };
             } else {
                 return interaction.reply({
-                    content: "You cannot execute this command! You need the following permission ``KICK_MEMBERS``.",
+                    content: Language.kick.permission.Myself,
                     ephemeral: true
                 });
             };
@@ -190,7 +210,7 @@ module.exports = {
             let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
             let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
 
-            CrashChannel.send({ content: "**Error in the " + en.Name + " Command:** \n\n```javascript\n" + error + "```" });
+            CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
         };
     }
 };

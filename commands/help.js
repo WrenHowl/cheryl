@@ -1,4 +1,4 @@
-const { MessageEmbed } = require('discord.js');
+const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Color = require("../config/color.json");
 const Config = require("../config/config.json");
@@ -76,19 +76,28 @@ module.exports = {
         };
       };
 
+      const SupportDiscord = new MessageActionRow()
+        .addComponents(
+          new MessageButton()
+            .setLabel('Support Server')
+            .setURL(Config.SupportDiscord)
+            .setStyle('LINK'),
+        );
+
       const infoOptions = interaction.options.getString(en.InfoName);
 
       if (!infoOptions) {
         let arrayStaffCheryl = [
           "blacklist",
           "permission",
-          "cmd",
+          "cmd ^",
+          "cop ^",
         ].join("``, ``");
 
         let arrayAdminGlobal = [
           "settings",
           "welcomemenu",
-          "language",
+          "language ^",
         ].join("``, ``");
 
         let arrayModGlobal = [
@@ -122,7 +131,7 @@ module.exports = {
         if (arrayFunGlobal) arrayFunGlobal = "``" + arrayFunGlobal + "``";
 
         const helpMenu = new MessageEmbed()
-          .setDescription("Prefix of `" + bot.user.username + "` is ``c.`` -> [Support Discord](" + Config.SupportDiscord + ")")
+          .setDescription("*My prefix in this server is ``c.``. Commands with a ^ right next to it, use the prefix.*")
           .addFields(
             { name: "Staff Cheryl:", value: arrayStaffCheryl },
             { name: "Administration:", value: arrayAdminGlobal },
@@ -133,7 +142,8 @@ module.exports = {
           .setColor(Color.Green)
 
         return interaction.reply({
-          embeds: [helpMenu]
+          embeds: [helpMenu],
+          components: [SupportDiscord],
         });
 
       } else {
@@ -150,26 +160,25 @@ module.exports = {
                 "**2 - IS THERE EVIDENCE?**\n" +
                 "Yes! We provide evidence for every blacklist.\n\n" +
                 "**3 - HOW DO I ENABLE THE BLACKLIST ALERT IN MY SERVER?**\n" +
-                "You simply need to do ``/settings blacklist`` and set the blacklist alert to ``Enabled`` and set a channel you wanna receive your alert in." +
-                "\n\n*Need help? Join the [Support Discord](" + Config.SupportDiscord + ")!*"
-              )
+                "You simply need to do ``/settings blacklist`` and set the blacklist alert to ``Enabled`` and set a channel you wanna receive your alert in.")
               .setColor(Color.Green)
 
             return interaction.reply({
               embeds: [blacklistInfoEmbed],
+              components: [SupportDiscord],
             });
           case ("verificationInfo"):
             const verificationInfoEmbed = new MessageEmbed()
               .setDescription(
                 "**1 - HOW TO ENABLE THE VERIFY COMMAND?**\n" +
                 "Do ``/settings verification`` and choose either ``menu`` or ``command``. You can set up both, it will work!\n\n" +
-                "You selected ``menu``? You need to send the menu in a channel afterwards! Do ``/welcomemenu`` and choose the desired channel!" +
-                "\n\n*Need help? Join the [Support Discord](" + Config.SupportDiscord + ")!*"
+                "You selected ``menu``? You need to send the menu in a channel afterwards! Do ``/welcomemenu`` and choose the desired channel!"
               )
               .setColor(Color.Green)
 
             return interaction.reply({
               embeds: [verificationInfoEmbed],
+              components: [SupportDiscord],
             });
         };
       };

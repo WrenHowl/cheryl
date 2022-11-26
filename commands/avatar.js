@@ -60,7 +60,6 @@ module.exports = {
             });
 
             const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
-
             const MessageReason = require("../config/message.json");
 
             if (FindCommand) {

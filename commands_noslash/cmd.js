@@ -2,13 +2,13 @@ const { MessageActionRow, MessageSelectMenu } = require('discord.js');
 const Config = require("../config/config.json");
 const LanguageEN = require("../languages/en.json");
 
-const en = LanguageEN.language;
+const en = LanguageEN.cmd;
 
 const dateTime = new Date();
 console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");
 
 module.exports = {
-    name: "cmd",
+    name: en.Name,
     execute: async (bot, message, args, MessageEmbed, sequelize, Sequelize) => {
         try {
             const CommandFunction = sequelize.define("CommandFunction", {

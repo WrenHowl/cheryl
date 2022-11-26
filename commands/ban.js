@@ -103,7 +103,6 @@ module.exports = {
             const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
 
             let LanguageData = LoggingData.language;
-            let Language = "";
 
             if (!LanguageData || LanguageData === "en") Language = LanguageEN;
             if (LanguageData === "fr") Language = LanguageFR;
@@ -114,7 +113,7 @@ module.exports = {
             if (interaction.member.permissions.has(Permission.Ban)) {
                 if (interaction.guild.me.permissions.has(Permission.Ban)) {
                     const user = interaction.options.getUser(en.UserName);
-                    const member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(err => { });
+                    const member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(error => { });
                     const banList = await interaction.guild.bans.fetch();
                     const bannedUser = banList.find(user => user.id === user.id);
                     let guild = bot.guilds.cache.get(interaction.guild.id);
@@ -142,7 +141,7 @@ module.exports = {
                             });
                         case (!user.bannable):
                             return interaction.reply({
-                                content: Language.ban.default.Bannable,
+                                content: Language.ban.default.Punishable,
                                 ephemeral: true,
                             });
                         default:
@@ -150,13 +149,13 @@ module.exports = {
                                 if (member.roles.highest.position >= interaction.member.roles.highest.position) {
                                     return interaction.reply({
                                         content: Language.ban.default.Role,
-                                        ephemeral: true
+                                        ephemeral: true,
                                     });
                                 };
                             } else if (bannedUser) {
                                 return interaction.reply({
-                                    content: Language.ban.default.Banned,
-                                    ephemeral: true
+                                    content: Language.ban.default.Punished,
+                                    ephemeral: true,
                                 });
                             };
 
@@ -164,8 +163,8 @@ module.exports = {
                             const mod = interaction.user.tag;
 
                             const banMessage = new MessageEmbed()
-                                .setDescription("``" + user.tag + "`` " + Language.ban.server.BanMessage + " ``" + reason + "``.")
-                                .setColor(Color.Green)
+                                .setDescription("``" + user.tag + "`` " + Language.ban.server.Message + " ``" + reason + "``.")
+                                .setColor(Color.Green);
 
                             await interaction.reply({
                                 embeds: [banMessage],
@@ -188,7 +187,7 @@ module.exports = {
                                                 text: "ID: " + user.id
                                             })
                                             .setTimestamp()
-                                            .setColor(Color.RiskHigh)
+                                            .setColor(Color.RiskHigh);
 
                                         await logChannel.send({
                                             embeds: [logMessage],
@@ -199,7 +198,7 @@ module.exports = {
 
                             const banDM = new MessageEmbed()
                                 .setDescription(Language.ban.dm.you + " ``" + interaction.guild.name + "`` " + Language.ban.dm.for + " ``" + reason + "`` " + Language.ban.dm.by + " ``" + mod + "``.")
-                                .setColor(Color.RiskHigh)
+                                .setColor(Color.RiskHigh);
 
                             await user.send({
                                 embeds: [banDM],
@@ -223,7 +222,7 @@ module.exports = {
             let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
             let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
 
-            CrashChannel.send({ content: "**Error in the " + en.Name + " Command:** \n\n```javascript\n" + error + "```" });
+            CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
         };
     }
 };

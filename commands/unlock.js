@@ -1,6 +1,8 @@
 const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Color = require("../config/color.json");
+const Config = require("../config/config.json");
+const Message = require('../config/message.json');
 const LanguageFR = require("../languages/fr.json");
 const LanguageEN = require("../languages/en.json");
 const LanguageDE = require("../languages/de.json");
@@ -54,32 +56,49 @@ module.exports = {
                     });
                 };
             };
+            const Logging = sequelize.define("Logging", {
+                GuildID: {
+                    type: Sequelize.STRING,
+                },
+                ChannelIDBan: {
+                    type: Sequelize.STRING,
+                },
+                Language: {
+                    type: Sequelize.STRING,
+                },
+            });
+
+            const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
+
+            let LanguageData = LoggingData.language;
+
+            if (!LanguageData || LanguageData === "en") Language = LanguageEN;
+            if (LanguageData === "fr") Language = LanguageFR;
+            if (LanguageData === "de") Language = LanguageDE;
+            if (LanguageData === "sp") Language = LanguageSP;
+            if (LanguageData === "nl") Language = LanguageNL;
 
             if (interaction.member.permissions.has("MANAGE_MESSAGES")) {
                 if (interaction.guild.me.permissions.has("MANAGE_CHANNELS")) {
-                    await interaction.channel.permissionOverwrites.edit(interaction.channel.guild.roles.everyone, { SEND_MESSAGES: true });
-
-                    const unLockdownSuccess = new MessageEmbed()
-                        .setDescription("The channel has been successfully unlock.")
-                        .setColor(Color.Green);
+                    interaction.channel.parent ? interaction.channel.lockPermissions() : interaction.channel.permissionOverwrites.edit(interaction.channel.guild.roles.everyone, { SEND_MESSAGES: true }), "Lockdown lifted by: " + interaction.user.tag;
 
                     return interaction.reply({
-                        embeds: [unLockdownSuccess]
+                        content: Language.unlock.default.Done,
                     });
                 } else {
                     return interaction.reply({
-                        content: "I need the following permission ```MANAGE_CHANNELS``.",
+                        content: Language.unlock.permission.Me,
                         ephemeral: true,
                     });
                 };
             } else {
                 return interaction.reply({
-                    content: "You cannot execute this command! You need the following permission ```MANAGE_MESSAGES``.",
-                    ephemeral: true,
+                    content: Language.unlock.permission.Myself,
+                    ephemeral: true
                 });
             };
         } catch (error) {
-            let fetchGuild = message.client.guilds.cache.get(Config.guildId);
+            let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
             let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
 
             CrashChannel.send({ content: "**Error in the " + en.Name + " Command:** \n\n```javascript\n" + error + "```" });

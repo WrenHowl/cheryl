@@ -29,13 +29,13 @@
             "Myself": "Tu ne peux pas te bannir!",
             "Me": "Tu ne peux pas me bannir!",
             "Owner": "Vous ne pouvez pas bannir le propriétaire!",
-            "Bannable": "Je ne peux pas bannir cet utilisateur",
+            "Punishable": "Je ne peux pas bannir cet utilisateur",
             "Role": "Vous ne pouvez pas bannir cet utilisateur, car il est supérieur à vous!",
-            "Banned": "Vous ne pouvez pas bannir cet utilisateur, car il est déjà banni!"
+            "Punished": "Vous ne pouvez pas bannir cet utilisateur, car il est déjà banni!"
         },
         "server": {
-            "BanMessage": "a été banni du serveur pour",
-            "NewBan": "Nouveau Bannissement",
+            "Message": "a été banni du serveur pour",
+            "New": "Nouveau Bannissement",
             "User": "Utilisateur",
             "Reason": "Raison",
             "Mod": "Modérateur"
@@ -92,7 +92,30 @@
         "UserName": "utilisateur",
         "UserDescription": "Utilisateur à expulser.",
         "ReasonName": "raison",
-        "ReasonDescription": "Raison de l'expulsion."
+        "ReasonDescription": "Raison de l'expulsion.",
+        "default": {
+            "Myself": "Tu ne peux pas t'expulser!",
+            "Me": "Tu ne peux pas m'expulser!",
+            "Owner": "Vous ne pouvez pas expulser le propriétaire!",
+            "Punishable": "Je ne peux pas expulser cet utilisateur",
+            "Role": "Vous ne pouvez pas expulser cet utilisateur, car il est supérieur à vous!"
+        },
+        "server": {
+            "Message": "a été expulser du serveur pour",
+            "New": "Nouvelle Expulsion",
+            "User": "Utilisateur",
+            "Reason": "Raison",
+            "Mod": "Modérateur"
+        },
+        "dm": {
+            "you": "Vous avez été expulsé de",
+            "for": "pour",
+            "by": "par"
+        },
+        "permission": {
+            "Myself": ":warning: Permission Insuffisante - Vous avez besoin de l'autorisation suivante: ``Expulser des Membres``.",
+            "Me": ":warning: Permission Insuffisante - J'ai besoin de l'autorisation suivante: ``Expulser des Membres``."
+        }
     },
     "lock": {
         "Name": "verrouiller",
@@ -223,7 +246,11 @@
     },
     "unlock": {
         "Name": "déverrouiller",
-        "Description": "Déverrouiller le canal."
+        "Description": "Déverrouiller le canal.",
+        "permission": {
+            "Myself": ":warning: Permission Insuffisante - Vous avez besoin de l'autorisation suivante: ``Gérer les Messages``.",
+            "Me": ":warning: Permission Insuffisante - J'ai besoin de l'autorisation suivante: ``Gérer les Messages``."
+        }
     },
     "verify": {
         "Name": "verifier",
