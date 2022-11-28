@@ -351,9 +351,8 @@ module.exports = {
         } catch (error) {
             let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
             let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
-            console.log(error)
 
-            CrashChannel.send({ content: "**Error in the " + en.Name + " Command:** \n\n```javascript\n" + error + "```" });
+            return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
         };
     }
 };

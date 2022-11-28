@@ -431,7 +431,7 @@ bot.on("guildMemberAdd", async (NewMember) => {
     let fetchGuild = NewMember.client.guilds.cache.get(Config.guildId)
     let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel)
 
-    CrashChannel.send({ content: "**Error in 'guildMemberAdd' Event:** \n\n```javascript\n" + error + "```" });
+    return CrashChannel.send({ content: "**Error in 'guildMemberAdd' Event:** \n\n```javascript\n" + error + "```" });
   };
 });
 
@@ -463,7 +463,7 @@ bot.on("guildMemberUpdate", async (OldMember, NewMember) => {
     let fetchGuild = NewMember.client.guilds.cache.get(Config.guildId);
     let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
 
-    CrashChannel.send({ content: "**Error in 'guildMemberUpdate' Event:** \n\n```javascript\n" + error + "```" });
+    return CrashChannel.send({ content: "**Error in 'guildMemberUpdate' Event:** \n\n```javascript\n" + error + "```" });
   };
 });
 
@@ -495,7 +495,7 @@ bot.on("guildMemberRemove", async (LeavingMember) => {
           .setFooter(
             { text: LeavingMember.user.id }
           )
-          .setThumbnail(LeavingMember.user.displayAvatarURL())
+          .setThumbnail(LeavingMember.user.displayAvatarURL());
 
         if (LoggingData.ChannelIDVerify) {
           LeavingMemberEmbed.addFields(
@@ -512,21 +512,21 @@ bot.on("guildMemberRemove", async (LeavingMember) => {
     let fetchGuild = LeavingMember.client.guilds.cache.get(Config.guildId);
     let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
 
-    CrashChannel.send({ content: "**Error in 'guildMemberRemove' Event:** \n\n```javascript\n" + error + "```" });
+    return CrashChannel.send({ content: "**Error in 'guildMemberRemove' Event:** \n\n```javascript\n" + error + "```" });
   };
 });
 
 bot.on("userUpdate", async (NewUser, OldUser) => {
   try {
     if (OldUser.username !== NewUser.username || OldUser.discriminator !== NewUser.discriminator) {
-      Verifier.update({ ModName: NewUser.tag }, { where: { ModID: NewUser.id } });
-      Blacklist.update({ ModName: NewUser.tag }, { where: { ModID: NewUser.id } });
+      await Verifier.update({ ModName: NewUser.tag }, { where: { ModID: NewUser.id } });
+      return Blacklist.update({ ModName: NewUser.tag }, { where: { ModID: NewUser.id } });
     };
   } catch (error) {
     let fetchGuild = LeavingMember.client.guilds.cache.get(Config.guildId);
     let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
 
-    CrashChannel.send({ content: "**Error in 'userUpdate' Event:** \n\n```javascript\n" + error + "```" });
+    return CrashChannel.send({ content: "**Error in 'userUpdate' Event:** \n\n```javascript\n" + error + "```" });
   };
 });
 
@@ -555,19 +555,19 @@ bot.on("guildCreate", async (guild) => {
         { name: "Owner ID", value: "``" + owner.user.id + "``", inline: true },
         { name: "Owner Blacklisted", value: "``" + Boo + "``", inline: true },
       )
-      .setColor(Color.Green)
+      .setColor(Color.Green);
 
     let fetchGuild = guild.client.guilds.cache.get(Config.guildId);
     let ChannelAddition = fetchGuild.channels.cache.get(Config.BotAdded);
 
-    ChannelAddition.send({
+    return ChannelAddition.send({
       embeds: [NewGuild]
     });
   } catch (error) {
     let fetchGuild = LeavingMember.client.guilds.cache.get(Config.guildId);
     let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
 
-    CrashChannel.send({ content: "**Error in 'guildCreate' Event:** \n\n```javascript\n" + error + "```" });
+    return CrashChannel.send({ content: "**Error in 'guildCreate' Event:** \n\n```javascript\n" + error + "```" });
   };
 });
 
@@ -589,19 +589,19 @@ bot.on("guildDelete", async (guild) => {
         { name: "Owner Blacklisted", value: "``" + Boo + "``", inline: true },
 
       )
-      .setColor(Color.RiskHigh)
+      .setColor(Color.RiskHigh);
 
     let fetchGuild = guild.client.guilds.cache.get(Config.guildId);
     let BotRemoval = fetchGuild.channels.cache.get(Config.BotRemoved);
 
-    BotRemoval.send({
+    return BotRemoval.send({
       embeds: [NewGuild]
     });
   } catch (error) {
     let fetchGuild = guild.client.guilds.cache.get(Config.guildId);
     let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
 
-    CrashChannel.send({ content: "**Error in 'guildDelete' Event:** \n\n```javascript\n" + error + "```" });
+    return CrashChannel.send({ content: "**Error in 'guildDelete' Event:** \n\n```javascript\n" + error + "```" });
   };
 });
 
@@ -650,7 +650,7 @@ bot.on("messageCreate", async (message) => {
     let fetchGuild = message.client.guilds.cache.get(Config.guildId);
     let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
 
-    CrashChannel.send({ content: "**Error in the 'messageCreate' Event:** \n\n```javascript\n" + error + "```" });
+    return CrashChannel.send({ content: "**Error in the 'messageCreate' Event:** \n\n```javascript\n" + error + "```" });
   };
 });
 
@@ -665,7 +665,7 @@ bot.on('interactionCreate', async (interaction) => {
     let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
     let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
 
-    CrashChannel.send({ content: "**Error in 'interactionCreate' Event:** \n\n```javascript\n" + error + "```" });
+    await CrashChannel.send({ content: "**Error in 'interactionCreate' Event:** \n\n```javascript\n" + error + "```" });
 
     return interaction.reply({
       content: 'There was an error while executing this command, the developer has been alerted!',
@@ -1114,7 +1114,7 @@ bot.on('interactionCreate', async (interaction) => {
     let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
     let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
 
-    CrashChannel.send({ content: "**Error in 'interactionCreate' Event:** \n\n```javascript\n" + error + "```" });
+    return CrashChannel.send({ content: "**Error in 'interactionCreate' Event:** \n\n```javascript\n" + error + "```" });
   };
 });
 
@@ -1189,8 +1189,7 @@ bot.on("messageReactionAdd", async (reaction, user) => {
     try {
       await reaction.fetch();
     } catch (error) {
-      console.error('Something went wrong when fetching the message:', error);
-      return;
+      return console.error('Something went wrong when fetching the message:', error);
     }
   }
 
@@ -1538,8 +1537,7 @@ bot.on("messageReactionRemove", async (reaction, user) => {
     try {
       await reaction.fetch();
     } catch (error) {
-      console.error('Something went wrong when fetching the message:', error);
-      return;
+      return console.error('Something went wrong when fetching the message:', error);
     }
   }
 

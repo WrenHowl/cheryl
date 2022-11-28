@@ -9,6 +9,7 @@ const LanguageEN = require("../languages/en.json");
 const LanguageDE = require("../languages/de.json");
 const LanguageSP = require("../languages/sp.json");
 const LanguageNL = require("../languages/nl.json");
+
 const fr = LanguageFR.settings;
 const en = LanguageEN.settings;
 const de = LanguageDE.settings;
@@ -649,7 +650,7 @@ module.exports = {
                     },
                 });
 
-                removeRole ? removeRole = removeRoleOptions.name : removeRole = removeRoleOptions;
+                removeRoleOptions ? removeRole = removeRoleOptions.name : removeRole = removeRoleOptions;
                 let ChannelName = "**Channel**";
                 let RoleProvided = "**Role provided**"
 
@@ -1020,7 +1021,7 @@ module.exports = {
             let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
             let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
 
-            CrashChannel.send({ content: "**Error in the " + en.Name + " Command:** \n\n```javascript\n" + error + "```" });
+            return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
         };
     }
 };

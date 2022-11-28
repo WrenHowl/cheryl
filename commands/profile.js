@@ -2,7 +2,9 @@ const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const moment = require("moment")
 const Color = require("../config/color.json");
-const Profile = require("../config/profile.json")
+const Message = require("../config/message.json");
+const Config = require("../config/config.json");
+const Profile = require("../config/profile.json");
 const LanguageFR = require("../languages/fr.json");
 const LanguageEN = require("../languages/en.json");
 const LanguageDE = require("../languages/de.json");
@@ -261,8 +263,6 @@ module.exports = {
                 };
 
                 let user = interaction.options.getUser("user");
-                let MemberData = "";
-                let UserPinged = "";
 
                 if (user) {
                     MemberData = user;
@@ -282,8 +282,6 @@ module.exports = {
 
                 verifLog ? verifLog = "`" + verifLog.ModName + "`" : verifLog = "`No Data Found`";
 
-                let roleMap = "";
-
                 if (guild.members.cache.get(MemberData.id)) roleMap = member.roles.cache
                     .filter((roles) => roles.id !== interaction.guild.id)
                     .sort((a, b) => b.position - a.position)
@@ -292,9 +290,6 @@ module.exports = {
 
                 if (!guild.members.cache.get(MemberData.id)) roleMap = "`No Role Found`";
                 if (!roleMap) roleMap = "`No Role Found`";
-
-                let JoinedAtData = "";
-                let CheckDaysJoinedAt = "";
 
                 if (guild.members.cache.get(MemberData.id)) JoinedAtData = interaction.member.joinedAt;
                 if (guild.members.cache.get(MemberData.id)) CheckDaysJoinedAt = "`" + moment(JoinedAtData).format("Do MMMM YYYY hh:ss:mm A") + " / " + (checkDays(JoinedAtData)) + "`";
@@ -355,7 +350,7 @@ module.exports = {
             let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
             let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
 
-            CrashChannel.send({ content: "**Error in the " + en.Name + " Command:** \n\n```javascript\n" + error + "```" });
+            return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
         };
     }
 };
