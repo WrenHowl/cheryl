@@ -1,6 +1,8 @@
 const { MessageActionRow, MessageButton, MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Color = require("../config/color.json");
+const Message = require("../config/message.json");
+const Config = require("../config/config.json");
 const LanguageFR = require("../languages/fr.json");
 const LanguageEN = require("../languages/en.json");
 const LanguageDE = require("../languages/de.json");
@@ -138,7 +140,7 @@ module.exports = {
             let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
             let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
 
-            CrashChannel.send({ content: "**Error in the " + en.Name + " Command:** \n\n```javascript\n" + error + "```" });
+            return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
         };
     }
 };

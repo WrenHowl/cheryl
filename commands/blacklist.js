@@ -1,7 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed } = require('discord.js');
 const Color = require("../config/color.json");
-const message = require("../config/message.json");
+const Message = require("../config/message.json");
 const Config = require("../config/config.json");
 const LanguageFR = require("../languages/fr.json");
 const LanguageEN = require("../languages/en.json");
@@ -387,7 +387,7 @@ module.exports = {
                                 switch (user.id) {
                                     case (!user):
                                         return interaction.reply({
-                                            content: message.UnknownUser,
+                                            content: Message.UnknownUser,
                                             ephemeral: true
                                         });
                                     case (interaction.user.id):
@@ -455,7 +455,7 @@ module.exports = {
                                 switch (user.id) {
                                     case (!user):
                                         return interaction.reply({
-                                            content: message.UnknownUser,
+                                            content: Message.UnknownUser,
                                             ephemeral: true
                                         });
                                     case (interaction.user.id):
@@ -520,7 +520,7 @@ module.exports = {
                                 switch (user.id) {
                                     case (!user):
                                         return interaction.reply({
-                                            content: message.UnknownUser,
+                                            content: Message.UnknownUser,
                                             ephemeral: true
                                         });
                                     case (interaction.user.id):
@@ -591,7 +591,7 @@ module.exports = {
             let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
             let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
 
-            CrashChannel.send({ content: "**Error in the " + en.Name + " Command:** \n\n```javascript\n" + error + "```" });
+            return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
         };
     }
 };

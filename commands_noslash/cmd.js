@@ -102,7 +102,7 @@ module.exports = {
             let fetchGuild = message.client.guilds.cache.get(Config.guildId);
             let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
 
-            CrashChannel.send({ content: "**Error in the " + en.Name + " Command:** \n\n```javascript\n" + error + "```" });
+            return CrashChannel.send({ content: "**Error in the " + en.Name + " Command:** \n\n```javascript\n" + error + "```" });
         };
     }
 };
