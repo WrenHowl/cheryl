@@ -167,7 +167,7 @@ module.exports = {
                                     const logChannel = interaction.guild.channels.cache.get(LoggingData.ChannelIDKick);
 
                                     const logMessage = new MessageEmbed()
-                                        .setTitle(Language.ban.server.NewBan)
+                                        .setTitle(Language.ban.server.New)
                                         .addFields(
                                             { name: Language.kick.server.User, value: "``" + user.tag + "``" },
                                             { name: Language.kick.server.Reason, value: "``" + reason + "``" },

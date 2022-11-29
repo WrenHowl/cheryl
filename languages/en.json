@@ -250,6 +250,14 @@
     "unban": {
         "Name": "unban",
         "Description": "Unban a user.",
+        "UserName": "user",
+        "UserDescription": "User to unban.",
+        "server": {
+            "Message": "has been unban from the server",
+            "New": "New Unban",
+            "User": "User",
+            "Mod": "Moderator"
+        },
         "permission": {
             "Myself": ":warning: Insufficient Permission - You need the following permission: ``Ban Members``.",
             "Me": ":warning: Insufficient Permission - I need the following permission: ``Ban Members``."

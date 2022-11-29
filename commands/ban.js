@@ -112,10 +112,10 @@ module.exports = {
 
             if (interaction.member.permissions.has("BAN_MEMBERS")) {
                 if (interaction.guild.me.permissions.has("BAN_MEMBERS")) {
-                    const user = interaction.options.getUser(en.UserName);
-                    const member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(error => { });
-                    const banList = await interaction.guild.bans.fetch();
-                    const bannedUser = banList.find(user => user.id === user.id);
+                    let user = interaction.options.getUser(en.UserName);
+                    let member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(error => { });
+                    let banList = await interaction.guild.bans.fetch();
+                    let bannedUser = banList.find(user => user.id === user.id);
                     let guild = bot.guilds.cache.get(interaction.guild.id);
 
                     switch (user.id) {
@@ -177,7 +177,7 @@ module.exports = {
                                         const logChannel = interaction.guild.channels.cache.get(LoggingData.ChannelIDBan);
 
                                         const logMessage = new MessageEmbed()
-                                            .setTitle(Language.ban.server.NewBan)
+                                            .setTitle(Language.ban.server.New)
                                             .addFields(
                                                 { name: Language.ban.server.User, value: "``" + user.tag + "``" },
                                                 { name: Language.ban.server.Reason, value: "``" + reason + "``" },

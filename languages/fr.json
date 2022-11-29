@@ -242,7 +242,19 @@
     },
     "unban": {
         "Name": "débannir",
-        "Description": "Débannir un utilisateur."
+        "Description": "Débannir un utilisateur.",
+        "UserName": "utilisateur",
+        "UserDescription": "Utilisateur à débannir.",
+        "server": {
+            "Message": "a été débanni du serveur",
+            "New": "Nouveau Débannissement",
+            "User": "Utilisateur",
+            "Mod": "Modérateur"
+        },
+        "permission": {
+            "Myself": ":warning: Permission Insuffisante - Vous avez besoin de l'autorisation suivante: ``Bannir des Membres``.",
+            "Me": ":warning: Permission Insuffisante - J'ai besoin de l'autorisation suivante: ``Bannir des Membres``."
+        }
     },
     "unlock": {
         "Name": "déverrouiller",
