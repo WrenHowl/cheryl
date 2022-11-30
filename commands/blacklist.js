@@ -259,7 +259,7 @@ module.exports = {
             if (FindCommand) {
                 if (FindCommand.value === "Disable") {
                     return interaction.reply({
-                        content: MessageReason.CommandDisabled,
+                        content: Message.CommandDisabled,
                         ephemeral: true,
                     });
                 };
@@ -361,7 +361,7 @@ module.exports = {
                             });
                         } else {
                             return interaction.reply({
-                                content: MessageReason.NotBlacklisted,
+                                content: Message.NotBlacklisted,
                             });
                         }
                     };
@@ -379,7 +379,7 @@ module.exports = {
                             case ("add"):
                                 if (CheckBlacklist) {
                                     return interaction.reply({
-                                        content: MessageReason.AlreadyBlacklisted,
+                                        content: Message.AlreadyBlacklisted,
                                         ephemeral: true,
                                     });
                                 }
@@ -417,7 +417,7 @@ module.exports = {
                                         });
 
                                         return interaction.reply({
-                                            content: MessageReason.AddedToBlacklist,
+                                            content: Message.AddedToBlacklist,
                                             ephemeral: true,
                                         }).then(() => {
                                             const Name = "``" + user.tag + "``";
@@ -447,7 +447,7 @@ module.exports = {
                             case ("remove"):
                                 if (!CheckBlacklist) {
                                     return interaction.reply({
-                                        content: MessageReason.NotBlacklisted,
+                                        content: Message.NotBlacklisted,
                                         ephemeral: true,
                                     });
                                 }
@@ -470,7 +470,7 @@ module.exports = {
                                         });
                                     default:
                                         return interaction.reply({
-                                            content: MessageReason.RemovedToBlacklist,
+                                            content: Message.RemovedToBlacklist,
                                             ephemeral: true,
                                         }).then(async () => {
 
@@ -512,7 +512,7 @@ module.exports = {
                             case ("suggest"):
                                 if (CheckBlacklist) {
                                     return interaction.reply({
-                                        content: MessageReason.AlreadyBlacklisted,
+                                        content: Message.AlreadyBlacklisted,
                                         ephemeral: true,
                                     });
                                 }
@@ -540,7 +540,7 @@ module.exports = {
                                         });
                                     default:
                                         return interaction.reply({
-                                            content: MessageReason.SuggestedToBlacklist,
+                                            content: Message.SuggestedToBlacklist,
                                             ephemeral: true,
                                         }).then(() => {
                                             let fetchGuild = interaction.client.guilds.cache.get(Config.guildId)
