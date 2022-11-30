@@ -327,7 +327,7 @@ module.exports = {
             PermissionCheck ? PermissionCheck = PermissionCheck.BlacklistPermission === "1" : PermissionCheck = false;
             PermissionCheck2 ? PermissionDouble = PermissionCheck2.UserID : PermissionDouble = false;
 
-            let MessageReason = message.Blacklist;
+            let MessageReason = Message.Blacklist;
 
             switch (options) {
                 case ("check"):
@@ -379,7 +379,7 @@ module.exports = {
                             case ("add"):
                                 if (CheckBlacklist) {
                                     return interaction.reply({
-                                        content: Message.AlreadyBlacklisted,
+                                        content: MessageReason.AlreadyBlacklisted,
                                         ephemeral: true,
                                     });
                                 }
@@ -417,7 +417,7 @@ module.exports = {
                                         });
 
                                         return interaction.reply({
-                                            content: Message.AddedToBlacklist,
+                                            content: MessageReason.AddedToBlacklist,
                                             ephemeral: true,
                                         }).then(() => {
                                             const Name = "``" + user.tag + "``";
@@ -447,7 +447,7 @@ module.exports = {
                             case ("remove"):
                                 if (!CheckBlacklist) {
                                     return interaction.reply({
-                                        content: Message.NotBlacklisted,
+                                        content: MessageReason.NotBlacklisted,
                                         ephemeral: true,
                                     });
                                 }
@@ -470,7 +470,7 @@ module.exports = {
                                         });
                                     default:
                                         return interaction.reply({
-                                            content: Message.RemovedToBlacklist,
+                                            content: MessageReason.RemovedToBlacklist,
                                             ephemeral: true,
                                         }).then(async () => {
 
@@ -512,7 +512,7 @@ module.exports = {
                             case ("suggest"):
                                 if (CheckBlacklist) {
                                     return interaction.reply({
-                                        content: Message.AlreadyBlacklisted,
+                                        content: MessageReason.AlreadyBlacklisted,
                                         ephemeral: true,
                                     });
                                 }
@@ -540,7 +540,7 @@ module.exports = {
                                         });
                                     default:
                                         return interaction.reply({
-                                            content: Message.SuggestedToBlacklist,
+                                            content: MessageReason.SuggestedToBlacklist,
                                             ephemeral: true,
                                         }).then(() => {
                                             let fetchGuild = interaction.client.guilds.cache.get(Config.guildId)
