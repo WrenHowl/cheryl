@@ -327,7 +327,7 @@ module.exports = {
             PermissionCheck ? PermissionCheck = PermissionCheck.BlacklistPermission === "1" : PermissionCheck = false;
             PermissionCheck2 ? PermissionDouble = PermissionCheck2.UserID : PermissionDouble = false;
 
-            let MessageReason = message.Blacklist;
+            let MessageReason = Message.Blacklist;
 
             switch (options) {
                 case ("check"):
