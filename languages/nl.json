@@ -1,6 +1,11 @@
 {
     "default": {
-        "UnknownUser": "I can't find this user!"
+        "UnknownUser": "I can't find this user!",
+        "user": {
+            "Myself": "You can't execute this command on yourself!",
+            "Me": "You can't execute this command on me!",
+            "Staff": "You can't execute this command on a staff of OCF!"
+        }
     },
     "action": {
         "Name": "actie",
@@ -242,7 +247,19 @@
     },
     "unban": {
         "Name": "unban",
-        "Description": "Unban a user."
+        "Description": "Unban a user.",
+        "UserName": "user",
+        "UserDescription": "User to unban.",
+        "server": {
+            "Message": "has been unban from the server",
+            "New": "New Unban",
+            "User": "User",
+            "Mod": "Moderator"
+        },
+        "permission": {
+            "Myself": ":warning: Insufficient Permission - You need the following permission: ``Ban Members``.",
+            "Me": ":warning: Insufficient Permission - I need the following permission: ``Ban Members``."
+        }
     },
     "unlock": {
         "Name": "lock",

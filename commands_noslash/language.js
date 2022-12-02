@@ -23,7 +23,6 @@ module.exports = {
                 });
 
                 const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
-
                 const MessageReason = require("../config/message.json");
 
                 if (FindCommand) {
@@ -89,8 +88,11 @@ module.exports = {
                 };
             };
         } catch (error) {
-            let fetchGuild = message.client.guilds.cache.get(Config.guildId);
+            let fetchGuild = bot.guilds.cache.get(Config.guildId);
             let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+            console.log("//------------------------------------------------------------------------------//");
+            console.log(error);
+            console.log("//------------------------------------------------------------------------------//");
 
             return CrashChannel.send({ content: "**Error in the " + en.Name + " Command:** \n\n```javascript\n" + error + "```" });
         };

@@ -1,6 +1,11 @@
 {
     "default": {
-        "UnknownUser": "Je ne trouve pas cet utilisateur!"
+        "UnknownUser": "Je ne trouve pas cet utilisateur!",
+        "user": {
+            "Myself": "Vous ne pouvez pas exécuter cette commande sur vous-même!",
+            "Me": "Vous ne pouvez pas exécuter cette commande sur moi!",
+            "Staff": "Vous ne pouvez pas exécuter cette commande sur un staff d'OCF!"
+        }
     },
     "action": {
         "Name": "action",
@@ -242,7 +247,19 @@
     },
     "unban": {
         "Name": "débannir",
-        "Description": "Débannir un utilisateur."
+        "Description": "Débannir un utilisateur.",
+        "UserName": "utilisateur",
+        "UserDescription": "Utilisateur à débannir.",
+        "server": {
+            "Message": "a été débanni du serveur",
+            "New": "Nouveau Débannissement",
+            "User": "Utilisateur",
+            "Mod": "Modérateur"
+        },
+        "permission": {
+            "Myself": ":warning: Permission Insuffisante - Vous avez besoin de l'autorisation suivante: ``Bannir des Membres``.",
+            "Me": ":warning: Permission Insuffisante - J'ai besoin de l'autorisation suivante: ``Bannir des Membres``."
+        }
     },
     "unlock": {
         "Name": "déverrouiller",

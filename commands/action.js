@@ -2,6 +2,7 @@ const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Config = require("../config/config.json");
 const Color = require("../config/color.json");
+const Message = require("../config/message.json");
 const ProfileInfo = require("../config/profile.json")
 const LanguageFR = require("../languages/fr.json");
 const LanguageEN = require("../languages/en.json");
@@ -106,12 +107,10 @@ module.exports = {
 
             const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
 
-            const MessageReason = require("../config/message.json");
-
             if (FindCommand) {
                 if (FindCommand.value === "Disable") {
                     return interaction.reply({
-                        content: MessageReason.CommandDisabled,
+                        content: Message.CommandDisabled,
                         ephemeral: true,
                     });
                 };
