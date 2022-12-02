@@ -83,7 +83,7 @@ module.exports = {
             if (FindCommand) {
                 if (FindCommand.value === "Disable") {
                     return interaction.reply({
-                        content: MessageReason.CommandDisabled,
+                        content: Message.CommandDisabled,
                         ephemeral: true,
                     });
                 };

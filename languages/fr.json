@@ -1,6 +1,11 @@
 {
     "default": {
-        "UnknownUser": "Je ne trouve pas cet utilisateur!"
+        "UnknownUser": "Je ne trouve pas cet utilisateur!",
+        "user": {
+            "Myself": "Vous ne pouvez pas exécuter cette commande sur vous-même!",
+            "Me": "Vous ne pouvez pas exécuter cette commande sur moi!",
+            "Staff": "Vous ne pouvez pas exécuter cette commande sur un staff d'OCF!"
+        }
     },
     "action": {
         "Name": "action",

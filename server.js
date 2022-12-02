@@ -16,8 +16,6 @@ const { ImgurClient } = require('imgur');
 const dateTime = new Date();
 const client = new ImgurClient({ clientId: Config.ImgurID });
 
-let prefix = Config.secondPrefix;
-
 bot.commands = new Collection();
 
 const commandsPath = path.join(__dirname, 'commands');
@@ -430,6 +428,9 @@ bot.on("guildMemberAdd", async (NewMember) => {
   } catch (error) {
     let fetchGuild = NewMember.client.guilds.cache.get(Config.guildId)
     let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel)
+    console.log("//------------------------------------------------------------------------------//");
+    console.log(error);
+    console.log("//------------------------------------------------------------------------------//");
 
     return CrashChannel.send({ content: "**Error in 'guildMemberAdd' Event:** \n\n```javascript\n" + error + "```" });
   };
@@ -462,6 +463,9 @@ bot.on("guildMemberUpdate", async (OldMember, NewMember) => {
   } catch (error) {
     let fetchGuild = NewMember.client.guilds.cache.get(Config.guildId);
     let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+    console.log("//------------------------------------------------------------------------------//");
+    console.log(error);
+    console.log("//------------------------------------------------------------------------------//");
 
     return CrashChannel.send({ content: "**Error in 'guildMemberUpdate' Event:** \n\n```javascript\n" + error + "```" });
   };
@@ -511,6 +515,9 @@ bot.on("guildMemberRemove", async (LeavingMember) => {
   } catch (error) {
     let fetchGuild = LeavingMember.client.guilds.cache.get(Config.guildId);
     let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+    console.log("//------------------------------------------------------------------------------//");
+    console.log(error);
+    console.log("//------------------------------------------------------------------------------//");
 
     return CrashChannel.send({ content: "**Error in 'guildMemberRemove' Event:** \n\n```javascript\n" + error + "```" });
   };
@@ -525,6 +532,9 @@ bot.on("userUpdate", async (NewUser, OldUser) => {
   } catch (error) {
     let fetchGuild = LeavingMember.client.guilds.cache.get(Config.guildId);
     let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+    console.log("//------------------------------------------------------------------------------//");
+    console.log(error);
+    console.log("//------------------------------------------------------------------------------//");
 
     return CrashChannel.send({ content: "**Error in 'userUpdate' Event:** \n\n```javascript\n" + error + "```" });
   };
@@ -566,6 +576,9 @@ bot.on("guildCreate", async (guild) => {
   } catch (error) {
     let fetchGuild = LeavingMember.client.guilds.cache.get(Config.guildId);
     let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+    console.log("//------------------------------------------------------------------------------//");
+    console.log(error);
+    console.log("//------------------------------------------------------------------------------//");
 
     return CrashChannel.send({ content: "**Error in 'guildCreate' Event:** \n\n```javascript\n" + error + "```" });
   };
@@ -600,15 +613,18 @@ bot.on("guildDelete", async (guild) => {
   } catch (error) {
     let fetchGuild = guild.client.guilds.cache.get(Config.guildId);
     let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+    console.log("//------------------------------------------------------------------------------//");
+    console.log(error);
+    console.log("//------------------------------------------------------------------------------//");
 
     return CrashChannel.send({ content: "**Error in 'guildDelete' Event:** \n\n```javascript\n" + error + "```" });
   };
 });
 
 bot.on("messageCreate", async (message) => {
-  const LoggingData = await Logging.findOne({ where: { GuildID: message.guild.id } });
+  try {
+    const LoggingData = await Logging.findOne({ where: { GuildID: message.guild.id } });
 
-  if (LoggingData) {
     if (LoggingData.ChannelIDBump) {
       if (message.embeds.length >= 0) {
         let embed = message.embeds
@@ -624,10 +640,11 @@ bot.on("messageCreate", async (message) => {
         }
       }
     }
-  }
-  try {
-    if (message.author.bot || message.content.indexOf(prefix) !== 0) return;
-    const args = message.content.slice(prefix.length).trim().split(/ +/);
+
+    LoggingData.Prefix ? Prefix = LoggingData.Prefix : Prefix = Config.Prefix;
+
+    if (message.author.bot || message.content.indexOf(Prefix) !== 0) return;
+    const args = message.content.slice(Prefix.length).trim().split(/ +/);
     const command = args.shift().toLowerCase();
 
     const fr = require("./languages/fr.json");
@@ -645,10 +662,17 @@ bot.on("messageCreate", async (message) => {
         return bot.commands.get(en.language.Name).execute(bot, message, args, MessageEmbed, sequelize, Sequelize);
       case (en.cop.Name):
         return bot.commands.get(en.cop.Name).execute(bot, message, args, MessageEmbed, sequelize, Sequelize);
+      case (en.ban.Name || fr.ban.Name || de.ban.Name || nl.ban.Name || sp.ban.Name):
+        return bot.commands.get(en.ban.Name).execute(bot, message, args, MessageEmbed, sequelize, Sequelize);
+      case (en.unban.Name || fr.unban.Name || de.unban.Name || nl.unban.Name || sp.unban.Name):
+        return bot.commands.get(en.unban.Name).execute(bot, message, args, MessageEmbed, sequelize, Sequelize);
     };
   } catch (error) {
     let fetchGuild = message.client.guilds.cache.get(Config.guildId);
     let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+    console.log("//------------------------------------------------------------------------------//");
+    console.log(error);
+    console.log("//------------------------------------------------------------------------------//");
 
     return CrashChannel.send({ content: "**Error in the 'messageCreate' Event:** \n\n```javascript\n" + error + "```" });
   };
@@ -664,6 +688,9 @@ bot.on('interactionCreate', async (interaction) => {
   } catch (error) {
     let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
     let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+    console.log("//------------------------------------------------------------------------------//");
+    console.log(error);
+    console.log("//------------------------------------------------------------------------------//");
 
     await CrashChannel.send({ content: "**Error in 'interactionCreate' Event:** \n\n```javascript\n" + error + "```" });
 
@@ -1113,6 +1140,9 @@ bot.on('interactionCreate', async (interaction) => {
   } catch (error) {
     let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
     let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+    console.log("//------------------------------------------------------------------------------//");
+    console.log(error);
+    console.log("//------------------------------------------------------------------------------//");
 
     return CrashChannel.send({ content: "**Error in 'interactionCreate' Event:** \n\n```javascript\n" + error + "```" });
   };

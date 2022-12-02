@@ -179,7 +179,7 @@ module.exports = {
                     SpanishES: sp.CheckUserDescription,
                     nl: nl.CheckUserDescription
                 })
-                .setRequired(true)))
+                .setRequired(false)))
         .addSubcommand(subcommand => subcommand
             .setName(en.SuggestName)
             .setNameLocalizations({
@@ -245,7 +245,7 @@ module.exports = {
                 .setRequired(true))),
     execute: async (interaction, bot, sequelize, Sequelize) => {
         try {
-            const CommandFunction = sequelize.define("CommandFunction", {
+            let CommandFunction = sequelize.define("CommandFunction", {
                 name: {
                     type: Sequelize.STRING,
                 },
@@ -254,7 +254,7 @@ module.exports = {
                 },
             });
 
-            const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
+            let FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
 
             if (FindCommand) {
                 if (FindCommand.value === "Disable") {
@@ -265,7 +265,7 @@ module.exports = {
                 };
             };
 
-            const Blacklist = sequelize.define("Blacklist", {
+            let Blacklist = sequelize.define("Blacklist", {
                 UserName: {
                     type: Sequelize.STRING,
                     unique: true,
@@ -295,7 +295,7 @@ module.exports = {
                     unique: false,
                 },
             });
-            const Permission = sequelize.define("Permission", {
+            let Permission = sequelize.define("Permission", {
                 UserName: {
                     type: Sequelize.STRING,
                     unique: false,
@@ -314,66 +314,103 @@ module.exports = {
                 }
             });
 
-            const options = interaction.options.getSubcommand();
-            const user = interaction.options.getUser(en.AddUserName);
-            const reason = interaction.options.getString(en.AddReasonName);
-            const risk = interaction.options.getString(en.AddRiskName);
+            let options = interaction.options.getSubcommand();
+            let user = interaction.options.getUser(en.AddUserName);
+            let reason = interaction.options.getString(en.AddReasonName);
+            let risk = interaction.options.getString(en.AddRiskName);
+
+            user ? UserCheck = user.id : UserCheck = interaction.user.id;
 
             let PermissionCheck = await Permission.findOne({ where: { UserID: interaction.user.id } });
-            let PermissionCheck2 = await Permission.findOne({ where: { UserID: user.id } });
-            let PermissionCheck3 = await Permission.findOne({ where: { GuildID: interaction.guild.id } });
+            let GuildCheck = await Permission.findOne({ where: { GuildID: interaction.guild.id } });
+            let CheckBlacklist = await Blacklist.findOne({ where: { UserID: UserCheck } });
 
-            user ? CheckBlacklist = await Blacklist.findOne({ where: { UserID: user.id } }) : false;
-            PermissionCheck ? PermissionCheck = PermissionCheck.BlacklistPermission === "1" : PermissionCheck = false;
-            PermissionCheck2 ? PermissionDouble = PermissionCheck2.UserID : PermissionDouble = false;
+            PermissionCheck ? StaffCheck = PermissionCheck.BlacklistPermission === "1" : PermissionCheck = false;
+            PermissionCheck ? TargetCheck = PermissionCheck.UserID : StaffCheck = false;
 
             let MessageReason = Message.Blacklist;
 
-            switch (options) {
-                case ("check"):
-                    if (user) {
-                        if (CheckBlacklist) {
-                            if (CheckBlacklist.Risk === "Low") ColorEmbed = Color.RiskLow;
-                            if (CheckBlacklist.Risk === "Medium") ColorEmbed = Color.RiskMedium;
-                            if (CheckBlacklist.Risk === "High") ColorEmbed = Color.RiskHigh;
+            if (risk === "Low") ColorEmbed = Color.RiskLow;
+            if (risk === "Medium") ColorEmbed = Color.RiskMedium;
+            if (risk === "High") ColorEmbed = Color.RiskHigh;
 
-                            const Name = "``" + CheckBlacklist.UserName + "``";
-                            const ID = "``" + CheckBlacklist.UserID + "``";
-                            const Reason = "``" + CheckBlacklist.Reason + "``";
-                            const ModeratorName = "``" + CheckBlacklist.ModName + "``";
-                            const ModeratorID = "``" + CheckBlacklist.ModID + "``";
+            const Logging = sequelize.define("Logging", {
+                GuildID: {
+                    type: Sequelize.STRING,
+                },
+                ChannelIDBan: {
+                    type: Sequelize.STRING,
+                },
+                Language: {
+                    type: Sequelize.STRING,
+                },
+            });
+            const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
 
-                            CheckBlacklist.Proof ? Evidence = CheckBlacklist.Proof : Evidence = "``No Evidence Found``";
+            let LanguageData = LoggingData.language;
 
-                            const InfoBlacklist = new MessageEmbed()
-                                .addFields(
-                                    { name: "User", value: Name, inline: true },
-                                    { name: "ID", value: ID, inline: true },
-                                    { name: "Reason", value: Reason, inline: true },
-                                    { name: "Moderator Name", value: ModeratorName, inline: true },
-                                    { name: "Moderator ID", value: ModeratorID, inline: true },
-                                    { name: "Evidence", value: Evidence, inline: true }
-                                )
-                                .setColor(ColorEmbed)
+            if (!LanguageData || LanguageData === "en") Language = LanguageEN;
+            if (LanguageData === "fr") Language = LanguageFR;
+            if (LanguageData === "de") Language = LanguageDE;
+            if (LanguageData === "sp") Language = LanguageSP;
+            if (LanguageData === "nl") Language = LanguageNL;
 
-                            return interaction.reply({
-                                embeds: [InfoBlacklist],
-                            });
-                        } else {
-                            return interaction.reply({
-                                content: Message.NotBlacklisted,
-                            });
-                        }
-                    };
-                default:
-                    if (PermissionCheck & options === "add" | options === "remove") {
-                        const proof = interaction.options.getString(en.AddEvidenceName);
-                        let fetchGuild = interaction.client.guilds.cache.get(Config.guildId)
-                        const blacklistChannel = fetchGuild.channels.cache.get(Config.BlacklistChannel)
+            if (options === "check") {
+                if (CheckBlacklist) {
+                    let Name = "``" + CheckBlacklist.UserName + "``";
+                    let ID = "``" + CheckBlacklist.UserID + "``";
+                    let Reason = "``" + CheckBlacklist.Reason + "``";
+                    let ModeratorName = "``" + CheckBlacklist.ModName + "``";
+                    let ModeratorID = "``" + CheckBlacklist.ModID + "``";
 
-                        if (risk === "Low") ColorEmbed = Color.RiskLow;
-                        if (risk === "Medium") ColorEmbed = Color.RiskMedium;
-                        if (risk === "High") ColorEmbed = Color.RiskHigh;
+                    CheckBlacklist.Proof ? Evidence = CheckBlacklist.Proof : Evidence = "``No Evidence Found``";
+
+                    let BlacklistEmbed = new MessageEmbed()
+                        .addFields(
+                            { name: "User", value: Name, inline: true },
+                            { name: "ID", value: ID, inline: true },
+                            { name: "Reason", value: Reason, inline: true },
+                            { name: "Moderator Name", value: ModeratorName, inline: true },
+                            { name: "Moderator ID", value: ModeratorID, inline: true },
+                            { name: "Evidence", value: Evidence, inline: true }
+                        )
+                        .setColor(ColorEmbed);
+
+                    return interaction.reply({
+                        embeds: [BlacklistEmbed],
+                    });
+                } else {
+                    return interaction.reply({
+                        content: MessageReason.NotBlacklisted,
+                        ephemeral: true,
+                    });
+                };
+            };
+
+            if (StaffCheck) {
+                switch (UserCheck) {
+                    case (!user || !interaction.user):
+                        return interaction.reply({
+                            content: Language.default.UnknownUser,
+                            ephemeral: true,
+                        });
+                    case (interaction.user.id):
+                        return interaction.reply({
+                            content: Language.default.user.Myself,
+                            ephemeral: true,
+                        });
+                    case (bot.user.id):
+                        return interaction.reply({
+                            content: Language.default.user.Me,
+                            ephemeral: true,
+                        });
+                    case (TargetCheck):
+                        return interaction.reply({
+                            content: Language.default.user.Staff,
+                            ephemeral: true,
+                        });
+                    default:
+                        let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
 
                         switch (options) {
                             case ("add"):
@@ -382,67 +419,47 @@ module.exports = {
                                         content: MessageReason.AlreadyBlacklisted,
                                         ephemeral: true,
                                     });
-                                }
+                                } else {
+                                    let proof = interaction.options.getString(en.AddEvidenceName);
+                                    let blacklistChannel = fetchGuild.channels.cache.get(Config.BlacklistChannel);
 
-                                switch (user.id) {
-                                    case (!user):
-                                        return interaction.reply({
-                                            content: Message.UnknownUser,
-                                            ephemeral: true
-                                        });
-                                    case (interaction.user.id):
-                                        return interaction.reply({
-                                            content: "You can't blacklist yourself!",
-                                            ephemeral: true
-                                        });
-                                    case (bot.user.id):
-                                        return interaction.reply({
-                                            content: "You can't blacklist me!",
-                                            ephemeral: true
-                                        });
-                                    case (PermissionDouble):
-                                        return interaction.reply({
-                                            content: "You can't blacklist a staff!",
-                                            ephemeral: true
-                                        });
-                                    default:
-                                        await Blacklist.create({
-                                            UserName: user.tag,
-                                            UserID: user.id,
-                                            ModName: interaction.user.tag,
-                                            ModID: interaction.user.id,
-                                            Reason: reason,
-                                            Proof: proof,
-                                            Risk: risk,
-                                        });
+                                    await Blacklist.create({
+                                        UserName: user.tag,
+                                        UserID: user.id,
+                                        ModName: interaction.user.tag,
+                                        ModID: interaction.user.id,
+                                        Reason: reason,
+                                        Proof: proof,
+                                        Risk: risk,
+                                    });
 
-                                        return interaction.reply({
-                                            content: MessageReason.AddedToBlacklist,
-                                            ephemeral: true,
-                                        }).then(() => {
-                                            const Name = "``" + user.tag + "``";
-                                            const ID = "``" + user.id + "``";
-                                            const Reason = "``" + reason + "``";
-                                            const ModeratorName = "``" + interaction.user.tag + "``";
-                                            const ModeratorID = "``" + interaction.user.id + "``";
+                                    return interaction.reply({
+                                        content: MessageReason.AddedToBlacklist,
+                                        ephemeral: true,
+                                    }).then(() => {
+                                        let Name = "``" + user.tag + "``";
+                                        let ID = "``" + user.id + "``";
+                                        let Reason = "``" + reason + "``";
+                                        let ModeratorName = "``" + interaction.user.tag + "``";
+                                        let ModeratorID = "``" + interaction.user.id + "``";
 
-                                            proof ? Evidence = proof : Evidence = "``No Evidence Found``"
+                                        proof ? Evidence = proof : Evidence = "``No Evidence Found``";
 
-                                            const InfoBlacklist = new MessageEmbed()
-                                                .addFields(
-                                                    { name: "User", value: Name, inline: true },
-                                                    { name: "ID", value: ID, inline: true },
-                                                    { name: "Reason", value: Reason, inline: true },
-                                                    { name: "Moderator Name", value: ModeratorName, inline: true },
-                                                    { name: "Moderator ID", value: ModeratorID, inline: true },
-                                                    { name: "Evidence", value: Evidence, inline: true }
-                                                )
-                                                .setColor(ColorEmbed)
+                                        let InfoBlacklist = new MessageEmbed()
+                                            .addFields(
+                                                { name: "User", value: Name, inline: true },
+                                                { name: "ID", value: ID, inline: true },
+                                                { name: "Reason", value: Reason, inline: true },
+                                                { name: "Moderator Name", value: ModeratorName, inline: true },
+                                                { name: "Moderator ID", value: ModeratorID, inline: true },
+                                                { name: "Evidence", value: Evidence, inline: true }
+                                            )
+                                            .setColor(ColorEmbed);
 
-                                            return blacklistChannel.send({
-                                                embeds: [InfoBlacklist]
-                                            })
-                                        })
+                                        return blacklistChannel.send({
+                                            embeds: [InfoBlacklist]
+                                        });
+                                    });
                                 };
                             case ("remove"):
                                 if (!CheckBlacklist) {
@@ -450,107 +467,54 @@ module.exports = {
                                         content: MessageReason.NotBlacklisted,
                                         ephemeral: true,
                                     });
-                                }
-
-                                switch (user.id) {
-                                    case (!user):
-                                        return interaction.reply({
-                                            content: Message.UnknownUser,
-                                            ephemeral: true
-                                        });
-                                    case (interaction.user.id):
-                                        return interaction.reply({
-                                            content: "You can't unblacklist yourself!",
-                                            ephemeral: true
-                                        });
-                                    case (bot.user.id):
-                                        return interaction.reply({
-                                            content: "You can't unblacklist me!",
-                                            ephemeral: true
-                                        });
-                                    default:
-                                        return interaction.reply({
-                                            content: MessageReason.RemovedToBlacklist,
-                                            ephemeral: true,
-                                        }).then(async () => {
-
-                                            const blacklistChannel = fetchGuild.channels.cache.get(Config.BlacklistChannel)
-
-                                            const Name = "``" + user.tag + "``";
-                                            const ID = "``" + user.id + "``";
-                                            const Reason = "``" + reason + "``";
-                                            const ModeratorName = "``" + interaction.user.tag + "``";
-                                            const ModeratorID = "``" + interaction.user.id + "``";
-
-                                            proof ? Evidence = proof : Evidence = "``No Evidence Found``"
-
-                                            const InfoBlacklist = new MessageEmbed()
-                                                .addFields(
-                                                    { name: "User", value: Name, inline: true },
-                                                    { name: "ID", value: ID, inline: true },
-                                                    { name: "Reason", value: Reason, inline: true },
-                                                    { name: "Moderator Name", value: ModeratorName, inline: true },
-                                                    { name: "Moderator ID", value: ModeratorID, inline: true },
-                                                    { name: "Evidence", value: Evidence, inline: true }
-                                                )
-                                                .setColor(ColorEmbed)
-
-                                            await blacklistChannel.send({
-                                                embeds: [InfoBlacklist]
-                                            })
-
-                                            return Blacklist.destroy({ where: { UserID: user.id } });
-                                        })
-                                };
-                        }
-                    }
-
-                    if (PermissionCheck3) {
-                        const proof2 = interaction.options.getAttachment(en.AddEvidenceName);
-
-                        switch (options) {
-                            case ("suggest"):
-                                if (CheckBlacklist) {
+                                } else {
                                     return interaction.reply({
-                                        content: MessageReason.AlreadyBlacklisted,
+                                        content: MessageReason.RemovedToBlacklist,
                                         ephemeral: true,
-                                    });
-                                }
+                                    }).then(async () => {
+                                        let blacklistChannel = fetchGuild.channels.cache.get(Config.BlacklistChannel);
 
-                                switch (user.id) {
-                                    case (!user):
-                                        return interaction.reply({
-                                            content: Message.UnknownUser,
-                                            ephemeral: true
+                                        let Name = "``" + user.tag + "``";
+                                        let ID = "``" + user.id + "``";
+                                        let Reason = "``" + reason + "``";
+                                        let ModeratorName = "``" + interaction.user.tag + "``";
+                                        let ModeratorID = "``" + interaction.user.id + "``";
+
+                                        proof ? Evidence = proof : Evidence = "``No Evidence Found``";
+
+                                        let InfoBlacklist = new MessageEmbed()
+                                            .addFields(
+                                                { name: "User", value: Name, inline: true },
+                                                { name: "ID", value: ID, inline: true },
+                                                { name: "Reason", value: Reason, inline: true },
+                                                { name: "Moderator Name", value: ModeratorName, inline: true },
+                                                { name: "Moderator ID", value: ModeratorID, inline: true },
+                                                { name: "Evidence", value: Evidence, inline: true }
+                                            )
+                                            .setColor(ColorEmbed);
+
+                                        await blacklistChannel.send({
+                                            embeds: [InfoBlacklist],
                                         });
-                                    case (interaction.user.id):
+
+                                        return Blacklist.destroy({ where: { UserID: UserCheck } });
+                                    })
+                                };
+                            case ("suggest"):
+                                if (GuildCheck) {
+                                    let proof = interaction.options.getAttachment(en.AddEvidenceName);
+                                    let suggestChannel = fetchGuild.channels.cache.get(Config.SuggestBlacklist);
+
+                                    if (CheckBlacklist) {
                                         return interaction.reply({
-                                            content: "You can't suggest to blacklist yourself!",
-                                            ephemeral: true
+                                            content: MessageReason.AlreadyBlacklisted,
+                                            ephemeral: true,
                                         });
-                                    case (bot.user.id):
-                                        return interaction.reply({
-                                            content: "You can't suggest to blacklist me!",
-                                            ephemeral: true
-                                        });
-                                    case (PermissionDouble):
-                                        return interaction.reply({
-                                            content: "You can't suggest to blacklist a staff!",
-                                            ephemeral: true
-                                        });
-                                    default:
+                                    } else {
                                         return interaction.reply({
                                             content: MessageReason.SuggestedToBlacklist,
                                             ephemeral: true,
                                         }).then(() => {
-                                            let fetchGuild = interaction.client.guilds.cache.get(Config.guildId)
-
-                                            const blacklistChannel = fetchGuild.channels.cache.get(Config.ReceiveSuggestedBlacklist)
-
-                                            if (risk === "Low") ColorEmbed = Color.RiskLow;
-                                            if (risk === "Medium") ColorEmbed = Color.RiskMedium;
-                                            if (risk === "High") ColorEmbed = Color.RiskHigh;
-
                                             const Name = "``" + user.tag + "``";
                                             const ID = "``" + user.id + "``";
                                             const Reason = "``" + reason + "``";
@@ -559,7 +523,7 @@ module.exports = {
                                             const ServerName = "``" + interaction.guild.name + "``";
                                             const ServerID = "``" + interaction.guild.id + "``";
 
-                                            proof2 ? Evidence = proof2 : Evidence = Config.x;
+                                            proof ? Evidence = proof : Evidence = Config.x;
 
                                             const InfoBlacklist = new MessageEmbed()
                                                 .addFields(
@@ -571,25 +535,29 @@ module.exports = {
                                                     { name: "Server Name", value: ServerName, inline: true },
                                                     { name: "Server ID", value: ServerID, inline: true },
                                                 )
-                                                .setImage(proof2.url)
-                                                .setColor(Color.Green)
+                                                .setImage(proof.url)
+                                                .setColor(Color.Green);
 
-                                            return blacklistChannel.send({
-                                                embeds: [InfoBlacklist]
-                                            })
-                                        })
+                                            return suggestChannel.send({
+                                                embeds: [InfoBlacklist],
+                                            });
+                                        });
+                                    };
+                                } else {
+                                    return interaction.reply({
+                                        content: LanguageEN.blacklist.permission.Server,
+                                        ephemeral: true,
+                                    });
                                 };
-                        }
-                    } else {
-                        return interaction.reply({
-                            content: "You cannot execute this command! Only the ``Whitelisted User/Server`` are allowed to use it.",
-                            ephemeral: true
-                        })
-                    };
-            }
+                        };
+                };
+            };
         } catch (error) {
             let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
             let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+            console.log("//------------------------------------------------------------------------------//");
+            console.log(error);
+            console.log("//------------------------------------------------------------------------------//");
 
             return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
         };

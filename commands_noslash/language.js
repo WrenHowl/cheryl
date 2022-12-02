@@ -88,7 +88,7 @@ module.exports = {
                 };
             };
         } catch (error) {
-            let fetchGuild = message.client.guilds.cache.get(Config.guildId);
+            let fetchGuild = bot.guilds.cache.get(Config.guildId);
             let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
             console.log("//------------------------------------------------------------------------------//");
             console.log(error);
