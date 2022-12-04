@@ -21,9 +21,6 @@ const Age = Profile.age;
 const Pronouns = Profile.pronouns;
 const Gender = Profile.gender;
 
-const dateTime = new Date();
-console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");
-
 module.exports = {
     data: new SlashCommandBuilder()
         .setName(en.Name)

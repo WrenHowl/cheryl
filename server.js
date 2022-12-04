@@ -18,23 +18,6 @@ const client = new ImgurClient({ clientId: Config.ImgurID });
 
 bot.commands = new Collection();
 
-const commandsPath = path.join(__dirname, 'commands');
-const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
-const commandsPath2 = path.join(__dirname, 'commands_noslash');
-const commandFiles2 = fs.readdirSync(commandsPath2).filter(file2 => file2.endsWith('.js'));
-
-for (const file of commandFiles) {
-  const filePath = path.join(commandsPath, file);
-  const command = require(filePath);
-  bot.commands.set(command.data.name, command);
-}
-
-for (const file2 of commandFiles2) {
-  const filePath2 = path.join(commandsPath2, file2);
-  const command2 = require(filePath2);
-  bot.commands.set(command2.name, command2);
-}
-
 const sequelize = new Sequelize("database", "user", "password", {
   host: "localhost",
   dialect: "sqlite",
@@ -623,6 +606,15 @@ bot.on("guildDelete", async (guild) => {
 
 bot.on("messageCreate", async (message) => {
   try {
+    const commandsPath2 = path.join(__dirname, 'commands_noslash');
+    const commandFiles2 = fs.readdirSync(commandsPath2).filter(file2 => file2.endsWith('.js'));
+
+    for (const file2 of commandFiles2) {
+      const filePath2 = path.join(commandsPath2, file2);
+      const command2 = require(filePath2);
+      bot.commands.set(command2.name, command2);
+    }
+
     const LoggingData = await Logging.findOne({ where: { GuildID: message.guild.id } });
 
     if (LoggingData.ChannelIDBump) {
@@ -655,17 +647,19 @@ bot.on("messageCreate", async (message) => {
 
     switch (command) {
       case ("serverlist"):
-        return bot.commands.get("serverlist").execute(bot, message, args, MessageEmbed);
+        return bot.commands.get("serverlist").execute(bot, message, args);
       case (en.cmd.Name):
-        return bot.commands.get(en.cmd.Name).execute(bot, message, args, MessageEmbed, sequelize, Sequelize);
+        return bot.commands.get(en.cmd.Name).execute(bot, message, args, sequelize, Sequelize);
       case (en.language.Name || fr.language.Name || de.language.Name || nl.language.Name || sp.language.Name):
-        return bot.commands.get(en.language.Name).execute(bot, message, args, MessageEmbed, sequelize, Sequelize);
+        return bot.commands.get(en.language.Name).execute(bot, message, args, sequelize, Sequelize);
       case (en.cop.Name):
-        return bot.commands.get(en.cop.Name).execute(bot, message, args, MessageEmbed, sequelize, Sequelize);
+        return bot.commands.get(en.cop.Name).execute(bot, message, args, sequelize, Sequelize);
       case (en.ban.Name || fr.ban.Name || de.ban.Name || nl.ban.Name || sp.ban.Name):
         return bot.commands.get(en.ban.Name).execute(bot, message, args, MessageEmbed, sequelize, Sequelize);
       case (en.unban.Name || fr.unban.Name || de.unban.Name || nl.unban.Name || sp.unban.Name):
         return bot.commands.get(en.unban.Name).execute(bot, message, args, MessageEmbed, sequelize, Sequelize);
+      case (en.ticket.Name || fr.ticket.Name || de.ticket.Name || nl.ticket.Name || sp.ticket.Name):
+        return bot.commands.get(en.ticket.Name).execute(bot, message, args, MessageEmbed, sequelize, Sequelize);
     };
   } catch (error) {
     let fetchGuild = message.client.guilds.cache.get(Config.guildId);
@@ -680,6 +674,15 @@ bot.on("messageCreate", async (message) => {
 
 bot.on('interactionCreate', async (interaction) => {
   try {
+    const commandsPath = path.join(__dirname, 'commands');
+    const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+
+    for (const file of commandFiles) {
+      const filePath = path.join(commandsPath, file);
+      const command = require(filePath);
+      bot.commands.set(command.data.name, command);
+    }
+
     if (!interaction.isCommand()) return;
 
     const command = bot.commands.get(interaction.commandName);

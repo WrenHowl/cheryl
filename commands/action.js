@@ -16,9 +16,6 @@ const de = LanguageDE.action;
 const sp = LanguageSP.action;
 const nl = LanguageNL.action;
 
-const dateTime = new Date();
-console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");
-
 module.exports = {
     data: new SlashCommandBuilder()
         .setName(en.Name)
@@ -268,7 +265,7 @@ module.exports = {
                     User1 + " gets close to " + User2 + " and kiss " + Pronouns2 + "!~"
                 ];
                 const BoopSentence = [
-                    User1 + " raises their paw and places it apon " + User2 + "'s snoot!~",
+                    User1 + " raises " + Pronouns1 + " paw and places it apon " + User2 + "'s snoot!~",
                 ];
                 const LickSentence = [
                     User1 + " gets really close to " + User2 + " face and lick " + Pronouns2 + "!~",

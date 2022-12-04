@@ -243,7 +243,11 @@
     },
     "ticket": {
         "Name": "ticket",
-        "Description": "Système de tickets - Modérez facilement votre serveur avec des tickets."
+        "Description": "Système de tickets - Modérez facilement votre serveur avec des tickets.",
+        "permission": {
+            "Myself": ":warning: Permission Insuffisante - Vous avez besoin de l'autorisation suivante: ``Gérer les Canals``.",
+            "Me": ":warning: Permission Insuffisante - Vous avez besoin de l'autorisation suivante: ``Gérer les Canals``."
+        }
     },
     "unban": {
         "Name": "débannir",

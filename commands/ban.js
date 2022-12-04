@@ -15,9 +15,6 @@ const de = LanguageDE.ban;
 const sp = LanguageSP.ban;
 const nl = LanguageNL.ban;
 
-const dateTime = new Date();
-console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");
-
 module.exports = {
     data: new SlashCommandBuilder()
         .setName(en.Name)
@@ -162,13 +159,8 @@ module.exports = {
                             const reason = interaction.options.getString(en.ReasonName);
                             const mod = interaction.user.tag;
 
-                            const banMessage = new MessageEmbed()
-                                .setDescription("``" + user.tag + "`` " + Language.ban.server.Message + " ``" + reason + "``.")
-                                .setColor(Color.Green);
-
                             await interaction.reply({
-                                embeds: [banMessage],
-                                ephemeral: true,
+                                content: "``" + user.tag + "`` " + Language.ban.server.Message + " ``" + reason + "``.",
                             });
 
                             if (LoggingData) {
@@ -196,12 +188,8 @@ module.exports = {
                                 };
                             };
 
-                            const banDM = new MessageEmbed()
-                                .setDescription(Language.ban.dm.you + " ``" + interaction.guild.name + "`` " + Language.ban.dm.for + " ``" + reason + "`` " + Language.ban.dm.by + " ``" + mod + "``.")
-                                .setColor(Color.RiskHigh);
-
                             await user.send({
-                                embeds: [banDM],
+                                conmtent: Language.ban.dm.you + " ``" + interaction.guild.name + "`` " + Language.ban.dm.for + " ``" + reason + "`` " + Language.ban.dm.by + " ``" + mod + "``.",
                             }).catch(() => { return });
 
                             return interaction.guild.members.ban(user.id, { reason: [reason + " | " + mod] });

@@ -15,9 +15,6 @@ const de = LanguageDE.warn;
 const sp = LanguageSP.warn;
 const nl = LanguageNL.warn;
 
-const dateTime = new Date();
-console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");
-
 module.exports = {
     data: new SlashCommandBuilder()
         .setName(en.Name)

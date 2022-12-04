@@ -15,9 +15,6 @@ const de = LanguageDE.ticket;
 const sp = LanguageSP.ticket;
 const nl = LanguageNL.ticket;
 
-const dateTime = new Date();
-console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");
-
 module.exports = {
     data: new SlashCommandBuilder()
         .setName(en.Name)
@@ -53,7 +50,6 @@ module.exports = {
             });
 
             const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
-
             const MessageReason = require("../config/message.json");
 
             if (FindCommand) {

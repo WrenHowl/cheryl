@@ -1,16 +1,15 @@
-const { MessageActionRow, MessageSelectMenu } = require('discord.js');
+const Discord = require('discord.js');
 const Config = require("../config/config.json");
 const Message = require("../config/message.json");
 const Color = require("../config/color.json");
-const LanguageEN = require("../languages/en.json");
-
-const en = LanguageEN.ban;
-
-const dateTime = new Date();
-console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");
+const FR = require("../languages/fr.json");
+const EN = require("../languages/en.json");
+const DE = require("../languages/de.json");
+const SP = require("../languages/sp.json");
+const NL = require("../languages/nl.json");
 
 module.exports = {
-    name: en.Name,
+    name: EN.ban.Name,
     execute: async (bot, message, args, MessageEmbed, sequelize, Sequelize) => {
         try {
             if (message.guild.members.guild.me.permissionsIn(message.channelId).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
@@ -22,8 +21,7 @@ module.exports = {
                         type: Sequelize.STRING,
                     },
                 });
-
-                const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
+                const FindCommand = await CommandFunction.findOne({ where: { name: EN.ban.Name } });
 
                 if (FindCommand) {
                     if (FindCommand.value === "Disable") {
@@ -32,6 +30,8 @@ module.exports = {
                         });
                     };
                 };
+
+                //
 
                 const Logging = sequelize.define("Logging", {
                     GuildID: {
@@ -48,11 +48,13 @@ module.exports = {
 
                 let LanguageData = LoggingData.language;
 
-                if (!LanguageData || LanguageData === "en") Language = LanguageEN;
-                if (LanguageData === "fr") Language = LanguageFR;
-                if (LanguageData === "de") Language = LanguageDE;
-                if (LanguageData === "sp") Language = LanguageSP;
-                if (LanguageData === "nl") Language = LanguageNL;
+                if (!LanguageData || LanguageData === "en") Language = EN;
+                if (LanguageData === "fr") Language = FR;
+                if (LanguageData === "de") Language = DE;
+                if (LanguageData === "sp") Language = SP;
+                if (LanguageData === "nl") Language = NL;
+
+                //
 
                 if (message.member.permissions.has("BAN_MEMBERS")) {
                     if (message.guild.me.permissions.has("BAN_MEMBERS")) {
@@ -164,13 +166,13 @@ module.exports = {
                 };
             };
         } catch (error) {
-            let fetchGuild = bot.guilds.cache.get(Config.guildId);
-            let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+            let FetchGuild = bot.guilds.cache.get(Config.guildId);
+            let CrashChannel = FetchGuild.channels.cache.get(Config.CrashChannel);
             console.log("//------------------------------------------------------------------------------//");
             console.log(error);
             console.log("//------------------------------------------------------------------------------//");
 
-            return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
+            return CrashChannel.send({ content: "**Error in the '" + EN.ban.Name + "' Command:** \n\n```javascript\n" + error + "```" });
         };
     }
 };

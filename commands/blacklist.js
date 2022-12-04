@@ -15,9 +15,6 @@ const de = LanguageDE.blacklist;
 const sp = LanguageSP.blacklist;
 const nl = LanguageNL.blacklist;
 
-const dateTime = new Date();
-console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");
-
 module.exports = {
     data: new SlashCommandBuilder()
         .setName(en.Name)

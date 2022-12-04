@@ -15,9 +15,6 @@ const de = LanguageDE.unlock;
 const sp = LanguageSP.unlock;
 const nl = LanguageNL.unlock;
 
-const dateTime = new Date();
-console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");
-
 module.exports = {
     data: new SlashCommandBuilder()
         .setName(en.Name)
