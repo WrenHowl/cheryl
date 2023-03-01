@@ -2,6 +2,7 @@
     "CannotFindDataOfMessage": "No Data Found - If this persist, please contact us!",
     "UnknownUser": "I can't find this user!",
     "CommandDisabled": "This command is disabled globally by the developers!",
+    "Crash": "There was an error while executing this command, the developer have been alerted!",
     "Permission": {
         "AddedWhitelistBlacklist": "The user/server has been successfully added to the following whitelist: ``Blacklist``.",
         "AlreadyWhitelistedBlacklist": "The user/server is already whitelisted for the following whitelist: ``Blacklist``.",

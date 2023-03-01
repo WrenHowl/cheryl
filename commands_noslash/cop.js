@@ -1,15 +1,10 @@
-const { MessageActionRow, MessageSelectMenu } = require('discord.js');
+const Discord = require('discord.js');
 const Config = require("../config/config.json");
 const LanguageEN = require("../languages/en.json");
 
-const en = LanguageEN.cop;
-
-const dateTime = new Date();
-console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");
-
 module.exports = {
-    name: en.Name,
-    execute: async (bot, message, args, MessageEmbed, sequelize, Sequelize) => {
+    name: LanguageEN.cop.Name,
+    execute: async (bot, message, args, sequelize, Sequelize) => {
         try {
             if (message.guild.members.guild.me.permissionsIn(message.channelId).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
                 if (message.author.id === Config.ownerId) {
@@ -53,7 +48,7 @@ module.exports = {
             let fetchGuild = bot.guilds.cache.get(Config.guildId);
             let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
 
-            return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
+            return CrashChannel.send({ content: "**Error in the '" + LanguageEN.cop.Name + "' Command:** \n\n```javascript\n" + error + "```" });
         };
     }
 };

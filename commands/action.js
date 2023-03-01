@@ -1,4 +1,4 @@
-const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
+const { EmbedBuilder, MessageActionRow, MessageButton } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Config = require("../config/config.json");
 const Color = require("../config/color.json");
@@ -15,9 +15,6 @@ const en = LanguageEN.action;
 const de = LanguageDE.action;
 const sp = LanguageSP.action;
 const nl = LanguageNL.action;
-
-const dateTime = new Date();
-console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -96,6 +93,12 @@ module.exports = {
             .setRequired(false)),
     execute: async (interaction, bot, sequelize, Sequelize) => {
         try {
+            if (!interaction.guild) {
+                return interaction.reply({
+                    content: "Use this command inside a server only!"
+                });
+            };
+
             const CommandFunction = sequelize.define("CommandFunction", {
                 name: {
                     type: Sequelize.STRING,
@@ -237,7 +240,7 @@ module.exports = {
                     ephemeral: true
                 })
 
-                const ImageEmbed = new MessageEmbed()
+                const ImageEmbed = new EmbedBuilder()
                     .addFields(
                         { name: "Category:", value: choice, inline: true },
                         { name: "Author:", value: interaction.user.tag + " ``(" + interaction.user.id + ")``", inline: true }
@@ -268,7 +271,7 @@ module.exports = {
                     User1 + " gets close to " + User2 + " and kiss " + Pronouns2 + "!~"
                 ];
                 const BoopSentence = [
-                    User1 + " raises their paw and places it apon " + User2 + "'s snoot!~",
+                    User1 + " raises " + Pronouns1 + " paw and places it apon " + User2 + "'s snoot!~",
                 ];
                 const LickSentence = [
                     User1 + " gets really close to " + User2 + " face and lick " + Pronouns2 + "!~",
@@ -323,7 +326,7 @@ module.exports = {
                 let RandomAnswer = Sentence[Math.floor(Math.random() * Sentence.length)];
                 let RandomImage = ActionImageData[Math.floor(Math.random() * ActionImageData.length)];
 
-                const imageEmbed = new MessageEmbed()
+                const imageEmbed = new EmbedBuilder()
                     .setImage(RandomImage.ImageURL)
                     .setColor(Color.Blue)
 
@@ -350,6 +353,9 @@ module.exports = {
         } catch (error) {
             let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
             let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+            console.log("//------------------------------------------------------------------------------//");
+            console.log(error);
+            console.log("//------------------------------------------------------------------------------//");
 
             return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
         };

@@ -39,7 +39,7 @@
             "Punished": "You can't ban this user, since they are banned already!"
         },
         "server": {
-            "Message": "has been banned from the server for",
+            "Message": "has been banned.",
             "New": "New Ban",
             "User": "User",
             "Reason": "Reason",
@@ -243,7 +243,11 @@
     },
     "ticket": {
         "Name": "ticket",
-        "Description": "Ticket System - Moderate your server easily with tickets."
+        "Description": "Ticket System - Moderate your server easily with tickets.",
+        "permission": {
+            "Myself": ":warning: Insufficient Permission - You need the following permission: ``Manage Channels``.",
+            "Me": ":warning: Insufficient Permission - I need the following permission: ``Manage Channels``."
+        }
     },
     "unban": {
         "Name": "entsperren",

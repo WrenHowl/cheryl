@@ -1,4 +1,4 @@
-const { Client, Intents, MessageEmbed, Collection, MessageActionRow, Modal, MessageButton, TextInputComponent, MessageSelectMenu, Message } = require("discord.js");
+const { TextInputStyle, ActionRowBuilder, ButtonStyle, ButtonBuilder, Partials, ActivityType, Client, GatewayIntentBits, EmbedBuilder, Collection, ModalBuilder, TextInputBuilder } = require("discord.js");
 const fs = require("node:fs");
 const path = require('node:path');
 const Sequelize = require('sequelize');
@@ -8,32 +8,24 @@ const MessageConfig = require("./config/message.json");
 const Color = require("./config/color.json");
 const bot = new Client({
   allowedMentions: { parse: ['users', 'roles'], repliedUser: true },
-  intents: [Intents.FLAGS.GUILD_BANS, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_PRESENCES, Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.GUILD_INTEGRATIONS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS],
-  partials: ["MESSAGE", "CHANNEL", "REACTION"]
+  intents: [
+    GatewayIntentBits.GuildModeration,
+    GatewayIntentBits.GuildVoiceStates,
+    GatewayIntentBits.GuildPresences,
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildMessageReactions,
+  ],
+  partials: [Partials.Message, Partials.Channel, Partials.Reaction]
 });
 const { ImgurClient } = require('imgur');
+const { error } = require("node:console");
 
 const dateTime = new Date();
 const client = new ImgurClient({ clientId: Config.ImgurID });
 
 bot.commands = new Collection();
-
-const commandsPath = path.join(__dirname, 'commands');
-const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
-const commandsPath2 = path.join(__dirname, 'commands_noslash');
-const commandFiles2 = fs.readdirSync(commandsPath2).filter(file2 => file2.endsWith('.js'));
-
-for (const file of commandFiles) {
-  const filePath = path.join(commandsPath, file);
-  const command = require(filePath);
-  bot.commands.set(command.data.name, command);
-}
-
-for (const file2 of commandFiles2) {
-  const filePath2 = path.join(commandsPath2, file2);
-  const command2 = require(filePath2);
-  bot.commands.set(command2.name, command2);
-}
 
 const sequelize = new Sequelize("database", "user", "password", {
   host: "localhost",
@@ -149,6 +141,16 @@ const Blacklist = sequelize.define("Blacklist", {
   Risk: {
     type: Sequelize.STRING,
     unique: false,
+  },
+  JoinedServer: {
+    type: Sequelize.INTEGER,
+    defaultValue: 1,
+    allowNull: false,
+  },
+  JoinedServerBan: {
+    type: Sequelize.INTEGER,
+    defaultValue: 1,
+    allowNull: false,
   },
 });
 const ActionImage = sequelize.define("ActionImage", {
@@ -288,7 +290,7 @@ bot.once("ready", async () => {
     if (counter === Status.length) counter = 0;
     const StatusChange = Status[counter];
 
-    bot.user.setPresence({ activities: [{ type: "WATCHING", name: StatusChange }] });
+    bot.user.setActivity(StatusChange, { type: ActivityType.Watching });
 
     counter++;
   }, 5000)
@@ -338,7 +340,7 @@ bot.on("guildMemberAdd", async (NewMember) => {
           await NewMember.roles.add("1001111992834211921");
         }
 
-        const WelcomeMessage = new MessageEmbed()
+        const WelcomeMessage = new EmbedBuilder()
           .setDescription("Welcome " + NewMember.toString() + "!")
           .addFields(
             { name: "Created At", value: "``" + moment(NewMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") + "``" },
@@ -384,13 +386,13 @@ bot.on("guildMemberAdd", async (NewMember) => {
             if (BlacklistData.Risk === "Medium") ColorEmbed = Color.RiskMedium;
             if (BlacklistData.Risk === "High") ColorEmbed = Color.RiskHigh;
 
-            const BlacklistedUserJoined = new MessageEmbed()
+            const BlacklistedUserJoined = new EmbedBuilder()
               .setTitle("<:BanHammer:997932635454197790> New Alert")
               .setDescription(MessageBlacklist.InstantBan)
               .addFields(
                 { name: "User", value: NewMember.user.toString(), inline: true },
                 { name: "Reason", value: "``" + BlacklistData.Reason + "``", inline: true },
-                { name: "Evidence", value: BlacklistData.Proof + "** **", inline: true }
+                { name: "Evidence", value: BlacklistData.Proof, inline: true }
               )
               .setColor(ColorEmbed)
               .setFooter({
@@ -398,7 +400,9 @@ bot.on("guildMemberAdd", async (NewMember) => {
               })
               .setTimestamp()
 
-            await ChannelToSendAt.send({ embeds: [BlacklistedUserJoined] })
+            await ChannelToSendAt.send({ embeds: [BlacklistedUserJoined] });
+
+            await BlacklistData.increment("JoinedServer");
 
             let AutoBanMessage = MessageBlacklist.AutoBanMessage;
 
@@ -407,14 +411,20 @@ bot.on("guildMemberAdd", async (NewMember) => {
 
               if (LoggingData.AutoBanStatus === "Low+") {
                 if (BlacklistData.Risk === ["Low", "Medium", "High"]) {
+                  await BlacklistData.increment("JoinedServerBan");
+
                   return NewMember.guild.members.ban(BlacklistData.UserID, { reason: [BlacklistData.Reason + " | " + AutoBanMessage] });
                 }
               } else if (LoggingData.AutoBanStatus === "Medium+") {
                 if (BlacklistData.Risk === ["Medium", "High"]) {
+                  await BlacklistData.increment("JoinedServerBan");
+
                   return NewMember.guild.members.ban(BlacklistData.UserID, { reason: [BlacklistData.Reason + " | " + AutoBanMessage] });
                 }
               } else if (LoggingData.AutoBanStatus === "High+") {
                 if (BlacklistData.Risk === ["High"]) {
+                  await BlacklistData.increment("JoinedServerBan");
+
                   return NewMember.guild.members.ban(BlacklistData.UserID, { reason: [BlacklistData.Reason + " | " + AutoBanMessage] });
                 }
               }
@@ -445,7 +455,7 @@ bot.on("guildMemberUpdate", async (OldMember, NewMember) => {
       if (!OldStatus && NewStatus) {
         const ChannelToSend = bot.channels.cache.get("898361230010482688")
 
-        const NewBoost = new MessageEmbed()
+        const NewBoost = new EmbedBuilder()
           .setTitle("New Boost")
           .setDescription("Thank you " + NewMember.user.toString() + " for boosting **" + NewMember.guild.name + "** !")
           .setColor(Color.Pink)
@@ -480,7 +490,7 @@ bot.on("guildMemberRemove", async (LeavingMember) => {
     const LoggingData = await Logging.findOne({ where: { GuildID: LeavingMember.guild.id } });
 
     if (LoggingData.ChannelIDLeaving) {
-      if (LeavingMember.guild.members.guild.me.permissionsIn(LoggingData.ChannelIDLeaving).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
+      if (LeavingMember.guild.members.me.permissionsIn(LoggingData.ChannelIDLeaving).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
         if (LeavingMember.user.bot) return;
 
         const VerifierData = await Verifier.findOne({ where: { GuildID: LeavingMember.guild.id, VerifierID: LeavingMember.user.id } });
@@ -488,7 +498,7 @@ bot.on("guildMemberRemove", async (LeavingMember) => {
 
         VerifierData ? Status = "``Was Verified``" : Status = "``Wasn't Verified``";
 
-        const LeavingMemberEmbed = new MessageEmbed()
+        const LeavingMemberEmbed = new EmbedBuilder()
           .setTitle("Member Left")
           .addFields(
             { name: "User", value: LeavingMember.user.tag },
@@ -530,7 +540,7 @@ bot.on("userUpdate", async (NewUser, OldUser) => {
       return Blacklist.update({ ModName: NewUser.tag }, { where: { ModID: NewUser.id } });
     };
   } catch (error) {
-    let fetchGuild = LeavingMember.client.guilds.cache.get(Config.guildId);
+    let fetchGuild = NewUser.client.guilds.cache.get(Config.guildId);
     let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
     console.log("//------------------------------------------------------------------------------//");
     console.log(error);
@@ -555,7 +565,7 @@ bot.on("guildCreate", async (guild) => {
 
     BlacklistData ? Boo = "Yes" : Boo = "No";
 
-    const NewGuild = new MessageEmbed()
+    const NewGuild = new EmbedBuilder()
       .setTitle("Bot Added")
       .addFields(
         { name: "Server Name", value: "``" + guild.name + "``", inline: true },
@@ -574,7 +584,7 @@ bot.on("guildCreate", async (guild) => {
       embeds: [NewGuild]
     });
   } catch (error) {
-    let fetchGuild = LeavingMember.client.guilds.cache.get(Config.guildId);
+    let fetchGuild = guild.client.guilds.cache.get(Config.guildId);
     let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
     console.log("//------------------------------------------------------------------------------//");
     console.log(error);
@@ -591,7 +601,7 @@ bot.on("guildDelete", async (guild) => {
 
     BlacklistData ? Boo = "Yes" : Boo = "No";
 
-    const NewGuild = new MessageEmbed()
+    const NewGuild = new EmbedBuilder()
       .setTitle("Bot Removed")
       .addFields(
         { name: "Server Name", value: "``" + guild.name + "``", inline: true },
@@ -623,6 +633,15 @@ bot.on("guildDelete", async (guild) => {
 
 bot.on("messageCreate", async (message) => {
   try {
+    const commandsPath2 = path.join(__dirname, 'commands_noslash');
+    const commandFiles2 = fs.readdirSync(commandsPath2).filter(file2 => file2.endsWith('.js'));
+
+    for (const file2 of commandFiles2) {
+      const filePath2 = path.join(commandsPath2, file2);
+      const command2 = require(filePath2);
+      bot.commands.set(command2.name, command2);
+    }
+
     const LoggingData = await Logging.findOne({ where: { GuildID: message.guild.id } });
 
     if (LoggingData.ChannelIDBump) {
@@ -655,24 +674,24 @@ bot.on("messageCreate", async (message) => {
 
     switch (command) {
       case ("serverlist"):
-        return bot.commands.get("serverlist").execute(bot, message, args, MessageEmbed);
+        return bot.commands.get("serverlist").execute(bot, message, args);
       case (en.cmd.Name):
-        return bot.commands.get(en.cmd.Name).execute(bot, message, args, MessageEmbed, sequelize, Sequelize);
+        return bot.commands.get(en.cmd.Name).execute(bot, message, args, sequelize, Sequelize);
       case (en.language.Name || fr.language.Name || de.language.Name || nl.language.Name || sp.language.Name):
-        return bot.commands.get(en.language.Name).execute(bot, message, args, MessageEmbed, sequelize, Sequelize);
+        return bot.commands.get(en.language.Name).execute(bot, message, args, sequelize, Sequelize);
       case (en.cop.Name):
-        return bot.commands.get(en.cop.Name).execute(bot, message, args, MessageEmbed, sequelize, Sequelize);
+        return bot.commands.get(en.cop.Name).execute(bot, message, args, sequelize, Sequelize);
       case (en.ban.Name || fr.ban.Name || de.ban.Name || nl.ban.Name || sp.ban.Name):
-        return bot.commands.get(en.ban.Name).execute(bot, message, args, MessageEmbed, sequelize, Sequelize);
+        return bot.commands.get(en.ban.Name).execute(bot, message, args, EmbedBuilder, sequelize, Sequelize);
       case (en.unban.Name || fr.unban.Name || de.unban.Name || nl.unban.Name || sp.unban.Name):
-        return bot.commands.get(en.unban.Name).execute(bot, message, args, MessageEmbed, sequelize, Sequelize);
+        return bot.commands.get(en.unban.Name).execute(bot, message, args, EmbedBuilder, sequelize, Sequelize);
+      case (en.ticket.Name || fr.ticket.Name || de.ticket.Name || nl.ticket.Name || sp.ticket.Name):
+        return bot.commands.get(en.ticket.Name).execute(bot, message, args, EmbedBuilder, sequelize, Sequelize);
     };
   } catch (error) {
     let fetchGuild = message.client.guilds.cache.get(Config.guildId);
     let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
-    console.log("//------------------------------------------------------------------------------//");
-    console.log(error);
-    console.log("//------------------------------------------------------------------------------//");
+    console.log("//------------------------------------------------------------------------------//\n" + error + "\n//------------------------------------------------------------------------------//");
 
     return CrashChannel.send({ content: "**Error in the 'messageCreate' Event:** \n\n```javascript\n" + error + "```" });
   };
@@ -680,6 +699,15 @@ bot.on("messageCreate", async (message) => {
 
 bot.on('interactionCreate', async (interaction) => {
   try {
+    const commandsPath = path.join(__dirname, 'commands');
+    const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+
+    for (const file of commandFiles) {
+      const filePath = path.join(commandsPath, file);
+      const command = require(filePath);
+      bot.commands.set(command.data.name, command);
+    }
+
     if (!interaction.isCommand()) return;
 
     const command = bot.commands.get(interaction.commandName);
@@ -688,14 +716,12 @@ bot.on('interactionCreate', async (interaction) => {
   } catch (error) {
     let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
     let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
-    console.log("//------------------------------------------------------------------------------//");
-    console.log(error);
-    console.log("//------------------------------------------------------------------------------//");
+    console.log("//------------------------------------------------------------------------------//\n" + error + "\n//------------------------------------------------------------------------------//");
 
     await CrashChannel.send({ content: "**Error in 'interactionCreate' Event:** \n\n```javascript\n" + error + "```" });
 
     return interaction.reply({
-      content: 'There was an error while executing this command, the developer has been alerted!',
+      content: MessageConfig.Crash,
       ephemeral: true
     });
   }
@@ -703,6 +729,8 @@ bot.on('interactionCreate', async (interaction) => {
 
 bot.on('interactionCreate', async (interaction) => {
   try {
+    if (!interaction.guild) return;
+
     let LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
 
     if (interaction.isButton()) {
@@ -713,46 +741,50 @@ bot.on('interactionCreate', async (interaction) => {
       switch (interaction.customId) {
         case ("buttonToVerify"):
           if (!interaction.member.roles.cache.some(role => role.id === LoggingData.RoleToAddVerify)) {
-            const ModalVerification = new Modal()
+            const ModalVerification = new ModalBuilder()
               .setCustomId('verificationModal')
               .setTitle('Verification');
 
-            const ageOption = new TextInputComponent()
+            const ageOption = new TextInputBuilder()
               .setCustomId('ageVerify')
               .setLabel("Age")
-              .setStyle('SHORT')
+              .setPlaceholder("Provide YOUR age.")
+              .setStyle(TextInputStyle.Short)
               .setRequired();
 
-            const howServerOption = new TextInputComponent()
+            const howServerOption = new TextInputBuilder()
               .setCustomId('howServer')
               .setLabel("How did you find our server?")
-              .setPlaceholder("If it was a website, what website? If it was a friend, what friend?")
-              .setStyle('SHORT')
+              .setPlaceholder("Please specify the website/friend.")
+              .setStyle(TextInputStyle.Short)
               .setRequired();
 
-            const joiningOption = new TextInputComponent()
+            const joiningOption = new TextInputBuilder()
               .setCustomId('joining')
               .setLabel("Why are you joining us?")
-              .setStyle('PARAGRAPH')
+              .setPlaceholder("Be precise and do not lie.")
+              .setStyle(TextInputStyle.Paragraph)
               .setRequired();
 
-            const furryFandomOption = new TextInputComponent()
+            const furryFandomOption = new TextInputBuilder()
               .setCustomId('furryFandom')
               .setLabel("What do you think about the furry fandom?")
-              .setStyle('PARAGRAPH')
+              .setPlaceholder("Be serious and do not lie.")
+              .setStyle(TextInputStyle.Paragraph)
               .setRequired();
 
-            const sonaOption = new TextInputComponent()
+            const sonaOption = new TextInputBuilder()
               .setCustomId('sona')
               .setLabel("Do you have any sona? Tell us about it")
-              .setStyle('PARAGRAPH')
+              .setPlaceholder("Provide a short detailed paragraph of your sona.")
+              .setStyle(TextInputStyle.Paragraph)
               .setRequired();
 
-            const ageRow = new MessageActionRow().addComponents(ageOption);
-            const howServerRow = new MessageActionRow().addComponents(howServerOption);
-            const joiningRow = new MessageActionRow().addComponents(joiningOption);
-            const furryFandomRow = new MessageActionRow().addComponents(furryFandomOption);
-            const sonaRow = new MessageActionRow().addComponents(sonaOption);
+            const ageRow = new ActionRowBuilder().addComponents(ageOption);
+            const howServerRow = new ActionRowBuilder().addComponents(howServerOption);
+            const joiningRow = new ActionRowBuilder().addComponents(joiningOption);
+            const furryFandomRow = new ActionRowBuilder().addComponents(furryFandomOption);
+            const sonaRow = new ActionRowBuilder().addComponents(sonaOption);
 
             ModalVerification.addComponents(ageRow, howServerRow, joiningRow, furryFandomRow, sonaRow);
 
@@ -766,8 +798,8 @@ bot.on('interactionCreate', async (interaction) => {
         case ("buttonToAcceptVerify"):
           if (VerificationLog) {
             if (!guild.members.cache.find(m => m.id === VerificationLog.UserID)?.id) {
-              interaction.channel.messages.fetch(interaction.message.id).then(async (UpdateMessage) => {
-                const verificationEmbedAccepted = new MessageEmbed()
+              interaction.channel.messages.fetch(interaction.message.id).then(async () => {
+                const verificationEmbedAccepted = new EmbedBuilder()
                   .addFields(
                     { name: "Age", value: VerificationLog.AgeData + "** **" },
                     { name: "How did you find our server?", value: VerificationLog.HowServerData + "** **" },
@@ -790,72 +822,69 @@ bot.on('interactionCreate', async (interaction) => {
                 return Verification.destroy({ where: { MessageID: interaction.message.id } });
               })
             } else {
-              switch (!interaction.guild.me.permissions.has) {
-                case ("MANAGE_ROLES"):
-                  return interaction.reply({
-                    content: "Missing permission: MANAGE_ROLES",
-                  });
-              };
+              if (interaction.guild.members.me.permissions.has("ManageRoles")) {
+                const member = interaction.guild.members.cache.get(VerificationLog.UserID);
 
-              const member = interaction.guild.members.cache.get(VerificationLog.UserID)
+                await Verification_Count.update({ ModName: interaction.user.tag }, { where: { ModID: interaction.user.id } });
+                await member.roles.add(LoggingData.RoleToAddVerify);
 
-              await Verification_Count.update({ ModName: interaction.user.tag }, { where: { ModID: interaction.user.id } })
-
-              await member.roles.add(LoggingData.RoleToAddVerify);
-
-              if (LoggingData.RoleToRemoveVerify) {
-                await member.roles.remove(LoggingData.RoleToRemoveVerify);
-              };
-
-              const generalMessage = interaction.guild.channels.cache.get(LoggingData.ChannelIDVerify);
-
-              interaction.channel.messages.fetch(interaction.message.id).then(async () => {
-                const verificationEmbedAccepted = new MessageEmbed()
-                  .addFields(
-                    { name: "Age", value: VerificationLog.AgeData + "** **" },
-                    { name: "How did you find our server?", value: VerificationLog.HowServerData + "** **" },
-                    { name: "Why are you joining us?", value: VerificationLog.JoiningData + "** **" },
-                    { name: "What do you think about the furry fandom?", value: VerificationLog.FurryFandomData + "** **" },
-                    { name: "Do you have any sona? Tell us about it.", value: VerificationLog.SonaData + "** **" },
-                  )
-                  .setColor(Color.Green)
-                  .setTimestamp()
-                  .setFooter({
-                    text: "ID: " + VerificationLog.UserID
-                  })
-
-                await interaction.update({
-                  content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> accepted by " + interaction.user.toString(),
-                  embeds: [verificationEmbedAccepted],
-                  components: [],
-                });
-              });
-
-              await generalMessage.send({ content: "Welcome <@" + VerificationLog.UserID + "> to **" + interaction.guild.name + "**!" });
-
-              const Verification_CountData = await Verification_Count.findOne({ where: { ModID: interaction.user.id, GuildID: interaction.guild.id } });
-
-              if (Verification_CountData) {
-                if (Verification_CountData.GuildID === interaction.guild.id) {
-                  await Verification_CountData.increment('Usage_Count');
+                if (LoggingData.RoleToRemoveVerify) {
+                  await member.roles.remove(LoggingData.RoleToRemoveVerify);
                 };
-              } else {
-                await Verification_Count.create({
-                  ModID: interaction.user.id,
+
+                const generalMessage = interaction.guild.channels.cache.get(LoggingData.ChannelIDVerify);
+
+                interaction.channel.messages.fetch(interaction.message.id).then(async () => {
+                  const verificationEmbedAccepted = new EmbedBuilder()
+                    .addFields(
+                      { name: "Age", value: VerificationLog.AgeData + "** **" },
+                      { name: "How did you find our server?", value: VerificationLog.HowServerData + "** **" },
+                      { name: "Why are you joining us?", value: VerificationLog.JoiningData + "** **" },
+                      { name: "What do you think about the furry fandom?", value: VerificationLog.FurryFandomData + "** **" },
+                      { name: "Do you have any sona? Tell us about it.", value: VerificationLog.SonaData + "** **" },
+                    )
+                    .setColor(Color.Green)
+                    .setTimestamp()
+                    .setFooter({
+                      text: "ID: " + VerificationLog.UserID
+                    })
+
+                  await interaction.update({
+                    content: "<@&" + LoggingData.StaffRoleVerify + "> | Verification from <@" + VerificationLog.UserID + "> accepted by " + interaction.user.toString(),
+                    embeds: [verificationEmbedAccepted],
+                    components: [],
+                  });
+                });
+
+                await generalMessage.send({ content: "Welcome <@" + VerificationLog.UserID + "> to **" + interaction.guild.name + "**!" });
+
+                const Verification_CountData = await Verification_Count.findOne({ where: { ModID: interaction.user.id, GuildID: interaction.guild.id } });
+
+                if (Verification_CountData) {
+                  if (Verification_CountData.GuildID === interaction.guild.id) {
+                    await Verification_CountData.increment('Usage_Count');
+                  };
+                } else {
+                  await Verification_Count.create({
+                    ModID: interaction.user.id,
+                    ModName: interaction.user.tag,
+                    GuildID: interaction.guild.id,
+                  });
+                };
+
+                await Verifier.create({
+                  VerifierName: VerificationLog.UserName,
+                  VerifierID: VerificationLog.UserID,
                   ModName: interaction.user.tag,
+                  ModID: interaction.user.id,
                   GuildID: interaction.guild.id,
                 });
-              };
 
-              await Verifier.create({
-                VerifierName: VerificationLog.UserName,
-                VerifierID: VerificationLog.UserID,
-                ModName: interaction.user.tag,
-                ModID: interaction.user.id,
-                GuildID: interaction.guild.id,
+                return Verification.destroy({ where: { MessageID: interaction.message.id } });
+              }
+              return interaction.reply({
+                content: "Missing permission: ManageRoles",
               });
-
-              return Verification.destroy({ where: { MessageID: interaction.message.id } });
             }
           };
 
@@ -864,7 +893,7 @@ bot.on('interactionCreate', async (interaction) => {
           if (VerificationLog) {
             if (!guild.members.cache.find(m => m.id === VerificationLog.UserID)?.id) {
               interaction.channel.messages.fetch(interaction.message.id).then(async () => {
-                const verificationEmbedAccepted = new MessageEmbed()
+                const verificationEmbedAccepted = new EmbedBuilder()
                   .addFields(
                     { name: "Age", value: VerificationLog.AgeData + "** **" },
                     { name: "How did you find our server?", value: VerificationLog.HowServerData + "** **" },
@@ -886,7 +915,7 @@ bot.on('interactionCreate', async (interaction) => {
               })
             } else {
               interaction.channel.messages.fetch(interaction.message.id).then(async () => {
-                const reasonDeny = new MessageActionRow()
+                const reasonDeny = new ActionRowBuilder()
                   .addComponents(
                     new MessageSelectMenu()
                       .setCustomId('reasonDeny')
@@ -915,7 +944,7 @@ bot.on('interactionCreate', async (interaction) => {
                       ),
                   );
 
-                const verificationEmbedDenied = new MessageEmbed()
+                const verificationEmbedDenied = new EmbedBuilder()
                   .addFields(
                     { name: "Age", value: VerificationLog.AgeData + "** **" },
                     { name: "How did you find our server?", value: VerificationLog.HowServerData + "** **" },
@@ -949,7 +978,7 @@ bot.on('interactionCreate', async (interaction) => {
             };
 
             interaction.channel.messages.fetch(interaction.message.id).then(async () => {
-              const ImageEmbed = new MessageEmbed()
+              const ImageEmbed = new EmbedBuilder()
                 .addFields(
                   { name: "Category:", value: ActionImageData.Category, inline: true },
                   { name: "Author:", value: ActionImageData.UserName + " ``(" + ActionImageData.UserID + ")``", inline: true }
@@ -982,10 +1011,10 @@ bot.on('interactionCreate', async (interaction) => {
             };
 
             interaction.channel.messages.fetch(interaction.message.id).then(async () => {
-              const ImageEmbed = new MessageEmbed()
+              const ImageEmbed = new EmbedBuilder()
                 .addFields(
-                  { name: "Category:", value: ActionImageData.Category, inline: true },
-                  { name: "Author:", value: ActionImageData.UserName + " ``(" + ActionImageData.UserID + ")``", inline: true }
+                  { name: "Category:", value: ActionImageData.Category + "** **", inline: true },
+                  { name: "Author:", value: ActionImageData.UserName + " ``(" + ActionImageData.UserID + ")``" + "** **", inline: true }
                 )
                 .setImage(ActionImageData.ImageURL)
                 .setColor(Color.RiskHigh)
@@ -1029,27 +1058,27 @@ bot.on('interactionCreate', async (interaction) => {
           if (!furryFandom) furryFandom = "N/A";
           if (!sona) sona = "N/A";
 
-          const buttonVerify = new MessageActionRow()
+          const buttonVerify = new ActionRowBuilder()
             .addComponents(
-              new MessageButton()
+              new ButtonBuilder()
                 .setCustomId('buttonToAcceptVerify')
                 .setLabel('Accept')
-                .setStyle('SUCCESS'),
+                .setStyle(ButtonStyle.Success),
             )
             .addComponents(
-              new MessageButton()
+              new ButtonBuilder()
                 .setCustomId('buttonToDenyVerify')
                 .setLabel('Deny')
-                .setStyle('DANGER'),
+                .setStyle(ButtonStyle.Danger),
             );
 
-          const verificationEmbed = new MessageEmbed()
+          const verificationEmbed = new EmbedBuilder()
             .addFields(
-              { name: "Age", value: ageVerify },
-              { name: "How did you find our server?", value: howServer },
-              { name: "Why are you joining us?", value: joining },
-              { name: "What do you think about the furry fandom?", value: furryFandom },
-              { name: "Do you have any sona? Tell us about it.", value: sona },
+              { name: "Age", value: ageVerify + "** **" },
+              { name: "How did you find our server?", value: howServer + "** **" },
+              { name: "Why are you joining us?", value: joining + "** **" },
+              { name: "What do you think about the furry fandom?", value: furryFandom + "** **" },
+              { name: "Do you have any sona? Tell us about it.", value: sona + "** **" },
             )
             .setColor(Color.Transparent)
             .setTimestamp()
@@ -1073,20 +1102,20 @@ bot.on('interactionCreate', async (interaction) => {
           })
 
           return interaction.reply({
-            content: "We received your verification, please wait while we review your verification.!",
+            content: "We received your verification, please wait while we review your verification.",
             ephemeral: true
           });
       };
     };
 
-    if (interaction.isSelectMenu()) {
+    if (interaction.isStringSelectMenu()) {
       let args = interaction.values[0];
 
       switch (interaction.customId) {
         case ("reasonDeny"):
           let VerificationLog = await Verification.findOne({ where: { MessageID: interaction.message.id } });
 
-          const verificationEmbedDenied = new MessageEmbed()
+          const verificationEmbedDenied = new EmbedBuilder()
             .addFields(
               { name: "Age", value: VerificationLog.AgeData + "** **" },
               { name: "How did you find our server?", value: VerificationLog.HowServerData + "** **" },

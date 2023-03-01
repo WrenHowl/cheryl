@@ -1,4 +1,4 @@
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Color = require("../config/color.json");
 const Message = require("../config/message.json");
@@ -14,9 +14,6 @@ const en = LanguageEN.staff;
 const de = LanguageDE.staff;
 const sp = LanguageSP.staff;
 const nl = LanguageNL.staff;
-
-const dateTime = new Date();
-console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -52,6 +49,12 @@ module.exports = {
             .setRequired(false)),
     execute: async (interaction, bot, sequelize, Sequelize) => {
         try {
+            if (!interaction.guild) {
+                return interaction.reply({
+                    content: "Use this command inside a server only!"
+                });
+            };
+
             const CommandFunction = sequelize.define("CommandFunction", {
                 name: {
                     type: Sequelize.STRING,
@@ -86,7 +89,7 @@ module.exports = {
             StaffCheck ? Thumbnail = Config.CheckMark : Thumbnail = Config.x;
             StaffCheck ? IsOrIsnt = "is" : IsOrIsnt = "isn't";
 
-            const staffList = new MessageEmbed()
+            const staffList = new EmbedBuilder()
                 .setDescription(MemberData.toString() + " " + IsOrIsnt + " a staff member of `" + bot.user.username + "`")
                 .setThumbnail(Thumbnail)
                 .setColor(Color.Green);
@@ -97,6 +100,9 @@ module.exports = {
         } catch (error) {
             let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
             let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+            console.log("//------------------------------------------------------------------------------//");
+            console.log(error);
+            console.log("//------------------------------------------------------------------------------//");
 
             return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
         };

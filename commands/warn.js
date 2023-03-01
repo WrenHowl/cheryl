@@ -1,4 +1,4 @@
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Color = require("../config/color.json");
 const Message = require("../config/message.json");
@@ -14,9 +14,6 @@ const en = LanguageEN.warn;
 const de = LanguageDE.warn;
 const sp = LanguageSP.warn;
 const nl = LanguageNL.warn;
-
-const dateTime = new Date();
-console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -42,6 +39,12 @@ module.exports = {
         ),
     execute: async (interaction, bot, sequelize, Sequelize) => {
         try {
+            if (!interaction.guild) {
+                return interaction.reply({
+                    content: "Use this command inside a server only!"
+                });
+            };
+
             const CommandFunction = sequelize.define("CommandFunction", {
                 name: {
                     type: Sequelize.STRING,
@@ -136,7 +139,7 @@ module.exports = {
                         const reason = interaction.options.getString("reason");
                         const admin = interaction.user;
 
-                        const WarnMessage = new MessageEmbed()
+                        const WarnMessage = new EmbedBuilder()
                             .setDescription("``" + user.tag + "`` has been warned for ``" + reason + "``")
                             .setColor("2f3136");
 
@@ -150,7 +153,7 @@ module.exports = {
                                 if (interaction.guild.members.guild.me.permissionsIn(LoggingData.ChannelIDWarn).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
                                     const LogChannel = interaction.guild.channels.cache.get(LoggingData.ChannelIDWarn);
 
-                                    const LogMessage = new MessageEmbed()
+                                    const LogMessage = new EmbedBuilder()
                                         .setTitle("New Warn")
                                         .setDescription("**__User:__** ``" + user.tag + "``\n**__Reason:__** ``" + reason + "``\n**__Moderator:__** ``" + admin.tag + "``")
                                         .setFooter({ text: "ID: " + user.id })
@@ -164,7 +167,7 @@ module.exports = {
                             };
                         };
 
-                        const WarnDm = new MessageEmbed()
+                        const WarnDm = new EmbedBuilder()
                             .setDescription("You have been warned on ``" + interaction.guild.name + "`` for ``" + reason + "`` by ``" + admin.toLocaleString() + "``.")
                             .setColor("2f3136");
 
@@ -197,6 +200,9 @@ module.exports = {
         } catch (error) {
             let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
             let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+            console.log("//------------------------------------------------------------------------------//");
+            console.log(error);
+            console.log("//------------------------------------------------------------------------------//");
 
             return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
         };

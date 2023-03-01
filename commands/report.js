@@ -1,4 +1,4 @@
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Color = require("../config/color.json");
 const Message = require("../config/message.json");
@@ -14,9 +14,6 @@ const en = LanguageEN.report;
 const de = LanguageDE.report;
 const sp = LanguageSP.report;
 const nl = LanguageNL.report;
-
-const dateTime = new Date();
-console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -44,6 +41,12 @@ module.exports = {
             .setRequired(true)),
     execute: async (interaction, bot, sequelize, Sequelize) => {
         try {
+            if (!interaction.guild) {
+                return interaction.reply({
+                    content: "Use this command inside a server only!"
+                });
+            };
+
             const CommandFunction = sequelize.define("CommandFunction", {
                 name: {
                     type: Sequelize.STRING,
@@ -102,34 +105,30 @@ module.exports = {
                 case (!member):
                     return interaction.reply({
                         content: "I can't find this user!",
-                        ephemeral: true
+                        ephemeral: true,
                     });
                 case (interaction.member.id):
                     return interaction.reply({
                         content: "You can't report yourself!",
-                        ephemeral: true
+                        ephemeral: true,
                     });
                 case (bot.user.id):
                     return interaction.reply({
                         content: "You can't report me!",
-                        ephemeral: true
+                        ephemeral: true,
                     });
                 default:
                     const reason = interaction.options.getString("reason");
 
-                    const banMessage = new MessageEmbed()
-                        .setDescription("You have successfully reported ``" + member.user.tag + "`` for ``" + reason + "``")
-                        .setColor(Color.Green);
-
                     await interaction.reply({
-                        embeds: [banMessage],
-                        ephemeral: true
+                        content: "You have successfully reported ``" + member.user.tag + "`` for ``" + reason + "``",
+                        ephemeral: true,
                     });
 
                     const logChannel = interaction.guild.channels.cache.get(LoggingData.ChannelIDReport);
 
-                    const logMessage = new MessageEmbed()
-                        .setTitle("New report")
+                    const logMessage = new EmbedBuilder()
+                        .setTitle("New Report")
                         .setDescription("Report made by ``" + interaction.user.tag + "`` on ``" + member.user.tag + "`` for ``" + reason + "``")
                         .setTimestamp()
                         .setFooter({

@@ -1,4 +1,4 @@
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const moment = require("moment")
 const Color = require("../config/color.json");
@@ -20,9 +20,6 @@ const nl = LanguageNL.profile;
 const Age = Profile.age;
 const Pronouns = Profile.pronouns;
 const Gender = Profile.gender;
-
-const dateTime = new Date();
-console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -124,6 +121,12 @@ module.exports = {
             .setRequired(false)),
     execute: async (interaction, bot, sequelize, Sequelize) => {
         try {
+            if (!interaction.guild) {
+                return interaction.reply({
+                    content: "Use this command inside a server only!"
+                });
+            };
+
             const CommandFunction = sequelize.define("CommandFunction", {
                 name: {
                     type: Sequelize.STRING,
@@ -210,7 +213,7 @@ module.exports = {
             let LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
 
             if (pronounsOptions || genderOptions || ageOptions) {
-                const ChangeOptions = new MessageEmbed()
+                const ChangeOptions = new EmbedBuilder()
                     .setDescription("Profile Updated")
 
                 if (!ProfileCheck) {
@@ -316,7 +319,7 @@ module.exports = {
                     ProfileAge = "`No Data Found`";
                 };
 
-                const userinfoEmbed = new MessageEmbed()
+                const userinfoEmbed = new EmbedBuilder()
                     .addFields(
                         { name: "Name", value: MemberData.toString(), inline: true },
                         { name: "ID", value: "`" + MemberData.id + "`", inline: true },
@@ -349,6 +352,9 @@ module.exports = {
         } catch (error) {
             let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
             let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+            console.log("//------------------------------------------------------------------------------//");
+            console.log(error);
+            console.log("//------------------------------------------------------------------------------//");
 
             return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
         };

@@ -1,16 +1,10 @@
-const { MessageEmbed } = require('discord.js');
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const Discord = require('discord.js');
 const Config = require("../config/config.json");
 const LanguageEN = require("../languages/en.json");
 
-const en = LanguageEN.language;
-
-const dateTime = new Date();
-console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");
-
 module.exports = {
-    name: en.Name,
-    execute: async (bot, message, args, MessageEmbed, sequelize, Sequelize) => {
+    name: LanguageEN.language.Name,
+    execute: async (bot, message, args, sequelize, Sequelize) => {
         try {
             if (message.guild.members.guild.me.permissionsIn(message.channelId).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
                 const CommandFunction = sequelize.define("CommandFunction", {
@@ -22,7 +16,7 @@ module.exports = {
                     },
                 });
 
-                const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
+                const FindCommand = await CommandFunction.findOne({ where: { name: LanguageEN.language.Name } });
                 const MessageReason = require("../config/message.json");
 
                 if (FindCommand) {
@@ -62,7 +56,7 @@ module.exports = {
                         });
                     };
 
-                    if (args[0]) {
+                    if (args[0] || args.length < 1) {
                         if (LanguageList.includes(args[0])) {
                             await LoggingData.update({
                                 Language: args[0],
@@ -94,7 +88,7 @@ module.exports = {
             console.log(error);
             console.log("//------------------------------------------------------------------------------//");
 
-            return CrashChannel.send({ content: "**Error in the " + en.Name + " Command:** \n\n```javascript\n" + error + "```" });
+            return CrashChannel.send({ content: "**Error in the " + LanguageEN.language.Name + " Command:** \n\n```javascript\n" + error + "```" });
         };
     }
 };

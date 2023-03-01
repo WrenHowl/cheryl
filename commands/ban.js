@@ -1,4 +1,4 @@
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Color = require("../config/color.json");
 const Message = require("../config/message.json");
@@ -14,9 +14,6 @@ const en = LanguageEN.ban;
 const de = LanguageDE.ban;
 const sp = LanguageSP.ban;
 const nl = LanguageNL.ban;
-
-const dateTime = new Date();
-console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -69,6 +66,12 @@ module.exports = {
         ),
     execute: async (interaction, bot, sequelize, Sequelize) => {
         try {
+            if (!interaction.guild) {
+                return interaction.reply({
+                    content: "Use this command inside a server only!"
+                });
+            };
+
             const CommandFunction = sequelize.define("CommandFunction", {
                 name: {
                     type: Sequelize.STRING,
@@ -162,13 +165,8 @@ module.exports = {
                             const reason = interaction.options.getString(en.ReasonName);
                             const mod = interaction.user.tag;
 
-                            const banMessage = new MessageEmbed()
-                                .setDescription("``" + user.tag + "`` " + Language.ban.server.Message + " ``" + reason + "``.")
-                                .setColor(Color.Green);
-
                             await interaction.reply({
-                                embeds: [banMessage],
-                                ephemeral: true,
+                                content: "***" + user.tag + "*** " + Language.ban.server.Message,
                             });
 
                             if (LoggingData) {
@@ -176,7 +174,7 @@ module.exports = {
                                     if (interaction.guild.members.guild.me.permissionsIn(LoggingData.ChannelIDBan).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
                                         const logChannel = interaction.guild.channels.cache.get(LoggingData.ChannelIDBan);
 
-                                        const logMessage = new MessageEmbed()
+                                        const logMessage = new EmbedBuilder()
                                             .setTitle(Language.ban.server.New)
                                             .addFields(
                                                 { name: Language.ban.server.User, value: "``" + user.tag + "``" },
@@ -196,12 +194,8 @@ module.exports = {
                                 };
                             };
 
-                            const banDM = new MessageEmbed()
-                                .setDescription(Language.ban.dm.you + " ``" + interaction.guild.name + "`` " + Language.ban.dm.for + " ``" + reason + "`` " + Language.ban.dm.by + " ``" + mod + "``.")
-                                .setColor(Color.RiskHigh);
-
                             await user.send({
-                                embeds: [banDM],
+                                conmtent: Language.ban.dm.you + " ``" + interaction.guild.name + "`` " + Language.ban.dm.for + " ``" + reason + "`` " + Language.ban.dm.by + " ``" + mod + "``.",
                             }).catch(() => { return });
 
                             return interaction.guild.members.ban(user.id, { reason: [reason + " | " + mod] });
@@ -221,6 +215,9 @@ module.exports = {
         } catch (error) {
             let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
             let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+            console.log("//------------------------------------------------------------------------------//");
+            console.log(error);
+            console.log("//------------------------------------------------------------------------------//");
 
             return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
         };

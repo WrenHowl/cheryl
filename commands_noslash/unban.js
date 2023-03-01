@@ -1,18 +1,16 @@
-const { MessageEmbed } = require('discord.js');
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const Discord = require('discord.js');
 const Color = require("../config/color.json");
 const Message = require("../config/message.json");
 const Config = require("../config/config.json");
+const LanguageFR = require("../languages/fr.json");
 const LanguageEN = require("../languages/en.json");
-
-const en = LanguageEN.unban;
-
-const dateTime = new Date();
-console.log(dateTime.toLocaleString() + " -> The '" + en.Name + "' command is loaded.");
+const LanguageDE = require("../languages/de.json");
+const LanguageSP = require("../languages/sp.json");
+const LanguageNL = require("../languages/nl.json");
 
 module.exports = {
-    name: en.Name,
-    execute: async (bot, message, args, MessageEmbed, sequelize, Sequelize) => {
+    name: LanguageEN.unban.Name,
+    execute: async (bot, message, args, EmbedBuilder, sequelize, Sequelize) => {
         try {
             if (message.guild.members.guild.me.permissionsIn(message.channelId).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
                 const CommandFunction = sequelize.define("CommandFunction", {
@@ -24,7 +22,7 @@ module.exports = {
                     },
                 });
 
-                const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
+                const FindCommand = await CommandFunction.findOne({ where: { name: LanguageEN.unban.Name } });
 
                 if (FindCommand) {
                     if (FindCommand.value === "Disable") {
@@ -38,18 +36,27 @@ module.exports = {
                 const Logging = sequelize.define("Logging", {
                     GuildID: {
                         type: Sequelize.STRING,
-                        unique: false,
                     },
                     ChannelIDUnban: {
                         type: Sequelize.STRING,
-                        unique: false,
+                    },
+                    Language: {
+                        type: Sequelize.STRING,
                     },
                 });
                 const LoggingData = await Logging.findOne({ where: { GuildID: message.guild.id } });
 
+                let LanguageData = LoggingData.language;
+
+                if (!LanguageData || LanguageData === "en") Language = LanguageEN;
+                if (LanguageData === "fr") Language = LanguageFR;
+                if (LanguageData === "de") Language = LanguageDE;
+                if (LanguageData === "sp") Language = LanguageSP;
+                if (LanguageData === "nl") Language = LanguageNL;
+
                 if (message.member.permissions.has("BAN_MEMBERS")) {
                     if (message.guild.me.permissions.has("BAN_MEMBERS")) {
-                        const ErrorEmbed = new MessageEmbed()
+                        const ErrorEmbed = new EmbedBuilder()
                             .setTitle("Ban Syntax")
                             .setDescription("**Utilisation:** ``" + Config.Prefix + en.Name + " <@user> <reason>``")
                             .setColor(Color.Blue);
@@ -100,7 +107,7 @@ module.exports = {
                                             if (message.guild.members.guild.me.permissionsIn(LoggingData.ChannelIDUnban).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
                                                 const logChannel = message.guild.channels.cache.get(LoggingData.ChannelIDUnban);
 
-                                                const logMessage = new MessageEmbed()
+                                                const logMessage = new EmbedBuilder()
                                                     .setTitle(Language.unban.server.New)
                                                     .addFields(
                                                         { name: Language.unban.server.User, value: "``" + user.tag + "``" },
@@ -139,7 +146,7 @@ module.exports = {
             console.log(error);
             console.log("//------------------------------------------------------------------------------//");
 
-            return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
+            return CrashChannel.send({ content: "**Error in the '" + LanguageEN.unban.Name + "' Command:** \n\n```javascript\n" + error + "```" });
         };
     }
 };

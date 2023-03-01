@@ -39,7 +39,7 @@
             "Punished": "Vous ne pouvez pas bannir cet utilisateur, car il est déjà banni!"
         },
         "server": {
-            "Message": "a été banni du serveur pour",
+            "Message": "a été banni.",
             "New": "Nouveau Bannissement",
             "User": "Utilisateur",
             "Reason": "Raison",
@@ -243,7 +243,11 @@
     },
     "ticket": {
         "Name": "ticket",
-        "Description": "Système de tickets - Modérez facilement votre serveur avec des tickets."
+        "Description": "Système de tickets - Modérez facilement votre serveur avec des tickets.",
+        "permission": {
+            "Myself": ":warning: Permission Insuffisante - Vous avez besoin de l'autorisation suivante: ``Gérer les Canals``.",
+            "Me": ":warning: Permission Insuffisante - Vous avez besoin de l'autorisation suivante: ``Gérer les Canals``."
+        }
     },
     "unban": {
         "Name": "débannir",
