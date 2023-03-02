@@ -136,7 +136,7 @@ module.exports = {
                         })
                         .setColor(Color.RiskLow);
 
-                    if (interaction.guild.members.guild.me.permissionsIn(LoggingData.ChannelIDReport).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
+                    if (interaction.guild.members.me.permissionsIn(LoggingData.ChannelIDReport).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
                         if (!LoggingData.StaffRoleReport) {
                             return logChannel.send({
                                 embeds: [logMessage],

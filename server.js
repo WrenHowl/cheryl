@@ -326,7 +326,7 @@ bot.on("guildMemberAdd", async (NewMember) => {
     let LoggingData = await Logging.findOne({ where: { GuildID: NewMember.guild.id } });
 
     if (LoggingData.ChannelIDWelcome) {
-      if (NewMember.guild.members.guild.me.permissionsIn(LoggingData.ChannelIDWelcome).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
+      if (NewMember.guild.members.me.permissionsIn(LoggingData.ChannelIDWelcome).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
         if (NewMember.user.bot) return;
 
         const ChannelGuild = NewMember.guild.channels.cache.get(LoggingData.ChannelIDWelcome);
@@ -379,7 +379,7 @@ bot.on("guildMemberAdd", async (NewMember) => {
     if (BlacklistData) {
       if (LoggingData.EnableDisableBlacklistLogger === "Enabled") {
         if (LoggingData.ChannelIDBlacklist) {
-          if (NewMember.guild.members.guild.me.permissionsIn(LoggingData.ChannelIDBlacklist).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
+          if (NewMember.guild.members.me.permissionsIn(LoggingData.ChannelIDBlacklist).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
             const ChannelToSendAt = await NewMember.guild.channels.fetch(LoggingData.ChannelIDBlacklist)
 
             if (BlacklistData.Risk === "Low") ColorEmbed = Color.RiskLow;

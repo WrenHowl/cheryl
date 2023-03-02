@@ -6,7 +6,7 @@ module.exports = {
     name: LanguageEN.cmd.Name,
     execute: async (bot, message, args, sequelize, Sequelize) => {
         try {
-            if (message.guild.members.guild.me.permissionsIn(message.channelId).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
+            if (message.guild.members.me.permissionsIn(message.channelId).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
                 const CommandFunction = sequelize.define("CommandFunction", {
                     name: {
                         type: Sequelize.STRING,

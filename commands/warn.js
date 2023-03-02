@@ -150,7 +150,7 @@ module.exports = {
 
                         if (LoggingData) {
                             if (LoggingData.ChannelIDWarn) {
-                                if (interaction.guild.members.guild.me.permissionsIn(LoggingData.ChannelIDWarn).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
+                                if (interaction.guild.members.me.permissionsIn(LoggingData.ChannelIDWarn).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
                                     const LogChannel = interaction.guild.channels.cache.get(LoggingData.ChannelIDWarn);
 
                                     const LogMessage = new EmbedBuilder()
