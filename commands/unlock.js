@@ -81,8 +81,8 @@ module.exports = {
             if (LanguageData === "sp") Language = LanguageSP;
             if (LanguageData === "nl") Language = LanguageNL;
 
-            if (interaction.member.permissions.has("MANAGE_MESSAGES")) {
-                if (interaction.guild.me.permissions.has("MANAGE_CHANNELS")) {
+            if (interaction.member.permissions.has("ManageMessages")) {
+                if (interaction.guild.me.permissions.has("ManageChannels")) {
                     interaction.channel.parent ? interaction.channel.lockPermissions() : interaction.channel.permissionOverwrites.edit(interaction.channel.guild.roles.everyone, { SEND_MESSAGES: true }), "Lockdown lifted by: " + interaction.user.tag;
 
                     return interaction.reply({

@@ -337,6 +337,7 @@ module.exports = {
                     { name: "Created At", value: "`" + moment(CheckDaysCreatedAt).format("Do MMMM YYYY hh:ss:mm A") + " / " + (checkDays(CheckDaysCreatedAt)) + "`" },
                     { name: "Joined At", value: CheckDaysJoinedAt },
                     { name: "Age", value: ProfileAge, inline: true },
+                    { name: "Age Verified", value: "No, to verify your age, please join the support server", inline: true },
                     { name: "Pronouns", value: ProfilePronouns, inline: true },
                     { name: "Gender", value: ProfileGender, inline: true },
                     { name: "Roles", value: roleMap },
@@ -352,9 +353,7 @@ module.exports = {
         } catch (error) {
             let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
             let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
-            console.log("//------------------------------------------------------------------------------//");
             console.log(error);
-            console.log("//------------------------------------------------------------------------------//");
 
             return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
         };

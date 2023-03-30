@@ -113,8 +113,8 @@ module.exports = {
             if (LanguageData === "sp") Language = LanguageSP;
             if (LanguageData === "nl") Language = LanguageNL;
 
-            if (interaction.member.permissions.has("BAN_MEMBERS")) {
-                if (interaction.guild.me.permissions.has("BAN_MEMBERS")) {
+            if (interaction.member.permissions.has("BanMembers")) {
+                if (interaction.guild.members.me.permissions.has("BanMembers")) {
                     let user = interaction.options.getUser(en.UserName);
                     let member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(error => { });
                     let banList = await interaction.guild.bans.fetch();
@@ -171,7 +171,7 @@ module.exports = {
 
                             if (LoggingData) {
                                 if (LoggingData.ChannelIDBan) {
-                                    if (interaction.guild.members.me.permissionsIn(LoggingData.ChannelIDBan).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
+                                    if (interaction.guild.members.me.permissionsIn(LoggingData.ChannelIDBan).has(['SendMessages', 'ViewChannel'])) {
                                         const logChannel = interaction.guild.channels.cache.get(LoggingData.ChannelIDBan);
 
                                         const logMessage = new EmbedBuilder()
@@ -215,9 +215,7 @@ module.exports = {
         } catch (error) {
             let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
             let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
-            console.log("//------------------------------------------------------------------------------//");
             console.log(error);
-            console.log("//------------------------------------------------------------------------------//");
 
             return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
         };

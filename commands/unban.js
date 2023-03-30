@@ -76,8 +76,8 @@ module.exports = {
             });
             const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
 
-            if (interaction.member.permissions.has("BAN_MEMBERS")) {
-                if (interaction.guild.me.permissions.has("BAN_MEMBERS")) {
+            if (interaction.member.permissions.has("BanMembers")) {
+                if (interaction.guild.me.permissions.has("BanMembers")) {
                     const user = interaction.options.getUser("user");
                     const banList = await interaction.guild.bans.fetch();
                     const bannedUser = banList.find(user => user.id === user.id);
@@ -116,7 +116,7 @@ module.exports = {
 
                                 if (LoggingData) {
                                     if (LoggingData.ChannelIDUnban) {
-                                        if (interaction.guild.members.me.permissionsIn(LoggingData.ChannelIDUnban).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
+                                        if (interaction.guild.members.me.permissionsIn(LoggingData.ChannelIDUnban).has(['SendMessages', 'ViewChannel'])) {
                                             const logChannel = interaction.guild.channels.cache.get(LoggingData.ChannelIDUnban);
 
                                             const logMessage = new EmbedBuilder()

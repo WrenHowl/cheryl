@@ -1,4 +1,4 @@
-const { TextInputStyle, ActionRowBuilder, ButtonStyle, ButtonBuilder, Partials, ActivityType, Client, GatewayIntentBits, EmbedBuilder, Collection, ModalBuilder, TextInputBuilder } = require("discord.js");
+const { TextInputStyle, ActionRowBuilder, StringSelectMenuBuilder, ButtonStyle, ButtonBuilder, Partials, ActivityType, Client, GatewayIntentBits, EmbedBuilder, Collection, ModalBuilder, TextInputBuilder } = require("discord.js");
 const fs = require("node:fs");
 const path = require('node:path');
 const Sequelize = require('sequelize');
@@ -20,7 +20,6 @@ const bot = new Client({
   partials: [Partials.Message, Partials.Channel, Partials.Reaction]
 });
 const { ImgurClient } = require('imgur');
-const { error } = require("node:console");
 
 const dateTime = new Date();
 const client = new ImgurClient({ clientId: Config.ImgurID });
@@ -266,6 +265,41 @@ const Permission = sequelize.define("Permission", {
     type: Sequelize.STRING,
   }
 });
+const Ticket = sequelize.define("Ticket", {
+  GuildID: {
+    type: Sequelize.INTEGER,
+  },
+  Reason: {
+    type: Sequelize.STRING,
+  },
+  MessageID: {
+    type: Sequelize.INTEGER,
+  },
+  ChannelID: {
+    type: Sequelize.INTEGER,
+  },
+  Description: {
+    type: Sequelize.STRING,
+  },
+  Author: {
+    type: Sequelize.INTEGER,
+  },
+  ClaimedBy: {
+    type: Sequelize.INTEGER,
+  },
+  TicketCount: {
+    type: Sequelize.INTEGER,
+  }
+})
+const TicketCount = sequelize.define("TicketCount", {
+  GuildID: {
+    type: Sequelize.INTEGER,
+  },
+  Count: {
+    type: Sequelize.INTEGER,
+    defaultValue: 1,
+  },
+});
 
 const Warns = sequelize.define("Warns")
 const Profile = sequelize.define("Profile")
@@ -306,6 +340,8 @@ bot.once("ready", async () => {
     Permission.sync();
     Profile.sync();
     CommandFunction.sync();
+    Ticket.sync();
+    TicketCount.sync();
   }, 5000);
 
   bot.guilds.cache.forEach(async (guild) => {
@@ -326,7 +362,7 @@ bot.on("guildMemberAdd", async (NewMember) => {
     let LoggingData = await Logging.findOne({ where: { GuildID: NewMember.guild.id } });
 
     if (LoggingData.ChannelIDWelcome) {
-      if (NewMember.guild.members.me.permissionsIn(LoggingData.ChannelIDWelcome).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
+      if (NewMember.guild.members.me.permissionsIn(LoggingData.ChannelIDWelcome).has(['SendMessages', 'ViewChannel'])) {
         if (NewMember.user.bot) return;
 
         const ChannelGuild = NewMember.guild.channels.cache.get(LoggingData.ChannelIDWelcome);
@@ -379,7 +415,7 @@ bot.on("guildMemberAdd", async (NewMember) => {
     if (BlacklistData) {
       if (LoggingData.EnableDisableBlacklistLogger === "Enabled") {
         if (LoggingData.ChannelIDBlacklist) {
-          if (NewMember.guild.members.me.permissionsIn(LoggingData.ChannelIDBlacklist).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
+          if (NewMember.guild.members.me.permissionsIn(LoggingData.ChannelIDBlacklist).has(['SendMessages', 'ViewChannel'])) {
             const ChannelToSendAt = await NewMember.guild.channels.fetch(LoggingData.ChannelIDBlacklist)
 
             if (BlacklistData.Risk === "Low") ColorEmbed = Color.RiskLow;
@@ -438,9 +474,7 @@ bot.on("guildMemberAdd", async (NewMember) => {
   } catch (error) {
     let fetchGuild = NewMember.client.guilds.cache.get(Config.guildId)
     let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel)
-    console.log("//------------------------------------------------------------------------------//");
     console.log(error);
-    console.log("//------------------------------------------------------------------------------//");
 
     return CrashChannel.send({ content: "**Error in 'guildMemberAdd' Event:** \n\n```javascript\n" + error + "```" });
   };
@@ -473,9 +507,7 @@ bot.on("guildMemberUpdate", async (OldMember, NewMember) => {
   } catch (error) {
     let fetchGuild = NewMember.client.guilds.cache.get(Config.guildId);
     let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
-    console.log("//------------------------------------------------------------------------------//");
     console.log(error);
-    console.log("//------------------------------------------------------------------------------//");
 
     return CrashChannel.send({ content: "**Error in 'guildMemberUpdate' Event:** \n\n```javascript\n" + error + "```" });
   };
@@ -490,7 +522,7 @@ bot.on("guildMemberRemove", async (LeavingMember) => {
     const LoggingData = await Logging.findOne({ where: { GuildID: LeavingMember.guild.id } });
 
     if (LoggingData.ChannelIDLeaving) {
-      if (LeavingMember.guild.members.me.permissionsIn(LoggingData.ChannelIDLeaving).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
+      if (LeavingMember.guild.members.me.permissionsIn(LoggingData.ChannelIDLeaving).has(['SendMessages', 'ViewChannel'])) {
         if (LeavingMember.user.bot) return;
 
         const VerifierData = await Verifier.findOne({ where: { GuildID: LeavingMember.guild.id, VerifierID: LeavingMember.user.id } });
@@ -525,9 +557,7 @@ bot.on("guildMemberRemove", async (LeavingMember) => {
   } catch (error) {
     let fetchGuild = LeavingMember.client.guilds.cache.get(Config.guildId);
     let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
-    console.log("//------------------------------------------------------------------------------//");
     console.log(error);
-    console.log("//------------------------------------------------------------------------------//");
 
     return CrashChannel.send({ content: "**Error in 'guildMemberRemove' Event:** \n\n```javascript\n" + error + "```" });
   };
@@ -542,9 +572,7 @@ bot.on("userUpdate", async (NewUser, OldUser) => {
   } catch (error) {
     let fetchGuild = NewUser.client.guilds.cache.get(Config.guildId);
     let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
-    console.log("//------------------------------------------------------------------------------//");
-    console.log(error);
-    console.log("//------------------------------------------------------------------------------//");
+    console.log("//------------------------------------------------------------------------------//\n" + error + "\n//------------------------------------------------------------------------------//");
 
     return CrashChannel.send({ content: "**Error in 'userUpdate' Event:** \n\n```javascript\n" + error + "```" });
   };
@@ -586,9 +614,7 @@ bot.on("guildCreate", async (guild) => {
   } catch (error) {
     let fetchGuild = guild.client.guilds.cache.get(Config.guildId);
     let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
-    console.log("//------------------------------------------------------------------------------//");
     console.log(error);
-    console.log("//------------------------------------------------------------------------------//");
 
     return CrashChannel.send({ content: "**Error in 'guildCreate' Event:** \n\n```javascript\n" + error + "```" });
   };
@@ -623,9 +649,7 @@ bot.on("guildDelete", async (guild) => {
   } catch (error) {
     let fetchGuild = guild.client.guilds.cache.get(Config.guildId);
     let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
-    console.log("//------------------------------------------------------------------------------//");
     console.log(error);
-    console.log("//------------------------------------------------------------------------------//");
 
     return CrashChannel.send({ content: "**Error in 'guildDelete' Event:** \n\n```javascript\n" + error + "```" });
   };
@@ -691,7 +715,7 @@ bot.on("messageCreate", async (message) => {
   } catch (error) {
     let fetchGuild = message.client.guilds.cache.get(Config.guildId);
     let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
-    console.log("//------------------------------------------------------------------------------//\n" + error + "\n//------------------------------------------------------------------------------//");
+    console.log(error);
 
     return CrashChannel.send({ content: "**Error in the 'messageCreate' Event:** \n\n```javascript\n" + error + "```" });
   };
@@ -716,7 +740,7 @@ bot.on('interactionCreate', async (interaction) => {
   } catch (error) {
     let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
     let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
-    console.log("//------------------------------------------------------------------------------//\n" + error + "\n//------------------------------------------------------------------------------//");
+    console.log(error);
 
     await CrashChannel.send({ content: "**Error in 'interactionCreate' Event:** \n\n```javascript\n" + error + "```" });
 
@@ -737,7 +761,8 @@ bot.on('interactionCreate', async (interaction) => {
       let VerificationLog = await Verification.findOne({ where: { MessageID: interaction.message.id } });
       let ActionImageData = await ActionImage.findOne({ where: { MessageID: interaction.message.id } });
       let guild = bot.guilds.cache.get(interaction.guild.id);
-
+      let TicketData = await Ticket.findOne({ where: { GuildID: interaction.guild.id } });
+      let TicketCountData = await TicketCount.findOne({ where: { GuildID: interaction.guild.id } });
       switch (interaction.customId) {
         case ("buttonToVerify"):
           if (!interaction.member.roles.cache.some(role => role.id === LoggingData.RoleToAddVerify)) {
@@ -801,11 +826,11 @@ bot.on('interactionCreate', async (interaction) => {
               interaction.channel.messages.fetch(interaction.message.id).then(async () => {
                 const verificationEmbedAccepted = new EmbedBuilder()
                   .addFields(
-                    { name: "Age", value: VerificationLog.AgeData + "** **" },
-                    { name: "How did you find our server?", value: VerificationLog.HowServerData + "** **" },
-                    { name: "Why are you joining us?", value: VerificationLog.JoiningData + "** **" },
-                    { name: "What do you think about the furry fandom?", value: VerificationLog.FurryFandomData + "** **" },
-                    { name: "Do you have any sona? Tell us about it.", value: VerificationLog.SonaData + "** **" },
+                    { name: "Age", value: "• " + VerificationLog.AgeData },
+                    { name: "How did you find our server?", value: "• " + VerificationLog.HowServerData },
+                    { name: "Why are you joining us?", value: "• " + VerificationLog.JoiningData },
+                    { name: "What do you think about the furry fandom?", value: "• " + VerificationLog.FurryFandomData },
+                    { name: "Do you have any sona? Tell us about it.", value: "• " + VerificationLog.SonaData },
                   )
                   .setColor(Color.Gray)
                   .setTimestamp()
@@ -826,7 +851,7 @@ bot.on('interactionCreate', async (interaction) => {
                 const member = interaction.guild.members.cache.get(VerificationLog.UserID);
 
                 await Verification_Count.update({ ModName: interaction.user.tag }, { where: { ModID: interaction.user.id } });
-                await member.roles.add(LoggingData.RoleToAddVerify);
+                await member.roles.add(LoggingData.RoleToAddVerify, "Verification System: Verified by " + interaction.user.tag);
 
                 if (LoggingData.RoleToRemoveVerify) {
                   await member.roles.remove(LoggingData.RoleToRemoveVerify);
@@ -837,11 +862,11 @@ bot.on('interactionCreate', async (interaction) => {
                 interaction.channel.messages.fetch(interaction.message.id).then(async () => {
                   const verificationEmbedAccepted = new EmbedBuilder()
                     .addFields(
-                      { name: "Age", value: VerificationLog.AgeData + "** **" },
-                      { name: "How did you find our server?", value: VerificationLog.HowServerData + "** **" },
-                      { name: "Why are you joining us?", value: VerificationLog.JoiningData + "** **" },
-                      { name: "What do you think about the furry fandom?", value: VerificationLog.FurryFandomData + "** **" },
-                      { name: "Do you have any sona? Tell us about it.", value: VerificationLog.SonaData + "** **" },
+                      { name: "Age", value: "• " + VerificationLog.AgeData },
+                      { name: "How did you find our server?", value: "• " + VerificationLog.HowServerData },
+                      { name: "Why are you joining us?", value: "• " + VerificationLog.JoiningData },
+                      { name: "What do you think about the furry fandom?", value: "• " + VerificationLog.FurryFandomData },
+                      { name: "Do you have any sona? Tell us about it.", value: "• " + VerificationLog.SonaData },
                     )
                     .setColor(Color.Green)
                     .setTimestamp()
@@ -895,11 +920,11 @@ bot.on('interactionCreate', async (interaction) => {
               interaction.channel.messages.fetch(interaction.message.id).then(async () => {
                 const verificationEmbedAccepted = new EmbedBuilder()
                   .addFields(
-                    { name: "Age", value: VerificationLog.AgeData + "** **" },
-                    { name: "How did you find our server?", value: VerificationLog.HowServerData + "** **" },
-                    { name: "Why are you joining us?", value: VerificationLog.JoiningData + "** **" },
-                    { name: "What do you think about the furry fandom?", value: VerificationLog.FurryFandomData + "** **" },
-                    { name: "Do you have any sona? Tell us about it", value: VerificationLog.SonaData + "** **" },
+                    { name: "Age", value: "• " + VerificationLog.AgeData },
+                    { name: "How did you find our server?", value: "• " + VerificationLog.HowServerData },
+                    { name: "Why are you joining us?", value: "• " + VerificationLog.JoiningData },
+                    { name: "What do you think about the furry fandom?", value: "• " + VerificationLog.FurryFandomData },
+                    { name: "Do you have any sona? Tell us about it.", value: "• " + VerificationLog.SonaData },
                   )
                   .setColor(Color.Gray)
                   .setTimestamp()
@@ -917,7 +942,7 @@ bot.on('interactionCreate', async (interaction) => {
               interaction.channel.messages.fetch(interaction.message.id).then(async () => {
                 const reasonDeny = new ActionRowBuilder()
                   .addComponents(
-                    new MessageSelectMenu()
+                    new StringSelectMenuBuilder()
                       .setCustomId('reasonDeny')
                       .setPlaceholder('Please select a reason')
                       .addOptions(
@@ -946,11 +971,11 @@ bot.on('interactionCreate', async (interaction) => {
 
                 const verificationEmbedDenied = new EmbedBuilder()
                   .addFields(
-                    { name: "Age", value: VerificationLog.AgeData + "** **" },
-                    { name: "How did you find our server?", value: VerificationLog.HowServerData + "** **" },
-                    { name: "Why are you joining us?", value: VerificationLog.JoiningData + "** **" },
-                    { name: "What do you think about the furry fandom?", value: VerificationLog.FurryFandomData + "** **" },
-                    { name: "Do you have any sona? Tell us about it", value: VerificationLog.SonaData + "** **" },
+                    { name: "Age", value: "• " + VerificationLog.AgeData },
+                    { name: "How did you find our server?", value: "• " + VerificationLog.HowServerData },
+                    { name: "Why are you joining us?", value: "• " + VerificationLog.JoiningData },
+                    { name: "What do you think about the furry fandom?", value: "• " + VerificationLog.FurryFandomData },
+                    { name: "Do you have any sona? Tell us about it.", value: "• " + VerificationLog.SonaData },
                   )
                   .setColor(Color.RiskHigh)
                   .setTimestamp()
@@ -977,13 +1002,19 @@ bot.on('interactionCreate', async (interaction) => {
               });
             };
 
+            const response = await client.upload({
+              image: ActionImageData.ImageURL,
+            });
+
+            await ActionImage.update({ ImageURL: response.data.link }, { where: { MessageID: interaction.message.id } });
+
             interaction.channel.messages.fetch(interaction.message.id).then(async () => {
               const ImageEmbed = new EmbedBuilder()
                 .addFields(
                   { name: "Category:", value: ActionImageData.Category, inline: true },
                   { name: "Author:", value: ActionImageData.UserName + " ``(" + ActionImageData.UserID + ")``", inline: true }
                 )
-                .setImage(ActionImageData.ImageURL)
+                .setImage(response.data.link)
                 .setColor(Color.Green)
 
               return interaction.update({
@@ -991,13 +1022,6 @@ bot.on('interactionCreate', async (interaction) => {
                 components: []
               });
             });
-
-            const response = await client.upload({
-              image: ActionImageData.ImageURL,
-            });
-
-            return ActionImage.update({ ImageURL: response.data.link }, { where: { MessageID: interaction.message.id } });
-
           };
 
           break;
@@ -1029,6 +1053,486 @@ bot.on('interactionCreate', async (interaction) => {
           };
 
           break;
+        case ("age_verification"):
+          if (TicketData) {
+            return interaction.reply({
+              content: "You have a ticket waiting to be claimed already!",
+              ephemeral: true,
+            });
+          } else {
+            if (!TicketCountData) {
+              await TicketCount.create({
+                GuildID: interaction.guild.id,
+              });
+            } else {
+              await TicketCountData.increment('Count');
+            }
+
+            await Ticket.create({
+              GuildID: interaction.guild.id,
+              Reason: "Age Verification",
+              TicketCount: TicketCountData.Count,
+              Author: interaction.user.id,
+            }).then(async () => {
+              await interaction.reply({
+                content: "Your ticket is waiting to be claimed by a staff. You will receive a DM when it will be open!",
+                ephemeral: true,
+              });
+
+              let waitingTicket = interaction.guild.channels.cache.get("1090764463034093699");
+
+              const buttonClaim = new ActionRowBuilder()
+                .addComponents(
+                  new ButtonBuilder()
+                    .setCustomId('claim_ticket')
+                    .setLabel('Claim')
+                    .setStyle(ButtonStyle.Success)
+                )
+                .addComponents(
+                  new ButtonBuilder()
+                    .setCustomId('cancel_ticket')
+                    .setLabel('Cancel')
+                    .setStyle(ButtonStyle.Secondary)
+                );
+
+              let claimingTicket = new EmbedBuilder()
+                .setTitle("Ticket #" + TicketCountData.Count)
+                .addFields(
+                  { name: "Author:", value: interaction.user.toString(), inline: true },
+                  { name: "Reason:", value: "Age Verification", inline: true },
+                  { name: "Status:", value: "<:cross_ocf:962115493253222420> Unclaimed", inline: true }
+                )
+                .setThumbnail(interaction.user.displayAvatarURL())
+                .setColor(Color.Blue);
+
+              return waitingTicket.send({
+                embeds: [claimingTicket],
+                components: [buttonClaim],
+              }).then(async (channel) => {
+                await Ticket.update({ MessageID: channel.id }, { where: { Author: interaction.user.id } })
+              })
+            });
+          };
+
+          break;
+        case ("report"):
+          if (TicketData) {
+            return interaction.reply({
+              content: "You have a ticket waiting to be claimed already!",
+              ephemeral: true,
+            });
+          } else {
+            if (!TicketCountData) {
+              await TicketCount.create({
+                GuildID: interaction.guild.id,
+              });
+            } else {
+              await TicketCountData.increment('Count');
+            }
+
+            await Ticket.create({
+              GuildID: interaction.guild.id,
+              Reason: "Report",
+              TicketCount: TicketCountData.Count,
+              Author: interaction.user.id,
+            }).then(async () => {
+              await interaction.reply({
+                content: "Your ticket is waiting to be claimed by a staff. You will receive a DM when it will be open!",
+                ephemeral: true,
+              });
+
+              let waitingTicket = interaction.guild.channels.cache.get("1090764463034093699");
+
+              const buttonClaim = new ActionRowBuilder()
+                .addComponents(
+                  new ButtonBuilder()
+                    .setCustomId('claim_ticket')
+                    .setLabel('Claim')
+                    .setStyle(ButtonStyle.Success)
+                )
+                .addComponents(
+                  new ButtonBuilder()
+                    .setCustomId('cancel_ticket')
+                    .setLabel('Cancel')
+                    .setStyle(ButtonStyle.Secondary)
+                );
+
+              let claimingTicket = new EmbedBuilder()
+                .setTitle("Ticket #" + TicketCountData.Count)
+                .addFields(
+                  { name: "Author:", value: interaction.user.toString(), inline: true },
+                  { name: "Reason:", value: "Report", inline: true },
+                  { name: "Status:", value: "<:cross_ocf:962115493253222420> Unclaimed", inline: true }
+                )
+                .setThumbnail(interaction.user.displayAvatarURL())
+                .setColor(Color.Blue);
+
+              return waitingTicket.send({
+                embeds: [claimingTicket],
+                components: [buttonClaim],
+              }).then(async (channel) => {
+                await Ticket.update({ MessageID: channel.id }, { where: { Author: interaction.user.id } })
+              })
+            });
+          };
+
+          break;
+        case ("support"):
+          if (TicketData) {
+            return interaction.reply({
+              content: "You have a ticket waiting to be claimed already!",
+              ephemeral: true,
+            });
+          } else {
+            if (!TicketCountData) {
+              await TicketCount.create({
+                GuildID: interaction.guild.id,
+              });
+            } else {
+              await TicketCountData.increment('Count');
+            }
+
+            await Ticket.create({
+              GuildID: interaction.guild.id,
+              Reason: "Support",
+              TicketCount: TicketCountData.Count,
+              Author: interaction.user.id,
+            }).then(async () => {
+              await interaction.reply({
+                content: "Your ticket is waiting to be claimed by a staff. You will receive a DM when it will be open!",
+                ephemeral: true,
+              });
+
+              let waitingTicket = interaction.guild.channels.cache.get("1090764463034093699");
+
+              const buttonClaim = new ActionRowBuilder()
+                .addComponents(
+                  new ButtonBuilder()
+                    .setCustomId('claim_ticket')
+                    .setLabel('Claim')
+                    .setStyle(ButtonStyle.Success)
+                )
+                .addComponents(
+                  new ButtonBuilder()
+                    .setCustomId('cancel_ticket')
+                    .setLabel('Cancel')
+                    .setStyle(ButtonStyle.Secondary)
+                );
+
+              let claimingTicket = new EmbedBuilder()
+                .setTitle("Ticket #" + TicketCountData.Count)
+                .addFields(
+                  { name: "Author:", value: interaction.user.toString(), inline: true },
+                  { name: "Reason:", value: "Support", inline: true },
+                  { name: "Status:", value: "<:cross_ocf:962115493253222420> Unclaimed", inline: true }
+                )
+                .setThumbnail(interaction.user.displayAvatarURL())
+                .setColor(Color.Blue);
+
+              return waitingTicket.send({
+                embeds: [claimingTicket],
+                components: [buttonClaim],
+              }).then(async (channel) => {
+                await Ticket.update({ MessageID: channel.id }, { where: { Author: interaction.user.id } })
+              })
+            });
+          };
+
+          break;
+        case ("buttonDeleteTicket"):
+          if (interaction.member.roles.cache.some(role => role.name === "Staff")) {
+            if (interaction.guild.members.me.permissions.has("ManageChannels")) {
+              if (TicketData) {
+                await TicketData.destroy({ where: { GuildID: interaction.guild.id, ChannelID: interaction.channel.id } });
+
+                return interaction.channel.delete();
+              } else {
+                return interaction.reply({
+                  content: "No data found of this ticket: Error code: 0002.",
+                  ephemeral: true,
+                });
+              }
+            } else {
+              return interaction.reply({
+                content: "I need the following permission ``ManageChannels``.",
+                ephemeral: true,
+              });
+            };
+          } else {
+            return interaction.reply({
+              content: "You cannot do this action! You need to be a ``Staff``.",
+              ephemeral: true,
+            });
+          };
+        case ("cancel_ticket"):
+          if (interaction.member.roles.cache.some(role => role.name === "Staff")) {
+            if (interaction.guild.members.me.permissions.has("ManageChannels")) {
+              if (TicketData) {
+                await TicketData.destroy({ where: { GuildID: interaction.guild.id, MessageID: interaction.message.id } });
+
+                interaction.channel.messages.fetch(interaction.message.id).then(async (msg) => {
+                  await msg.delete();
+                });
+
+                await TicketCountData.decrement('Count', { by: 1 });
+              } else {
+                return interaction.reply({
+                  content: "This ticket has been canceled already.",
+                  ephemeral: true,
+                });
+              }
+            } else {
+              return interaction.reply({
+                content: "This ticket has been canceled already.",
+                ephemeral: true,
+              });
+            }
+          } else {
+            return interaction.reply({
+              content: "You cannot do this action! You need to be a ``Staff``.",
+              ephemeral: true,
+            });
+          };
+        case ("buttonToAdd"):
+          if (interaction.member.roles.cache.some(role => role.name === "Staff")) {
+            if (interaction.guild.members.me.permissions.has("ManageRoles")) {
+              if (TicketData) {
+                const member = interaction.guild.members.cache.get(TicketData.Author);
+
+                await member.roles.add("1084970943820075050", "Age Verification: Verified by " + interaction.user.tag);
+
+                return interaction.reply({
+                  content: member.toString() + " is now a **Verified 18+**"
+                });
+              } else {
+                return interaction.reply({
+                  content: "No data found of this ticket: Error code: 0001.",
+                  ephemeral: true,
+                });
+              }
+            } else {
+              return interaction.reply({
+                content: "I need the following permission ``ManageRoles``.",
+                ephemeral: true,
+              });
+            };
+          } else {
+            return interaction.reply({
+              content: "You cannot do this action! You need to be a ``Staff``.",
+              ephemeral: true,
+            });
+          };
+        case ("claim_ticket"):
+          if (interaction.member.roles.cache.some(role => role.name === "Staff")) {
+            if (interaction.guild.members.me.permissions.has("ManageChannels")) {
+              if (TicketData) {
+                console.log(TicketData.Author)
+                if (TicketData.Reason === "Age Verification" && (!interaction.member.roles.cache.some(role => role.name === "Owner") || !interaction.member.roles.cache.some(role => role.name === "Co-Owner") || !interaction.member.roles.cache.some(role => role.name === "Admin"))) {
+                  await Ticket.update({
+                    ClaimedBy: interaction.user.id,
+                  }, { where: { MessageID: interaction.message.id } });
+
+                  interaction.channel.messages.fetch(interaction.message.id).then(async () => {
+                    const buttonClaimEdit = new ActionRowBuilder()
+                      .addComponents(
+                        new ButtonBuilder()
+                          .setCustomId('unclaim_ticket')
+                          .setLabel('Unclaim')
+                          .setStyle(ButtonStyle.Danger)
+                      );
+
+                    let claimingTicketEdit = new EmbedBuilder()
+                      .setTitle("Ticket #" + TicketData.TicketCount)
+                      .addFields(
+                        { name: "Author:", value: "<@" + TicketData.Author + ">", inline: true },
+                        { name: "Reason:", value: TicketData.Reason, inline: true },
+                        { name: "Status:", value: "<:check_ocf:962115470549458954> Claimed", inline: true }
+                      )
+                      .setThumbnail(interaction.user.displayAvatarURL())
+                      .setColor(Color.Blue);
+
+                    await interaction.update({
+                      embeds: [claimingTicketEdit],
+                      components: [buttonClaimEdit],
+                    });
+                  })
+
+                  if (TicketData.ChannelID) {
+                    bot.users.cache.get(TicketData.Author).send("Your ticket (<#" + TicketData.ChannelID + ">) have been claimed by: " + interaction.user.toString()).catch(() => { return });
+
+                    return interaction.guild.channels.cache.get(TicketData.ChannelID).send({
+                      content: interaction.user.toString()
+                    }).then((msg) => {
+                      msg.delete()
+                    });
+                  };
+
+                  await interaction.guild.channels.create({
+                    name: interaction.user.username,
+                    type: 0,
+                    parent: "1088534084529176656",
+                    permissionOverwrites: [{
+                      id: guild.roles.everyone,
+                      deny: ['ViewChannel', 'SendMessages']
+                    },
+                    {
+                      id: interaction.user.id,
+                      allow: ['ViewChannel', 'SendMessages', 'AttachFiles']
+                    },
+                    {
+                      id: TicketData.Author,
+                      allow: ['ViewChannel', 'SendMessages', 'AttachFiles']
+                    },
+                    {
+                      id: bot.user.id,
+                      allow: ['ViewChannel', 'SendMessages', 'AttachFiles']
+                    }]
+                  }).then(async (channel) => {
+                    await Ticket.update({
+                      ChannelID: channel.id
+                    }, { where: { ClaimedBy: interaction.user.id } });
+
+                    bot.users.cache.get(TicketData.Author).send("Your ticket (<#" + channel.id + ">) have been claimed and created by: " + interaction.user.toString()).catch(() => { return });
+
+                    let TicketMessage = new EmbedBuilder()
+                      .addFields(
+                        { name: "Member:", value: "<@" + TicketData.Author + ">", inline: true },
+                        { name: "Staff:", value: interaction.user.toString(), inline: true }
+                      )
+                      .setColor(Color.Blue);
+
+                    switch (TicketData.Reason) {
+                      case ("Age Verification"):
+                        TicketMessage.setTitle("Age Verification - Ticket")
+                        TicketMessage.addFields({
+                          name: "Instruction:",
+                          value: "**1.** One picture of a valid gouvernemental paper (driving license, passport, etc.)\n**2.** A paper with the server name on it (Goddess Femboy Army) and your name underneath it (user#0000)"
+                        });
+                        break;
+                      case ("Report"):
+                        TicketMessage.setTitle("Report - Ticket")
+                        TicketMessage.addFields({
+                          name: "Instruction:",
+                          value: "**1.** Provide the name (user#0000) of the user you would like to report\n**2.** The reason of the report\n**3.** Evidence (if possible)."
+                        });
+                        break;
+                      case ("Support"):
+                        TicketMessage.setTitle("Support - Ticket")
+                        TicketMessage.addFields({
+                          name: "Instruction:",
+                          value: "**1.** Ask any question away, we will try to answer your question the best we can."
+                        });
+                        break;
+                    };
+
+                    let buttonTicket = new ActionRowBuilder()
+                      .addComponents(
+                        new ButtonBuilder()
+                          .setCustomId('buttonDeleteTicket')
+                          .setLabel('Delete')
+                          .setStyle(ButtonStyle.Danger)
+                      );
+
+                    if (TicketData.Reason === "Age Verification") {
+                      buttonTicket.addComponents(
+                        new ButtonBuilder()
+                          .setCustomId('buttonToAdd')
+                          .setLabel('Verify')
+                          .setStyle(ButtonStyle.Success)
+                      )
+                    }
+
+                    return channel.send({
+                      embeds: [TicketMessage],
+                      components: [buttonTicket],
+                    }).then(async (msg) => {
+                      msg.pin()
+
+                      return channel.send({
+                        content: "<@" + TicketData.Author + ">" + interaction.user.toString()
+                      }).then(async (secondmsg) => {
+                        return setTimeout(() => {
+                          secondmsg.delete()
+                        }, 500)
+                      })
+                    });
+                  });
+                } else {
+                  return interaction.reply({
+                    content: "You cannot resolve `Age Verification` ticket! You need to be an ``Admin+``."
+                  })
+                }
+              } else {
+                return interaction.reply({
+                  content: "No data found of this ticket: Error code: 0003.",
+                  ephemeral: true,
+                });
+              }
+            } else {
+              return interaction.reply({
+                content: "I need the following permission ``ManageRoles``.",
+                ephemeral: true,
+              });
+            };
+          } else {
+            return interaction.reply({
+              content: "You cannot do this action! You need to be a ``Staff``.",
+              ephemeral: true,
+            });
+          };
+          return;
+        case ("unclaim_ticket"):
+          if (interaction.member.roles.cache.some(role => role.name === "Staff")) {
+            if (interaction.guild.members.me.permissions.has("ManageChannels")) {
+              if (TicketData) {
+                await Ticket.update({
+                  ClaimedBy: null,
+                }, { where: { MessageID: interaction.message.id } });
+
+                interaction.channel.messages.fetch(interaction.message.id).then(async () => {
+                  const buttonClaimEdit = new ActionRowBuilder()
+                    .addComponents(
+                      new ButtonBuilder()
+                        .setCustomId('claim_ticket')
+                        .setLabel('Claim')
+                        .setStyle(ButtonStyle.Success)
+                    );
+
+                  let claimingTicketEdit = new EmbedBuilder()
+                    .setTitle("Ticket #" + TicketData.TicketCount)
+                    .addFields(
+                      { name: "Author:", value: "<@" + TicketData.Author + ">", inline: true },
+                      { name: "Reason:", value: TicketData.Reason, inline: true },
+                      { name: "Status:", value: "<:cross_ocf:962115493253222420> Unclaimed", inline: true }
+                    )
+                    .setThumbnail(interaction.user.displayAvatarURL())
+                    .setColor(Color.Blue);
+
+                  await interaction.update({
+                    embeds: [claimingTicketEdit],
+                    components: [buttonClaimEdit],
+                  });
+                })
+
+                return bot.users.cache.get(TicketData.Author).send("Your ticket (<#" + TicketData.ChannelID + ">) have been unclaimed and suspended by: " + interaction.user.toString()).catch(() => { return });
+              } else {
+                return interaction.reply({
+                  content: "No data found of this ticket: Error code: 0004.",
+                  ephemeral: true,
+                });
+              }
+            } else {
+              return interaction.reply({
+                content: "I need the following permission ``ManageRoles``.",
+                ephemeral: true,
+              });
+            };
+          } else {
+            return interaction.reply({
+              content: "You cannot do this action! You need to be a ``Staff``.",
+              ephemeral: true,
+            });
+          };
       };
     };
 
@@ -1074,11 +1578,11 @@ bot.on('interactionCreate', async (interaction) => {
 
           const verificationEmbed = new EmbedBuilder()
             .addFields(
-              { name: "Age", value: ageVerify + "** **" },
-              { name: "How did you find our server?", value: howServer + "** **" },
-              { name: "Why are you joining us?", value: joining + "** **" },
-              { name: "What do you think about the furry fandom?", value: furryFandom + "** **" },
-              { name: "Do you have any sona? Tell us about it.", value: sona + "** **" },
+              { name: "Age", value: "• " + ageVerify },
+              { name: "How did you find our server?", value: "• " + howServer },
+              { name: "Why are you joining us?", value: "• " + joining },
+              { name: "What do you think about the furry fandom?", value: "• " + furryFandom },
+              { name: "Do you have any sona? Tell us about it.", value: "• " + sona },
             )
             .setColor(Color.Transparent)
             .setTimestamp()
@@ -1164,14 +1668,14 @@ bot.on('interactionCreate', async (interaction) => {
                 content: Reason.Website,
               }).catch(() => { return });
           };
+
+          break;
       };
     };
   } catch (error) {
     let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
     let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
-    console.log("//------------------------------------------------------------------------------//");
     console.log(error);
-    console.log("//------------------------------------------------------------------------------//");
 
     return CrashChannel.send({ content: "**Error in 'interactionCreate' Event:** \n\n```javascript\n" + error + "```" });
   };

@@ -1,4 +1,4 @@
-const { EmbedBuilder } = require('discord.js');
+const { ActionRowBuilder, ButtonStyle, ButtonBuilder, EmbedBuilder, StringSelectMenuBuilder } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Color = require("../config/color.json");
 const Message = require("../config/message.json");
@@ -30,16 +30,11 @@ module.exports = {
             de: de.Description,
             SpanishES: sp.Description,
             nl: nl.Description
-        })
-        .addSubcommand(subcommand => subcommand
-            .setName("setup")
-            .setDescription("Setup the ticket system.")
-            .addNumberOption(option => option
-                .setName("panelid")
-                .setDescription("Set the panel ID to easily retrieve it when needed.")
-                .setRequired(true))),
+        }),
     execute: async (interaction, bot, sequelize, Sequelize) => {
         try {
+            if (!interaction.user.id === "291262778730217472") return;
+
             if (!interaction.guild) {
                 return interaction.reply({
                     content: "Use this command inside a server only!"
@@ -67,29 +62,78 @@ module.exports = {
                 };
             };
 
-            if (interaction.member.permissions.has("MANAGE_MESSAGES")) {
-                if (interaction.guild.me.permissions.has("MANAGE_CHANNELS")) {
+            /*const Ticket = sequelize.define("Ticket", {
+                GuildID: {
+    type: Sequelize.STRING,
+  },
+  Name: {
+    type: Sequelize.STRING,
+  },
+  MessageID: {
+    type: Sequelize.STRING,
+  },
+  ChannelID: {
+    type: Sequelize.STRING,
+  },
+  Description: {
+    type: Sequelize.STRING,
+  },
+  Author: {
+    type: Sequelize.STRING,
+  },
+            });
 
+            let TicketData = await Ticket.findOne({ where: { GuildID: interaction.guild.id } });*/
+
+            if (interaction.member.permissions.has("ManageChannels")) {
+                if (interaction.guild.members.me.permissions.has("ManageChannels")) {
+                    let Embed = new EmbedBuilder()
+                        .setTitle("Create a Ticket")
+                        .setDescription("Need help with anything? Or you would like to simply create a ticket to ask a question? Select your reason below!")
+                        .setColor(Color.Blue)
+
+                    const menuTicket = new ActionRowBuilder()
+                        .addComponents(
+                            new ButtonBuilder()
+                                .setCustomId('age_verification')
+                                .setLabel('Age Verification')
+                                .setStyle(ButtonStyle.Success)
+                        )
+                        .addComponents(
+                            new ButtonBuilder()
+                                .setCustomId('report')
+                                .setLabel('Report')
+                                .setStyle(ButtonStyle.Danger)
+                        )
+                        .addComponents(
+                            new ButtonBuilder()
+                                .setCustomId('support')
+                                .setLabel('Support')
+                                .setStyle(ButtonStyle.Primary)
+                        );
+
+                    return interaction.channel.send({
+                        embeds: [Embed],
+                        components: [menuTicket],
+                    });
                 } else {
                     return interaction.reply({
-                        content: "I need the following permission ```MANAGE_CHANNELS``.",
+                        content: "I need the following permission ``ManageChannels``.",
                         ephemeral: true,
                     });
                 };
             } else {
                 return interaction.reply({
-                    content: "You cannot execute this command! You need the following permission ```MANAGE_MESSAGES``.",
+                    content: "You cannot execute this command! You need the following permission ``ManageChannels``.",
                     ephemeral: true,
                 });
             };
         } catch (error) {
             let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
             let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
-            console.log("//------------------------------------------------------------------------------//");
             console.log(error);
-            console.log("//------------------------------------------------------------------------------//");
 
-            return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
+            return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:**\n\n```javascript\n" + error + "```" });
         };
     }
 };

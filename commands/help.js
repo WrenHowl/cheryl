@@ -1,4 +1,4 @@
-const { EmbedBuilder, MessageActionRow, MessageButton } = require('discord.js');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Color = require("../config/color.json");
 const Message = require("../config/message.json");
@@ -80,12 +80,12 @@ module.exports = {
         };
       };
 
-      const SupportDiscord = new MessageActionRow()
+      const SupportDiscord = new ActionRowBuilder()
         .addComponents(
-          new MessageButton()
+          new ButtonBuilder()
             .setLabel('Support Server')
             .setURL(Config.SupportDiscord)
-            .setStyle('LINK'),
+            .setStyle(ButtonStyle.Link),
         );
 
       const infoOptions = interaction.options.getString(en.InfoName);
@@ -189,9 +189,7 @@ module.exports = {
     } catch (error) {
       let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
       let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
-      console.log("//------------------------------------------------------------------------------//");
       console.log(error);
-      console.log("//------------------------------------------------------------------------------//");
 
       return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
     };

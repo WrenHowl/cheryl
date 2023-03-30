@@ -78,7 +78,7 @@ module.exports = {
             });
             const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
 
-            if (interaction.member.permissions.has("MODERATE_MEMBERS")) {
+            if (interaction.member.permissions.has("ModerateMembers")) {
                 const user = interaction.options.getUser("user");
                 const member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(error => { });
 
@@ -150,7 +150,7 @@ module.exports = {
 
                         if (LoggingData) {
                             if (LoggingData.ChannelIDWarn) {
-                                if (interaction.guild.members.me.permissionsIn(LoggingData.ChannelIDWarn).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
+                                if (interaction.guild.members.me.permissionsIn(LoggingData.ChannelIDWarn).has(['SendMessages', 'ViewChannel'])) {
                                     const LogChannel = interaction.guild.channels.cache.get(LoggingData.ChannelIDWarn);
 
                                     const LogMessage = new EmbedBuilder()

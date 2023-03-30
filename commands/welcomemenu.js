@@ -71,7 +71,7 @@ module.exports = {
             const welcomeOptions = interaction.options.getChannel("welcome");
             const rulesOptions = interaction.options.getChannel("rules");
 
-            if (interaction.member.permissions.has("MANAGE_GUILD")) {
+            if (interaction.member.permissions.has("ManageGuild")) {
                 const Logging = sequelize.define("Logging", {
                     GuildID: {
                         type: Sequelize.STRING,
@@ -142,9 +142,7 @@ module.exports = {
         } catch (error) {
             let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
             let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
-            console.log("//------------------------------------------------------------------------------//");
             console.log(error);
-            console.log("//------------------------------------------------------------------------------//");
 
             return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
         };

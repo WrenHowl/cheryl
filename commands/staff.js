@@ -89,8 +89,10 @@ module.exports = {
             StaffCheck ? Thumbnail = Config.CheckMark : Thumbnail = Config.x;
             StaffCheck ? IsOrIsnt = "is" : IsOrIsnt = "isn't";
 
+            StaffMember.roles.cache.has(Config.DevID) ? StaffRank = "**DEVELOPER**" : StaffRank = "**STAFF**";
+
             const staffList = new EmbedBuilder()
-                .setDescription(MemberData.toString() + " " + IsOrIsnt + " a staff member of `" + bot.user.username + "`")
+                .setDescription(MemberData.toString() + " " + IsOrIsnt + " a " + StaffRank + " of **" + bot.user.username + "**")
                 .setThumbnail(Thumbnail)
                 .setColor(Color.Green);
 
@@ -100,9 +102,7 @@ module.exports = {
         } catch (error) {
             let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
             let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
-            console.log("//------------------------------------------------------------------------------//");
             console.log(error);
-            console.log("//------------------------------------------------------------------------------//");
 
             return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
         };
