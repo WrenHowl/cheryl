@@ -1,4 +1,4 @@
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const moment = require("moment")
 const Color = require("../config/color.json");
@@ -121,6 +121,12 @@ module.exports = {
             .setRequired(false)),
     execute: async (interaction, bot, sequelize, Sequelize) => {
         try {
+            if (!interaction.guild) {
+                return interaction.reply({
+                    content: "Use this command inside a server only!"
+                });
+            };
+
             const CommandFunction = sequelize.define("CommandFunction", {
                 name: {
                     type: Sequelize.STRING,
@@ -207,7 +213,7 @@ module.exports = {
             let LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
 
             if (pronounsOptions || genderOptions || ageOptions) {
-                const ChangeOptions = new MessageEmbed()
+                const ChangeOptions = new EmbedBuilder()
                     .setDescription("Profile Updated")
 
                 if (!ProfileCheck) {
@@ -313,7 +319,7 @@ module.exports = {
                     ProfileAge = "`No Data Found`";
                 };
 
-                const userinfoEmbed = new MessageEmbed()
+                const userinfoEmbed = new EmbedBuilder()
                     .addFields(
                         { name: "Name", value: MemberData.toString(), inline: true },
                         { name: "ID", value: "`" + MemberData.id + "`", inline: true },
@@ -331,6 +337,7 @@ module.exports = {
                     { name: "Created At", value: "`" + moment(CheckDaysCreatedAt).format("Do MMMM YYYY hh:ss:mm A") + " / " + (checkDays(CheckDaysCreatedAt)) + "`" },
                     { name: "Joined At", value: CheckDaysJoinedAt },
                     { name: "Age", value: ProfileAge, inline: true },
+                    { name: "Age Verified", value: "No, to verify your age, please join the support server", inline: true },
                     { name: "Pronouns", value: ProfilePronouns, inline: true },
                     { name: "Gender", value: ProfileGender, inline: true },
                     { name: "Roles", value: roleMap },
@@ -346,6 +353,7 @@ module.exports = {
         } catch (error) {
             let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
             let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+            console.log(error);
 
             return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
         };

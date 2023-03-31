@@ -1,4 +1,4 @@
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Color = require("../config/color.json");
 const Message = require("../config/message.json");
@@ -66,6 +66,12 @@ module.exports = {
         ),
     execute: async (interaction, bot, sequelize, Sequelize) => {
         try {
+            if (!interaction.guild) {
+                return interaction.reply({
+                    content: "Use this command inside a server only!"
+                });
+            };
+
             const CommandFunction = sequelize.define("CommandFunction", {
                 name: {
                     type: Sequelize.STRING,
@@ -107,8 +113,8 @@ module.exports = {
             if (LanguageData === "sp") Language = LanguageSP;
             if (LanguageData === "nl") Language = LanguageNL;
 
-            if (interaction.member.permissions.has("BAN_MEMBERS")) {
-                if (interaction.guild.me.permissions.has("BAN_MEMBERS")) {
+            if (interaction.member.permissions.has("BanMembers")) {
+                if (interaction.guild.members.me.permissions.has("BanMembers")) {
                     let user = interaction.options.getUser(en.UserName);
                     let member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(error => { });
                     let banList = await interaction.guild.bans.fetch();
@@ -160,15 +166,15 @@ module.exports = {
                             const mod = interaction.user.tag;
 
                             await interaction.reply({
-                                content: "``" + user.tag + "`` " + Language.ban.server.Message + " ``" + reason + "``.",
+                                content: "***" + user.tag + "*** " + Language.ban.server.Message,
                             });
 
                             if (LoggingData) {
                                 if (LoggingData.ChannelIDBan) {
-                                    if (interaction.guild.members.guild.me.permissionsIn(LoggingData.ChannelIDBan).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
+                                    if (interaction.guild.members.me.permissionsIn(LoggingData.ChannelIDBan).has(['SendMessages', 'ViewChannel'])) {
                                         const logChannel = interaction.guild.channels.cache.get(LoggingData.ChannelIDBan);
 
-                                        const logMessage = new MessageEmbed()
+                                        const logMessage = new EmbedBuilder()
                                             .setTitle(Language.ban.server.New)
                                             .addFields(
                                                 { name: Language.ban.server.User, value: "``" + user.tag + "``" },
@@ -209,6 +215,7 @@ module.exports = {
         } catch (error) {
             let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
             let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+            console.log(error);
 
             return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
         };

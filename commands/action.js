@@ -1,4 +1,4 @@
-const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Config = require("../config/config.json");
 const Color = require("../config/color.json");
@@ -9,6 +9,7 @@ const LanguageEN = require("../languages/en.json");
 const LanguageDE = require("../languages/de.json");
 const LanguageSP = require("../languages/sp.json");
 const LanguageNL = require("../languages/nl.json");
+const { isFloat32Array } = require('util/types');
 
 const fr = LanguageFR.action;
 const en = LanguageEN.action;
@@ -58,6 +59,8 @@ module.exports = {
                 { name: "pat", value: "pat" },
                 { name: "bite", value: "bite" },
                 { name: "bonk", value: "bonk" },
+                { name: "fuck (straight)", value: "fuckstraight" },
+                { name: "fuck (gay)", value: "fuckgay" },
             ))
         .addAttachmentOption(option => option
             .setName(en.SuggestName)
@@ -93,6 +96,12 @@ module.exports = {
             .setRequired(false)),
     execute: async (interaction, bot, sequelize, Sequelize) => {
         try {
+            if (!interaction.guild) {
+                return interaction.reply({
+                    content: "Use this command inside a server only!"
+                });
+            };
+
             const CommandFunction = sequelize.define("CommandFunction", {
                 name: {
                     type: Sequelize.STRING,
@@ -211,30 +220,38 @@ module.exports = {
                 Pronouns4 = "their";
             };
 
-            const buttonToAcceptSuggestion = new MessageActionRow()
+            const buttonToAcceptSuggestion = new ActionRowBuilder()
                 .addComponents(
-                    new MessageButton()
+                    new ButtonBuilder()
                         .setCustomId('AcceptSuggestion')
                         .setLabel('Accept')
-                        .setStyle('SUCCESS'),
+                        .setStyle(ButtonStyle.Success),
                 )
                 .addComponents(
-                    new MessageButton()
+                    new ButtonBuilder()
                         .setCustomId('DenySuggestion')
                         .setLabel('Deny')
-                        .setStyle('DANGER'),
+                        .setStyle(ButtonStyle.Danger),
                 );
+
+            let NSFWChoice = [
+                "fuckstraight",
+                "fuckgay"
+            ];
 
             if (image) {
                 let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
-                let suggestChannel = fetchGuild.channels.cache.get(Config.SuggestImage);
+
+                !choice === !NSFWChoice.includes(choice) ? ChannelToSend = "1090351349436256347" : ChannelToSend = Config.SuggestImage
+
+                let suggestChannel = fetchGuild.channels.cache.get(ChannelToSend);
 
                 await interaction.reply({
-                    content: "Your image has been successfully sent to the staff of ``Cheryl``!",
+                    content: "Your image has been successfully sent to the staff of ``" + bot.user.username + "``!",
                     ephemeral: true
                 })
 
-                const ImageEmbed = new MessageEmbed()
+                const ImageEmbed = new EmbedBuilder()
                     .addFields(
                         { name: "Category:", value: choice, inline: true },
                         { name: "Author:", value: interaction.user.tag + " ``(" + interaction.user.id + ")``", inline: true }
@@ -291,6 +308,14 @@ module.exports = {
                 const BonkSentence = [
                     User1 + " swing a baseball bat on " + User2 + "'s head. Bonking " + Pronouns2 + "!~"
                 ];
+                const FuckStraightSentence = [
+                    User1 + " fuck " + User2 + " pussy really hard~",
+                    User1 + " thrust into " + User2 + " back and forth into " + Pronouns4 + " pussy making " + Pronouns2 + " all wet~",
+                ]
+                const FuckGaySentence = [
+                    User1 + " fuck " + User2 + " really hard into " + Pronouns4 + " ass~",
+                    User1 + " thrust into " + User2 + " back and forth into " + Pronouns4 + " ass~",
+                ]
 
                 if (LoggingData.SettingsActionImage === "Disabled" && LoggingData.SettingsActionMessage === "Disabled") {
                     return interaction.reply({
@@ -299,12 +324,12 @@ module.exports = {
                     });
                 };
 
-                const SupportDiscord = new MessageActionRow()
+                const SupportDiscord = new ActionRowBuilder()
                     .addComponents(
-                        new MessageButton()
+                        new ButtonBuilder()
                             .setLabel('Support Server')
                             .setURL(Config.SupportDiscord)
-                            .setStyle('LINK'),
+                            .setStyle(ButtonStyle.Link),
                     );
 
                 if (choice === "hug") Sentence = HugSentence;
@@ -316,13 +341,24 @@ module.exports = {
                 if (choice === "pat") Sentence = PatSentence;
                 if (choice === "bite") Sentence = BiteSentence;
                 if (choice === "bonk") Sentence = BonkSentence;
+                if (choice === "fuckstraight") Sentence = FuckStraightSentence;
+                if (choice === "fuckgay") Sentence = FuckGaySentence;
 
                 let RandomAnswer = Sentence[Math.floor(Math.random() * Sentence.length)];
                 let RandomImage = ActionImageData[Math.floor(Math.random() * ActionImageData.length)];
 
-                const imageEmbed = new MessageEmbed()
-                    .setImage(RandomImage.ImageURL)
+                const imageEmbed = new EmbedBuilder()
                     .setColor(Color.Blue)
+                    .setImage(RandomImage.ImageURL)
+
+                if (!choice === !NSFWChoice.includes(choice)) {
+                    if (!interaction.channel.nsfw) {
+                        return interaction.reply({
+                            content: "You cannot use NSFW command into this channel. This channel must be age-restricted to use this command.",
+                            ephemeral: true,
+                        });
+                    }
+                }
 
                 if (LoggingData.SettingsActionImage === "Disabled") {
                     return interaction.reply({
@@ -347,6 +383,7 @@ module.exports = {
         } catch (error) {
             let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
             let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+            console.log(error);
 
             return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
         };

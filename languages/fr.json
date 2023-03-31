@@ -39,7 +39,7 @@
             "Punished": "Vous ne pouvez pas bannir cet utilisateur, car il est déjà banni!"
         },
         "server": {
-            "Message": "a été banni du serveur pour",
+            "Message": "a été banni.",
             "New": "Nouveau Bannissement",
             "User": "Utilisateur",
             "Reason": "Raison",

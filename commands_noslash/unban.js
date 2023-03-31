@@ -10,9 +10,9 @@ const LanguageNL = require("../languages/nl.json");
 
 module.exports = {
     name: LanguageEN.unban.Name,
-    execute: async (bot, message, args, MessageEmbed, sequelize, Sequelize) => {
+    execute: async (bot, message, args, EmbedBuilder, sequelize, Sequelize) => {
         try {
-            if (message.guild.members.guild.me.permissionsIn(message.channelId).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
+            if (message.guild.members.me.permissionsIn(message.channelId).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
                 const CommandFunction = sequelize.define("CommandFunction", {
                     name: {
                         type: Sequelize.STRING,
@@ -56,7 +56,7 @@ module.exports = {
 
                 if (message.member.permissions.has("BAN_MEMBERS")) {
                     if (message.guild.me.permissions.has("BAN_MEMBERS")) {
-                        const ErrorEmbed = new MessageEmbed()
+                        const ErrorEmbed = new EmbedBuilder()
                             .setTitle("Ban Syntax")
                             .setDescription("**Utilisation:** ``" + Config.Prefix + en.Name + " <@user> <reason>``")
                             .setColor(Color.Blue);
@@ -104,10 +104,10 @@ module.exports = {
 
                                     if (LoggingData) {
                                         if (LoggingData.ChannelIDUnban) {
-                                            if (message.guild.members.guild.me.permissionsIn(LoggingData.ChannelIDUnban).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
+                                            if (message.guild.members.me.permissionsIn(LoggingData.ChannelIDUnban).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
                                                 const logChannel = message.guild.channels.cache.get(LoggingData.ChannelIDUnban);
 
-                                                const logMessage = new MessageEmbed()
+                                                const logMessage = new EmbedBuilder()
                                                     .setTitle(Language.unban.server.New)
                                                     .addFields(
                                                         { name: Language.unban.server.User, value: "``" + user.tag + "``" },

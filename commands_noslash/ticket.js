@@ -10,9 +10,9 @@ const NL = require("../languages/nl.json");
 
 module.exports = {
     name: EN.ticket.Name,
-    execute: async (bot, message, args, MessageEmbed, sequelize, Sequelize) => {
+    execute: async (bot, message, args, EmbedBuilder, sequelize, Sequelize) => {
         try {
-            if (message.guild.members.guild.me.permissionsIn(message.channelId).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
+            if (message.guild.members.me.permissionsIn(message.channelId).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
                 const CommandFunction = sequelize.define("CommandFunction", {
                     name: {
                         type: Sequelize.STRING,
@@ -61,7 +61,7 @@ module.exports = {
                         let collector = new Discord.MessageCollector(message.channel, message => message.author.id === message.author.id, { time: 10000 });
 
                         if (args.length < 1) {
-                            const ErrorEmbed = new MessageEmbed()
+                            const ErrorEmbed = new EmbedBuilder()
                                 .setTitle("Ticket System")
                                 .addFields(
                                     { name: "1. Setup", value: "To setup the ticket system, do this ``" + Config.Prefix + "ticket setup``" }
@@ -77,8 +77,8 @@ module.exports = {
 
                         if (args[0] === "setup") {
                             let filter = message => message.author.id === message.author.id;
-
-                            const SetupEmbed = new MessageEmbed()
+                            
+                            const SetupEmbed = new EmbedBuilder()
                                 .setTitle("Ticket System")
                                 .setDescription("**1. Name**\n\nGive your ticket a name to make it easier to recognize it!")
                                 .setColor(Color.Blue);

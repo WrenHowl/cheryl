@@ -1,4 +1,4 @@
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Color = require("../config/color.json");
 const Message = require("../config/message.json");
@@ -41,6 +41,12 @@ module.exports = {
             .setRequired(true)),
     execute: async (interaction, bot, sequelize, Sequelize) => {
         try {
+            if (!interaction.guild) {
+                return interaction.reply({
+                    content: "Use this command inside a server only!"
+                });
+            };
+
             const CommandFunction = sequelize.define("CommandFunction", {
                 name: {
                     type: Sequelize.STRING,
@@ -120,8 +126,7 @@ module.exports = {
                     });
 
                     const logChannel = interaction.guild.channels.cache.get(LoggingData.ChannelIDReport);
-
-                    const logMessage = new MessageEmbed()
+                    const logMessage = new EmbedBuilder()
                         .setTitle("New Report")
                         .setDescription("Report made by ``" + interaction.user.tag + "`` on ``" + member.user.tag + "`` for ``" + reason + "``")
                         .setTimestamp()
@@ -130,7 +135,7 @@ module.exports = {
                         })
                         .setColor(Color.RiskLow);
 
-                    if (interaction.guild.members.guild.me.permissionsIn(LoggingData.ChannelIDReport).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
+                    if (interaction.guild.members.me.permissionsIn(LoggingData.ChannelIDReport).has(['SendMessages', 'ViewChannel'])) {
                         if (!LoggingData.StaffRoleReport) {
                             return logChannel.send({
                                 embeds: [logMessage],

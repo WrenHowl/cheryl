@@ -1,4 +1,4 @@
-const { MessageActionRow, MessageButton, MessageEmbed } = require('discord.js');
+const { ActionRowBuilder, ButtonStyle, ButtonBuilder, EmbedBuilder } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Color = require("../config/color.json");
 const Message = require("../config/message.json");
@@ -41,6 +41,12 @@ module.exports = {
             .setRequired(true)),
     execute: async (interaction, bot, sequelize, Sequelize) => {
         try {
+            if (!interaction.guild) {
+                return interaction.reply({
+                    content: "Use this command inside a server only!"
+                });
+            };
+
             const CommandFunction = sequelize.define("CommandFunction", {
                 name: {
                     type: Sequelize.STRING,
@@ -65,7 +71,7 @@ module.exports = {
             const welcomeOptions = interaction.options.getChannel("welcome");
             const rulesOptions = interaction.options.getChannel("rules");
 
-            if (interaction.member.permissions.has("MANAGE_GUILD")) {
+            if (interaction.member.permissions.has("ManageGuild")) {
                 const Logging = sequelize.define("Logging", {
                     GuildID: {
                         type: Sequelize.STRING,
@@ -110,15 +116,15 @@ module.exports = {
 
                 const channelToSend = interaction.guild.channels.cache.get(welcomeOptions.id);
 
-                const buttonToVerify = new MessageActionRow()
+                const buttonToVerify = new ActionRowBuilder()
                     .addComponents(
-                        new MessageButton()
+                        new ButtonBuilder()
                             .setCustomId('buttonToVerify')
                             .setLabel('✅ Verify')
-                            .setStyle('SUCCESS'),
+                            .setStyle(ButtonStyle.Success)
                     );
 
-                const secondMessage = new MessageEmbed()
+                const secondMessage = new EmbedBuilder()
                     .setTitle("Verification")
                     .setDescription(
                         `Welcome to **` + interaction.guild.name + `**, to gain access to the server, please click on the button below to start your verification.\n` +
@@ -136,6 +142,7 @@ module.exports = {
         } catch (error) {
             let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
             let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+            console.log(error);
 
             return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
         };

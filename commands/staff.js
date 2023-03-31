@@ -1,4 +1,4 @@
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Color = require("../config/color.json");
 const Message = require("../config/message.json");
@@ -49,6 +49,12 @@ module.exports = {
             .setRequired(false)),
     execute: async (interaction, bot, sequelize, Sequelize) => {
         try {
+            if (!interaction.guild) {
+                return interaction.reply({
+                    content: "Use this command inside a server only!"
+                });
+            };
+
             const CommandFunction = sequelize.define("CommandFunction", {
                 name: {
                     type: Sequelize.STRING,
@@ -83,8 +89,10 @@ module.exports = {
             StaffCheck ? Thumbnail = Config.CheckMark : Thumbnail = Config.x;
             StaffCheck ? IsOrIsnt = "is" : IsOrIsnt = "isn't";
 
-            const staffList = new MessageEmbed()
-                .setDescription(MemberData.toString() + " " + IsOrIsnt + " a staff member of `" + bot.user.username + "`")
+            StaffMember.roles.cache.has(Config.DevID) ? StaffRank = "**DEVELOPER**" : StaffRank = "**STAFF**";
+
+            const staffList = new EmbedBuilder()
+                .setDescription(MemberData.toString() + " " + IsOrIsnt + " a " + StaffRank + " of **" + bot.user.username + "**")
                 .setThumbnail(Thumbnail)
                 .setColor(Color.Green);
 
@@ -94,6 +102,7 @@ module.exports = {
         } catch (error) {
             let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
             let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+            console.log(error);
 
             return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
         };

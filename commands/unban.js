@@ -1,4 +1,4 @@
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Color = require("../config/color.json");
 const Message = require("../config/message.json");
@@ -37,6 +37,12 @@ module.exports = {
             .setRequired(true)),
     execute: async (interaction, bot, sequelize, Sequelize) => {
         try {
+            if (!interaction.guild) {
+                return interaction.reply({
+                    content: "Use this command inside a server only!"
+                });
+            };
+
             const CommandFunction = sequelize.define("CommandFunction", {
                 name: {
                     type: Sequelize.STRING,
@@ -70,8 +76,8 @@ module.exports = {
             });
             const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
 
-            if (interaction.member.permissions.has("BAN_MEMBERS")) {
-                if (interaction.guild.me.permissions.has("BAN_MEMBERS")) {
+            if (interaction.member.permissions.has("BanMembers")) {
+                if (interaction.guild.me.permissions.has("BanMembers")) {
                     const user = interaction.options.getUser("user");
                     const banList = await interaction.guild.bans.fetch();
                     const bannedUser = banList.find(user => user.id === user.id);
@@ -99,7 +105,7 @@ module.exports = {
                                     ephemeral: true,
                                 });
                             } else {
-                                const banMessage = new MessageEmbed()
+                                const banMessage = new EmbedBuilder()
                                     .setDescription("``" + user.tag + "`` has been unban from the server.")
                                     .setColor(Color.Green);
 
@@ -110,10 +116,10 @@ module.exports = {
 
                                 if (LoggingData) {
                                     if (LoggingData.ChannelIDUnban) {
-                                        if (interaction.guild.members.guild.me.permissionsIn(LoggingData.ChannelIDUnban).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
+                                        if (interaction.guild.members.me.permissionsIn(LoggingData.ChannelIDUnban).has(['SendMessages', 'ViewChannel'])) {
                                             const logChannel = interaction.guild.channels.cache.get(LoggingData.ChannelIDUnban);
 
-                                            const logMessage = new MessageEmbed()
+                                            const logMessage = new EmbedBuilder()
                                                 .setTitle("New Unban")
                                                 .setDescription("__**User:**__ ``" + user.tag + "``\n__**Moderator:**__ ``" + interaction.user.tag + "``")
                                                 .setFooter({
@@ -146,6 +152,9 @@ module.exports = {
         } catch (error) {
             let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
             let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+            console.log("//------------------------------------------------------------------------------//");
+            console.log(error);
+            console.log("//------------------------------------------------------------------------------//");
 
             return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
         };

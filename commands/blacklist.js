@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const Color = require("../config/color.json");
 const Message = require("../config/message.json");
 const Config = require("../config/config.json");
@@ -242,6 +242,12 @@ module.exports = {
                 .setRequired(true))),
     execute: async (interaction, bot, sequelize, Sequelize) => {
         try {
+            if (!interaction.guild) {
+                return interaction.reply({
+                    content: "Use this command inside a server only!"
+                });
+            };
+
             let CommandFunction = sequelize.define("CommandFunction", {
                 name: {
                     type: Sequelize.STRING,
@@ -362,7 +368,7 @@ module.exports = {
 
                     CheckBlacklist.Proof ? Evidence = CheckBlacklist.Proof : Evidence = "``No Evidence Found``";
 
-                    let BlacklistEmbed = new MessageEmbed()
+                    let BlacklistEmbed = new EmbedBuilder()
                         .addFields(
                             { name: "User", value: Name, inline: true },
                             { name: "ID", value: ID, inline: true },
@@ -442,7 +448,7 @@ module.exports = {
 
                                         proof ? Evidence = proof : Evidence = "``No Evidence Found``";
 
-                                        let InfoBlacklist = new MessageEmbed()
+                                        let InfoBlacklist = new EmbedBuilder()
                                             .addFields(
                                                 { name: "User", value: Name, inline: true },
                                                 { name: "ID", value: ID, inline: true },
@@ -465,6 +471,8 @@ module.exports = {
                                         ephemeral: true,
                                     });
                                 } else {
+                                    let proof = interaction.options.getString(en.AddEvidenceName);
+
                                     return interaction.reply({
                                         content: MessageReason.RemovedToBlacklist,
                                         ephemeral: true,
@@ -479,7 +487,7 @@ module.exports = {
 
                                         proof ? Evidence = proof : Evidence = "``No Evidence Found``";
 
-                                        let InfoBlacklist = new MessageEmbed()
+                                        let InfoBlacklist = new EmbedBuilder()
                                             .addFields(
                                                 { name: "User", value: Name, inline: true },
                                                 { name: "ID", value: ID, inline: true },
@@ -522,7 +530,7 @@ module.exports = {
 
                                             proof ? Evidence = proof : Evidence = Config.x;
 
-                                            const InfoBlacklist = new MessageEmbed()
+                                            const InfoBlacklist = new EmbedBuilder()
                                                 .addFields(
                                                     { name: "User", value: Name, inline: true },
                                                     { name: "ID", value: ID, inline: true },

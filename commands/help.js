@@ -1,4 +1,4 @@
-const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Color = require("../config/color.json");
 const Message = require("../config/message.json");
@@ -52,6 +52,12 @@ module.exports = {
       )),
   execute: async (interaction, bot, sequelize, Sequelize) => {
     try {
+      if (!interaction.guild) {
+        return interaction.reply({
+          content: "Use this command inside a server only!"
+        });
+      };
+
       const CommandFunction = sequelize.define("CommandFunction", {
         name: {
           type: Sequelize.STRING,
@@ -74,12 +80,12 @@ module.exports = {
         };
       };
 
-      const SupportDiscord = new MessageActionRow()
+      const SupportDiscord = new ActionRowBuilder()
         .addComponents(
-          new MessageButton()
+          new ButtonBuilder()
             .setLabel('Support Server')
             .setURL(Config.SupportDiscord)
-            .setStyle('LINK'),
+            .setStyle(ButtonStyle.Link),
         );
 
       const infoOptions = interaction.options.getString(en.InfoName);
@@ -128,7 +134,7 @@ module.exports = {
         if (arrayUtilGlobal) arrayUtilGlobal = "``" + arrayUtilGlobal + "``";
         if (arrayFunGlobal) arrayFunGlobal = "``" + arrayFunGlobal + "``";
 
-        const helpMenu = new MessageEmbed()
+        const helpMenu = new EmbedBuilder()
           .setDescription("*My prefix in this server is ``c.``. Commands with a ^ right next to it, use the prefix.*")
           .addFields(
             { name: "Staff Cheryl:", value: arrayStaffCheryl },
@@ -147,7 +153,7 @@ module.exports = {
       } else {
         switch (infoOptions) {
           case ("blacklistInfo"):
-            const blacklistInfoEmbed = new MessageEmbed()
+            const blacklistInfoEmbed = new EmbedBuilder()
               .setDescription(
                 "**1 - WHAT DOES THE BLACKLIST DO?**\n" +
                 "The blacklist contains users who have broken rules in any server, they're all stocked and classed in different types of blacklists:\n\n" +
@@ -166,7 +172,7 @@ module.exports = {
               components: [SupportDiscord],
             });
           case ("verificationInfo"):
-            const verificationInfoEmbed = new MessageEmbed()
+            const verificationInfoEmbed = new EmbedBuilder()
               .setDescription(
                 "**1 - HOW TO ENABLE THE VERIFY COMMAND?**\n" +
                 "Do ``/settings verification`` and choose either ``menu`` or ``command``. You can set up both, it will work!\n\n" +
@@ -183,6 +189,7 @@ module.exports = {
     } catch (error) {
       let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
       let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+      console.log(error);
 
       return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
     };

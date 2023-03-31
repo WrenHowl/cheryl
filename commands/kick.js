@@ -1,4 +1,4 @@
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Color = require("../config/color.json");
 const LanguageFR = require("../languages/fr.json");
@@ -64,6 +64,12 @@ module.exports = {
         ),
     execute: async (interaction, bot, sequelize, Sequelize) => {
         try {
+            if (!interaction.guild) {
+                return interaction.reply({
+                    content: "Use this command inside a server only!"
+                });
+            };
+
             const CommandFunction = sequelize.define("CommandFunction", {
                 name: {
                     type: Sequelize.STRING,
@@ -138,7 +144,7 @@ module.exports = {
                                 ephemeral: true,
                             });
                         default:
-                            if (guild.members.cache.find(m => m.id === user.id)?.id) {
+                            if (guild.members.cache.find(member => member.id === member.id)?.id) {
                                 if (member.roles.highest.position >= interaction.member.roles.highest.position) {
                                     return interaction.reply({
                                         content: Language.kick.default.Role,
@@ -150,7 +156,7 @@ module.exports = {
                             const reason = interaction.options.getString(en.ReasonName);
                             const mod = interaction.user.tag;
 
-                            const kickMessage = new MessageEmbed()
+                            const kickMessage = new EmbedBuilder()
                                 .setDescription("``" + user.tag + "`` " + Language.kick.server.Message + " ``" + reason + "``.")
                                 .setColor(Color.Green);
 
@@ -163,7 +169,7 @@ module.exports = {
                                 if (LoggingData.ChannelIDKick) {
                                     const logChannel = interaction.guild.channels.cache.get(LoggingData.ChannelIDKick);
 
-                                    const logMessage = new MessageEmbed()
+                                    const logMessage = new EmbedBuilder()
                                         .setTitle(Language.ban.server.New)
                                         .addFields(
                                             { name: Language.kick.server.User, value: "``" + user.tag + "``" },
@@ -181,7 +187,7 @@ module.exports = {
                                     });
                                 };
                             };
-                            const kickDM = new MessageEmbed()
+                            const kickDM = new EmbedBuilder()
                                 .setDescription(Language.kick.dm.you + " ``" + interaction.guild.name + "`` " + Language.kick.dm.for + " ``" + reason + "`` " + Language.kick.dm.by + " ``" + mod + "``.")
                                 .setColor(Color.RiskMedium);
 
@@ -206,6 +212,9 @@ module.exports = {
         } catch (error) {
             let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
             let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+            console.log("//------------------------------------------------------------------------------//");
+            console.log(error);
+            console.log("//------------------------------------------------------------------------------//");
 
             return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
         };
