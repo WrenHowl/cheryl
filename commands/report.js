@@ -126,6 +126,7 @@ module.exports = {
                     });
 
                     const logChannel = interaction.guild.channels.cache.get(LoggingData.ChannelIDReport);
+
                     const logMessage = new EmbedBuilder()
                         .setTitle("New Report")
                         .setDescription("Report made by ``" + interaction.user.tag + "`` on ``" + member.user.tag + "`` for ``" + reason + "``")

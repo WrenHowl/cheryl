@@ -77,7 +77,7 @@ module.exports = {
 
                         if (args[0] === "setup") {
                             let filter = message => message.author.id === message.author.id;
-                            
+
                             const SetupEmbed = new EmbedBuilder()
                                 .setTitle("Ticket System")
                                 .setDescription("**1. Name**\n\nGive your ticket a name to make it easier to recognize it!")

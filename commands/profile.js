@@ -18,8 +18,6 @@ const sp = LanguageSP.profile;
 const nl = LanguageNL.profile;
 
 const Age = Profile.age;
-const Pronouns = Profile.pronouns;
-const Gender = Profile.gender;
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -52,52 +50,6 @@ module.exports = {
                 SpanishES: sp.UserDescription,
                 nl: nl.UserDescription
             })
-            .setRequired(false))
-        .addStringOption(option => option
-            .setName(en.PronounsName)
-            .setNameLocalizations({
-                fr: fr.PronounsName,
-                de: de.PronounsName,
-                SpanishES: sp.PronounsName,
-                nl: nl.PronounsName
-            })
-            .setDescription(en.PronounsDescription)
-            .setDescriptionLocalizations({
-                fr: fr.PronounsDescription,
-                de: de.PronounsDescription,
-                SpanishES: sp.PronounsDescription,
-                nl: nl.PronounsDescription
-            })
-            .addChoices(
-                { name: Pronouns.th, value: Pronouns.th },
-                { name: Pronouns.he, value: Pronouns.he },
-                { name: Pronouns.sh, value: Pronouns.sh }
-            )
-            .setRequired(false))
-        .addStringOption(option => option
-            .setName(en.GenderName)
-            .setNameLocalizations({
-                fr: fr.GenderName,
-                de: de.GenderName,
-                SpanishES: sp.GenderName,
-                nl: nl.GenderName
-            })
-            .setDescription(en.GenderDescription)
-            .setDescriptionLocalizations({
-                fr: fr.GenderDescription,
-                de: de.GenderDescription,
-                SpanishES: sp.GenderDescription,
-                nl: nl.GenderDescription
-            })
-            .addChoices(
-                { name: Gender.ml, value: Gender.ml },
-                { name: Gender.fl, value: Gender.fl },
-                { name: Gender.gf, value: Gender.gf },
-                { name: Gender.tm, value: Gender.tm },
-                { name: Gender.tf, value: Gender.tf },
-                { name: Gender.ag, value: Gender.ag },
-                { name: Gender.nb, value: Gender.nb }
-            )
             .setRequired(false))
         .addStringOption(option => option
             .setName(en.AgeName)
@@ -185,11 +137,7 @@ module.exports = {
                     type: Sequelize.STRING,
                     unique: false,
                 },
-                Pronouns: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                Gender: {
+                Verified18: {
                     type: Sequelize.STRING,
                     unique: false,
                 },
@@ -205,14 +153,12 @@ module.exports = {
                 },
             });
 
-            const pronounsOptions = interaction.options.getString(en.PronounsName);
-            const genderOptions = interaction.options.getString(en.GenderName);
             const ageOptions = interaction.options.getString(en.AgeName);
 
             let ProfileCheck = await Profile.findOne({ where: { UserID: interaction.user.id } });
             let LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
 
-            if (pronounsOptions || genderOptions || ageOptions) {
+            if (ageOptions) {
                 const ChangeOptions = new EmbedBuilder()
                     .setDescription("Profile Updated")
 
@@ -221,26 +167,6 @@ module.exports = {
                         UserName: interaction.user.tag,
                         UserID: interaction.user.id,
                     });
-                };
-
-                if (genderOptions) {
-                    await Profile.update({
-                        Gender: genderOptions
-                    }, { where: { UserID: interaction.user.id } });
-
-                    ChangeOptions.addFields(
-                        { name: "**Gender**", value: genderOptions, inline: true },
-                    );
-                };
-
-                if (pronounsOptions) {
-                    await Profile.update({
-                        Pronouns: pronounsOptions
-                    }, { where: { UserID: interaction.user.id } });
-
-                    ChangeOptions.addFields(
-                        { name: "**Pronoun**", value: pronounsOptions, inline: true },
-                    );
                 };
 
                 if (ageOptions) {
@@ -304,19 +230,11 @@ module.exports = {
                 let ProfileCheck2 = await Profile.findOne({ where: { UserID: UserPinged } });
 
                 if (ProfileCheck2) {
-                    ProfilePronouns = "`" + ProfileCheck2.Pronouns + "`";
-                    ProfileGender = "`" + ProfileCheck2.Gender + "`";
-                    ProfileAge = "`" + ProfileCheck2.Age + "`";
-
-                    if (!ProfileCheck2.Pronouns || !ProfileCheck2.Gender || !ProfileCheck2.Age) {
-                        ProfilePronouns = "`No Data Found`";
-                        ProfileGender = "`No Data Found`";
-                        ProfileAge = "`No Data Found`";
-                    }
+                    ProfileCheck2.Age ? ProfileAge = "`" + ProfileCheck2.Age + "`" : ProfileAge = "`No Data Found`";
+                    ProfileCheck2.Verified18 ? ProfileVerified = "`True`" : ProfileVerified = "`False`";
                 } else {
-                    ProfilePronouns = "`No Data Found`";
-                    ProfileGender = "`No Data Found`";
                     ProfileAge = "`No Data Found`";
+                    ProfileVerified = "`False`";
                 };
 
                 const userinfoEmbed = new EmbedBuilder()
@@ -337,14 +255,11 @@ module.exports = {
                     { name: "Created At", value: "`" + moment(CheckDaysCreatedAt).format("Do MMMM YYYY hh:ss:mm A") + " / " + (checkDays(CheckDaysCreatedAt)) + "`" },
                     { name: "Joined At", value: CheckDaysJoinedAt },
                     { name: "Age", value: ProfileAge, inline: true },
-                    { name: "Age Verified", value: "No, to verify your age, please join the support server", inline: true },
-                    { name: "Pronouns", value: ProfilePronouns, inline: true },
-                    { name: "Gender", value: ProfileGender, inline: true },
+                    { name: "Age Verified (18+)", value: ProfileVerified, inline: true },
                     { name: "Roles", value: roleMap },
                 )
-
                     .setThumbnail(MemberData.displayAvatarURL())
-                    .setColor(Color.Green);
+                    .setColor(Color.Blue);
 
                 return interaction.reply({
                     embeds: [userinfoEmbed]

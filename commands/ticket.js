@@ -110,7 +110,13 @@ module.exports = {
                                 .setCustomId('support')
                                 .setLabel('Support')
                                 .setStyle(ButtonStyle.Primary)
-                        );
+                        )
+                        .addComponents(
+                            new ButtonBuilder()
+                                .setCustomId('partnership')
+                                .setLabel('Partnership')
+                                .setStyle(ButtonStyle.Secondary)
+                        )
 
                     return interaction.channel.send({
                         embeds: [Embed],
