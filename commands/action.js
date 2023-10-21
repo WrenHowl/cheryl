@@ -1,15 +1,14 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Config = require("../config/config.json");
-const Color = require("../config/color.json");
 const Message = require("../config/message.json");
-const ProfileInfo = require("../config/profile.json")
+const ProfileInfo = require("../config/profile.json");
+
 const LanguageFR = require("../languages/fr.json");
 const LanguageEN = require("../languages/en.json");
 const LanguageDE = require("../languages/de.json");
 const LanguageSP = require("../languages/sp.json");
 const LanguageNL = require("../languages/nl.json");
-const { isFloat32Array } = require('util/types');
 
 const fr = LanguageFR.action;
 const en = LanguageEN.action;
@@ -96,12 +95,6 @@ module.exports = {
             .setRequired(false)),
     execute: async (interaction, bot, sequelize, Sequelize) => {
         try {
-            if (!interaction.guild) {
-                return interaction.reply({
-                    content: "Use this command inside a server only!"
-                });
-            };
-
             const CommandFunction = sequelize.define("CommandFunction", {
                 name: {
                     type: Sequelize.STRING,
@@ -113,13 +106,14 @@ module.exports = {
 
             const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
 
-            if (FindCommand) {
-                if (FindCommand.value === "Disable") {
-                    return interaction.reply({
-                        content: Message.CommandDisabled,
-                        ephemeral: true,
-                    });
-                };
+            if (FindCommand | !interaction.guild) {
+                FindCommand.value === "Disable" ? messageRefusing = Message.CommandDisabled : false;
+                !interaction.guild ? messageRefusing = "You can only use this command in a server." : false;
+
+                return interaction.reply({
+                    content: messageRefusing,
+                    ephemeral: true,
+                });
             };
 
             const ActionImage = sequelize.define("ActionImage", {
@@ -190,31 +184,51 @@ module.exports = {
             let ProfileData2 = await Profile.findOne({ where: { UserID: User3 } });
 
             if (ProfileData1) {
-                if (!ProfileData1.Pronouns) {
-                    Pronouns1 = "their";
-                };
+                switch (ProfileData1.Pronouns) {
+                    case (ProfileInfo.pronouns.th):
+                        Pronouns1 = "their";
 
-                if (ProfileData1.Pronouns === ProfileInfo.pronouns.th) Pronouns1 = "their";
-                if (ProfileData1.Pronouns === ProfileInfo.pronouns.he) Pronouns1 = "him";
-                if (ProfileData1.Pronouns === ProfileInfo.pronouns.sh) Pronouns1 = "her";
+                        break;
+                    case (ProfileInfo.pronouns.he):
+                        Pronouns1 = "him";
+
+                        break;
+                    case (ProfileInfo.pronouns.sh):
+                        Pronouns1 = "her";
+
+                        break;
+                    default:
+                        Pronouns1 = "their";
+
+                        break;
+                }
             } else {
                 Pronouns1 = "their";
             };
 
             if (ProfileData2) {
-                if (!ProfileData2.Pronouns) {
-                    Pronouns2 = "them";
-                    Pronouns4 = "their";
-                };
+                switch (ProfileData2.Pronouns) {
+                    case (ProfileInfo.pronouns.th):
+                        Pronouns1 = "their";
+                        Pronouns4 = "their";
 
-                if (ProfileData2.Pronouns === ProfileInfo.pronouns.th) Pronouns2 = "them";
-                if (ProfileData2.Pronouns === ProfileInfo.pronouns.th) Pronouns4 = "their";
-                if (ProfileData2.Pronouns === ProfileInfo.pronouns.he) Pronouns2 = "him";
-                if (ProfileData2.Pronouns === ProfileInfo.pronouns.he) Pronouns4 = "his";
-                if (ProfileData2.Pronouns === ProfileInfo.pronouns.sh) {
-                    Pronouns2 = "her";
-                    Pronouns4 = "her";
-                };
+                        break;
+                    case (ProfileInfo.pronouns.he):
+                        Pronouns1 = "him";
+                        Pronouns4 = "his";
+
+                        break;
+                    case (ProfileInfo.pronouns.sh):
+                        Pronouns2 = "her";
+                        Pronouns4 = "her";
+
+                        break;
+                    default:
+                        Pronouns2 = "them";
+                        Pronouns4 = "their";
+
+                        break;
+                }
             } else {
                 Pronouns2 = "them";
                 Pronouns4 = "their";
@@ -242,7 +256,9 @@ module.exports = {
             if (image) {
                 let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
 
-                !choice === !NSFWChoice.includes(choice) ? ChannelToSend = "1090351349436256347" : ChannelToSend = Config.SuggestImage
+                choice === NSFWChoice.includes(choice) ? ChannelToSend = "1090351349436256347" : ChannelToSend = Config.SuggestImage;
+
+                // Notify that the suggestion has been received
 
                 let suggestChannel = fetchGuild.channels.cache.get(ChannelToSend);
 
@@ -257,7 +273,7 @@ module.exports = {
                         { name: "Author:", value: interaction.user.tag + " ``(" + interaction.user.id + ")``", inline: true }
                     )
                     .setImage(image.url)
-                    .setColor(Color.RiskLow)
+                    .setColor("Yellow")
 
                 return suggestChannel.send({
                     embeds: [ImageEmbed],
@@ -272,10 +288,11 @@ module.exports = {
                     });
                 });
             } else {
+
                 const HugSentence = [
                     User1 + " approaches " + User2 + " gently and hugs " + Pronouns2 + " from behind!~",
                     User1 + " wraps " + Pronouns1 + " arms around " + User2 + ", taking " + Pronouns2 + " into " + Pronouns1 + " warm embrace!~",
-                    User1 + " jump on " + User2 + "'s back and hug " + Pronouns2 + " thightly!~"
+                    User1 + " jump on " + User2 + "'s back and hug " + Pronouns2 + " tightly!~"
                 ];
                 const KissSentence = [
                     User1 + " approches slowly " + User2 + "'s face and gently kiss " + Pronouns2 + "!~",
@@ -324,7 +341,63 @@ module.exports = {
                     });
                 };
 
+                switch (choice) {
+                    case ("hug"):
+                        Sentence = HugSentence;
+
+                        break;
+                    case ("kiss"):
+                        Sentence = KissSentence;
+
+                        break;
+                    case ("boop"):
+                        Sentence = BoopSentence;
+
+                        break;
+                    case ("lick"):
+                        Sentence = LickSentence;
+
+                        break;
+                    case ("cuddle"):
+                        Sentence = CuddleSentence;
+
+                        break;
+                    case ("yeet"):
+                        Sentence = YeetSentence;
+
+                        break;
+                    case ("pat"):
+                        Sentence = PatSentence;
+
+                        break;
+                    case ("bite"):
+                        Sentence = BiteSentence;
+
+                        break;
+                    case ("bonk"):
+                        Sentence = BonkSentence;
+
+                        break;
+                    case ("fuckstraight"):
+                        Sentence = FuckStraightSentence;
+
+                        break;
+                    case ("fuckgay"):
+                        Sentence = FuckGaySentence;
+
+                        break;
+                }
+
+                let RandomAnswer = Sentence[Math.floor(Math.random() * Sentence.length)];
+                let RandomImage = ActionImageData[Math.floor(Math.random() * ActionImageData.length)];
+
                 const SupportDiscord = new ActionRowBuilder()
+                    .addComponents(
+                        new ButtonBuilder()
+                            .setLabel('Source')
+                            .setURL(RandomImage.ImageURL)
+                            .setStyle(ButtonStyle.Link),
+                    )
                     .addComponents(
                         new ButtonBuilder()
                             .setLabel('Support Server')
@@ -332,26 +405,11 @@ module.exports = {
                             .setStyle(ButtonStyle.Link),
                     );
 
-                if (choice === "hug") Sentence = HugSentence;
-                if (choice === "kiss") Sentence = KissSentence;
-                if (choice === "boop") Sentence = BoopSentence;
-                if (choice === "lick") Sentence = LickSentence;
-                if (choice === "cuddle") Sentence = CuddleSentence;
-                if (choice === "yeet") Sentence = YeetSentence;
-                if (choice === "pat") Sentence = PatSentence;
-                if (choice === "bite") Sentence = BiteSentence;
-                if (choice === "bonk") Sentence = BonkSentence;
-                if (choice === "fuckstraight") Sentence = FuckStraightSentence;
-                if (choice === "fuckgay") Sentence = FuckGaySentence;
-
-                let RandomAnswer = Sentence[Math.floor(Math.random() * Sentence.length)];
-                let RandomImage = ActionImageData[Math.floor(Math.random() * ActionImageData.length)];
-
                 const imageEmbed = new EmbedBuilder()
-                    .setColor(Color.Blue)
+                    .setColor("Blue")
                     .setImage(RandomImage.ImageURL)
 
-                if (!choice === !NSFWChoice.includes(choice)) {
+                if (choice === NSFWChoice.includes(choice)) {
                     if (!interaction.channel.nsfw) {
                         return interaction.reply({
                             content: "You cannot use NSFW command into this channel. This channel must be age-restricted to use this command.",
@@ -365,20 +423,18 @@ module.exports = {
                         content: RandomAnswer,
                         components: [SupportDiscord],
                     });
-                };
-
-                if (LoggingData.SettingsActionMessage === "Disabled") {
+                } else if (LoggingData.SettingsActionMessage === "Disabled") {
                     return interaction.reply({
                         embeds: [imageEmbed],
                         components: [SupportDiscord],
                     });
-                };
-
-                return interaction.reply({
-                    content: RandomAnswer,
-                    embeds: [imageEmbed],
-                    components: [SupportDiscord],
-                });
+                } else {
+                    return interaction.reply({
+                        content: RandomAnswer,
+                        embeds: [imageEmbed],
+                        components: [SupportDiscord],
+                    });
+                }
             };
         } catch (error) {
             let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);

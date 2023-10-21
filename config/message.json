@@ -29,10 +29,24 @@
         "AlreadyWaitingVerification": "You already have a pending verification, please be patient while our staff review your verification."
     },
     "Ticket": {
-        "Created": "Your ticket is waiting to be claimed by a staff. You will receive a DM when it will be open!",
-        "Waiting": "You have a ticket waiting to be claimed already!",
-        "Claim": "<:check_ocf:962115470549458954> Claimed",
-        "Unclaim": "<:cross_ocf:962115493253222420> Unclaimed",
-        "Done": "<:check_ocf:962115470549458954> Done"
+        "Created": "Your ticket is waiting to be claimed by a staff! You will receive a DM/mention when it will be open!",
+        "Waiting": "You have a ticket waiting to be claimed already! Please wait for the staff to claim it.",
+        "Claim": "Claimed",
+        "Unclaim": "Unclaimed",
+        "Done": "Completed",
+        "Delete": "This channel will be deleted in 3 seconds.",
+        "Own": "You cannot claim your own ticket.",
+        "unclaimingOwn": "Only the staff who claim the ticket can unclaim it.",
+        "RefusingToCreateStaff": "Invalid Reason: You're a staff! You can only make a ticket for a Partnership",
+        "RefusingToCreateVerified": "Invalid Reason: You've already verified your age",
+        "isNotStaff": "Missing Role: Staff",
+        "isntAdmin": "Missing Role: Admin",
+        "isntOwner": "Missing Role: Owner, Co-Owner",
+        "cantManageChannels": "Missing Permission: Manage Channels",
+        "unknownMessage": "An error occured. The message couldn't be found",
+        "Error": "An error occured. Please contact @baddwagon"
+    },
+    "Settings": {
+        "Disabled": "`None`"
     }
 }

@@ -2,7 +2,6 @@ const { EmbedBuilder } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const moment = require("moment")
 const Color = require("../config/color.json");
-const Message = require("../config/message.json");
 const Config = require("../config/config.json");
 const Profile = require("../config/profile.json");
 const LanguageFR = require("../languages/fr.json");

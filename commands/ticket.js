@@ -88,8 +88,20 @@ module.exports = {
             if (interaction.member.permissions.has("ManageChannels")) {
                 if (interaction.guild.members.me.permissions.has("ManageChannels")) {
                     let Embed = new EmbedBuilder()
-                        .setTitle("Create a Ticket")
-                        .setDescription("Need help with anything? Or you would like to simply create a ticket to ask a question? Select your reason below!")
+                        .setTitle("Ticket")
+                        .setDescription(
+                            "If you wish to verify your age, report someone in the server, ask a question or make a partnership with us make a ticket according to your needs!\n\n"
+                            + "* Age Verification :\n"
+                            + " * Own a valid ID\n"
+                            + " * A piece of paper\n"
+                            + "* Report :\n"
+                            + " * We only inforce the rules that are in <#1082140668761223199>\n"
+                            + "* Support :\n"
+                            + " * Look around in different channels, the answer might be written somewhere\n"
+                            + "* Partnership :\n"
+                            + " * Minimum of 750 members\n\n"
+                            + "*remember that making a ticket for no reason can lead to a ban if there's too many reccurence*"
+                        )
                         .setColor(Color.Blue)
 
                     const menuTicket = new ActionRowBuilder()

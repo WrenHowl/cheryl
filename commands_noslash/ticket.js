@@ -58,7 +58,7 @@ module.exports = {
 
                 if (message.member.permissions.has("MANAGE_CHANNELS")) {
                     if (message.guild.me.permissions.has("MANAGE_CHANNELS")) {
-                        let collector = new Discord.MessageCollector(message.channel, message => message.author.id === message.author.id, { time: 10000 });
+                        /*let collector = new Discord.MessageCollector(message.channel, message => message.author.id === message.author.id, { time: 10000 });
 
                         if (args.length < 1) {
                             const ErrorEmbed = new EmbedBuilder()
@@ -72,8 +72,6 @@ module.exports = {
                                 embeds: [ErrorEmbed],
                             });
                         };
-
-                        // 
 
                         if (args[0] === "setup") {
                             let filter = message => message.author.id === message.author.id;
@@ -100,7 +98,7 @@ module.exports = {
                             })
 
                             SetupEmbed.setDescription("**2. Description**\n\nGive your ticket a name to explain what it's gonna do!")
-                        };
+                        };*/
                     } else {
                         return message.reply({
                             content: Language.ticket.permission.Me,
