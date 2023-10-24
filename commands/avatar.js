@@ -1,100 +1,65 @@
-const { EmbedBuilder, Message } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const Color = require("../config/color.json");
-const Config = require("../config/config.json");
-const LanguageFR = require("../languages/fr.json");
-const LanguageEN = require("../languages/en.json");
-const LanguageDE = require("../languages/de.json");
-const LanguageSP = require("../languages/sp.json");
-const LanguageNL = require("../languages/nl.json");
 
-const fr = LanguageFR.avatar;
-const en = LanguageEN.avatar;
-const de = LanguageDE.avatar;
-const sp = LanguageSP.avatar;
-const nl = LanguageNL.avatar;
+const configPreset = require("../settings/config.json");
+
+const fr = require("../languages/fr.json");
+const en = require("../languages/en.json");
+const de = require("../languages/de.json");
+const sp = require("../languages/sp.json");
+const nl = require("../languages/nl.json");
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName(en.Name)
+        .setName(en.avatar.default.name)
         .setNameLocalizations({
-            fr: fr.Name,
-            de: de.Name,
-            SpanishES: sp.Name,
-            nl: nl.Name
+            "fr": fr.avatar.default.name,
+            "de": de.avatar.default.name,
+            "es-ES": sp.avatar.default.name,
+            "nl": nl.avatar.default.name
         })
-        .setDescription(en.Description)
+        .setDescription(en.avatar.default.description)
         .setDescriptionLocalizations({
-            fr: fr.Description,
-            de: de.Description,
-            SpanishES: sp.Description,
-            nl: nl.Description
+            "fr": fr.avatar.default.description,
+            "de": de.avatar.default.description,
+            "es-ES": sp.avatar.default.description,
+            "nl": nl.avatar.default.description
         })
         .addUserOption(option => option
-            .setName(en.UserName)
+            .setName(en.avatar.default.user.name)
             .setNameLocalizations({
-                fr: fr.UserName,
-                de: de.UserName,
-                SpanishES: sp.UserName,
-                nl: nl.UserName
+                "fr": fr.avatar.default.user.name,
+                "de": de.avatar.default.user.name,
+                "es-ES": sp.avatar.default.user.name,
+                "nl": nl.avatar.default.user.name
             })
-            .setDescription(en.UserDescription)
+            .setDescription(en.avatar.default.user.description)
             .setDescriptionLocalizations({
-                fr: fr.UserDescription,
-                de: de.UserDescription,
-                SpanishES: sp.UserDescription,
-                nl: nl.UserDescription
+                "fr": fr.avatar.default.user.description,
+                "de": de.avatar.default.user.description,
+                "es-ES": sp.avatar.default.user.description,
+                "nl": nl.avatar.default.user.description
             })
             .setRequired(false)),
-    execute: async (interaction, bot, sequelize, Sequelize) => {
+    execute: async (interaction) => {
         try {
-            if (!interaction.guild) {
-                return interaction.reply({
-                    content: "Use this command inside a server only!"
-                });
-            };
+            let user = interaction.options.getUser(en.avatar.default.user.name);
+            let member = user ? user : interaction.user;
 
-            const CommandFunction = sequelize.define("CommandFunction", {
-                name: {
-                    type: Sequelize.STRING,
-                },
-                value: {
-                    type: Sequelize.STRING,
-                },
-            });
-
-            const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
-            const MessageReason = require("../config/message.json");
-
-            if (FindCommand) {
-                if (FindCommand.value === "Disable") {
-                    return interaction.reply({
-                        content: MessageReason.CommandDisabled,
-                        ephemeral: true,
-                    });
-                };
-            };
-
-            const user = interaction.options.getUser(en.UserName);
-
-            let MemberData = user ? user : interaction.user;
-
-            const AvatarShown = new EmbedBuilder()
-                .setTitle("Avatar of " + MemberData.tag)
-                .setImage(MemberData.displayAvatarURL({ dynamic: true, size: 512 }))
-                .setColor(Color.Green)
+            let avatarEmbed = new EmbedBuilder()
+                .setTitle("Avatar of " + member.tag)
+                .setImage(member.displayAvatarURL({ dynamic: true, size: 512 }))
+                .setColor("Blue")
 
             return interaction.reply({
-                embeds: [AvatarShown]
+                embeds: [avatarEmbed]
             });
         } catch (error) {
-            let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
-            let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
-            console.log("//------------------------------------------------------------------------------//");
+            let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
+            let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
             console.log(error);
-            console.log("//------------------------------------------------------------------------------//");
 
-            return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
+            return crashchannelId.send({ content: "**Error in the '" + en.avatar.default.name + "' event:** \n\n```javascript\n" + error + "```" });
         };
     }
 };

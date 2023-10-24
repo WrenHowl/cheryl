@@ -1,32 +1,16 @@
-const Discord = require('discord.js');
-const Config = require("../config/config.json");
-const LanguageEN = require("../languages/en.json");
+const configPreset = require("../settings/config.json");
+
+const fr = require("../languages/fr.json");
+const en = require("../languages/en.json");
+const de = require("../languages/de.json");
+const sp = require("../languages/sp.json");
+const nl = require("../languages/nl.json");
 
 module.exports = {
-    name: LanguageEN.language.Name,
+    name: en.language.default.Name,
     execute: async (bot, message, args, sequelize, Sequelize) => {
         try {
             if (message.guild.members.me.permissionsIn(message.channelId).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
-                const CommandFunction = sequelize.define("CommandFunction", {
-                    name: {
-                        type: Sequelize.STRING,
-                    },
-                    value: {
-                        type: Sequelize.STRING,
-                    },
-                });
-
-                const FindCommand = await CommandFunction.findOne({ where: { name: LanguageEN.language.Name } });
-                const MessageReason = require("../config/message.json");
-
-                if (FindCommand) {
-                    if (FindCommand.value === "Disable") {
-                        return message.reply({
-                            content: MessageReason.CommandDisabled,
-                            ephemeral: true,
-                        });
-                    };
-                };
 
                 const Logging = sequelize.define("Logging", {
                     GuildID: {
@@ -82,13 +66,11 @@ module.exports = {
                 };
             };
         } catch (error) {
-            let fetchGuild = bot.guilds.cache.get(Config.guildId);
-            let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
-            console.log("//------------------------------------------------------------------------------//");
+            let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
+            let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
             console.log(error);
-            console.log("//------------------------------------------------------------------------------//");
 
-            return CrashChannel.send({ content: "**Error in the " + LanguageEN.language.Name + " Command:** \n\n```javascript\n" + error + "```" });
+            return crashchannelId.send({ content: "**Error in the '" + en.ban.commandInteraction.name + "' event:** \n\n```javascript\n" + error + "```" });
         };
     }
-};
+}

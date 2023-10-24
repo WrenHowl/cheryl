@@ -1,54 +1,59 @@
-const Discord = require('discord.js');
-const Config = require("../config/config.json");
-const LanguageEN = require("../languages/en.json");
+const configPreset = require("../settings/config.json");
+
+const en = require("../languages/en.json");
 
 module.exports = {
-    name: LanguageEN.cop.Name,
+    name: en.dataRemove.default.name,
     execute: async (bot, message, args, sequelize, Sequelize) => {
         try {
             if (message.guild.members.me.permissionsIn(message.channelId).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
-                if (message.author.id === Config.ownerId) {
+                if (message.author.id === configPreset.botInfo.ownerId) {
                     const ActionImage = sequelize.define("ActionImage", {
-                        ImageURL: {
+                        imageUrl: {
                             type: Sequelize.STRING,
                             unique: false,
                         },
-                        Category: {
+                        category: {
                             type: Sequelize.STRING,
                             unique: false,
                         },
-                        MessageID: {
+                        messageId: {
                             type: Sequelize.STRING,
                             unique: false,
                         },
-                        UserName: {
+                        userTag: {
                             type: Sequelize.STRING,
                             unique: false,
                         },
-                        UserID: {
+                        userId: {
                             type: Sequelize.STRING,
                             unique: false,
                         },
                     });
 
-                    const ActionImageData = await ActionImage.findOne({ where: { ImageURL: args[0] } });
+                    const actionImageData = await ActionImage.findOne({ where: { imageUrl: args[0] } });
 
                     if (args[0]) {
-                        if (ActionImageData) {
+                        if (actionImageData) {
                             await message.reply({
-                                content: "Image removed.",
+                                content: "Image removed",
                             });
 
-                            return ActionImage.destroy({ where: { ImageURL: args[0] } });
-                        };
+                            return ActionImage.destroy({ where: { imageUrl: args[0] } });
+                        } else {
+                            return message.reply({
+                                content: "Cannot find this image in the database"
+                            })
+                        }
                     };
                 };
             };
         } catch (error) {
-            let fetchGuild = bot.guilds.cache.get(Config.guildId);
-            let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+            let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
+            let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
+            console.log(error);
 
-            return CrashChannel.send({ content: "**Error in the '" + LanguageEN.cop.Name + "' Command:** \n\n```javascript\n" + error + "```" });
+            return crashchannelId.send({ content: "**Error in the '" + en.ban.commandInteraction.name + "' event:** \n\n```javascript\n" + error + "```" });
         };
     }
 };

@@ -1,22 +1,16 @@
 const { EmbedBuilder } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const moment = require("moment")
-const Color = require("../config/color.json");
-const Config = require("../config/config.json");
-const Profile = require("../config/profile.json");
-const LanguageFR = require("../languages/fr.json");
-const LanguageEN = require("../languages/en.json");
-const LanguageDE = require("../languages/de.json");
-const LanguageSP = require("../languages/sp.json");
-const LanguageNL = require("../languages/nl.json");
 
-const fr = LanguageFR.profile;
-const en = LanguageEN.profile;
-const de = LanguageDE.profile;
-const sp = LanguageSP.profile;
-const nl = LanguageNL.profile;
+const profilePreset = require("../settings/profile.json");
+const configPreset = require("../settings/config.json");
+const messagePreset = require("../settings/message.json");
 
-const Age = Profile.age;
+const fr = require("../languages/fr.json");
+const en = require("../languages/en.json");
+const de = require("../languages/de.json");
+const sp = require("../languages/sp.json");
+const nl = require("../languages/nl.json");
 
 module.exports = {
     data: new SlashCommandBuilder()

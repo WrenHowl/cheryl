@@ -1,20 +1,15 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const Config = require("../config/config.json");
-const LoggingMessage = require("../config/logging.json");
-const Color = require("../config/color.json");
-const Message = require('../config/message.json');
-const LanguageFR = require("../languages/fr.json");
-const LanguageEN = require("../languages/en.json");
-const LanguageDE = require("../languages/de.json");
-const LanguageSP = require("../languages/sp.json");
-const LanguageNL = require("../languages/nl.json");
 
-const fr = LanguageFR.settings;
-const en = LanguageEN.settings;
-const de = LanguageDE.settings;
-const sp = LanguageSP.settings;
-const nl = LanguageNL.settings;
+const loggingPreset = require("../settings/logging.json");
+const configPreset = require("../settings/config.json");
+const messagePreset = require("../settings/message.json");
+
+const fr = require("../languages/fr.json");
+const en = require("../languages/en.json");
+const de = require("../languages/de.json");
+const sp = require("../languages/sp.json");
+const nl = require("../languages/nl.json");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -711,7 +706,7 @@ module.exports = {
 
                         if (role === "@everyone") {
                             const embed = new EmbedBuilder()
-                                .setDescription(LoggingMessage.SettingsError)
+                                .setDescription(loggingPreset.SettingsError)
                                 .addFields(
                                     { name: "**Role provided**", value: "The role (@everyone) cannot be used!", inline: true },
                                 );
@@ -723,7 +718,7 @@ module.exports = {
                         };
 
                         const ReportEmbed = new EmbedBuilder()
-                            .setDescription(LoggingMessage.SettingsUpdated)
+                            .setDescription(loggingPreset.SettingsUpdated)
                             .addFields(
                                 { name: ChannelName, value: channelOptions.toLocaleString(), inline: true },
                             );
@@ -755,7 +750,7 @@ module.exports = {
                         if (booleanBlacklist === "false") booleanBlacklist = "Disabled";
 
                         const ActionEmbed = new EmbedBuilder()
-                            .setDescription(LoggingMessage.SettingsUpdated)
+                            .setDescription(loggingPreset.SettingsUpdated)
 
                         if (optionsLogging === "Image") {
                             await Logging.update({
@@ -791,7 +786,7 @@ module.exports = {
                             await Logging.update({ ChannelIDWelcome: channelOptions.id }, { where: { GuildID: interaction.guild.id } })
 
                             const embed = new EmbedBuilder()
-                                .setDescription(LoggingMessage.SettingsUpdated)
+                                .setDescription(loggingPreset.SettingsUpdated)
                                 .addFields(
                                     { name: "**Welcome Channel**", value: channelOptions.toLocaleString(), inline: true },
                                 )
@@ -806,7 +801,7 @@ module.exports = {
                             await Logging.update({ AutoRole: AutoRoleOptions.id }, { where: { GuildID: interaction.guild.id } })
 
                             const embed = new EmbedBuilder()
-                                .setDescription(LoggingMessage.SettingsUpdated)
+                                .setDescription(loggingPreset.SettingsUpdated)
                                 .addFields(
                                     { name: "**Auto-Role**", value: AutoRoleOptions.toLocaleString(), inline: true },
                                 )
@@ -826,7 +821,7 @@ module.exports = {
                             if (autobanStatus === "disable") autobanStatus = "Disabled";
 
                             const BlacklistEmbed = new EmbedBuilder()
-                                .setDescription(LoggingMessage.SettingsUpdated)
+                                .setDescription(loggingPreset.SettingsUpdated)
                                 .addFields(
                                     { name: "**Status**", value: booleanBlacklist, inline: true },
                                 )
@@ -873,7 +868,7 @@ module.exports = {
                         };
                     case (en.LoggingName):
                         const LoggingEmbed = new EmbedBuilder()
-                            .setDescription(LoggingMessage.SettingsUpdated)
+                            .setDescription(loggingPreset.SettingsUpdated)
 
                         switch (optionsLogging) {
                             case ("all"):
@@ -890,7 +885,7 @@ module.exports = {
                                     );
                                 } else {
                                     return interaction.reply({
-                                        content: [LoggingMessage.ChannelNeeded]
+                                        content: [loggingPreset.ChannelNeeded]
                                     });
                                 };
                             case ("ban"):
@@ -904,7 +899,7 @@ module.exports = {
                                     );
                                 } else {
                                     return interaction.reply({
-                                        content: [LoggingMessage.ChannelNeeded]
+                                        content: [loggingPreset.ChannelNeeded]
                                     });
                                 };
                             case ("kick"):
@@ -918,7 +913,7 @@ module.exports = {
                                     );
                                 } else {
                                     return interaction.reply({
-                                        content: [LoggingMessage.ChannelNeeded]
+                                        content: [loggingPreset.ChannelNeeded]
                                     });
                                 };
                             case ("warn"):
@@ -932,7 +927,7 @@ module.exports = {
                                     );
                                 } else {
                                     return interaction.reply({
-                                        content: [LoggingMessage.ChannelNeeded]
+                                        content: [loggingPreset.ChannelNeeded]
                                     });
                                 };
                             case ("unban"):
@@ -946,7 +941,7 @@ module.exports = {
                                     );
                                 } else {
                                     return interaction.reply({
-                                        content: [LoggingMessage.ChannelNeeded]
+                                        content: [loggingPreset.ChannelNeeded]
                                     });
                                 };
                             case ("disable"):
@@ -969,7 +964,7 @@ module.exports = {
                     case (en.VerificationCommandName):
                         if (staffRoleOptions.name === "@everyone" | addRoleOptions.name === "@everyone" | removeRole === "@everyone") {
                             const embed = new EmbedBuilder()
-                                .setDescription(LoggingMessage.SettingsError)
+                                .setDescription(loggingPreset.SettingsError)
                                 .addFields(
                                     { name: "**Role provided**", value: "The role (@everyone) cannot be used!", inline: true },
                                 );
@@ -1014,7 +1009,7 @@ module.exports = {
                     case (en.VerificationMenuName):
                         if (staffRoleOptions.name === "@everyone" | addRoleOptions.name === "@everyone" | removeRole === "@everyone") {
                             const embed = new EmbedBuilder()
-                                .setDescription(LoggingMessage.SettingsError)
+                                .setDescription(loggingPreset.SettingsError)
                                 .addFields(
                                     { name: "**Role provided**", value: "The role (@everyone) cannot be used!", inline: true },
                                 );
@@ -1026,7 +1021,7 @@ module.exports = {
                         };
 
                         const VerificationMenuEmbed = new EmbedBuilder()
-                            .setDescription(LoggingMessage.SettingsUpdated)
+                            .setDescription(loggingPreset.SettingsUpdated)
                             .addFields(
                                 { name: "**Welcome Channel:**", value: channelOptions2.toLocaleString(), inline: true },
                                 { name: "**Receive Channel**", value: channelOptions3.toLocaleString(), inline: true },

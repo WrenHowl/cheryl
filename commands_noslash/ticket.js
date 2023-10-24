@@ -1,15 +1,14 @@
-const Discord = require('discord.js');
-const Color = require("../config/color.json");
-const Message = require("../config/message.json");
-const Config = require("../config/config.json");
-const FR = require("../languages/fr.json");
-const EN = require("../languages/en.json");
-const DE = require("../languages/de.json");
-const SP = require("../languages/sp.json");
-const NL = require("../languages/nl.json");
+const configPreset = require("../settings/config.json");
+const messagePreset = require("../settings/message.json");
+
+const fr = require("../languages/fr.json");
+const en = require("../languages/en.json");
+const de = require("../languages/de.json");
+const sp = require("../languages/sp.json");
+const nl = require("../languages/nl.json");
 
 module.exports = {
-    name: EN.ticket.Name,
+    name: en.ticket.default.name,
     execute: async (bot, message, args, EmbedBuilder, sequelize, Sequelize) => {
         try {
             if (message.guild.members.me.permissionsIn(message.channelId).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
@@ -26,7 +25,7 @@ module.exports = {
                 if (FindCommand) {
                     if (FindCommand.value === "Disable") {
                         return message.reply({
-                            content: Message.CommandDisabled,
+                            content: messagePreset.CommandDisabled,
                         });
                     };
                 };

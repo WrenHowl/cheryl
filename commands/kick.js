@@ -1,18 +1,14 @@
 const { EmbedBuilder } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const Color = require("../config/color.json");
-const Config = require("../config/config.json");
-const LanguageFR = require("../languages/fr.json");
-const LanguageEN = require("../languages/en.json");
-const LanguageDE = require("../languages/de.json");
-const LanguageSP = require("../languages/sp.json");
-const LanguageNL = require("../languages/nl.json");
 
-const fr = LanguageFR.kick;
-const en = LanguageEN.kick;
-const de = LanguageDE.kick;
-const sp = LanguageSP.kick;
-const nl = LanguageNL.kick;
+const configPreset = require("../settings/config.json");
+const messagePreset = require("../settings/message.json");
+
+const fr = require("../languages/fr.json");
+const en = require("../languages/en.json");
+const de = require("../languages/de.json");
+const sp = require("../languages/sp.json");
+const nl = require("../languages/nl.json");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -65,12 +61,6 @@ module.exports = {
         ),
     execute: async (interaction, bot, sequelize, Sequelize) => {
         try {
-            if (!interaction.guild) {
-                return interaction.reply({
-                    content: "Use this command inside a server only!"
-                });
-            };
-
             const CommandFunction = sequelize.define("CommandFunction", {
                 name: {
                     type: Sequelize.STRING,
@@ -79,19 +69,6 @@ module.exports = {
                     type: Sequelize.STRING,
                 },
             });
-
-            const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
-            const MessageReason = require("../config/message.json");
-
-            if (FindCommand) {
-                if (FindCommand.value === "Disable") {
-                    return interaction.reply({
-                        content: MessageReason.CommandDisabled,
-                        ephemeral: true,
-                    });
-                };
-            };
-
             const Logging = sequelize.define("Logging", {
                 GuildID: {
                     type: Sequelize.STRING,
@@ -102,15 +79,35 @@ module.exports = {
                     unique: false,
                 },
             });
-            const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
 
-            let LanguageData = LoggingData.language;
+            let FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
 
-            if (!LanguageData || LanguageData === "en") Language = LanguageEN;
-            if (LanguageData === "fr") Language = LanguageFR;
-            if (LanguageData === "de") Language = LanguageDE;
-            if (LanguageData === "sp") Language = LanguageSP;
-            if (LanguageData === "nl") Language = LanguageNL;
+            if (FindCommand | !interaction.guild) {
+                FindCommand.value === "Disable" ? messageRefusing = Message.CommandDisabled : false;
+                !interaction.guild ? messageRefusing = "You can only use this command in a server." : false;
+
+                return interaction.reply({
+                    content: messageRefusing,
+                    ephemeral: true,
+                });
+            };
+
+            let LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
+
+            switch (LoggingData.language) {
+                case ("en"):
+                    Language = LanguageEN;
+                case ("fr"):
+                    Language = LanguageFR;
+                case ("de"):
+                    Language = LanguageDE;
+                case ("sp"):
+                    Language = LanguageSP;
+                case ("nl"):
+                    Language = LanguageNL;
+                default:
+                    Language = LanguageEN;
+            }
 
             if (interaction.member.permissions.has("KICK_MEMBERS")) {
                 if (interaction.guild.me.permissions.has("KICK_MEMBERS")) {
@@ -121,7 +118,7 @@ module.exports = {
                     switch (member.id) {
                         case (!member):
                             return interaction.reply({
-                                content: Language.default.UnknownUser,
+                                content: LoggingData.default.UnknownUser,
                                 ephemeral: true,
                             });
                         case (interaction.member.id):

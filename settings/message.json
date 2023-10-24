@@ -1,0 +1,40 @@
+{
+    "default": {
+        "errorOccured": "An error occured. Please contact @baddwagon",
+        "unknownUser": "An error occured. I can't find this user",
+        "commandDisabledGlobally": "An error occured. This command is disabled globally by the developpers"
+    },
+    "Permission": {
+        "AddedWhitelistBlacklist": "The user/server has been successfully added to the following whitelist: ``Blacklist``.",
+        "AlreadyWhitelistedBlacklist": "The user/server is already whitelisted for the following whitelist: ``Blacklist``.",
+        "RemovedWhitelistBlacklist": "The user/server has been successfully removed of the following whitelist: ``Blacklist``."
+    },
+    "blacklist": {
+        "isntBlacklisted": "The user isn't blacklisted",
+        "isBlacklisted": "The user is already blacklisted",
+        "addBlacklist": "The user has been successfully added to the blacklist",
+        "removeBlacklist": "The user has been successfully removed of the blacklist",
+        "suggestBlacklist": "The user has been successfully suggested to be added to the blacklist"
+    },
+    "ticket": {
+        "created": "Your ticket is waiting to be claimed by a staff! You will receive a DM/mention when it will be open!",
+        "waiting": "You have a ticket waiting to be claimed already! Please wait for the staff to claim it.",
+        "claim": "Claimed",
+        "unclaim": "Unclaimed",
+        "done": "Completed",
+        "delete": "This channel will be deleted in 3 seconds.",
+        "own": "You cannot claim your own ticket.",
+        "unclaimingOwn": "Only the staff who claim the ticket can unclaim it.",
+        "refusingToCreateStaff": "Invalid Reason: You're a staff! You can only make a ticket for a Partnership",
+        "refusingToCreateVerified": "Invalid Reason: You've already verified your age",
+        "isNotStaff": "Missing Role: Staff",
+        "isntAdmin": "Missing Role: Admin",
+        "isntOwner": "Missing Role: Owner, Co-Owner",
+        "cantManageChannels": "You're missing this permission: Manage Channels",
+        "unknownMessage": "An error occured. The message couldn't be found",
+        "error": "An error occured. Please contact @baddwagon"
+    },
+    "settings": {
+        "disabled": "`None`"
+    }
+}
