@@ -88,6 +88,52 @@ module.exports = {
             })
             .setRequired(false)),
     execute: async (interaction, bot, sequelize, Sequelize) => {
+        const Logging = sequelize.define("Logging", {
+            guildId: {
+                type: Sequelize.STRING,
+            },
+            language: {
+                type: Sequelize.STRING,
+            },
+            status_canActionMessage: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            status_canActionImage: {
+                type: Sequelize.STRING,
+                unique: false,
+            }
+        });
+
+        let loggingData = await Logging.findOne({ where: { guildId: interaction.guild.id } });
+
+        switch (loggingData.language) {
+            case ("en"):
+                languageSet = en;
+
+                break;
+            case ("fr"):
+                languageSet = fr;
+
+                break;
+            case ("de"):
+                languageSet = de;
+
+                break;
+            case ("sp"):
+                languageSet = sp;
+
+                break;
+            case ("nl"):
+                languageSet = nl;
+
+                break;
+            default:
+                languageSet = en;
+
+                break;
+        }
+
         try {
             const ActionImage = sequelize.define("ActionImage", {
                 imageUrl: {
@@ -111,20 +157,6 @@ module.exports = {
                     unique: false,
                 },
             });
-            const Logging = sequelize.define("Logging", {
-                guildId: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                status_canActionMessage: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                status_canActionImage: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                }
-            });
             const Profile = sequelize.define("Profile", {
                 userTag: {
                     type: Sequelize.STRING,
@@ -139,29 +171,6 @@ module.exports = {
                     unique: false,
                 },
             });
-
-            let loggingData = await Logging.findOne({ where: { guildId: interaction.guild.id } });
-
-            switch (loggingData.language) {
-                case ("en"):
-                    languageSet = en;
-                    break;
-                case ("fr"):
-                    languageSet = fr;
-                    break;
-                case ("de"):
-                    languageSet = de;
-                    break;
-                case ("sp"):
-                    languageSet = sp;
-                    break;
-                case ("nl"):
-                    languageSet = nl;
-                    break;
-                default:
-                    languageSet = en;
-                    break;
-            }
 
             let choice = interaction.options.getString(en.action.default.choice.name);
             let suggestImage = interaction.options.getString(en.action.default.suggest.name);
@@ -231,8 +240,8 @@ module.exports = {
 
                 // Change the channel ID in function of the choice (sfw or nsfw)
 
-                !choice === !nsfwChoice.includes(choice) ? ChannelToSend = configPreset.channelsId.nsfwSuggestion : ChannelToSend = configPreset.channelsId.sfwSuggestion;
-                let suggestChannel = fetchGuild.channels.cache.get(ChannelToSend);
+                !choice === !nsfwChoice.includes(choice) ? channelSuggestionId = configPreset.channelsId.nsfwSuggestion : channelSuggestionId = configPreset.channelsId.sfwSuggestion;
+                let suggestChannel = fetchGuild.channels.cache.get(channelSuggestionId);
 
                 if (interaction.user.id === configPreset.botInfo.ownerId) {
                     imageEmbed.setColor("Green")
@@ -443,7 +452,7 @@ module.exports = {
                     )
                     .addComponents(
                         new ButtonBuilder()
-                            .setLabel(languageSet.action.button.discord)
+                            .setLabel(languageSet.default.button.discord)
                             .setURL(configPreset.other.discordLink)
                             .setStyle(ButtonStyle.Link),
                     );
@@ -474,7 +483,13 @@ module.exports = {
         } catch (error) {
             let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
             let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
+            console.log(interaction.user.id + " -> " + interaction.user.tag);
             console.log(error);
+
+            await interaction.reply({
+                content: languageSet.default.errorOccured,
+                ephemeral: true,
+            });
 
             return crashchannelId.send({ content: "**Error in the '" + en.action.default.name + "' event:** \n\n```javascript\n" + error + "```" });
         };

@@ -13,161 +13,170 @@ const nl = require("../languages/nl.json");
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName(en.Name)
+        .setName(en.settings.default.name)
         .setNameLocalizations({
-            fr: fr.Name,
-            de: de.Name,
-            SpanishES: sp.Name,
-            nl: nl.Name
+            "fr": fr.settings.default.name,
+            "de": de.settings.default.name,
+            "es-ES": sp.settings.default.name,
+            "nl": nl.settings.default.name
         })
-        .setDescription(en.Description)
+        .setDescription(en.settings.default.description)
         .setDescriptionLocalizations({
-            fr: fr.Description,
-            de: de.Description,
-            SpanishES: sp.Description,
-            nl: nl.Description
+            "fr": fr.settings.default.description,
+            "de": de.settings.default.description,
+            "es-ES": sp.settings.default.description,
+            "nl": nl.settings.default.description
         })
 
-        // Setup
+        // Setup Group
 
         .addSubcommandGroup(group => group
-            .setName(en.SetupName)
+            .setName(en.settings.default.setup.name)
             .setNameLocalizations({
-                fr: fr.SetupName,
-                de: de.SetupName,
-                SpanishES: sp.SetupName,
-                nl: nl.SetupName
+                "fr": fr.settings.default.setup.name,
+                "de": de.settings.default.setup.name,
+                "es-ES": sp.settings.default.setup.name,
+                "nl": nl.settings.default.setup.name
             })
-            .setDescription(en.SetupDescription)
+            .setDescription(en.settings.default.setup.description)
             .setDescriptionLocalizations({
-                fr: fr.SetupDescription,
-                de: de.SetupDescription,
-                SpanishES: sp.SetupDescription,
-                nl: nl.SetupDescription
+                "fr": fr.settings.default.setup.description,
+                "de": de.settings.default.setup.description,
+                "es-ES": sp.settings.default.setup.description,
+                "nl": nl.settings.default.setup.description
             })
+
+            // Report System
+
             .addSubcommand(subcommand => subcommand
-                .setName(en.SetupReportName)
+                .setName(en.settings.default.setup.report_system.name)
                 .setNameLocalizations({
-                    fr: fr.SetupReportName,
-                    de: de.SetupReportName,
-                    SpanishES: sp.SetupReportName,
-                    nl: nl.SetupReportName
+                    "fr": fr.settings.default.setup.report_system.name,
+                    "de": de.settings.default.setup.report_system.name,
+                    "es-ES": sp.settings.default.setup.report_system.name,
+                    "nl": nl.settings.default.setup.report_system.name
                 })
-                .setDescription(en.SetupReportDescription)
+                .setDescription(en.settings.default.setup.report_system.description)
                 .setDescriptionLocalizations({
-                    fr: fr.SetupReportDescription,
-                    de: de.SetupReportDescription,
-                    SpanishES: sp.SetupReportDescription,
-                    nl: nl.SetupReportDescription
+                    "fr": fr.settings.default.setup.report_system.description,
+                    "de": de.settings.default.setup.report_system.description,
+                    "es-ES": sp.settings.default.setup.report_system.description,
+                    "nl": nl.settings.default.setup.report_system.description
                 })
                 .addChannelOption(option => option
-                    .setName(en.SetupReportChannelName)
+                    .setName(en.settings.default.setup.report_system.channel.name)
                     .setNameLocalizations({
-                        fr: fr.SetupReportChannelName,
-                        de: de.SetupReportChannelName,
-                        SpanishES: sp.SetupReportChannelName,
-                        nl: nl.SetupReportChannelName
+                        "fr": fr.settings.default.setup.report_system.channel.name,
+                        "de": de.settings.default.setup.report_system.channel.name,
+                        "es-ES": sp.settings.default.setup.report_system.channel.name,
+                        "nl": nl.settings.default.setup.report_system.channel.name
                     })
-                    .setDescription(en.SetupReportChannelDescription)
+                    .setDescription(en.settings.default.setup.report_system.channel.description)
                     .setDescriptionLocalizations({
-                        fr: fr.SetupReportChannelDescription,
-                        de: de.SetupReportChannelDescription,
-                        SpanishES: sp.SetupReportChannelDescription,
-                        nl: nl.SetupReportChannelDescription
+                        "fr": fr.settings.default.setup.report_system.channel.description,
+                        "de": de.settings.default.setup.report_system.channel.description,
+                        "es-ES": sp.settings.default.setup.report_system.channel.description,
+                        "nl": nl.settings.default.setup.report_system.channel.description
                     })
                     .setRequired(true))
                 .addRoleOption(option => option
-                    .setName(en.SetupReportRoleName)
+                    .setName(en.settings.default.setup.report_system.staffRole.name)
                     .setNameLocalizations({
-                        fr: fr.SetupReportRoleName,
-                        de: de.SetupReportRoleName,
-                        SpanishES: sp.SetupReportRoleName,
-                        nl: nl.SetupReportRoleName
+                        "fr": fr.settings.default.setup.report_system.staffRole.name,
+                        "de": de.settings.default.setup.report_system.staffRole.name,
+                        "es-ES": sp.settings.default.setup.report_system.staffRole.name,
+                        "nl": nl.settings.default.setup.report_system.staffRole.name
                     })
-                    .setDescription(en.SetupReportRoleDescription)
+                    .setDescription(en.settings.default.setup.report_system.staffRole.description)
                     .setDescriptionLocalizations({
-                        fr: fr.SetupReportRoleDescription,
-                        de: de.SetupReportRoleDescription,
-                        SpanishES: sp.SetupReportRoleDescription,
-                        nl: nl.SetupReportRoleDescription
+                        "fr": fr.settings.default.setup.report_system.staffRole.description,
+                        "de": de.settings.default.setup.report_system.staffRole.description,
+                        "es-ES": sp.settings.default.setup.report_system.staffRole.description,
+                        "nl": nl.settings.default.setup.report_system.staffRole.description
                     })
                     .setRequired(false)))
+
+            // Welcome System
+
             .addSubcommand(subcommand => subcommand
-                .setName(en.SetupWelcomeName)
+                .setName(en.settings.default.setup.welcome_system.name)
                 .setNameLocalizations({
-                    fr: fr.SetupWelcomeName,
-                    de: de.SetupWelcomeName,
-                    SpanishES: sp.SetupWelcomeName,
-                    nl: nl.SetupWelcomeName
+                    "fr": fr.settings.default.setup.welcome_system.name,
+                    "de": de.settings.default.setup.welcome_system.name,
+                    "es-ES": sp.settings.default.setup.welcome_system.name,
+                    "nl": nl.settings.default.setup.welcome_system.name
                 })
-                .setDescription(en.SetupWelcomeDescription)
+                .setDescription(en.settings.default.setup.welcome_system.description)
                 .setDescriptionLocalizations({
-                    fr: fr.SetupWelcomeDescription,
-                    de: de.SetupWelcomeDescription,
-                    SpanishES: sp.SetupWelcomeDescription,
-                    nl: nl.SetupWelcomeDescription
+                    "fr": fr.settings.default.setup.welcome_system.description,
+                    "de": de.settings.default.setup.welcome_system.description,
+                    "es-ES": sp.settings.default.setup.welcome_system.description,
+                    "nl": nl.settings.default.setup.welcome_system.description
                 })
                 .addChannelOption(option => option
-                    .setName(en.SetupWelcomeChannelName)
+                    .setName(en.settings.default.setup.welcome_system.channel.name)
                     .setNameLocalizations({
-                        fr: fr.SetupWelcomeChannelName,
-                        de: de.SetupWelcomeChannelName,
-                        SpanishES: sp.SetupWelcomeChannelName,
-                        nl: nl.SetupWelcomeChannelName
+                        "fr": fr.settings.default.setup.welcome_system.channel.name,
+                        "de": de.settings.default.setup.welcome_system.channel.name,
+                        "es-ES": sp.settings.default.setup.welcome_system.channel.name,
+                        "nl": nl.settings.default.setup.welcome_system.channel.name
                     })
-                    .setDescription(en.SetupWelcomeChannelDescription)
+                    .setDescription(en.settings.default.setup.welcome_system.channel.description)
                     .setDescriptionLocalizations({
-                        fr: fr.SetupWelcomeChannelDescription,
-                        de: de.SetupWelcomeChannelDescription,
-                        SpanishES: sp.SetupWelcomeChannelDescription,
-                        nl: nl.SetupWelcomeChannelDescription
+                        "fr": fr.settings.default.setup.welcome_system.channel.description,
+                        "de": de.settings.default.setup.welcome_system.channel.description,
+                        "es-ES": sp.settings.default.setup.welcome_system.channel.description,
+                        "nl": nl.settings.default.setup.welcome_system.channel.description
                     })
                     .setRequired(false))
                 .addRoleOption(option => option
-                    .setName(en.SetupWelcomeRoleName)
+                    .setName(en.settings.default.setup.welcome_system.autorole.name)
                     .setNameLocalizations({
-                        fr: fr.SetupWelcomeRoleName,
-                        de: de.SetupWelcomeRoleName,
-                        SpanishES: sp.SetupWelcomeRoleName,
-                        nl: nl.SetupWelcomeRoleName
+                        "fr": fr.settings.default.setup.welcome_system.autorole.name,
+                        "de": de.settings.default.setup.welcome_system.autorole.name,
+                        "es-ES": sp.settings.default.setup.welcome_system.autorole.name,
+                        "nl": nl.settings.default.setup.welcome_system.autorole.name
                     })
-                    .setDescription(en.SetupWelcomeRoleDescription)
+                    .setDescription(en.settings.default.setup.welcome_system.autorole.description)
                     .setDescriptionLocalizations({
-                        fr: fr.SetupWelcomeRoleDescription,
-                        de: de.SetupWelcomeRoleDescription,
-                        SpanishES: sp.SetupWelcomeRoleDescription,
-                        nl: nl.SetupWelcomeRoleDescription
+                        "fr": fr.settings.default.setup.welcome_system.autorole.description,
+                        "de": de.settings.default.setup.welcome_system.autorole.description,
+                        "es-ES": sp.settings.default.setup.welcome_system.autorole.description,
+                        "nl": nl.settings.default.setup.welcome_system.autorole.description
                     })
                     .setRequired(false)))
+
+            // Blacklist System
+
             .addSubcommand(subcommand => subcommand
-                .setName(en.SetupBlacklistName)
+                .setName(en.settings.default.setup.blacklist_system.name)
                 .setNameLocalizations({
-                    fr: fr.SetupBlacklistName,
-                    de: de.SetupBlacklistName,
-                    SpanishES: sp.SetupBlacklistName,
-                    nl: nl.SetupBlacklistName
+                    "fr": fr.settings.default.setup.blacklist_system.name,
+                    "de": de.settings.default.setup.blacklist_system.name,
+                    "es-ES": sp.settings.default.setup.blacklist_system.name,
+                    "nl": nl.settings.default.setup.blacklist_system.name
                 })
-                .setDescription(en.SetupBlacklistDescription)
+                .setDescription(en.settings.default.setup.blacklist_system.description)
                 .setDescriptionLocalizations({
-                    fr: fr.SetupBlacklistDescription,
-                    de: de.SetupBlacklistDescription,
-                    SpanishES: sp.SetupBlacklistDescription,
-                    nl: nl.SetupBlacklistDescription
+                    "fr": fr.settings.default.setup.blacklist_system.description,
+                    "de": de.settings.default.setup.blacklist_system.description,
+                    "es-ES": sp.settings.default.setup.blacklist_system.description,
+                    "nl": nl.settings.default.setup.blacklist_system.description
                 })
                 .addStringOption(option => option
-                    .setName(en.SetupBlacklistStatusName)
+                    .setName(en.settings.default.setup.blacklist_system.status.name)
                     .setNameLocalizations({
-                        fr: fr.SetupBlacklistStatusName,
-                        de: de.SetupBlacklistStatusName,
-                        SpanishES: sp.SetupBlacklistStatusName,
-                        nl: nl.SetupBlacklistStatusName
+                        "fr": fr.settings.default.setup.blacklist_system.status.name,
+                        "de": de.settings.default.setup.blacklist_system.status.name,
+                        "es-ES": sp.settings.default.setup.blacklist_system.status.name,
+                        "nl": nl.settings.default.setup.blacklist_system.status.name
                     })
-                    .setDescription(en.SetupBlacklistStatusDescription)
+                    .setDescription(en.settings.default.setup.blacklist_system.status.description)
                     .setDescriptionLocalizations({
-                        fr: fr.SetupBlacklistStatusDescription,
-                        de: de.SetupBlacklistStatusDescription,
-                        SpanishES: sp.SetupBlacklistStatusDescription,
-                        nl: nl.SetupBlacklistStatusDescription
+                        "fr": fr.settings.default.setup.blacklist_system.status.description,
+                        "de": de.settings.default.setup.blacklist_system.status.description,
+                        "es-ES": sp.settings.default.setup.blacklist_system.status.description,
+                        "nl": nl.settings.default.setup.blacklist_system.status.description
                     })
                     .setRequired(true)
                     .addChoices(
@@ -175,35 +184,35 @@ module.exports = {
                         { name: "Disable", value: "false" },
                     ))
                 .addChannelOption(option => option
-                    .setName(en.SetupBlacklistChannelName)
+                    .setName(en.settings.default.setup.blacklist_system.channel.name)
                     .setNameLocalizations({
-                        fr: fr.SetupBlacklistChannelName,
-                        de: de.SetupBlacklistChannelName,
-                        SpanishES: sp.SetupBlacklistChannelName,
-                        nl: nl.SetupBlacklistChannelName
+                        "fr": fr.settings.default.setup.blacklist_system.channel.name,
+                        "de": de.settings.default.setup.blacklist_system.channel.name,
+                        "es-ES": sp.settings.default.setup.blacklist_system.channel.name,
+                        "nl": nl.settings.default.setup.blacklist_system.channel.name
                     })
-                    .setDescription(en.SetupBlacklistChannelDescription)
+                    .setDescription(en.settings.default.setup.blacklist_system.channel.description)
                     .setDescriptionLocalizations({
-                        fr: fr.SetupBlacklistChannelDescription,
-                        de: de.SetupBlacklistChannelDescription,
-                        SpanishES: sp.SetupBlacklistChannelDescription,
-                        nl: nl.SetupBlacklistChannelDescription
+                        "fr": fr.settings.default.setup.blacklist_system.channel.description,
+                        "de": de.settings.default.setup.blacklist_system.channel.description,
+                        "es-ES": sp.settings.default.setup.blacklist_system.channel.description,
+                        "nl": nl.settings.default.setup.blacklist_system.channel.description
                     })
                     .setRequired(false))
                 .addStringOption(option => option
-                    .setName(en.SetupBlacklistAutobanName)
+                    .setName(en.settings.default.setup.blacklist_system.autoban.name)
                     .setNameLocalizations({
-                        fr: fr.SetupBlacklistAutobanName,
-                        de: de.SetupBlacklistAutobanName,
-                        SpanishES: sp.SetupBlacklistAutobanName,
-                        nl: nl.SetupBlacklistAutobanName
+                        "fr": fr.settings.default.setup.blacklist_system.autoban.name,
+                        "de": de.settings.default.setup.blacklist_system.autoban.name,
+                        "es-ES": sp.settings.default.setup.blacklist_system.autoban.name,
+                        "nl": nl.settings.default.setup.blacklist_system.autoban.name
                     })
-                    .setDescription(en.SetupBlacklistAutobanDescription)
+                    .setDescription(en.settings.default.setup.blacklist_system.autoban.description)
                     .setDescriptionLocalizations({
-                        fr: fr.SetupBlacklistAutobanDescription,
-                        de: de.SetupBlacklistAutobanDescription,
-                        SpanishES: sp.SetupBlacklistAutobanDescription,
-                        nl: nl.SetupBlacklistAutobanDescription
+                        "fr": fr.settings.default.setup.blacklist_system.autoban.description,
+                        "de": de.settings.default.setup.blacklist_system.autoban.description,
+                        "es-ES": sp.settings.default.setup.blacklist_system.autoban.description,
+                        "nl": nl.settings.default.setup.blacklist_system.autoban.description
                     })
                     .setRequired(false)
                     .addChoices(
@@ -212,35 +221,38 @@ module.exports = {
                         { name: "High+", value: "high" },
                         { name: "Disable", value: "disable" },
                     )))
+
+            // Action System
+
             .addSubcommand(subcommand => subcommand
-                .setName(en.SetupActionName)
+                .setName(en.settings.default.setup.action_system.name)
                 .setNameLocalizations({
-                    fr: fr.SetupActionName,
-                    de: de.SetupActionName,
-                    SpanishES: sp.SetupActionName,
-                    nl: nl.SetupActionName
+                    "fr": fr.settings.default.setup.action_system.name,
+                    "de": de.settings.default.setup.action_system.name,
+                    "es-ES": sp.settings.default.setup.action_system.name,
+                    "nl": nl.settings.default.setup.action_system.name
                 })
-                .setDescription(en.SetupActionDescription)
+                .setDescription(en.settings.default.setup.action_system.description)
                 .setDescriptionLocalizations({
-                    fr: fr.SetupActionDescription,
-                    de: de.SetupActionDescription,
-                    SpanishES: sp.SetupActionDescription,
-                    nl: nl.SetupActionDescription
+                    "fr": fr.settings.default.setup.action_system.description,
+                    "de": de.settings.default.setup.action_system.description,
+                    "es-ES": sp.settings.default.setup.action_system.description,
+                    "nl": nl.settings.default.setup.action_system.description
                 })
                 .addStringOption(option => option
-                    .setName(en.SetupActionOptionsName)
+                    .setName(en.settings.default.setup.action_system.options.name)
                     .setNameLocalizations({
-                        fr: fr.SetupActionOptionsName,
-                        de: de.SetupActionOptionsName,
-                        SpanishES: sp.SetupActionOptionsName,
-                        nl: nl.SetupActionOptionsName
+                        "fr": fr.settings.default.setup.action_system.options.name,
+                        "de": de.settings.default.setup.action_system.options.name,
+                        "es-ES": sp.settings.default.setup.action_system.options.name,
+                        "nl": nl.settings.default.setup.action_system.options.name
                     })
-                    .setDescription(en.SetupActionOptionsDescription)
+                    .setDescription(en.settings.default.setup.action_system.options.description)
                     .setDescriptionLocalizations({
-                        fr: fr.SetupActionOptionsDescription,
-                        de: de.SetupActionOptionsDescription,
-                        SpanishES: sp.SetupActionOptionsDescription,
-                        nl: nl.SetupActionOptionsDescription
+                        "fr": fr.settings.default.setup.action_system.options.description,
+                        "de": de.settings.default.setup.action_system.options.description,
+                        "es-ES": sp.settings.default.setup.action_system.options.description,
+                        "nl": nl.settings.default.setup.action_system.options.description
                     })
                     .setRequired(true)
                     .addChoices(
@@ -248,19 +260,19 @@ module.exports = {
                         { name: "Message", value: "message" },
                     ))
                 .addStringOption(option => option
-                    .setName(en.SetupActionStatusName)
+                    .setName(en.settings.default.setup.action_system.status.name)
                     .setNameLocalizations({
-                        fr: fr.SetupActionStatusName,
-                        de: de.SetupActionStatusName,
-                        SpanishES: sp.SetupActionStatusName,
-                        nl: nl.SetupActionStatusName
+                        "fr": fr.settings.default.setup.action_system.status.name,
+                        "de": de.settings.default.setup.action_system.status.name,
+                        "es-ES": sp.settings.default.setup.action_system.status.name,
+                        "nl": nl.settings.default.setup.action_system.status.name
                     })
-                    .setDescription(en.SetupActionStatusDescription)
+                    .setDescription(en.settings.default.setup.action_system.status.description)
                     .setDescriptionLocalizations({
-                        fr: fr.SetupActionStatusDescription,
-                        de: de.SetupActionStatusDescription,
-                        SpanishES: sp.SetupActionStatusDescription,
-                        nl: nl.SetupActionStatusDescription
+                        "fr": fr.settings.default.setup.action_system.status.description,
+                        "de": de.settings.default.setup.action_system.status.description,
+                        "es-ES": sp.settings.default.setup.action_system.status.description,
+                        "nl": nl.settings.default.setup.action_system.status.description
                     })
                     .setRequired(true)
                     .addChoices(
@@ -268,229 +280,229 @@ module.exports = {
                         { name: "Disable", value: "false" },
                     ))))
 
-        // Verification
+        // Verification System Group
 
         .addSubcommandGroup(group => group
-            .setName(en.VerificationName)
+            .setName(en.settings.default.setup.verification_system.name)
             .setNameLocalizations({
-                fr: fr.VerificationName,
-                de: de.VerificationName,
-                SpanishES: sp.VerificationName,
-                nl: nl.VerificationName
+                "fr": fr.settings.default.setup.verification_system.name,
+                "de": de.settings.default.setup.verification_system.name,
+                "es-ES": sp.settings.default.setup.verification_system.name,
+                "nl": nl.settings.default.setup.verification_system.name
             })
-            .setDescription(en.VerificationDescription)
+            .setDescription(en.settings.default.setup.verification_system.description)
             .setDescriptionLocalizations({
-                fr: fr.VerificationDescription,
-                de: de.VerificationDescription,
-                SpanishES: sp.VerificationDescription,
-                nl: nl.VerificationDescription
+                "fr": fr.settings.default.setup.verification_system.description,
+                "de": de.settings.default.setup.verification_system.description,
+                "es-ES": sp.settings.default.setup.verification_system.description,
+                "nl": nl.settings.default.setup.verification_system.description
             })
             .addSubcommand(subcommand => subcommand
-                .setName(en.VerificationCommandName)
+                .setName(en.settings.default.setup.verification_system.command.name)
                 .setNameLocalizations({
-                    fr: fr.VerificationCommandName,
-                    de: de.VerificationCommandName,
-                    SpanishES: sp.VerificationCommandName,
-                    nl: nl.VerificationCommandName
+                    "fr": fr.settings.default.setup.verification_system.command.name,
+                    "de": de.settings.default.setup.verification_system.command.name,
+                    "es-ES": sp.settings.default.setup.verification_system.command.name,
+                    "nl": nl.settings.default.setup.verification_system.command.name
                 })
-                .setDescription(en.VerificationCommandDescription)
+                .setDescription(en.settings.default.setup.verification_system.command.description)
                 .setDescriptionLocalizations({
-                    fr: fr.VerificationCommandDescription,
-                    de: de.VerificationCommandDescription,
-                    SpanishES: sp.VerificationCommandDescription,
-                    nl: nl.VerificationCommandDescription
+                    "fr": fr.settings.default.setup.verification_system.command.description,
+                    "de": de.settings.default.setup.verification_system.command.description,
+                    "es-ES": sp.settings.default.setup.verification_system.command.description,
+                    "nl": nl.settings.default.setup.verification_system.command.description
                 })
                 .addChannelOption(option => option
-                    .setName(en.VerificationWelcomeName)
+                    .setName(en.settings.default.setup.verification_system.command.channel.name)
                     .setNameLocalizations({
-                        fr: fr.VerificationWelcomeName,
-                        de: de.VerificationWelcomeName,
-                        SpanishES: sp.VerificationWelcomeName,
-                        nl: nl.VerificationWelcomeName
+                        "fr": fr.settings.default.setup.verification_system.command.channel.name,
+                        "de": de.settings.default.setup.verification_system.command.channel.name,
+                        "es-ES": sp.settings.default.setup.verification_system.command.channel.name,
+                        "nl": nl.settings.default.setup.verification_system.command.channel.name
                     })
-                    .setDescription(en.VerificationWelcomeDescription)
+                    .setDescription(en.settings.default.setup.verification_system.command.channel.description)
                     .setDescriptionLocalizations({
-                        fr: fr.VerificationWelcomeDescription,
-                        de: de.VerificationWelcomeDescription,
-                        SpanishES: sp.VerificationWelcomeDescription,
-                        nl: nl.VerificationWelcomeDescription
+                        "fr": fr.settings.default.setup.verification_system.command.channel.description,
+                        "de": de.settings.default.setup.verification_system.command.channel.description,
+                        "es-ES": sp.settings.default.setup.verification_system.command.channel.description,
+                        "nl": nl.settings.default.setup.verification_system.command.channel.description
                     })
                     .setRequired(true))
                 .addRoleOption(option => option
-                    .setName(en.VerificationWelcomeStaffName)
+                    .setName(en.settings.default.setup.verification_system.command.staffRole.name)
                     .setNameLocalizations({
-                        fr: fr.VerificationWelcomeStaffName,
-                        de: de.VerificationWelcomeStaffName,
-                        SpanishES: sp.VerificationWelcomeStaffName,
-                        nl: nl.VerificationWelcomeStaffName
+                        "fr": fr.settings.default.setup.verification_system.command.staffRole.name,
+                        "de": de.settings.default.setup.verification_system.command.staffRole.name,
+                        "es-ES": sp.settings.default.setup.verification_system.command.staffRole.name,
+                        "nl": nl.settings.default.setup.verification_system.command.staffRole.name
                     })
-                    .setDescription(en.VerificationWelcomeStaffDescription)
+                    .setDescription(en.settings.default.setup.verification_system.command.staffRole.description)
                     .setDescriptionLocalizations({
-                        fr: fr.VerificationWelcomeStaffDescription,
-                        de: de.VerificationWelcomeStaffDescription,
-                        SpanishES: sp.VerificationWelcomeStaffDescription,
-                        nl: nl.VerificationWelcomeStaffDescription
+                        "fr": fr.settings.default.setup.verification_system.command.staffRole.description,
+                        "de": de.settings.default.setup.verification_system.command.staffRole.description,
+                        "es-ES": sp.settings.default.setup.verification_system.command.staffRole.description,
+                        "nl": nl.settings.default.setup.verification_system.command.staffRole.description
                     })
                     .setRequired(true))
                 .addRoleOption(option => option
-                    .setName(en.VerificationWelcomeAddName)
+                    .setName(en.settings.default.setup.verification_system.command.addRole.name)
                     .setNameLocalizations({
-                        fr: fr.VerificationWelcomeAddName,
-                        de: de.VerificationWelcomeAddName,
-                        SpanishES: sp.VerificationWelcomeAddName,
-                        nl: nl.VerificationWelcomeAddName
+                        "fr": fr.settings.default.setup.verification_system.command.addRole.name,
+                        "de": de.settings.default.setup.verification_system.command.addRole.name,
+                        "es-ES": sp.settings.default.setup.verification_system.command.addRole.name,
+                        "nl": nl.settings.default.setup.verification_system.command.addRole.name
                     })
-                    .setDescription(en.VerificationWelcomeAddDescription)
+                    .setDescription(en.settings.default.setup.verification_system.command.addRole.description)
                     .setDescriptionLocalizations({
-                        fr: fr.VerificationWelcomeAddDescription,
-                        de: de.VerificationWelcomeAddDescription,
-                        SpanishES: sp.VerificationWelcomeAddDescription,
-                        nl: nl.VerificationWelcomeAddDescription
+                        "fr": fr.settings.default.setup.verification_system.command.addRole.description,
+                        "de": de.settings.default.setup.verification_system.command.addRole.description,
+                        "es-ES": sp.settings.default.setup.verification_system.command.addRole.description,
+                        "nl": nl.settings.default.setup.verification_system.command.addRole.description
                     })
                     .setRequired(true))
                 .addRoleOption(option => option
-                    .setName(en.VerificationWelcomeRemoveName)
+                    .setName(en.settings.default.setup.verification_system.command.removeRole.name)
                     .setNameLocalizations({
-                        fr: fr.VerificationWelcomeRemoveName,
-                        de: de.VerificationWelcomeRemoveName,
-                        SpanishES: sp.VerificationWelcomeRemoveName,
-                        nl: nl.VerificationWelcomeRemoveName
+                        "fr": fr.settings.default.setup.verification_system.command.removeRole.name,
+                        "de": de.settings.default.setup.verification_system.command.removeRole.name,
+                        "es-ES": sp.settings.default.setup.verification_system.command.removeRole.name,
+                        "nl": nl.settings.default.setup.verification_system.command.removeRole.name
                     })
-                    .setDescription(en.VerificationWelcomeRemoveDescription)
+                    .setDescription(en.settings.default.setup.verification_system.command.removeRole.description)
                     .setDescriptionLocalizations({
-                        fr: fr.VerificationWelcomeRemoveDescription,
-                        de: de.VerificationWelcomeRemoveDescription,
-                        SpanishES: sp.VerificationWelcomeRemoveDescription,
-                        nl: nl.VerificationWelcomeRemoveDescription
+                        "fr": fr.settings.default.setup.verification_system.command.removeRole.description,
+                        "de": de.settings.default.setup.verification_system.command.removeRole.description,
+                        "es-ES": sp.settings.default.setup.verification_system.command.removeRole.description,
+                        "nl": nl.settings.default.setup.verification_system.command.removeRole.description
                     })
                     .setRequired(false)))
             .addSubcommand(subcommand => subcommand
-                .setName(en.VerificationMenuName)
+                .setName(en.settings.default.setup.verification_system.menu.name)
                 .setNameLocalizations({
-                    fr: fr.VerificationMenuName,
-                    de: de.VerificationMenuName,
-                    SpanishES: sp.VerificationMenuName,
-                    nl: nl.VerificationMenuName
+                    "fr": fr.settings.default.setup.verification_system.menu.name,
+                    "de": de.settings.default.setup.verification_system.menu.name,
+                    "es-ES": sp.settings.default.setup.verification_system.menu.name,
+                    "nl": nl.settings.default.setup.verification_system.menu.name
                 })
-                .setDescription(en.VerificationMenuDescription)
+                .setDescription(en.settings.default.setup.verification_system.menu.description)
                 .setDescriptionLocalizations({
-                    fr: fr.VerificationMenuDescription,
-                    de: de.VerificationMenuDescription,
-                    SpanishES: sp.VerificationMenuDescription,
-                    nl: nl.VerificationMenuDescription
+                    "fr": fr.settings.default.setup.verification_system.menu.description,
+                    "de": de.settings.default.setup.verification_system.menu.description,
+                    "es-ES": sp.settings.default.setup.verification_system.menu.description,
+                    "nl": nl.settings.default.setup.verification_system.menu.description
                 })
                 .addChannelOption(option => option
-                    .setName(en.VerificationMenuWelcomeName)
+                    .setName(en.settings.default.setup.verification_system.menu.channel.name)
                     .setNameLocalizations({
-                        fr: fr.VerificationMenuWelcomeName,
-                        de: de.VerificationMenuWelcomeName,
-                        SpanishES: sp.VerificationMenuWelcomeName,
-                        nl: nl.VerificationMenuWelcomeName
+                        "fr": fr.settings.default.setup.verification_system.menu.channel.name,
+                        "de": de.settings.default.setup.verification_system.menu.channel.name,
+                        "es-ES": sp.settings.default.setup.verification_system.menu.channel.name,
+                        "nl": nl.settings.default.setup.verification_system.menu.channel.name
                     })
-                    .setDescription(en.VerificationMenuWelcomeDescription)
+                    .setDescription(en.settings.default.setup.verification_system.menu.channel.description)
                     .setDescriptionLocalizations({
-                        fr: fr.VerificationMenuWelcomeDescription,
-                        de: de.VerificationMenuWelcomeDescription,
-                        SpanishES: sp.VerificationMenuWelcomeDescription,
-                        nl: nl.VerificationMenuWelcomeDescription
+                        "fr": fr.settings.default.setup.verification_system.menu.channel.description,
+                        "de": de.settings.default.setup.verification_system.menu.channel.description,
+                        "es-ES": sp.settings.default.setup.verification_system.menu.channel.description,
+                        "nl": nl.settings.default.setup.verification_system.menu.channel.description
                     })
                     .setRequired(true))
                 .addChannelOption(option => option
-                    .setName(en.VerificationMenuWelcomeReceiveName)
+                    .setName(en.settings.default.setup.verification_system.menu.receiveChannel.name)
                     .setNameLocalizations({
-                        fr: fr.VerificationMenuWelcomeReceiveName,
-                        de: de.VerificationMenuWelcomeReceiveName,
-                        SpanishES: sp.VerificationMenuWelcomeReceiveName,
-                        nl: nl.VerificationMenuWelcomeReceiveName
+                        "fr": fr.settings.default.setup.verification_system.menu.receiveChannel.name,
+                        "de": de.settings.default.setup.verification_system.menu.receiveChannel.name,
+                        "es-ES": sp.settings.default.setup.verification_system.menu.receiveChannel.name,
+                        "nl": nl.settings.default.setup.verification_system.menu.receiveChannel.name
                     })
-                    .setDescription(en.VerificationMenuWelcomeReceiveDescription)
+                    .setDescription(en.settings.default.setup.verification_system.menu.receiveChannel.description)
                     .setDescriptionLocalizations({
-                        fr: fr.VerificationMenuWelcomeReceiveDescription,
-                        de: de.VerificationMenuWelcomeReceiveDescription,
-                        SpanishES: sp.VerificationMenuWelcomeReceiveDescription,
-                        nl: nl.VerificationMenuWelcomeReceiveDescription
+                        "fr": fr.settings.default.setup.verification_system.menu.receiveChannel.description,
+                        "de": de.settings.default.setup.verification_system.menu.receiveChannel.description,
+                        "es-ES": sp.settings.default.setup.verification_system.menu.receiveChannel.description,
+                        "nl": nl.settings.default.setup.verification_system.menu.receiveChannel.description
                     })
                     .setRequired(true))
                 .addRoleOption(option => option
-                    .setName(en.VerificationMenuWelcomeStaffName)
+                    .setName(en.settings.default.setup.verification_system.menu.staffRole.name)
                     .setNameLocalizations({
-                        fr: fr.VerificationMenuWelcomeStaffName,
-                        de: de.VerificationMenuWelcomeStaffName,
-                        SpanishES: sp.VerificationMenuWelcomeStaffName,
-                        nl: nl.VerificationMenuWelcomeStaffName
+                        "fr": fr.settings.default.setup.verification_system.menu.staffRole.name,
+                        "de": de.settings.default.setup.verification_system.menu.staffRole.name,
+                        "es-ES": sp.settings.default.setup.verification_system.menu.staffRole.name,
+                        "nl": nl.settings.default.setup.verification_system.menu.staffRole.name
                     })
-                    .setDescription(en.VerificationMenuWelcomeStaffDescription)
+                    .setDescription(en.settings.default.setup.verification_system.menu.staffRole.description)
                     .setDescriptionLocalizations({
-                        fr: fr.VerificationMenuWelcomeStaffDescription,
-                        de: de.VerificationMenuWelcomeStaffDescription,
-                        SpanishES: sp.VerificationMenuWelcomeStaffDescription,
-                        nl: nl.VerificationMenuWelcomeStaffDescription
+                        "fr": fr.settings.default.setup.verification_system.menu.staffRole.description,
+                        "de": de.settings.default.setup.verification_system.menu.staffRole.description,
+                        "es-ES": sp.settings.default.setup.verification_system.menu.staffRole.description,
+                        "nl": nl.settings.default.setup.verification_system.menu.staffRole.description
                     })
                     .setRequired(true))
                 .addRoleOption(option => option
-                    .setName(en.VerificationMenuWelcomeAddName)
+                    .setName(en.settings.default.setup.verification_system.menu.addRole.name)
                     .setNameLocalizations({
-                        fr: fr.VerificationMenuWelcomeAddName,
-                        de: de.VerificationMenuWelcomeAddName,
-                        SpanishES: sp.VerificationMenuWelcomeAddName,
-                        nl: nl.VerificationMenuWelcomeAddName
+                        "fr": fr.settings.default.setup.verification_system.menu.addRole.name,
+                        "de": de.settings.default.setup.verification_system.menu.addRole.name,
+                        "es-ES": sp.settings.default.setup.verification_system.menu.addRole.name,
+                        "nl": nl.settings.default.setup.verification_system.menu.addRole.name
                     })
-                    .setDescription(en.VerificationMenuWelcomeAddDescription)
+                    .setDescription(en.settings.default.setup.verification_system.menu.addRole.description)
                     .setDescriptionLocalizations({
-                        fr: fr.VerificationMenuWelcomeAddDescription,
-                        de: de.VerificationMenuWelcomeAddDescription,
-                        SpanishES: sp.VerificationMenuWelcomeAddDescription,
-                        nl: nl.VerificationMenuWelcomeAddDescription
+                        "fr": fr.settings.default.setup.verification_system.menu.addRole.description,
+                        "de": de.settings.default.setup.verification_system.menu.addRole.description,
+                        "es-ES": sp.settings.default.setup.verification_system.menu.addRole.description,
+                        "nl": nl.settings.default.setup.verification_system.menu.addRole.description
                     })
                     .setRequired(true))
                 .addRoleOption(option => option
-                    .setName(en.VerificationMenuWelcomeRemoveName)
+                    .setName(en.settings.default.setup.verification_system.menu.removeRole.name)
                     .setNameLocalizations({
-                        fr: fr.VerificationMenuWelcomeRemoveName,
-                        de: de.VerificationMenuWelcomeRemoveName,
-                        SpanishES: sp.VerificationMenuWelcomeRemoveName,
-                        nl: nl.VerificationMenuWelcomeRemoveName
+                        "fr": fr.settings.default.setup.verification_system.menu.removeRole.name,
+                        "de": de.settings.default.setup.verification_system.menu.removeRole.name,
+                        "es-ES": sp.settings.default.setup.verification_system.menu.removeRole.name,
+                        "nl": nl.settings.default.setup.verification_system.menu.removeRole.name
                     })
-                    .setDescription(en.VerificationMenuWelcomeRemoveDescription)
+                    .setDescription(en.settings.default.setup.verification_system.menu.removeRole.description)
                     .setDescriptionLocalizations({
-                        fr: fr.VerificationMenuWelcomeRemoveDescription,
-                        de: de.VerificationMenuWelcomeRemoveDescription,
-                        SpanishES: sp.VerificationMenuWelcomeRemoveDescription,
-                        nl: nl.VerificationMenuWelcomeRemoveDescription
+                        "fr": fr.settings.default.setup.verification_system.menu.removeRole.description,
+                        "de": de.settings.default.setup.verification_system.menu.removeRole.description,
+                        "es-ES": sp.settings.default.setup.verification_system.menu.removeRole.description,
+                        "nl": nl.settings.default.setup.verification_system.menu.removeRole.description
                     })
                     .setRequired(false))))
 
-        // Logging
+        // Logging System
 
         .addSubcommand(subcommand => subcommand
-            .setName(en.LoggingName)
+            .setName(en.settings.default.setup.logging_system.name)
             .setNameLocalizations({
-                fr: fr.LoggingName,
-                de: de.LoggingName,
-                SpanishES: sp.LoggingName,
-                nl: nl.LoggingName
+                "fr": fr.settings.default.setup.logging_system.name,
+                "de": de.settings.default.setup.logging_system.name,
+                "es-ES": sp.settings.default.setup.logging_system.name,
+                "nl": nl.settings.default.setup.logging_system.name
             })
-            .setDescription(en.LoggingDescription)
+            .setDescription(en.settings.default.setup.logging_system.description)
             .setDescriptionLocalizations({
-                fr: fr.LoggingDescription,
-                de: de.LoggingDescription,
-                SpanishES: sp.LoggingDescription,
-                nl: nl.LoggingDescription
+                "fr": fr.settings.default.setup.logging_system.description,
+                "de": de.settings.default.setup.logging_system.description,
+                "es-ES": sp.settings.default.setup.logging_system.description,
+                "nl": nl.settings.default.setup.logging_system.description
             })
             .addStringOption(option => option
-                .setName(en.LoggingOptionsName)
+                .setName(en.settings.default.setup.logging_system.options.name)
                 .setNameLocalizations({
-                    fr: fr.LoggingOptionsName,
-                    de: de.LoggingOptionsName,
-                    SpanishES: sp.LoggingOptionsName,
-                    nl: nl.LoggingOptionsName
+                    "fr": fr.settings.default.setup.logging_system.options.name,
+                    "de": de.settings.default.setup.logging_system.options.name,
+                    "es-ES": sp.settings.default.setup.logging_system.options.name,
+                    "nl": nl.settings.default.setup.logging_system.options.name
                 })
-                .setDescription(en.LoggingOptionsDescription)
+                .setDescription(en.settings.default.setup.logging_system.options.description)
                 .setDescriptionLocalizations({
-                    fr: fr.LoggingOptionsDescription,
-                    de: de.LoggingOptionsDescription,
-                    SpanishES: sp.LoggingOptionsDescription,
-                    nl: nl.LoggingOptionsDescription
+                    "fr": fr.settings.default.setup.logging_system.options.description,
+                    "de": de.settings.default.setup.logging_system.options.description,
+                    "es-ES": sp.settings.default.setup.logging_system.options.description,
+                    "nl": nl.settings.default.setup.logging_system.options.description
                 })
                 .setRequired(true)
                 .addChoices(
@@ -502,571 +514,602 @@ module.exports = {
                     { name: "Disable", value: "disable" },
                 ))
             .addChannelOption(option => option
-                .setName(en.LoggingChannelName)
+                .setName(en.settings.default.setup.logging_system.channel.name)
                 .setNameLocalizations({
-                    fr: fr.LoggingChannelName,
-                    de: de.LoggingChannelName,
-                    SpanishES: sp.LoggingChannelName,
-                    nl: nl.LoggingChannelName
+                    "fr": fr.settings.default.setup.logging_system.channel.name,
+                    "de": de.settings.default.setup.logging_system.channel.name,
+                    "es-ES": sp.settings.default.setup.logging_system.channel.name,
+                    "nl": nl.settings.default.setup.logging_system.channel.name
                 })
-                .setDescription(en.LoggingChannelDescription)
+                .setDescription(en.settings.default.setup.logging_system.channel.description)
                 .setDescriptionLocalizations({
-                    fr: fr.LoggingChannelDescription,
-                    de: de.LoggingChannelDescription,
-                    SpanishES: sp.LoggingChannelDescription,
-                    nl: nl.LoggingChannelDescription
+                    "fr": fr.settings.default.setup.logging_system.channel.description,
+                    "de": de.settings.default.setup.logging_system.channel.description,
+                    "es-ES": sp.settings.default.setup.logging_system.channel.description,
+                    "nl": nl.settings.default.setup.logging_system.channel.description
                 })
                 .setRequired(false))),
     execute: async (interaction, bot, sequelize, Sequelize) => {
+        const Logging = sequelize.define("Logging", {
+            guildId: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            channelId_Report: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            channelId_Ban: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            channelId_AfterVerify: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            channelId_AfterVerify: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            channelId_Welcome: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            roleAutoRoleId_Welcome: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            staffRoleId_Report: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            staffRoleId_Verify: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            roleAddId_Verify: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            roleRemoveId_Verify: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            status_Blacklist: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            status_BlacklistAutoban: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            channelId_Blacklist: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            channelId_Warn: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            channelId_Unban: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            channelId_Kick: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            channelId_ReceiveVerification: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            status_BlacklistAutoban: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            status_canActionMessage: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            status_canActionImage: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            channelId_Leaving: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            channelId_TicketParent: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            channelId_TicketReceive: {
+                type: Sequelize.STRING,
+                unique: false,
+            },
+            language: {
+                type: Sequelize.STRING,
+            },
+        });
+
+        let loggingData = await Logging.findOne({ where: { guildId: interaction.guild.id } });
+
+        switch (loggingData.language) {
+            case ("en"):
+                languageSet = en;
+
+                break;
+            case ("fr"):
+                languageSet = fr;
+
+                break;
+            case ("de"):
+                languageSet = de;
+
+                break;
+            case ("sp"):
+                languageSet = sp;
+
+                break;
+            case ("nl"):
+                languageSet = nl;
+
+                break;
+            default:
+                languageSet = en;
+
+                break;
+        }
+
         try {
-            if (!interaction.guild) {
-                return interaction.reply({
-                    content: "Use this command inside a server only!"
-                });
-            };
-
-            const CommandFunction = sequelize.define("CommandFunction", {
-                name: {
-                    type: Sequelize.STRING,
-                },
-                value: {
-                    type: Sequelize.STRING,
-                },
-            });
-
-            const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
-            const MessageReason = require("../config/message.json");
-
-            if (FindCommand) {
-                if (FindCommand.value === "Disable") {
-                    return interaction.reply({
-                        content: MessageReason.CommandDisabled,
-                        ephemeral: true,
-                    });
-                };
-            };
-
-            if (interaction.member.permissions.has("ADMINISTRATOR") | interaction.member.permissions.has("MANAGE_GUILD") | interaction.user.id === Config.ownerId) {
-                let options = interaction.options.getSubcommand();
-                let channelOptions = interaction.options.getChannel(en.LoggingChannelName);
-                let channelOptions2 = interaction.options.getChannel(en.VerificationWelcomeName);
-                let channelOptions3 = interaction.options.getChannel(en.VerificationMenuWelcomeReceiveName);
-                let roleOptions = interaction.options.getRole(en.SetupReportRoleName);
-                let addRoleOptions = interaction.options.getRole(en.VerificationWelcomeAddName);
-                let removeRoleOptions = interaction.options.getRole(en.VerificationWelcomeRemoveName);
-                let staffRoleOptions = interaction.options.getRole(en.VerificationWelcomeStaffName);
-                let booleanBlacklist = interaction.options.getString(en.SetupActionStatusName);
-                let autobanStatus = interaction.options.getString(en.SetupBlacklistAutobanName);
-                let optionsLogging = interaction.options.getString(en.LoggingOptionsName);
-                let AutoRoleOptions = interaction.options.getRole(en.SetupWelcomeRoleName);
-
-                const Logging = sequelize.define("Logging", {
-                    GuildID: {
-                        type: Sequelize.STRING,
-                        unique: false,
-                    },
-                    ChannelIDReport: {
-                        type: Sequelize.STRING,
-                        unique: false,
-                    },
-                    ChannelIDBan: {
-                        type: Sequelize.STRING,
-                        unique: false,
-                    },
-                    ChannelIDVerify: {
-                        type: Sequelize.STRING,
-                        unique: false,
-                    },
-                    ChannelIDEnterServer: {
-                        type: Sequelize.STRING,
-                        unique: false,
-                    },
-                    ChannelIDWelcome: {
-                        type: Sequelize.STRING,
-                        unique: false,
-                    },
-                    StaffRoleReport: {
-                        type: Sequelize.STRING,
-                        unique: false,
-                    },
-                    StaffRoleVerify: {
-                        type: Sequelize.STRING,
-                        unique: false,
-                    },
-                    RoleToAddVerify: {
-                        type: Sequelize.STRING,
-                        unique: false,
-                    },
-                    RoleToRemoveVerify: {
-                        type: Sequelize.STRING,
-                        unique: false,
-                    },
-                    EnableDisableBlacklistLogger: {
-                        type: Sequelize.STRING,
-                        unique: false,
-                    },
-                    ChannelIDBlacklist: {
-                        type: Sequelize.STRING,
-                        unique: false,
-                    },
-                    ChannelIDWarn: {
-                        type: Sequelize.STRING,
-                        unique: false,
-                    },
-                    ChannelIDUnban: {
-                        type: Sequelize.STRING,
-                        unique: false,
-                    },
-                    ChannelIDKick: {
-                        type: Sequelize.STRING,
-                        unique: false,
-                    },
-                    ChannelIDReceiveVerification: {
-                        type: Sequelize.STRING,
-                        unique: false,
-                    },
-                    AutoBanStatus: {
-                        type: Sequelize.STRING,
-                        unique: false,
-                    },
-                    SettingsActionMessage: {
-                        type: Sequelize.STRING,
-                        unique: false,
-                    },
-                    SettingsActionImage: {
-                        type: Sequelize.STRING,
-                        unique: false,
-                    },
-                    AutoRole: {
-                        type: Sequelize.STRING,
-                        unique: false,
-                    },
-                    ChannelIDLeaving: {
-                        type: Sequelize.STRING,
-                        unique: false,
-                    },
-                });
-
-                removeRoleOptions ? removeRole = removeRoleOptions.name : removeRole = removeRoleOptions;
-
-                /*let ChannelName = "**Channel**";
-
-                let settingsButton = new ActionRowBuilder()
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setCustomId('adminButton')
-                            .setLabel('⚒️')
-                            .setStyle(ButtonStyle.Success),
-                    )
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setCustomId('modButton')
-                            .setLabel('🛡️')
-                            .setStyle(ButtonStyle.Success),
-                    )
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setCustomId('utilitiesButton')
-                            .setLabel('🔧')
-                            .setStyle(ButtonStyle.Success),
-                    )
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setCustomId('funButton')
-                            .setLabel('🎲')
-                            .setStyle(ButtonStyle.Success),
-                    ).addComponents(
-                        new ButtonBuilder()
-                            .setLabel('Support Server')
-                            .setURL(Config.SupportDiscord)
-                            .setStyle(ButtonStyle.Link),
-                    );
-
-                let settingsMainMenu = new EmbedBuilder()
-                    .setTitle("⚙️ Settings")
-                    .setDescription("Click on the reaction according to what you want.")
-                    .addFields(
-                        { name: "⚒️ Administration", value: "View the page of the admin command/function." },
-                        { name: "🛡️ Moderation", value: "View the page of the moderation command/function." },
-                        { name: "🔧 Utilities", value: "View the page of the utilities command/function." },
-                        { name: "🎲 Fun", value: "View the page of the fun command/function." }
-                    )
-                    .setColor(Color.Blue)
-
-                return interaction.reply({
-                    embeds: [settingsMainMenu],
-                    components: [settingsButton]
-                });*/
-
-                switch (options) {
-                    case (en.SetupReportName):
-                        let role = roleOptions;
-                        if (role) role = roleOptions.name;
-                        if (!role) role = roleOptions;
-
-                        if (role === "@everyone") {
-                            const embed = new EmbedBuilder()
-                                .setDescription(loggingPreset.SettingsError)
-                                .addFields(
-                                    { name: "**Role provided**", value: "The role (@everyone) cannot be used!", inline: true },
-                                );
-
-                            return interaction.reply({
-                                embeds: [embed],
-                                ephemeral: true,
-                            });
-                        };
-
-                        const ReportEmbed = new EmbedBuilder()
-                            .setDescription(loggingPreset.SettingsUpdated)
-                            .addFields(
-                                { name: ChannelName, value: channelOptions.toLocaleString(), inline: true },
-                            );
-
-                        if (!roleOptions) {
-                            await Logging.update({
-                                ChannelIDReport: channelOptions.id
-                            }, { where: { GuildID: interaction.guild.id } });
-
-                        } else {
-                            await Logging.update({
-                                ChannelIDReport: channelOptions.id,
-                                StaffRoleReport: roleOptions.id
-                            }, { where: { GuildID: interaction.guild.id } });
-
-                            ReportEmbed.addFields(
-                                { name: "**Role to Ping:**", value: roleOptions.toLocaleString(), inline: true }
-                            );
-                        };
-
-                        return interaction.reply({
-                            embeds: [ReportEmbed],
-                            ephemeral: true,
-                        });
-                    case (en.SetupActionName):
-                        if (optionsLogging === "image") optionsLogging = "Image";
-                        if (optionsLogging === "message") optionsLogging = "Message";
-                        if (booleanBlacklist === "true") booleanBlacklist = "Enabled";
-                        if (booleanBlacklist === "false") booleanBlacklist = "Disabled";
-
-                        const ActionEmbed = new EmbedBuilder()
-                            .setDescription(loggingPreset.SettingsUpdated)
-
-                        if (optionsLogging === "Image") {
-                            await Logging.update({
-                                SettingsActionMessage: booleanBlacklist,
-                            }, { where: { GuildID: interaction.guild.id } })
-
-                            ActionEmbed.addFields(
-                                { name: "**Action Message**", value: booleanBlacklist, inline: true }
-                            )
-
-                            return interaction.reply({
-                                embeds: [embed],
-                                ephemeral: true,
-                            })
-                        }
-
-                        if (optionsLogging === "Message") {
-                            await Logging.update({
-                                SettingsActionImage: booleanBlacklist,
-                            }, { where: { GuildID: interaction.guild.id } })
-
-                            ActionEmbed.addFields(
-                                { name: "**Action Image**", value: booleanBlacklist, inline: true }
-                            )
-                        }
-
-                        return interaction.reply({
-                            embeds: [ActionEmbed],
-                            ephemeral: true,
-                        });
-                    case (en.SetupWelcomeName):
-                        if (!AutoRoleOptions) {
-                            await Logging.update({ ChannelIDWelcome: channelOptions.id }, { where: { GuildID: interaction.guild.id } })
-
-                            const embed = new EmbedBuilder()
-                                .setDescription(loggingPreset.SettingsUpdated)
-                                .addFields(
-                                    { name: "**Welcome Channel**", value: channelOptions.toLocaleString(), inline: true },
-                                )
-
-                            return interaction.reply({
-                                embeds: [embed],
-                                ephemeral: true,
-                            });
-                        }
-
-                        if (!channelOptions) {
-                            await Logging.update({ AutoRole: AutoRoleOptions.id }, { where: { GuildID: interaction.guild.id } })
-
-                            const embed = new EmbedBuilder()
-                                .setDescription(loggingPreset.SettingsUpdated)
-                                .addFields(
-                                    { name: "**Auto-Role**", value: AutoRoleOptions.toLocaleString(), inline: true },
-                                )
-
-                            return interaction.reply({
-                                embeds: [embed],
-                                ephemeral: true,
-                            });
-                        };
-                    case (en.SetupBlacklistName):
-                        if (booleanBlacklist) {
-                            if (booleanBlacklist === "true") booleanBlacklist = "Enabled";
-                            if (booleanBlacklist === "false") booleanBlacklist = "Disabled";
-                            if (autobanStatus === "low") autobanStatus = "Low+";
-                            if (autobanStatus === "medium") autobanStatus = "Medium+";
-                            if (autobanStatus === "high") autobanStatus = "High+";
-                            if (autobanStatus === "disable") autobanStatus = "Disabled";
-
-                            const BlacklistEmbed = new EmbedBuilder()
-                                .setDescription(loggingPreset.SettingsUpdated)
-                                .addFields(
-                                    { name: "**Status**", value: booleanBlacklist, inline: true },
-                                )
-
-                            if (!channelOptions) {
-                                await Logging.update({
-                                    EnableDisableBlacklistLogger: booleanBlacklist,
-                                    AutoBanStatus: autobanStatus
-                                }, { where: { GuildID: interaction.guild.id } })
-
-                                BlacklistEmbed.addFields(
-                                    { name: "**Auto-ban**", value: autobanStatus, inline: true }
-                                )
-                            }
-
-                            if (!autobanStatus) {
-                                await Logging.update({
-                                    EnableDisableBlacklistLogger: booleanBlacklist,
-                                    ChannelIDBlacklist: channelOptions.id,
-                                }, { where: { GuildID: interaction.guild.id } })
-
-                                BlacklistEmbed.addFields(
-                                    { name: "**Channel**", value: channelOptions.toLocaleString(), inline: true }
-                                )
-                            }
-
-                            if (channelOptions && autobanStatus) {
-                                await Logging.update({
-                                    EnableDisableBlacklistLogger: booleanBlacklist,
-                                    AutoBanStatus: autobanStatus,
-                                    ChannelIDBlacklist: channelOptions.id,
-                                }, { where: { GuildID: interaction.guild.id } })
-
-                                BlacklistEmbed.addFields(
-                                    { name: "**Channel**", value: channelOptions.toLocaleString(), inline: true },
-                                    { name: "**Auto-ban**", value: autobanStatus, inline: true }
-                                )
-                            }
-
-                            return interaction.reply({
-                                embeds: [BlacklistEmbed],
-                                ephemeral: true,
-                            })
-                        };
-                    case (en.LoggingName):
-                        const LoggingEmbed = new EmbedBuilder()
-                            .setDescription(loggingPreset.SettingsUpdated)
-
-                        switch (optionsLogging) {
-                            case ("all"):
-                                if (channelOptions) {
-                                    await Logging.update({
-                                        ChannelIDBan: channelOptions.id,
-                                        ChannelIDUnban: channelOptions.id,
-                                        ChannelIDKick: channelOptions.id,
-                                        ChannelIDWarn: channelOptions.id,
-                                    }, { where: { GuildID: interaction.guild.id } });
-
-                                    return LoggingEmbed.addFields(
-                                        { name: "**Channel**", value: channelOptions.toLocaleString(), inline: true },
-                                    );
-                                } else {
-                                    return interaction.reply({
-                                        content: [loggingPreset.ChannelNeeded]
-                                    });
-                                };
-                            case ("ban"):
-                                if (channelOptions) {
-                                    await Logging.update({
-                                        ChannelIDBan: channelOptions.id,
-                                    }, { where: { GuildID: interaction.guild.id } });
-
-                                    return LoggingEmbed.addFields(
-                                        { name: "**Channel**", value: channelOptions.toLocaleString(), inline: true },
-                                    );
-                                } else {
-                                    return interaction.reply({
-                                        content: [loggingPreset.ChannelNeeded]
-                                    });
-                                };
-                            case ("kick"):
-                                if (channelOptions) {
-                                    await Logging.update({
-                                        ChannelIDKick: channelOptions.id,
-                                    }, { where: { GuildID: interaction.guild.id } });
-
-                                    return LoggingEmbed.addFields(
-                                        { name: "**Channel**", value: channelOptions.toLocaleString(), inline: true },
-                                    );
-                                } else {
-                                    return interaction.reply({
-                                        content: [loggingPreset.ChannelNeeded]
-                                    });
-                                };
-                            case ("warn"):
-                                if (channelOptions) {
-                                    await Logging.update({
-                                        ChannelIDWarn: channelOptions.id,
-                                    }, { where: { GuildID: interaction.guild.id } });
-
-                                    return LoggingEmbed.addFields(
-                                        { name: "**Channel**", value: channelOptions.toLocaleString(), inline: true },
-                                    );
-                                } else {
-                                    return interaction.reply({
-                                        content: [loggingPreset.ChannelNeeded]
-                                    });
-                                };
-                            case ("unban"):
-                                if (channelOptions) {
-                                    await Logging.update({
-                                        ChannelIDUnban: channelOptions.id,
-                                    }, { where: { GuildID: interaction.guild.id } });
-
-                                    return LoggingEmbed.addFields(
-                                        { name: "**Channel**", value: channelOptions.toLocaleString(), inline: true },
-                                    );
-                                } else {
-                                    return interaction.reply({
-                                        content: [loggingPreset.ChannelNeeded]
-                                    });
-                                };
-                            case ("disable"):
-                                await Logging.update({
-                                    ChannelIDBan: null,
-                                    ChannelIDUnban: null,
-                                    ChannelIDKick: null,
-                                    ChannelIDWarn: null,
-                                }, { where: { GuildID: interaction.guild.id } });
-
-                                return LoggingEmbed.addFields(
-                                    { name: "**Channel**", value: "Disabled", inline: true },
-                                );
-                        };
-
-                        return interaction.reply({
-                            embeds: [LoggingEmbed],
-                            ephemeral: true,
-                        });
-                    case (en.VerificationCommandName):
-                        if (staffRoleOptions.name === "@everyone" | addRoleOptions.name === "@everyone" | removeRole === "@everyone") {
-                            const embed = new EmbedBuilder()
-                                .setDescription(loggingPreset.SettingsError)
-                                .addFields(
-                                    { name: "**Role provided**", value: "The role (@everyone) cannot be used!", inline: true },
-                                );
-
-                            return interaction.reply({
-                                embeds: [embed],
-                                ephemeral: true,
-                            });
-                        };
-
-                        const VerificationCommandEmbed = new EmbedBuilder()
-                            .setDescription("Settings Changed")
-                            .addFields(
-                                { name: "**Welcome Channel:**", value: channelOptions2.toLocaleString(), inline: true },
-                                { name: "**Staff:**", value: staffRoleOptions.toLocaleString(), inline: true },
-                                { name: "**Role to Add:**", value: addRoleOptions.toLocaleString(), inline: true },
-                            );
-
-                        if (!removeRoleOptions) {
-                            await Logging.update({
-                                ChannelIDVerify: channelOptions2.id,
-                                StaffRoleVerify: staffRoleOptions.id,
-                                RoleToAddVerify: addRoleOptions.id
-                            }, { where: { GuildID: interaction.guild.id } });
-                        } else {
-                            await Logging.update({
-                                ChannelIDVerify: channelOptions2.id,
-                                StaffRoleVerify: staffRoleOptions.id,
-                                RoleToAddVerify: addRoleOptions.id,
-                                RoleToRemoveVerify: removeRoleOptions.id
-                            }, { where: { GuildID: interaction.guild.id } });
-
-                            VerificationCommandEmbed.addFields(
-                                { name: "**Role to Remove:**", value: removeRoleOptions.toLocaleString(), inline: true },
-                            );
-                        };
-
-                        return interaction.reply({
-                            embeds: [VerificationCommandEmbed],
-                            ephemeral: true,
-                        });
-                    case (en.VerificationMenuName):
-                        if (staffRoleOptions.name === "@everyone" | addRoleOptions.name === "@everyone" | removeRole === "@everyone") {
-                            const embed = new EmbedBuilder()
-                                .setDescription(loggingPreset.SettingsError)
-                                .addFields(
-                                    { name: "**Role provided**", value: "The role (@everyone) cannot be used!", inline: true },
-                                );
-
-                            return interaction.reply({
-                                embeds: [embed],
-                                ephemeral: true,
-                            });
-                        };
-
-                        const VerificationMenuEmbed = new EmbedBuilder()
-                            .setDescription(loggingPreset.SettingsUpdated)
-                            .addFields(
-                                { name: "**Welcome Channel:**", value: channelOptions2.toLocaleString(), inline: true },
-                                { name: "**Receive Channel**", value: channelOptions3.toLocaleString(), inline: true },
-                                { name: "**Staff Role:**", value: staffRoleOptions.toLocaleString(), inline: true },
-                                { name: "**Role to Add:**", value: addRoleOptions.toLocaleString(), inline: true },
-                            );
-
-                        if (!removeRoleOptions) {
-                            await Logging.update({
-                                ChannelIDVerify: channelOptions2.id,
-                                ChannelIDReceiveVerification: channelOptions3.id,
-                                StaffRoleVerify: staffRoleOptions.id,
-                                RoleToAddVerify: addRoleOptions.id
-                            }, { where: { GuildID: interaction.guild.id } });
-                        } else {
-                            await Logging.update({
-                                ChannelIDVerify: channelOptions2.id,
-                                ChannelIDReceiveVerification: channelOptions3.id,
-                                StaffRoleVerify: staffRoleOptions.id,
-                                RoleToAddVerify: addRoleOptions.id,
-                                RoleToRemoveVerify: removeRoleOptions.id
-                            }, { where: { GuildID: interaction.guild.id } });
-
-                            VerificationMenuEmbed.addFields(
-                                { name: "**Role to Remove:**", value: removeRoleOptions.toLocaleString(), inline: true },
-                            );
-                        };
-
-                        return interaction.reply({
-                            embeds: [VerificationMenuEmbed],
-                            ephemeral: true,
-                        });
-                };
-            } else {
+            if (!interaction.member.permissions.has("ADMINISTRATOR") | !interaction.member.permissions.has("MANAGE_GUILD") | interaction.user.id !== configPreset.botInfo.ownerId) {
                 return interaction.reply({
                     content: "You cannot execute that command! You need the following permission: ``ADMINISTRATOR`` or ``MANAGE_GUILD``.",
                     ephemeral: true,
                 });
             };
+
+            // Setup
+
+            let options = interaction.options.getSubcommand();
+
+            // Report System
+
+            let reportChannelOption = interaction.options.getChannel(en.settings.default.setup.report_system.channel.name);
+            let reportStaffRoleOption = interaction.options.getRole(en.settings.default.setup.report_system.staffRole.name);
+
+            // Verification System
+
+            let welcomeChannelOption = interaction.options.getChannel(en.settings.default.setup.verification_system.menu.channel.name);
+            let receiveChannelOption = interaction.options.getChannel(en.settings.default.setup.verification_system.menu.receiveChannel.name);
+            let addRoleOption = interaction.options.getRole(en.settings.default.setup.verification_system.menu.addRole.name);
+            let removeRoleOption = interaction.options.getRole(en.settings.default.setup.verification_system.menu.removeRole.name);
+            let staffRoleOption = interaction.options.getRole(en.settings.default.setup.verification_system.menu.staffRole.name);
+
+            removeRoleOption ? removeRole = removeRoleOption.name : removeRole = removeRoleOption;
+
+            // Blacklist System
+
+            let status_Bool = interaction.options.getString(en.settings.default.setup.blacklist_system.status.name);
+            let status_AutoBan = interaction.options.getString(en.settings.default.setup.blacklist_system.autoban.name);
+
+            // Welcome System
+
+            let roleAutoRole = interaction.options.getRole(en.settings.default);
+
+            // Logging System
+
+            let optionsLogging = interaction.options.getString(en.settings.default.setup.logging_system.options.name);
+
+            /*let ChannelName = "**Channel**";
+
+            let settingsButton = new ActionRowBuilder()
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('adminButton')
+                        .setLabel('⚒️')
+                        .setStyle(ButtonStyle.Success),
+                )
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('modButton')
+                        .setLabel('🛡️')
+                        .setStyle(ButtonStyle.Success),
+                )
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('utilitiesButton')
+                        .setLabel('🔧')
+                        .setStyle(ButtonStyle.Success),
+                )
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('funButton')
+                        .setLabel('🎲')
+                        .setStyle(ButtonStyle.Success),
+                ).addComponents(
+                    new ButtonBuilder()
+                        .setLabel('Support Server')
+                        .setURL(Config.SupportDiscord)
+                        .setStyle(ButtonStyle.Link),
+                );
+
+            let settingsMainMenu = new EmbedBuilder()
+                .setTitle("⚙️ Settings")
+                .setDescription("Click on the reaction according to what you want.")
+                .addFields(
+                    { name: "⚒️ Administration", value: "View the page of the admin command/function." },
+                    { name: "🛡️ Moderation", value: "View the page of the moderation command/function." },
+                    { name: "🔧 Utilities", value: "View the page of the utilities command/function." },
+                    { name: "🎲 Fun", value: "View the page of the fun command/function." }
+                )
+                .setColor(Color.Blue)
+
+            return interaction.reply({
+                embeds: [settingsMainMenu],
+                components: [settingsButton]
+            });*/
+
+            const settingsEmbed = new EmbedBuilder()
+
+            switch (options) {
+                case (en.settings.default.setup.report_system.name):
+                    reportStaffRoleOption ? reportStaffRoleOption = reportStaffRoleOption.name : reportStaffRoleOption = reportStaffRoleOption;
+
+                    switch (reportStaffRoleOption) {
+                        case ("@everyone"):
+                            settingsEmbed.setDescription(loggingPreset.SettingsError)
+                            settingsEmbed.addFields(
+                                { name: "**Role provided**", value: "The role (@everyone) cannot be used!", inline: true },
+                            );
+
+                            return interaction.reply({
+                                embeds: [settingsEmbed],
+                                ephemeral: true,
+                            });
+                        default:
+                            settingsEmbed.setDescription(loggingPreset.SettingsUpdated)
+                            settingsEmbed.addFields(
+                                { name: ChannelName, value: reportChannelOption.toLocaleString(), inline: true },
+                            );
+
+                            if (reportStaffRoleOption) {
+                                await Logging.update({
+                                    channelId_Report: reportChannelOption.id,
+                                    staffRoleId_Report: reportStaffRoleOption.id
+                                }, { where: { guildId: interaction.guild.id } });
+
+                                settingsEmbed.addFields(
+                                    { name: "**Role to Ping:**", value: reportStaffRoleOption.toLocaleString(), inline: true }
+                                );
+
+                                break;
+                            };
+
+                            await Logging.update({
+                                channelId_Report: reportChannelOption.id,
+                            }, { where: { guildId: interaction.guild.id } });
+
+                            break;
+                    };
+
+                    return interaction.reply({
+                        embeds: [settingsEmbed],
+                        ephemeral: true,
+                    });
+                case (en.settings.default.setup.action_system.name):
+                    status_Bool === "true" ? status_Bool = "Enabled" : status_Bool = "Disabled";
+
+                    settingsEmbed.setDescription(loggingPreset.SettingsUpdated)
+
+                    switch (optionsLogging) {
+                        case ("image"):
+                            await Logging.update({
+                                status_canActionMessage: status_Bool,
+                            }, { where: { guildId: interaction.guild.id } })
+
+                            settingsEmbed.addFields(
+                                { name: "**Action Message**", value: status_Bool, inline: true }
+                            );
+
+                            break;
+                        case ("message"):
+                            await Logging.update({
+                                status_canActionImage: status_Bool,
+                            }, { where: { guildId: interaction.guild.id } })
+
+                            settingsEmbed.addFields(
+                                { name: "**Action Image**", value: status_Bool, inline: true }
+                            );
+
+                            break;
+                    };
+
+                    return interaction.reply({
+                        embeds: [settingsEmbed],
+                        ephemeral: true,
+                    });
+                case (en.settings.default.setup.welcome_system.name):
+                    if (!roleAutoRole) {
+                        await Logging.update({
+                            channelId_Welcome: reportChannelOption.id
+                        }, { where: { guildId: interaction.guild.id } })
+
+                        settingsEmbed.setDescription(loggingPreset.SettingsUpdated)
+                        settingsEmbed.addFields(
+                            { name: "**Welcome Channel**", value: reportChannelOption.toLocaleString(), inline: true },
+                        )
+                    } else if (!reportChannelOption) {
+                        await Logging.update({
+                            roleAutoRoleId_Welcome: roleAutoRole.id
+                        }, { where: { guildId: interaction.guild.id } })
+
+                        settingsEmbed.setDescription(loggingPreset.SettingsUpdated)
+                        settingsEmbed.addFields(
+                            { name: "**Auto-Role**", value: roleAutoRole.toLocaleString(), inline: true },
+                        )
+                    };
+
+                    return interaction.reply({
+                        embeds: [settingsEmbed],
+                        ephemeral: true,
+                    });
+                case (en.settings.default.setup.blacklist_system.name):
+                    if (status_Bool) {
+                        status_Bool === "true" ? status_Bool = "Enabled" : status_Bool = "Disabled";
+
+                        switch (status_AutoBan) {
+                            case ("low"):
+                                status_AutoBan = "Low+";
+                                break;
+                            case ("medium"):
+                                status_AutoBan = "Medium+";
+                                break;
+                            case ("high"):
+                                status_AutoBan = "High+";
+                                break;
+                            case ("disable"):
+                                status_AutoBan = "Disabled";
+                                break;
+                        };
+
+                        settingsEmbed.setDescription(loggingPreset.SettingsUpdated);
+                        settingsEmbed.addFields(
+                            { name: "**Status**", value: status_Bool, inline: true },
+                        );
+
+                        if (!reportChannelOption) {
+                            await Logging.update({
+                                status_Blacklist: status_Bool,
+                                status_BlacklistAutoban: status_AutoBan
+                            }, { where: { guildId: interaction.guild.id } });
+
+                            settingsEmbed.addFields(
+                                { name: "**Auto-ban**", value: status_AutoBan, inline: true }
+                            );
+                        } else if (!status_AutoBan) {
+                            await Logging.update({
+                                status_Blacklist: status_Bool,
+                                channelId_Blacklist: reportChannelOption.id,
+                            }, { where: { guildId: interaction.guild.id } });
+
+                            settingsEmbed.addFields(
+                                { name: "**Channel**", value: reportChannelOption.toLocaleString(), inline: true }
+                            );
+                        } else if (reportChannelOption && status_AutoBan) {
+                            await Logging.update({
+                                status_Blacklist: status_Bool,
+                                status_BlacklistAutoban: status_AutoBan,
+                                channelId_Blacklist: reportChannelOption.id,
+                            }, { where: { guildId: interaction.guild.id } });
+
+                            settingsEmbed.addFields(
+                                { name: "**Channel**", value: reportChannelOption.toLocaleString(), inline: true },
+                                { name: "**Auto-ban**", value: status_AutoBan, inline: true }
+                            );
+                        };
+
+                        return interaction.reply({
+                            embeds: [settingsEmbed],
+                            ephemeral: true,
+                        });
+                    };
+                case (en.settings.default.setup.logging_system.name):
+                    settingsEmbed.setDescription(loggingPreset.SettingsUpdated)
+
+                    switch (optionsLogging) {
+                        case ("all"):
+                            if (reportChannelOption) {
+                                await Logging.update({
+                                    channelId_Ban: reportChannelOption.id,
+                                    channelId_Unban: reportChannelOption.id,
+                                    channelId_Kick: reportChannelOption.id,
+                                    channelId_Warn: reportChannelOption.id,
+                                }, { where: { guildId: interaction.guild.id } });
+
+                                return LoggingEmbed.addFields(
+                                    { name: "**Channel**", value: reportChannelOption.toLocaleString(), inline: true },
+                                );
+                            } else {
+                                return interaction.reply({
+                                    content: [loggingPreset.ChannelNeeded]
+                                });
+                            };
+                        case ("ban"):
+                            if (reportChannelOption) {
+                                await Logging.update({
+                                    channelId_Ban: reportChannelOption.id,
+                                }, { where: { guildId: interaction.guild.id } });
+
+                                return LoggingEmbed.addFields(
+                                    { name: "**Channel**", value: reportChannelOption.toLocaleString(), inline: true },
+                                );
+                            } else {
+                                return interaction.reply({
+                                    content: [loggingPreset.ChannelNeeded]
+                                });
+                            };
+                        case ("kick"):
+                            if (reportChannelOption) {
+                                await Logging.update({
+                                    channelId_Kick: reportChannelOption.id,
+                                }, { where: { guildId: interaction.guild.id } });
+
+                                return LoggingEmbed.addFields(
+                                    { name: "**Channel**", value: reportChannelOption.toLocaleString(), inline: true },
+                                );
+                            } else {
+                                return interaction.reply({
+                                    content: [loggingPreset.ChannelNeeded]
+                                });
+                            };
+                        case ("warn"):
+                            if (reportChannelOption) {
+                                await Logging.update({
+                                    channelId_Warn: reportChannelOption.id,
+                                }, { where: { guildId: interaction.guild.id } });
+
+                                return LoggingEmbed.addFields(
+                                    { name: "**Channel**", value: reportChannelOption.toLocaleString(), inline: true },
+                                );
+                            } else {
+                                return interaction.reply({
+                                    content: [loggingPreset.ChannelNeeded]
+                                });
+                            };
+                        case ("unban"):
+                            if (reportChannelOption) {
+                                await Logging.update({
+                                    channelId_Unban: reportChannelOption.id,
+                                }, { where: { guildId: interaction.guild.id } });
+
+                                return LoggingEmbed.addFields(
+                                    { name: "**Channel**", value: reportChannelOption.toLocaleString(), inline: true },
+                                );
+                            } else {
+                                return interaction.reply({
+                                    content: [loggingPreset.ChannelNeeded]
+                                });
+                            };
+                        case ("disable"):
+                            await Logging.update({
+                                channelId_Ban: null,
+                                channelId_Unban: null,
+                                channelId_Kick: null,
+                                channelId_Warn: null,
+                            }, { where: { guildId: interaction.guild.id } });
+
+                            return LoggingEmbed.addFields(
+                                { name: "**Channel**", value: "Disabled", inline: true },
+                            );
+                    };
+
+                    return interaction.reply({
+                        embeds: [settingsEmbed],
+                        ephemeral: true,
+                    });
+                case (en.settings.default.setup.verification_system.command.name):
+                    if (staffRoleOption.name === "@everyone" | addRoleOption.name === "@everyone" | removeRole === "@everyone") {
+                        settingsEmbed.setDescription(loggingPreset.SettingsError);
+                        settingsEmbed.addFields(
+                            { name: "**Role provided**", value: "The roleOptions (@everyone) cannot be used!", inline: true },
+                        );
+
+                        return interaction.reply({
+                            embeds: [settingsEmbed],
+                            ephemeral: true,
+                        });
+                    };
+
+                    settingsEmbed.setDescription("Settings Changed");
+                    settingsEmbed.addFields(
+                        { name: "**Welcome Channel:**", value: welcomeChannelOption.toLocaleString(), inline: true },
+                        { name: "**Staff Role:**", value: staffRoleOption.toLocaleString(), inline: true },
+                        { name: "**Role to Add:**", value: addRoleOption.toLocaleString(), inline: true },
+                    );
+
+                    if (!removeRoleOption) {
+                        await Logging.update({
+                            channelId_AfterVerify: welcomeChannelOption.id,
+                            staffRoleId_Verify: staffRoleOption.id,
+                            roleAddId_Verify: addRoleOption.id
+                        }, { where: { guildId: interaction.guild.id } });
+                    } else {
+                        await Logging.update({
+                            channelId_AfterVerify: welcomeChannelOption.id,
+                            staffRoleId_Verify: staffRoleOption.id,
+                            roleAddId_Verify: addRoleOption.id,
+                            roleRemoveId_Verify: removeRoleOption.id
+                        }, { where: { guildId: interaction.guild.id } });
+
+                        settingsEmbed.addFields(
+                            { name: "**Role to Remove:**", value: removeRoleOption.toLocaleString(), inline: true },
+                        );
+                    };
+
+                    return interaction.reply({
+                        embeds: [settingsEmbed],
+                        ephemeral: true,
+                    });
+                case (en.settings.default.setup.verification_system.menu.name):
+                    if (staffRoleOption.name === "@everyone" | addRoleOption.name === "@everyone" | removeRole === "@everyone") {
+                        settingsEmbed.setDescription(loggingPreset.SettingsError)
+                        settingsEmbed.addFields(
+                            { name: "**Role provided**", value: "The roleOptions (@everyone) cannot be used!", inline: true },
+                        );
+
+                        return interaction.reply({
+                            embeds: [settingsEmbed],
+                            ephemeral: true,
+                        });
+                    };
+
+                    settingsEmbed.setDescription(loggingPreset.SettingsUpdated)
+                    settingsEmbed.addFields(
+                        { name: "**Welcome Channel:**", value: welcomeChannelOption.toLocaleString(), inline: true },
+                        { name: "**Receive Channel**", value: receiveChannelOption.toLocaleString(), inline: true },
+                        { name: "**Staff Role:**", value: staffRoleOption.toLocaleString(), inline: true },
+                        { name: "**Role to Add:**", value: addRoleOption.toLocaleString(), inline: true },
+                    );
+
+                    if (!removeRoleOption) {
+                        await Logging.update({
+                            channelId_AfterVerify: welcomeChannelOption.id,
+                            channelId_ReceiveVerification: receiveChannelOption.id,
+                            staffRoleId_Verify: staffRoleOption.id,
+                            roleAddId_Verify: addRoleOption.id
+                        }, { where: { guildId: interaction.guild.id } });
+                    } else {
+                        await Logging.update({
+                            channelId_AfterVerify: welcomeChannelOption.id,
+                            channelId_ReceiveVerification: receiveChannelOption.id,
+                            staffRoleId_Verify: staffRoleOption.id,
+                            roleAddId_Verify: addRoleOption.id,
+                            roleRemoveId_Verify: removeRoleOption.id
+                        }, { where: { guildId: interaction.guild.id } });
+
+                        settingsEmbed.addFields(
+                            { name: "**Role to Remove:**", value: removeRoleOption.toLocaleString(), inline: true },
+                        );
+                    };
+
+                    return interaction.reply({
+                        embeds: [settingsEmbed],
+                        ephemeral: true,
+                    });
+            };
         } catch (error) {
-            let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
-            let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+            let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
+            let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
+            console.log(interaction.user.id + " -> " + interaction.user.tag);
             console.log(error);
 
-            return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
+            await interaction.reply({
+                content: languageSet.default.errorOccured,
+                ephemeral: true,
+            });
+
+            return crashchannelId.send({ content: "**Error in the '" + en.action.default.name + "' event:** \n\n```javascript\n" + error + "```" });
         };
     }
 };

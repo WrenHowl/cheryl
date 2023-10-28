@@ -279,27 +279,33 @@ const Permission = sequelize.define("Permission", {
 const Ticket = sequelize.define("Ticket", {
   guildId: {
     type: Sequelize.STRING,
+    unique: true,
   },
   reason: {
     type: Sequelize.STRING,
   },
   messageId: {
     type: Sequelize.STRING,
+    unique: true,
   },
   channelId: {
     type: Sequelize.STRING,
+    unique: true,
   },
   userId: {
     type: Sequelize.STRING,
+    unique: true,
   },
   userTag: {
     type: Sequelize.STRING,
   },
   claimedBy: {
     type: Sequelize.STRING,
+    unique: true,
   },
   ticketCount: {
     type: Sequelize.STRING,
+    unique: true,
   }
 })
 const TicketCount = sequelize.define("TicketCount", {
@@ -448,57 +454,54 @@ bot.on("guildMemberAdd", async (newMember) => {
 
     // Checking for welcome config
 
-    switch (loggingData) {
-      case (channelId_Welcome):
+    if (loggingData.channelId_Welcome) {
 
-        // Check if the channel still exist
+      // Check if the channel still exist
 
-        let welcomeChannel = newMember.guild.channels.cache.get(loggingData.channelId_Welcome);
-        if (!welcomeChannel) {
-          return Logging.update({ channelId_Welcome: null }, { where: { guildId: guild.id } });
-        };
+      let welcomeChannel = newMember.guild.channels.cache.get(loggingData.channelId_Welcome);
+      if (!welcomeChannel) {
+        return Logging.update({ channelId_Welcome: null }, { where: { guildId: guild.id } });
+      };
 
-        // Checking if the bot can send message in the channel
+      // Checking if the bot can send message in the channel
 
-        let botPermission = newMember.guild.members.me.permissionsIn(loggingData.channelId_Welcome).has(['SendMessages', 'ViewChannel']);
-        if (!botPermission) return;
+      let botPermission = newMember.guild.members.me.permissionsIn(loggingData.channelId_Welcome).has(['SendMessages', 'ViewChannel']);
+      if (!botPermission) return;
 
-        // Checking if user is a bot
+      // Checking if user is a bot
 
-        if (newMember.user.bot) return;
+      if (newMember.user.bot) return;
 
-        // Get the member count of the server
+      // Get the member count of the server
 
-        let memberCount = guild.members.cache.filter(newMember => !newMember.user.bot).size;
+      let memberCount = guild.members.cache.filter(newMember => !newMember.user.bot).size;
 
-        // Creation of the message to send
+      // Creation of the message to send
 
-        let welcomeEmbed = new EmbedBuilder()
-          .setDescription(lgWelcome.description + newMember.toString() + "!")
-          .addFields(
-            { name: lgWelcome.fields.createdAt, value: moment(newMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") },
-            { name: lgWelcome.fields.memberCount, value: memberCount }
-          )
-          .setColor("Green")
-          .setThumbnail(newMember.user.displayAvatarURL())
-          .setFooter({
-            text: "ID:" + newMember.user.id
-          })
-          .setTimestamp();
+      let welcomeEmbed = new EmbedBuilder()
+        .setDescription(lgWelcome.description + newMember.user.toString() + "!")
+        .addFields(
+          { name: lgWelcome.fields.createdAt, value: moment(newMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") },
+          { name: lgWelcome.fields.memberCount, value: memberCount.toString() }
+        )
+        .setColor("Green")
+        .setThumbnail(newMember.user.displayAvatarURL())
+        .setFooter({
+          text: "ID:" + newMember.user.id
+        })
+        .setTimestamp();
 
-        await welcomeChannel.send({
-          embeds: [welcomeEmbed],
-        }).catch(() => { return });
+      await welcomeChannel.send({
+        embeds: [welcomeEmbed],
+      }).catch(() => { return });
+    }
 
-        break;
-      case (roleAutoRoleId_Welcome):
-        let botPermissionRole = newMember.guild.members.me.permissions.has("ManageRoles");
-        let botPostion = newMember.roles.highest.position >= (await newMember.guild.members.fetch(configPreset.botPrivateInfo.botId)).roles.highest.position;
-        if (botPermissionRole & botPostion) {
-          return newMember.roles.add(loggingData.roleAutoRoleId_Welcome);
-        };
-
-        break;
+    if (loggingData.roleAutoRoleId_Welcome) {
+      let botPermissionRole = newMember.guild.members.me.permissions.has("ManageRoles");
+      let botPostion = newMember.roles.highest.position >= (await newMember.guild.members.fetch(configPreset.botPrivateInfo.botId)).roles.highest.position;
+      if (botPermissionRole & botPostion) {
+        return newMember.roles.add(loggingData.roleAutoRoleId_Welcome);
+      };
     }
 
     // Checking for verification config
@@ -670,83 +673,81 @@ bot.on("guildMemberRemove", async (leavingMember) => {
       return Permission.destroy({ where: { userId: leavingMember.user.id } });
     };
 
-    switch (loggingData) {
-      case (channelId_Leaving):
+    if (loggingData.channelId_Leaving) {
 
-        // Check if channel still exist
+      // Check if channel still exist
 
-        let leavingChannel = leavingMember.guild.channels.cache.get(loggingData.channelId_Leaving);
-        if (!leavingChannel) {
-          return Logging.update({ channelId_Leaving: null }, { where: { guildId: guild.id } });
-        };
+      let leavingChannel = leavingMember.guild.channels.cache.get(loggingData.channelId_Leaving);
+      if (!leavingChannel) {
+        return Logging.update({ channelId_Leaving: null }, { where: { guildId: guild.id } });
+      };
 
-        // Checking if the bot can send message in the channel
+      // Checking if the bot can send message in the channel
 
-        let botPermission = leavingMember.guild.members.me.permissionsIn(loggingData.channelId_Leaving).has(['SendMessages', 'ViewChannel']);
-        if (!botPermission) return;
+      let botPermission = leavingMember.guild.members.me.permissionsIn(loggingData.channelId_Leaving).has(['SendMessages', 'ViewChannel']);
+      if (!botPermission) return;
 
-        // Checking if user is a bot
+      // Checking if user is a bot
 
-        if (leavingMember.user.bot) return;
+      if (leavingMember.user.bot) return;
 
-        // Get the member count of the server
+      // Get the member count of the server
 
-        let memberCount = guild.members.cache.filter(leavingMember => !leavingMember.user.bot).size;
+      let memberCount = guild.members.cache.filter(leavingMember => !leavingMember.user.bot).size;
 
-        // Creation of the message to send
+      // Creation of the message to send
 
-        let leavingMemberEmbed = new EmbedBuilder()
-          .setDescription(lgLeaving.description + leavingMember.toString() + "!")
-          .addFields(
-            { name: lgLeaving.fields.createdAt, value: moment(leavingMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") },
-            { name: lgLeaving.fields.joinedAt, value: moment(leavingMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') },
-            { name: lgLeaving.fields.memberCount, value: memberCount }
-          )
-          .setColor("Green")
-          .setFooter({
-            text: leavingMember.user.id
-          })
-          .setThumbnail(leavingMember.user.displayAvatarURL());
+      let leavingMemberEmbed = new EmbedBuilder()
+        .setDescription(lgLeaving.description + leavingMember.toString() + "!")
+        .addFields(
+          { name: lgLeaving.fields.createdAt, value: moment(leavingMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") },
+          { name: lgLeaving.fields.joinedAt, value: moment(leavingMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') },
+          { name: lgLeaving.fields.memberCount, value: memberCount }
+        )
+        .setColor("Green")
+        .setFooter({
+          text: leavingMember.user.id
+        })
+        .setThumbnail(leavingMember.user.displayAvatarURL());
 
-        // Check if the verification is enable
+      // Check if the verification is enable
 
-        let verifierData = await Verifier.findOne({ where: { guildId: guild.id, userId: leavingMember.user.id } });
-        verifierData ? statusVerification = en.leavingMessage.verificationEnable.isVerified : statusVerification = en.leavingMessage.verificationEnable.isVerified;
+      let verifierData = await Verifier.findOne({ where: { guildId: guild.id, userId: leavingMember.user.id } });
+      verifierData ? statusVerification = en.leavingMessage.verificationEnable.isVerified : statusVerification = en.leavingMessage.verificationEnable.isVerified;
 
-        if (loggingData.channelId_Verify) {
-          leavingMemberEmbed.addFields(
-            { name: lgLeaving.fields.statusVerification, value: statusVerification }
-          );
-        };
+      if (loggingData.channelId_Verify) {
+        leavingMemberEmbed.addFields(
+          { name: lgLeaving.fields.statusVerification, value: statusVerification }
+        );
+      };
 
-        return ChannelGuild.send({
-          embeds: [leavingMemberEmbed]
-        });
+      return ChannelGuild.send({
+        embeds: [leavingMemberEmbed]
+      });
     };
 
-    switch (ticketData) {
-      case (channelId):
+    if (ticketData) {
 
-        // Check if the ticket channel still exist
+      // Check if the ticket channel still exist
 
-        let ticketChannel = leavingMember.guild.channels.cache.get(ticketData.channelId);
-        if (ticketChannel) {
-          await ticketChannel.delete("Ticket Canceled: Member left the server");
-        };
+      let ticketChannel = leavingMember.guild.channels.cache.get(ticketData.channelId);
+      if (ticketChannel) {
+        await ticketChannel.delete("Ticket Canceled: Member left the server");
+      };
 
-        // Delete ticket message
+      // Delete ticket message
 
-        await bot.guilds.cache.get(leavingMember.guild.id).channels.cache.get(loggingData.channelId_TicketReceive).messages.fetch(ticketData.messageId).then((message) => {
-          message.delete();
-        }).catch(() => { return })
+      await bot.guilds.cache.get(leavingMember.guild.id).channels.cache.get(loggingData.channelId_TicketReceive).messages.fetch(ticketData.messageId).then((message) => {
+        message.delete();
+      }).catch(() => { return })
 
-        // Delete the data in the database
+      // Delete the data in the database
 
-        await Ticket.destroy({ where: { guildId: guild.id, userId: leavingMember.user.id } });
+      await Ticket.destroy({ where: { guildId: guild.id, userId: leavingMember.user.id } });
 
-        // Decrement the ticket counter
+      // Decrement the ticket counter
 
-        return ticketCountData.decrement('count', { by: 1 });
+      return ticketCountData.decrement('count', { by: 1 });
     };
 
   } catch (error) {
@@ -876,6 +877,35 @@ bot.on("guildDelete", async (guild) => {
 });
 
 bot.on("messageCreate", async (message) => {
+  let loggingData = await Logging.findOne({ where: { guildId: message.guild.id } });
+
+  switch (loggingData.language) {
+    case ("en"):
+      languageSet = en;
+
+      break;
+    case ("fr"):
+      languageSet = fr;
+
+      break;
+    case ("de"):
+      languageSet = de;
+
+      break;
+    case ("sp"):
+      languageSet = sp;
+
+      break;
+    case ("nl"):
+      languageSet = nl;
+
+      break;
+    default:
+      languageSet = en;
+
+      break;
+  }
+
   try {
 
     // File Path
@@ -941,24 +971,29 @@ bot.on("messageCreate", async (message) => {
     };
 
     switch (command) {
-      case (en.cmd.name):
-        return bot.commands.get(en.cmd.name).execute(bot, message, args, sequelize, Sequelize);
-      case (en.language.name):
-        return bot.commands.get(en.language.name).execute(bot, message, args, sequelize, Sequelize);
-      case (en.cop.name):
-        return bot.commands.get(en.cop.name).execute(bot, message, args, sequelize, Sequelize);
-      case (en.ban.name):
-        return bot.commands.get(en.ban.name).execute(bot, message, args, EmbedBuilder, sequelize, Sequelize);
-      case (en.unban.name):
-        return bot.commands.get(en.unban.name).execute(bot, message, args, EmbedBuilder, sequelize, Sequelize);
-      case (en.ticket.name):
-        return bot.commands.get(en.ticket.name).execute(bot, message, args, EmbedBuilder, sequelize, Sequelize);
+      case (en.cmd.default.name):
+        return bot.commands.get(en.cmd.default.name).execute(bot, message, args);
+      case (en.language.default.name):
+        return bot.commands.get(en.language.default.name).execute(bot, message, args, sequelize, Sequelize);
+      case (en.dataRemove.default.name):
+        return bot.commands.get(en.dataRemove.default.name).execute(bot, message, args, sequelize, Sequelize);
+      case (en.ban.default.name):
+        return bot.commands.get(en.ban.default.name).execute(bot, message, args, EmbedBuilder, sequelize, Sequelize);
+      case (en.unban.default.name):
+        return bot.commands.get(en.unban.default.name).execute(bot, message, args, EmbedBuilder, sequelize, Sequelize);
+      case (en.ticket.default.name):
+        return bot.commands.get(en.ticket.default.name).execute(bot, message, args, EmbedBuilder, sequelize, Sequelize);
     };
 
   } catch (error) {
     let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
     let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
+    console.log(message.user.id + " -> " + message.user.tag);
     console.log(error);
+
+    await message.reply({
+      content: languageSet.default.errorOccured,
+    });
 
     return crashchannelId.send({ content: "**Error in the 'messageCreate' event:** \n\n```javascript\n" + error + "```" });
   };
@@ -991,6 +1026,35 @@ bot.on("messageCreate", async (message) => {
 });
 
 bot.on('interactionCreate', async (interaction) => {
+  let loggingData = await Logging.findOne({ where: { guildId: interaction.guild.id } });
+
+  switch (loggingData.language) {
+    case ("en"):
+      languageSet = en;
+
+      break;
+    case ("fr"):
+      languageSet = fr;
+
+      break;
+    case ("de"):
+      languageSet = de;
+
+      break;
+    case ("sp"):
+      languageSet = sp;
+
+      break;
+    case ("nl"):
+      languageSet = nl;
+
+      break;
+    default:
+      languageSet = en;
+
+      break;
+  }
+
   try {
 
     // File Path
@@ -1015,34 +1079,6 @@ bot.on('interactionCreate', async (interaction) => {
     // Checking if the command that is being executed is disabled or not in guild
 
     let statusCommand = await CommandFunction.findOne({ where: { name: interaction.commandName } });
-    let loggingData = await Logging.findOne({ where: { guildId: interaction.guild.id } });
-
-    switch (loggingData.language) {
-      case ("en"):
-        languageSet = en;
-
-        break;
-      case ("fr"):
-        languageSet = fr;
-
-        break;
-      case ("de"):
-        languageSet = de;
-
-        break;
-      case ("sp"):
-        languageSet = sp;
-
-        break;
-      case ("nl"):
-        languageSet = nl;
-
-        break;
-      default:
-        languageSet = en;
-
-        break;
-    }
 
     if (statusCommand.value === "Disable" | !interaction.guild) {
       refusingAction = languageSet.default.commandDisabledGlobally;
@@ -1060,39 +1096,52 @@ bot.on('interactionCreate', async (interaction) => {
   } catch (error) {
     let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
     let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
+    console.log(interaction.user.id + " -> " + interaction.user.tag);
     console.log(error);
+
+    await interaction.reply({
+      content: en.default.errorOccured,
+      ephemeral: true,
+    });
 
     return crashchannelId.send({ content: "**Error in the 'interactionCreate' event:** \n\n```javascript\n" + error + "```" });
   };
 });
 
 bot.on('interactionCreate', async (interaction) => {
+  let loggingData = await Logging.findOne({ where: { guildId: interaction.guild.id } });
+
+  switch (loggingData.language) {
+    case ("en"):
+      languageSet = en;
+
+      break;
+    case ("fr"):
+      languageSet = fr;
+
+      break;
+    case ("de"):
+      languageSet = de;
+
+      break;
+    case ("sp"):
+      languageSet = sp;
+
+      break;
+    case ("nl"):
+      languageSet = nl;
+
+      break;
+    default:
+      languageSet = en;
+
+      break;
+  }
+
   try {
-    let loggingData = await Logging.findOne({ where: { guildId: interaction.guild.id } });
     let guild = bot.guilds.cache.get(interaction.guild.id);
 
     if (!interaction.guild) return;
-
-    switch (loggingData.language) {
-      case ("en"):
-        languageSet = en;
-        break;
-      case ("fr"):
-        languageSet = fr;
-        break;
-      case ("de"):
-        languageSet = de;
-        break;
-      case ("sp"):
-        languageSet = sp;
-        break;
-      case ("nl"):
-        languageSet = nl;
-        break;
-      default:
-        languageSet = en;
-        break;
-    }
 
     //  Verification System
 
@@ -1475,19 +1524,19 @@ bot.on('interactionCreate', async (interaction) => {
 
       switch (interaction.customId) {
         case ("age_verification"):
-          reasonTicket = "age Verification";
+          reasonTicketChange = "Age Verification";
 
           break;
         case ("report"):
-          reasonTicket = "Report";
+          reasonTicketChange = "Report";
 
           break;
         case ("support"):
-          reasonTicket = "Support";
+          reasonTicketChange = "Support";
 
           break;
         case ("partnership"):
-          reasonTicket = "Partnership";
+          reasonTicketChange = "Partnership";
 
           break;
       }
@@ -1515,8 +1564,8 @@ bot.on('interactionCreate', async (interaction) => {
           };
         };
 
-        isVerified18 ? messageRefusingTicket = messagePreset.ticket.refusingToCreateVerified : messageRefusingTicket = messagePreset.Ticket.Error;
-        isStaff ? messageRefusingTicket = messagePreset.ticket.refusingToCreateStaff : messageRefusingTicket = messagePreset.Ticket.Error;
+        isVerified18 ? messageRefusingTicket = messagePreset.ticket.refusingToCreateVerified : messageRefusingTicket = messagePreset.ticket.error;
+        isStaff ? messageRefusingTicket = messagePreset.ticket.refusingToCreateStaff : messageRefusingTicket = messagePreset.ticket.error;
 
         switch (interaction.customId) {
           case ("age_verification"):
@@ -1591,9 +1640,9 @@ bot.on('interactionCreate', async (interaction) => {
         let claimingTicket = new EmbedBuilder()
           .setTitle("Ticket #" + ticketCountData.count)
           .addFields(
-            { name: "userId", value: interaction.user.toString(), inline: true },
-            { name: "reason", value: reasonTicket, inline: true },
-            { name: "Status", value: messagePreset.Ticket.Unclaim, inline: true },
+            { name: "Member", value: interaction.user.toString(), inline: true },
+            { name: "Reason", value: reasonTicketChange, inline: true },
+            { name: "Status", value: messagePreset.ticket.unclaim, inline: true },
           )
           .setColor("Yellow");
 
@@ -1607,9 +1656,7 @@ bot.on('interactionCreate', async (interaction) => {
         }).catch(() => { return });
       };
 
-      /* 
-        Ticket System - (Waiting) Ticket Button
-      */
+      //  Ticket System - (Waiting) Ticket Button
 
       let inTicket = [
         "claim_ticket",
@@ -1621,7 +1668,7 @@ bot.on('interactionCreate', async (interaction) => {
 
         // Checking if the member is still in the guild
 
-        if (!guild.members.cache.find(member => member.id === ticketMessageData.userId)?.id) {
+        if (!guild.members.cache.find(user => user.id === ticketMessageData.userId)) {
 
           // Check if the ticket channel still exist
 
@@ -1643,7 +1690,7 @@ bot.on('interactionCreate', async (interaction) => {
           // Decrement the ticket counter
 
           return ticketCountData.decrement('count', { by: 1 });
-        }
+        };
 
         let guildIn = bot.guilds.cache.get(interaction.guild.id);
         let findingMember = guildIn.members.cache.get(ticketMessageData.userId);
@@ -1660,24 +1707,14 @@ bot.on('interactionCreate', async (interaction) => {
 
         // Checking role of user
 
-        switch (ticketMessageData.reason) {
-          case ("age_verification"):
-            if (!interaction.member.roles.cache.some(role => role.name === "★★★")) {
-              return interaction.reply({
-                content: messagePreset.ticket.isntAdmin,
-                ephemeral: true,
-              });
-            };
-
-            break;
-          case ("partnership"):
-            if (!interaction.member.roles.cache.some(role => role.name === "Queen [Owner]") | !interaction.member.roles.cache.some(role => role.name === "Princess [Co-Owner]")) {
-              return interaction.reply({
-                content: messagePreset.ticket.isntOwner,
-                ephemeral: true,
-              });
-            };
-        }
+        if (ticketMessageData.reason === "age_verification" | ticketMessageData.reason === "partnership") {
+          if (!interaction.member.roles.cache.some(role => role.name === "★★★")) {
+            return interaction.reply({
+              content: messagePreset.ticket.isntAdmin,
+              ephemeral: true,
+            });
+          };
+        };
 
         switch (interaction.customId) {
           case ("claim_ticket"):
@@ -1689,7 +1726,7 @@ bot.on('interactionCreate', async (interaction) => {
                 content: messagePreset.ticket.own,
                 ephemeral: true,
               });
-            }
+            };
 
             // Editing ticket message for staff
 
@@ -1705,7 +1742,7 @@ bot.on('interactionCreate', async (interaction) => {
               let ticketEmbed = new EmbedBuilder()
                 .setTitle("Ticket #" + ticketMessageData.ticketCount)
                 .addFields(
-                  { name: "Member", value: "<@" + ticketMessageData.userId + ">", inline: true },
+                  { name: "Member", value: `<@${ticketMessageData.userId}>`, inline: true },
                   { name: "Reason", value: message.embeds[0].fields[1].value, inline: true },
                   { name: "Status", value: messagePreset.ticket.claim, inline: true },
                   { name: "Claimed by", value: interaction.user.toString() }
@@ -1848,7 +1885,7 @@ bot.on('interactionCreate', async (interaction) => {
 
             if (ticketMessageData.claimedBy !== interaction.user.id) {
               return interaction.reply({
-                content: messagePreset.Ticket.unclaimingOwn,
+                content: messagePreset.ticket.own,
                 ephemeral: true,
               });
             }
@@ -1867,9 +1904,9 @@ bot.on('interactionCreate', async (interaction) => {
               let ticketEmbed = new EmbedBuilder()
                 .setTitle("Ticket #" + ticketMessageData.ticketCount)
                 .addFields(
-                  { name: "userId", value: "<@" + ticketMessageData.userId + ">", inline: true },
-                  { name: "reason", value: message.embeds[0].fields[1].value, inline: true },
-                  { name: "Status", value: messagePreset.Ticket.Unclaim, inline: true },
+                  { name: "Member", value: `<@${ticketMessageData.userId}>`, inline: true },
+                  { name: "Reason", value: message.embeds[0].fields[1].value, inline: true },
+                  { name: "Status", value: messagePreset.ticket.unclaim, inline: true },
                 )
                 .setColor("Yellow");
 
@@ -1922,7 +1959,7 @@ bot.on('interactionCreate', async (interaction) => {
 
         // Checking if the member is still in the guild
 
-        if (!guild.members.cache.find(member => member.id === ticketChannelData.userId)?.id) {
+        if (!guild.members.cache.find(member => member.id === ticketChannelData.userId)) {
 
           // Check if the ticket channel still exist
 
@@ -1994,10 +2031,10 @@ bot.on('interactionCreate', async (interaction) => {
               let ticketEmbed = new EmbedBuilder()
                 .setTitle("Ticket #" + ticketChannelData.ticketCount)
                 .addFields(
-                  { name: "userId:", value: "<@" + ticketChannelData.userId + ">", inline: true },
-                  { name: "reason:", value: message.embeds[0].fields[1].value, inline: true },
+                  { name: "Member:", value: `<@${ticketChannelData.userId}>`, inline: true },
+                  { name: "Reason:", value: message.embeds[0].fields[1].value, inline: true },
                   { name: "Status:", value: messagePreset.ticket.done, inline: true },
-                  { name: "Claimed by:", value: "<@" + ticketChannelData.claimedBy + ">" }
+                  { name: "Claimed by:", value: interaction.user.toString() }
                 )
                 .setColor("Green");
 
@@ -2286,7 +2323,13 @@ bot.on('interactionCreate', async (interaction) => {
   } catch (error) {
     let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
     let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
+    console.log(interaction.user.id + " -> " + interaction.user.tag);
     console.log(error);
+
+    await interaction.reply({
+      content: en.default.errorOccured,
+      ephemeral: true,
+    });
 
     return crashchannelId.send({ content: "**Error in the 'messageCreate' event:** \n\n```javascript\n" + error + "```" });
   };

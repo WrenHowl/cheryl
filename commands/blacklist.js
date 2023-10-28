@@ -236,6 +236,47 @@ module.exports = {
                 })
                 .setRequired(true))),
     execute: async (interaction, bot, sequelize, Sequelize) => {
+        const Logging = sequelize.define("Logging", {
+            guildId: {
+                type: Sequelize.STRING,
+            },
+            channelId_Ban: {
+                type: Sequelize.STRING,
+            },
+            language: {
+                type: Sequelize.STRING,
+            },
+        });
+
+        let loggingData = await Logging.findOne({ where: { guildId: interaction.guild.id } });
+
+        switch (loggingData.language) {
+            case ("en"):
+                languageSet = en;
+
+                break;
+            case ("fr"):
+                languageSet = fr;
+
+                break;
+            case ("de"):
+                languageSet = de;
+
+                break;
+            case ("sp"):
+                languageSet = sp;
+
+                break;
+            case ("nl"):
+                languageSet = nl;
+
+                break;
+            default:
+                languageSet = en;
+
+                break;
+        }
+
         try {
             const Blacklist = sequelize.define("Blacklist", {
                 userId: {
@@ -258,7 +299,7 @@ module.exports = {
                     type: Sequelize.STRING,
                     unique: false,
                 },
-                evidenceLink: {
+                evidence: {
                     type: Sequelize.STRING,
                     unique: false,
                 },
@@ -295,17 +336,6 @@ module.exports = {
                     unique: false,
                 }
             });
-            const Logging = sequelize.define("Logging", {
-                guildId: {
-                    type: Sequelize.STRING,
-                },
-                channelId_Ban: {
-                    type: Sequelize.STRING,
-                },
-                language: {
-                    type: Sequelize.STRING,
-                },
-            });
 
             let options = interaction.options.getSubcommand();
             let user = interaction.options.getUser(en.blacklist.default.add.user.name);
@@ -318,59 +348,35 @@ module.exports = {
             let blacklistChannel = fetchGuild.channels.cache.get(configPreset.channelsId.blacklist);
             let blacklistSuggestChannel = fetchGuild.channels.cache.get(configPreset.channelsId.suggestBlacklist);
 
-            user ? userCheck = user.id : userCheck = interaction.user.id;
+            user ? userCheck = user : userCheck = interaction.user;
 
-            let loggingData = await Logging.findOne({ where: { guildId: interaction.guild.id } });
             let permissionUserData = await Permission.findOne({ where: { userId: interaction.user.id } });
             let permissionGuildData = await Permission.findOne({ where: { guildId: interaction.guild.id } });
-            let blacklistData = await Blacklist.findOne({ where: { userId: userCheck } });
+            let blacklistData = await Blacklist.findOne({ where: { userId: userCheck.id } });
 
-            permissionUserData.blacklistPermission === "1" ? isStaff = true : isStaff = false;
-
-            switch (loggingData.language) {
-                case ("en"):
-                    languageSet = en;
-                    break;
-                case ("fr"):
-                    languageSet = fr;
-                    break;
-                case ("de"):
-                    languageSet = de;
-                    break;
-                case ("sp"):
-                    languageSet = sp;
-                    break;
-                case ("nl"):
-                    languageSet = nl;
-                    break;
-                default:
-                    languageSet = en;
-                    break;
-            }
-
-            if (isStaff & options !== "check") {
+            if (permissionUserData & options !== "check") {
                 return interaction.reply({
                     content: languageSet.default.staffOnly,
                 });
             };
 
-            switch (userCheck) {
+            switch (userCheck.id) {
                 case (!user || !interaction.user):
                     return interaction.reply({
                         content: languageSet.default.unknownUser,
                         ephemeral: true,
                     });
-                case (interaction.user.id):
+                case (interaction.user.id & options !== "check"):
                     return interaction.reply({
                         content: languageSet.blacklist.message.onWho.isThemself,
                         ephemeral: true,
                     });
-                case (bot.user.id):
+                case (bot.user.id & options !== "check"):
                     return interaction.reply({
                         content: languageSet.blacklist.message.onWho.isBot,
                         ephemeral: true,
                     });
-                case (isTarget === true):
+                case (permissionUserData):
                     return interaction.reply({
                         content: languageSet.blacklist.message.onWho.isStaff,
                         ephemeral: true,
@@ -380,14 +386,14 @@ module.exports = {
                         content: languageSet.blacklist.message.onWho.isBlacklisted,
                         ephemeral: true,
                     });
-                case (options === "suggest" & permissionGuildData):
+                case (permissionGuildData & options === "suggest"):
                     return interaction.reply({
-                        content: en.blacklist.permission.server,
+                        content: languageSet.blacklist.permission.server,
                         ephemeral: true,
                     });
                 default:
-                    evidenceLink ? isEvidence = evidenceLink : isEvidence = "*No evidence were found*";
-                    evidenceImage ? isEvidence = evidenceImage : isEvidence = "*No evidence were found*";
+                    evidenceLink ? isEvidence = "* *" + evidenceLink : isEvidence = `*${en.blacklist.message.embed.options.noEvidence}*`;
+                    evidenceImage ? isEvidence = "* *" + evidenceImage : isEvidence = `*${en.blacklist.message.embed.options.noEvidence}*`;
 
                     switch (risk) {
                         case ("Low"):
@@ -398,26 +404,29 @@ module.exports = {
                             return colorRisk = "Black";
                     };
 
+                    let lgBlacklist = en.blacklist.message.embed.options;
+
                     let blacklistEmbed = new EmbedBuilder()
                         .addFields(
-                            { name: "User", value: user.tag, inline: true },
-                            { name: "Id", value: user.id, inline: true },
-                            { name: "Reason", value: reason, inline: true },
-                            { name: "Staff Name", value: interaction.user.tag, inline: true },
-                            { name: "Staff Id", value: interaction.user.id, inline: true },
+                            { name: lgBlacklist.default.userTag, value: userCheck.tag, inline: true },
+                            { name: lgBlacklist.default.userId, value: userCheck.id, inline: true },
                         )
-                        .setColor(colorRisk)
 
                     switch (options) {
                         case ("add"):
+
+                            // Checking if the user is already blacklisted
+
+                            if (blacklistData) {
+                                return interaction.reply({
+                                    content: lgBlacklist.isBlacklisted,
+                                });
+                            };
+
                             return interaction.reply({
                                 content: messagePreset.blacklist.addBlacklist,
                                 ephemeral: true,
                             }).then(async () => {
-                                blacklistEmbed.addFields(
-                                    { name: "Evidence", value: isEvidence, inline: true }
-                                )
-
                                 await Blacklist.create({
                                     UserName: user.tag,
                                     userId: user.id,
@@ -428,18 +437,39 @@ module.exports = {
                                     Risk: risk,
                                 });
 
+                                blacklistEmbed.addFields(
+                                    { name: lgBlacklist.default.reason, value: reason, inline: true },
+                                    { name: lgBlacklist.default.staffTag, value: interaction.user.tag, inline: true },
+                                    { name: lgBlacklist.default.staffId, value: interaction.user.id, inline: true },
+                                    { name: lgBlacklist.default.evidence, value: isEvidence, inline: true }
+                                );
+                                blacklistEmbed.setColor(colorRisk);
+
                                 return blacklistChannel.send({
                                     embeds: [blacklistEmbed]
                                 });
                             });
                         case ("remove"):
+
+                            // Checking if the user is already blacklisted
+
+                            if (!blacklistData) {
+                                return interaction.reply({
+                                    content: lgBlacklist.isNotBlacklisted,
+                                });
+                            };
+
                             return interaction.reply({
                                 content: messagePreset.blacklist.removeBlacklist,
                                 ephemeral: true,
                             }).then(async () => {
                                 blacklistEmbed.addFields(
-                                    { name: "Evidence", value: isEvidence, inline: true }
-                                )
+                                    { name: lgBlacklist.default.reason, value: blacklistData.reason, inline: true },
+                                    { name: lgBlacklist.default.staffTag, value: blacklistData.userTag, inline: true },
+                                    { name: lgBlacklist.default.staffId, value: blacklistData.staffId, inline: true },
+                                    { name: lgBlacklist.default.evidence, value: blacklistData.evidence, inline: true }
+                                );
+                                blacklistEmbed.setColor(colorRisk)
 
                                 await blacklistChannel.send({
                                     embeds: [InfoBlacklist],
@@ -448,20 +478,53 @@ module.exports = {
                                 return Blacklist.destroy({ where: { userId: userCheck } });
                             });
                         case ("suggest"):
+
+                            // Checking if the user is already blacklisted
+
+                            if (blacklistData) {
+                                return interaction.reply({
+                                    content: lgBlacklist.isBlacklisted,
+                                });
+                            };
+
                             return interaction.reply({
                                 content: messagePreset.blacklist.suggestBlacklist,
                                 ephemeral: true,
                             }).then(() => {
+                                blacklistEmbed.addFields(
+                                    { name: lgBlacklist.default.reason, value: reason, inline: true },
+                                    { name: lgBlacklist.default.staffTag, value: interaction.user.tag, inline: true },
+                                    { name: lgBlacklist.default.staffId, value: interaction.user.id, inline: true },
+                                    { name: lgBlacklist.default.evidence, value: isEvidence, inline: true }
+                                );
                                 blacklistEmbed.setImage(evidenceImage.url)
+                                blacklistEmbed.setColor(colorRisk)
 
                                 return blacklistSuggestChannel.send({
                                     embeds: [InfoBlacklist],
                                 });
                             });
                         case ("check"):
+
+                            // Checking if the user is blacklisted
+
+                            if (!blacklistData) {
+                                user ?
+                                    reply = lgBlacklist.isNotBlacklisted
+                                    :
+                                    reply = lgBlacklist.youreNotBlacklisted;
+
+                                return interaction.reply({
+                                    content: reply,
+                                });
+                            };
+
                             blacklistEmbed.addFields(
-                                { name: "Evidence", value: isEvidence, inline: true }
-                            )
+                                { name: lgBlacklist.default.reason, value: blacklistData.reason, inline: true },
+                                { name: lgBlacklist.default.staffTag, value: blacklistData.staffTag, inline: true },
+                                { name: lgBlacklist.default.staffId, value: blacklistData.staffId, inline: true },
+                                { name: lgBlacklist.default.evidence, value: blacklistData.evidence, inline: true }
+                            );
 
                             return interaction.reply({
                                 embeds: [blacklistEmbed],
@@ -471,7 +534,13 @@ module.exports = {
         } catch (error) {
             let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
             let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
+            console.log(interaction.user.id + " -> " + interaction.user.tag);
             console.log(error);
+
+            await interaction.reply({
+                content: en.default.errorOccured,
+                ephemeral: true,
+            });
 
             return crashchannelId.send({ content: "**Error in the '" + en.blacklist.default.name + "' event:** \n\n```javascript\n" + error + "```" });
         };

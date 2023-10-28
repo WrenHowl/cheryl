@@ -59,43 +59,47 @@ module.exports = {
             .setRequired(true)
         ),
     execute: async (interaction, bot, sequelize, Sequelize) => {
-        try {
-            const Logging = sequelize.define("Logging", {
-                guildId: {
-                    type: Sequelize.STRING,
-                },
-                channeldId_Ban: {
-                    type: Sequelize.STRING,
-                },
-                language: {
-                    type: Sequelize.STRING,
-                },
-            });
+        const Logging = sequelize.define("Logging", {
+            guildId: {
+                type: Sequelize.STRING,
+            },
+            language: {
+                type: Sequelize.STRING,
+            },
+        });
 
-            let loggingData = await Logging.findOne({ where: { guildId: interaction.guild.id } });
+        let loggingData = await Logging.findOne({ where: { guildId: interaction.guild.id } });
+
+        switch (loggingData.language) {
+            case ("en"):
+                languageSet = en;
+
+                break;
+            case ("fr"):
+                languageSet = fr;
+
+                break;
+            case ("de"):
+                languageSet = de;
+
+                break;
+            case ("sp"):
+                languageSet = sp;
+
+                break;
+            case ("nl"):
+                languageSet = nl;
+
+                break;
+            default:
+                languageSet = en;
+
+                break;
+        }
+
+        try {
             let canBotBan = interaction.guild.members.me.permissions.has("BanMembers");
             let canBan = interaction.guild.members.me.permissions.has("BanMembers");
-
-            switch (loggingData.language) {
-                case ("en"):
-                    languageSet = en;
-                    break;
-                case ("fr"):
-                    languageSet = fr;
-                    break;
-                case ("de"):
-                    languageSet = de;
-                    break;
-                case ("sp"):
-                    languageSet = sp;
-                    break;
-                case ("nl"):
-                    languageSet = nl;
-                    break;
-                default:
-                    languageSet = en;
-                    break;
-            }
 
             !canBotBan ? refusingAction = languageSet.ban.permission.bot : refusingAction = languageSet.default.errorOccured;
             !canBan ? refusingAction = languageSet.ban.permission.bot : refusingAction = languageSet.default.errorOccured;
@@ -192,7 +196,13 @@ module.exports = {
         } catch (error) {
             let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
             let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
+            console.log(interaction.user.id + " -> " + interaction.user.tag);
             console.log(error);
+
+            await interaction.reply({
+                content: languageSet.default.errorOccured,
+                ephemeral: true,
+            });
 
             return crashchannelId.send({ content: "**Error in the '" + en.ban.default.name + "' event:** \n\n```javascript\n" + error + "```" });
         };
