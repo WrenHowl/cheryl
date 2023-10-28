@@ -397,20 +397,23 @@ module.exports = {
 
                     switch (risk) {
                         case ("Low"):
-                            return colorRisk = "Yellow";
+                            colorRisk = "Yellow";
+                            break;
                         case ("Medium"):
-                            return colorRisk = "Red";
+                            colorRisk = "Red";
+                            break;
                         case ("High"):
-                            return colorRisk = "Black";
+                            colorRisk = "Black";
+                            break;
                     };
 
                     let lgBlacklist = en.blacklist.message.embed.options;
 
                     let blacklistEmbed = new EmbedBuilder()
                         .addFields(
-                            { name: lgBlacklist.default.userTag, value: userCheck.tag, inline: true },
-                            { name: lgBlacklist.default.userId, value: userCheck.id, inline: true },
-                        )
+                            { name: lgBlacklist.default.userTag, value: "`" + userCheck.tag + "`", inline: true },
+                            { name: lgBlacklist.default.userId, value: "`" + userCheck.id + "`", inline: true },
+                        );
 
                     switch (options) {
                         case ("add"):
@@ -438,9 +441,9 @@ module.exports = {
                                 });
 
                                 blacklistEmbed.addFields(
-                                    { name: lgBlacklist.default.reason, value: reason, inline: true },
-                                    { name: lgBlacklist.default.staffTag, value: interaction.user.tag, inline: true },
-                                    { name: lgBlacklist.default.staffId, value: interaction.user.id, inline: true },
+                                    { name: lgBlacklist.default.reason, value: "`" + reason + "`", inline: true },
+                                    { name: lgBlacklist.default.staffTag, value: "`" + interaction.user.tag + "`", inline: true },
+                                    { name: lgBlacklist.default.staffId, value: "`" + interaction.user.id + "`", inline: true },
                                     { name: lgBlacklist.default.evidence, value: isEvidence, inline: true }
                                 );
                                 blacklistEmbed.setColor(colorRisk);
@@ -464,12 +467,12 @@ module.exports = {
                                 ephemeral: true,
                             }).then(async () => {
                                 blacklistEmbed.addFields(
-                                    { name: lgBlacklist.default.reason, value: blacklistData.reason, inline: true },
-                                    { name: lgBlacklist.default.staffTag, value: blacklistData.userTag, inline: true },
-                                    { name: lgBlacklist.default.staffId, value: blacklistData.staffId, inline: true },
+                                    { name: lgBlacklist.default.reason, value: "`" + blacklistData.reason + "`", inline: true },
+                                    { name: lgBlacklist.default.staffTag, value: "`" + blacklistData.userTag + "`", inline: true },
+                                    { name: lgBlacklist.default.staffId, value: "`" + blacklistData.staffId + "`", inline: true },
                                     { name: lgBlacklist.default.evidence, value: blacklistData.evidence, inline: true }
                                 );
-                                blacklistEmbed.setColor(colorRisk)
+                                blacklistEmbed.setColor(colorRisk);
 
                                 await blacklistChannel.send({
                                     embeds: [InfoBlacklist],
@@ -492,13 +495,12 @@ module.exports = {
                                 ephemeral: true,
                             }).then(() => {
                                 blacklistEmbed.addFields(
-                                    { name: lgBlacklist.default.reason, value: reason, inline: true },
-                                    { name: lgBlacklist.default.staffTag, value: interaction.user.tag, inline: true },
-                                    { name: lgBlacklist.default.staffId, value: interaction.user.id, inline: true },
-                                    { name: lgBlacklist.default.evidence, value: isEvidence, inline: true }
+                                    { name: lgBlacklist.default.reason, value: "`" + reason + "`", inline: true },
+                                    { name: lgBlacklist.default.staffTag, value: "`" + interaction.user.tag + "`", inline: true },
+                                    { name: lgBlacklist.default.staffId, value: "`" + interaction.user.id + "`", inline: true },
                                 );
-                                blacklistEmbed.setImage(evidenceImage.url)
-                                blacklistEmbed.setColor(colorRisk)
+                                blacklistEmbed.setImage(evidenceImage.url);
+                                blacklistEmbed.setColor(colorRisk);
 
                                 return blacklistSuggestChannel.send({
                                     embeds: [InfoBlacklist],
@@ -519,12 +521,25 @@ module.exports = {
                                 });
                             };
 
+                            switch (blacklistData.risk) {
+                                case ("Low"):
+                                    colorRisk = "Yellow";
+                                    break;
+                                case ("Medium"):
+                                    colorRisk = "Red";
+                                    break;
+                                case ("High"):
+                                    colorRisk = "Black";
+                                    break;
+                            };
+
                             blacklistEmbed.addFields(
-                                { name: lgBlacklist.default.reason, value: blacklistData.reason, inline: true },
-                                { name: lgBlacklist.default.staffTag, value: blacklistData.staffTag, inline: true },
-                                { name: lgBlacklist.default.staffId, value: blacklistData.staffId, inline: true },
+                                { name: lgBlacklist.default.reason, value: "`" + blacklistData.reason + "`", inline: true },
+                                { name: lgBlacklist.default.staffTag, value: "`" + blacklistData.staffTag + "`", inline: true },
+                                { name: lgBlacklist.default.staffId, value: "`" + blacklistData.staffId + "`", inline: true },
                                 { name: lgBlacklist.default.evidence, value: blacklistData.evidence, inline: true }
                             );
+                            blacklistEmbed.setColor(colorRisk)
 
                             return interaction.reply({
                                 embeds: [blacklistEmbed],
