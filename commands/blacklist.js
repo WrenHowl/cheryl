@@ -342,13 +342,20 @@ module.exports = {
             let reason = interaction.options.getString(en.blacklist.default.add.reason.name);
             let risk = interaction.options.getString(en.blacklist.default.add.risk.name);
             let evidenceLink = interaction.options.getString(en.blacklist.default.add.evidence.name);
-            let evidenceImage = interaction.options.getAttachment(en.blacklist.default.suggest.evidence.name);
 
             let fetchGuild = interaction.client.guilds.cache.get(configPreset.botInfo.guildId);
             let blacklistChannel = fetchGuild.channels.cache.get(configPreset.channelsId.blacklist);
             let blacklistSuggestChannel = fetchGuild.channels.cache.get(configPreset.channelsId.suggestBlacklist);
 
-            user ? userCheck = user : userCheck = interaction.user;
+            let lgBlacklist = en.blacklist.message.embed.options;
+
+            if (user) {
+                userCheck = user;
+                boolUser = lgBlacklist.isNotBlacklisted
+            } else {
+                userCheck = interaction.user;
+                reply = lgBlacklist.youreNotBlacklisted;
+            };
 
             let permissionUserData = await Permission.findOne({ where: { userId: interaction.user.id } });
             let permissionGuildData = await Permission.findOne({ where: { guildId: interaction.guild.id } });
@@ -393,7 +400,6 @@ module.exports = {
                     });
                 default:
                     evidenceLink ? isEvidence = "* *" + evidenceLink : isEvidence = `*${en.blacklist.message.embed.options.noEvidence}*`;
-                    evidenceImage ? isEvidence = "* *" + evidenceImage : isEvidence = `*${en.blacklist.message.embed.options.noEvidence}*`;
 
                     switch (risk) {
                         case ("Low"):
@@ -407,13 +413,14 @@ module.exports = {
                             break;
                     };
 
-                    let lgBlacklist = en.blacklist.message.embed.options;
-
                     let blacklistEmbed = new EmbedBuilder()
-                        .addFields(
+
+                    if (blacklistData) {
+                        blacklistEmbed.addFields(
                             { name: lgBlacklist.default.userTag, value: "`" + userCheck.tag + "`", inline: true },
                             { name: lgBlacklist.default.userId, value: "`" + userCheck.id + "`", inline: true },
                         );
+                    }
 
                     switch (options) {
                         case ("add"):
@@ -421,8 +428,10 @@ module.exports = {
                             // Checking if the user is already blacklisted
 
                             if (blacklistData) {
+                                blacklistEmbed.setDescription(`<:tick:1096181611818647617> ${reply}`)
+
                                 return interaction.reply({
-                                    content: lgBlacklist.isBlacklisted,
+                                    embeds: [blacklistEmbed],
                                 });
                             };
 
@@ -481,6 +490,8 @@ module.exports = {
                                 return Blacklist.destroy({ where: { userId: userCheck } });
                             });
                         case ("suggest"):
+                            let evidenceImage = interaction.options.getAttachment(en.blacklist.default.suggest.evidence.name);
+                            evidenceImage ? isEvidence = "* *" + evidenceImage : isEvidence = `*${en.blacklist.message.embed.options.noEvidence}*`;
 
                             // Checking if the user is already blacklisted
 
@@ -511,13 +522,11 @@ module.exports = {
                             // Checking if the user is blacklisted
 
                             if (!blacklistData) {
-                                user ?
-                                    reply = lgBlacklist.isNotBlacklisted
-                                    :
-                                    reply = lgBlacklist.youreNotBlacklisted;
+                                blacklistEmbed.setDescription(`<:tick:1096181611818647617> ${reply}`)
+                                blacklistEmbed.setColor("Green")
 
                                 return interaction.reply({
-                                    content: reply,
+                                    embeds: [blacklistEmbed],
                                 });
                             };
 

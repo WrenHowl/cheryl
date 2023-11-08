@@ -66,6 +66,9 @@ module.exports = {
             language: {
                 type: Sequelize.STRING,
             },
+            channelId_Ban: {
+                type: Sequelize.STRING,
+            },
         });
 
         let loggingData = await Logging.findOne({ where: { guildId: interaction.guild.id } });
@@ -73,38 +76,32 @@ module.exports = {
         switch (loggingData.language) {
             case ("en"):
                 languageSet = en;
-
                 break;
             case ("fr"):
                 languageSet = fr;
-
                 break;
             case ("de"):
                 languageSet = de;
-
                 break;
             case ("sp"):
                 languageSet = sp;
-
                 break;
             case ("nl"):
                 languageSet = nl;
-
                 break;
             default:
                 languageSet = en;
-
                 break;
-        }
+        };
 
         try {
-            let canBotBan = interaction.guild.members.me.permissions.has("BanMembers");
-            let canBan = interaction.guild.members.me.permissions.has("BanMembers");
+            let botCanBan = interaction.guild.members.me.permissions.has("BanMembers");
+            let memberCanBan = interaction.guild.members.me.permissions.has("BanMembers");
 
-            !canBotBan ? refusingAction = languageSet.ban.permission.bot : refusingAction = languageSet.default.errorOccured;
-            !canBan ? refusingAction = languageSet.ban.permission.bot : refusingAction = languageSet.default.errorOccured;
+            if (!botCanBan | !memberCanBan) {
+                !botCanBan ? refusingAction = languageSet.ban.permission.bot : refusingAction = languageSet.default.errorOccured;
+                !memberCanBan ? refusingAction = languageSet.ban.permission.bot : refusingAction = languageSet.default.errorOccured;
 
-            if (!canBan | !manageChannelPermission) {
                 return interaction.reply({
                     content: messageRefusingAction,
                     ephemeral: true,
@@ -112,9 +109,10 @@ module.exports = {
             };
 
             let user = interaction.options.getUser(en.ban.default.UserName);
+            let member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(error => { });
+
             let reason = interaction.options.getString(en.ban.default.ReasonName);
 
-            let member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(error => { });
             let banList = await interaction.guild.bans.fetch();
             let bannedUser = banList.find(user => user.id === user.id);
             let guild = bot.guilds.cache.get(interaction.guild.id);
@@ -127,71 +125,65 @@ module.exports = {
                     });
                 case (interaction.member.id):
                     return interaction.reply({
-                        content: languageSet.ban.message.onWho.myself,
+                        content: languageSet.blacklist.message.onWho.isThemself,
                         ephemeral: true,
                     });
                 case (bot.user.id):
                     return interaction.reply({
-                        content: languageSet.ban.message.onWho.bot,
+                        content: languageSet.blacklist.message.onWho.isBot,
                         ephemeral: true,
                     });
                 case (interaction.guild.ownerId):
                     return interaction.reply({
-                        content: languageSet.ban.message.onWho.owner,
+                        content: languageSet.ban.message.onWho.isOwner,
                         ephemeral: true,
                     });
                 case (!user.bannable):
                     return interaction.reply({
-                        content: languageSet.ban.message.onWho.punishable,
+                        content: languageSet.ban.message.onWho.isPunishable,
+                        ephemeral: true,
+                    });
+                case (guild.members.cache.find(m => m.id === user.id)?.id & member.roles.highest.position >= interaction.member.roles.highest.position):
+                    return interaction.reply({
+                        content: languageSet.ban.message.onWho.isHigher,
+                        ephemeral: true,
+                    });
+                case (bannedUser):
+                    return interaction.reply({
+                        content: languageSet.ban.message.onWho.isAlready,
                         ephemeral: true,
                     });
                 default:
-                    if (guild.members.cache.find(m => m.id === user.id)?.id & member.roles.highest.position >= interaction.member.roles.highest.position) {
-                        return interaction.reply({
-                            content: languageSet.ban.message.onWho.role,
-                            ephemeral: true,
-                        });
-                    } else if (bannedUser) {
-                        return interaction.reply({
-                            content: languageSet.ban.message.onWho.punished,
-                            ephemeral: true,
-                        });
-                    };
+                    await user.send({
+                        content: languageSet.ban.message.dm.you + " *" + interaction.guild.name + "* " + languageSet.ban.message.dm.for + " *" + reason + "* " + languageSet.ban.message.dm.by + " *" + interaction.user.tag + "*.",
+                    }).catch(() => { return });
+
+                    await interaction.guild.members.ban(user.id, { reason: [reason + " | " + mod] });
 
                     await interaction.reply({
                         content: "*" + user.tag + "* " + languageSet.ban.message.success,
                     });
 
-                    let lgBan = languageSet.ban.message.embed.log;
+                    if (loggingData.channelId_Ban & interaction.guild.members.me.permissionsIn(loggingData.channelId_Ban).has(['SendMessages', 'ViewChannel'])) {
+                        let logMessage = new EmbedBuilder()
+                            .setTitle(languageSet.ban.message.embed.log.title)
+                            .addFields(
+                                { name: languageSet.ban.message.embed.log.fields.user, value: "``" + user.tag + "``" },
+                                { name: languageSet.ban.message.embed.log.fields.reason, value: "``" + reason + "``" },
+                                { name: languageSet.ban.message.embed.log.fields.mod, value: "``" + interaction.user.tag + "``" },
+                            )
+                            .setFooter(
+                                { text: "ID: " + user.id }
+                            )
+                            .setTimestamp()
+                            .setColor("Red");
 
-                    if (loggingData) {
-                        if (loggingData.channelId_Ban & interaction.guild.members.me.permissionsIn(loggingData.channelId_Ban).has(['SendMessages', 'ViewChannel'])) {
-                            let logMessage = new EmbedBuilder()
-                                .setTitle(lgBan.title)
-                                .addFields(
-                                    { name: lgBan.fields.user, value: "``" + user.tag + "``" },
-                                    { name: lgBan.fields.reason, value: "``" + reason + "``" },
-                                    { name: lgBan.fields.mod, value: "``" + interaction.user.tag + "``" },
-                                )
-                                .setFooter(
-                                    { text: "ID: " + user.id }
-                                )
-                                .setTimestamp()
-                                .setColor("Red");
+                        let logChannel = interaction.guild.channels.cache.get(loggingData.channelId_Ban);
 
-                            let logChannel = interaction.guild.channels.cache.get(loggingData.channelId_Ban);
-
-                            await logChannel.send({
-                                embeds: [logMessage],
-                            });
-                        };
-                    };
-
-                    await user.send({
-                        content: languageSet.ban.message.dm.you + " *" + interaction.guild.name + "* " + languageSet.ban.message.dm.for + " *" + reason + "* " + languageSet.ban.message.dm.by + " *" + interaction.user.tag + "*.",
-                    }).catch(() => { return });
-
-                    return interaction.guild.members.ban(user.id, { reason: [reason + " | " + mod] });
+                        return logChannel.send({
+                            embeds: [logMessage],
+                        });
+                    } else return;
             };
         } catch (error) {
             let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);

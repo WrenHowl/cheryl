@@ -673,18 +673,18 @@ module.exports = {
 
             let options = interaction.options.getSubcommand();
 
-            // Report System
+            // Role 
 
-            let reportChannelOption = interaction.options.getChannel(en.settings.default.setup.report_system.channel.name);
-            let reportStaffRoleOption = interaction.options.getRole(en.settings.default.setup.report_system.staffRole.name);
-
-            // Verification System
-
-            let welcomeChannelOption = interaction.options.getChannel(en.settings.default.setup.verification_system.menu.channel.name);
-            let receiveChannelOption = interaction.options.getChannel(en.settings.default.setup.verification_system.menu.receiveChannel.name);
+            let roleAutoRole = interaction.options.getRole(en.settings.default);
             let addRoleOption = interaction.options.getRole(en.settings.default.setup.verification_system.menu.addRole.name);
             let removeRoleOption = interaction.options.getRole(en.settings.default.setup.verification_system.menu.removeRole.name);
             let staffRoleOption = interaction.options.getRole(en.settings.default.setup.verification_system.menu.staffRole.name);
+
+            // Channel 
+
+            let channelOption = interaction.options.getChannel(en.settings.default.setup.report_system.channel.name);
+            let welcomeChannelOption = interaction.options.getChannel(en.settings.default.setup.verification_system.menu.channel.name);
+            let receiveChannelOption = interaction.options.getChannel(en.settings.default.setup.verification_system.menu.receiveChannel.name);
 
             removeRoleOption ? removeRole = removeRoleOption.name : removeRole = removeRoleOption;
 
@@ -692,10 +692,6 @@ module.exports = {
 
             let status_Bool = interaction.options.getString(en.settings.default.setup.blacklist_system.status.name);
             let status_AutoBan = interaction.options.getString(en.settings.default.setup.blacklist_system.autoban.name);
-
-            // Welcome System
-
-            let roleAutoRole = interaction.options.getRole(en.settings.default);
 
             // Logging System
 
@@ -754,9 +750,9 @@ module.exports = {
 
             switch (options) {
                 case (en.settings.default.setup.report_system.name):
-                    reportStaffRoleOption ? reportStaffRoleOption = reportStaffRoleOption.name : reportStaffRoleOption = reportStaffRoleOption;
+                    staffRoleOption ? staffRoleOption = staffRoleOption.name : staffRoleOption = staffRoleOption;
 
-                    switch (reportStaffRoleOption) {
+                    switch (staffRoleOption) {
                         case ("@everyone"):
                             settingsEmbed.setDescription(loggingPreset.SettingsError)
                             settingsEmbed.addFields(
@@ -770,24 +766,24 @@ module.exports = {
                         default:
                             settingsEmbed.setDescription(loggingPreset.SettingsUpdated)
                             settingsEmbed.addFields(
-                                { name: ChannelName, value: reportChannelOption.toLocaleString(), inline: true },
+                                { name: ChannelName, value: channelOption.toLocaleString(), inline: true },
                             );
 
-                            if (reportStaffRoleOption) {
+                            if (staffRoleOption) {
                                 await Logging.update({
-                                    channelId_Report: reportChannelOption.id,
-                                    staffRoleId_Report: reportStaffRoleOption.id
+                                    channelId_Report: channelOption.id,
+                                    staffRoleId_Report: staffRoleOption.id
                                 }, { where: { guildId: interaction.guild.id } });
 
                                 settingsEmbed.addFields(
-                                    { name: "**Role to Ping:**", value: reportStaffRoleOption.toLocaleString(), inline: true }
+                                    { name: "**Role to Ping:**", value: staffRoleOption.toLocaleString(), inline: true }
                                 );
 
                                 break;
                             };
 
                             await Logging.update({
-                                channelId_Report: reportChannelOption.id,
+                                channelId_Report: channelOption.id,
                             }, { where: { guildId: interaction.guild.id } });
 
                             break;
@@ -832,14 +828,14 @@ module.exports = {
                 case (en.settings.default.setup.welcome_system.name):
                     if (!roleAutoRole) {
                         await Logging.update({
-                            channelId_Welcome: reportChannelOption.id
+                            channelId_Welcome: channelOption.id
                         }, { where: { guildId: interaction.guild.id } })
 
                         settingsEmbed.setDescription(loggingPreset.SettingsUpdated)
                         settingsEmbed.addFields(
-                            { name: "**Welcome Channel**", value: reportChannelOption.toLocaleString(), inline: true },
+                            { name: "**Welcome Channel**", value: channelOption.toLocaleString(), inline: true },
                         )
-                    } else if (!reportChannelOption) {
+                    } else if (!channelOption) {
                         await Logging.update({
                             roleAutoRoleId_Welcome: roleAutoRole.id
                         }, { where: { guildId: interaction.guild.id } })
@@ -878,7 +874,7 @@ module.exports = {
                             { name: "**Status**", value: status_Bool, inline: true },
                         );
 
-                        if (!reportChannelOption) {
+                        if (!channelOption) {
                             await Logging.update({
                                 status_Blacklist: status_Bool,
                                 status_BlacklistAutoban: status_AutoBan
@@ -890,21 +886,21 @@ module.exports = {
                         } else if (!status_AutoBan) {
                             await Logging.update({
                                 status_Blacklist: status_Bool,
-                                channelId_Blacklist: reportChannelOption.id,
+                                channelId_Blacklist: channelOption.id,
                             }, { where: { guildId: interaction.guild.id } });
 
                             settingsEmbed.addFields(
-                                { name: "**Channel**", value: reportChannelOption.toLocaleString(), inline: true }
+                                { name: "**Channel**", value: channelOption.toLocaleString(), inline: true }
                             );
-                        } else if (reportChannelOption && status_AutoBan) {
+                        } else if (channelOption && status_AutoBan) {
                             await Logging.update({
                                 status_Blacklist: status_Bool,
                                 status_BlacklistAutoban: status_AutoBan,
-                                channelId_Blacklist: reportChannelOption.id,
+                                channelId_Blacklist: channelOption.id,
                             }, { where: { guildId: interaction.guild.id } });
 
                             settingsEmbed.addFields(
-                                { name: "**Channel**", value: reportChannelOption.toLocaleString(), inline: true },
+                                { name: "**Channel**", value: channelOption.toLocaleString(), inline: true },
                                 { name: "**Auto-ban**", value: status_AutoBan, inline: true }
                             );
                         };
@@ -919,16 +915,16 @@ module.exports = {
 
                     switch (optionsLogging) {
                         case ("all"):
-                            if (reportChannelOption) {
+                            if (channelOption) {
                                 await Logging.update({
-                                    channelId_Ban: reportChannelOption.id,
-                                    channelId_Unban: reportChannelOption.id,
-                                    channelId_Kick: reportChannelOption.id,
-                                    channelId_Warn: reportChannelOption.id,
+                                    channelId_Ban: channelOption.id,
+                                    channelId_Unban: channelOption.id,
+                                    channelId_Kick: channelOption.id,
+                                    channelId_Warn: channelOption.id,
                                 }, { where: { guildId: interaction.guild.id } });
 
                                 return LoggingEmbed.addFields(
-                                    { name: "**Channel**", value: reportChannelOption.toLocaleString(), inline: true },
+                                    { name: "**Channel**", value: channelOption.toLocaleString(), inline: true },
                                 );
                             } else {
                                 return interaction.reply({
@@ -936,13 +932,13 @@ module.exports = {
                                 });
                             };
                         case ("ban"):
-                            if (reportChannelOption) {
+                            if (channelOption) {
                                 await Logging.update({
-                                    channelId_Ban: reportChannelOption.id,
+                                    channelId_Ban: channelOption.id,
                                 }, { where: { guildId: interaction.guild.id } });
 
                                 return LoggingEmbed.addFields(
-                                    { name: "**Channel**", value: reportChannelOption.toLocaleString(), inline: true },
+                                    { name: "**Channel**", value: channelOption.toLocaleString(), inline: true },
                                 );
                             } else {
                                 return interaction.reply({
@@ -950,13 +946,13 @@ module.exports = {
                                 });
                             };
                         case ("kick"):
-                            if (reportChannelOption) {
+                            if (channelOption) {
                                 await Logging.update({
-                                    channelId_Kick: reportChannelOption.id,
+                                    channelId_Kick: channelOption.id,
                                 }, { where: { guildId: interaction.guild.id } });
 
                                 return LoggingEmbed.addFields(
-                                    { name: "**Channel**", value: reportChannelOption.toLocaleString(), inline: true },
+                                    { name: "**Channel**", value: channelOption.toLocaleString(), inline: true },
                                 );
                             } else {
                                 return interaction.reply({
@@ -964,13 +960,13 @@ module.exports = {
                                 });
                             };
                         case ("warn"):
-                            if (reportChannelOption) {
+                            if (channelOption) {
                                 await Logging.update({
-                                    channelId_Warn: reportChannelOption.id,
+                                    channelId_Warn: channelOption.id,
                                 }, { where: { guildId: interaction.guild.id } });
 
                                 return LoggingEmbed.addFields(
-                                    { name: "**Channel**", value: reportChannelOption.toLocaleString(), inline: true },
+                                    { name: "**Channel**", value: channelOption.toLocaleString(), inline: true },
                                 );
                             } else {
                                 return interaction.reply({
@@ -978,13 +974,13 @@ module.exports = {
                                 });
                             };
                         case ("unban"):
-                            if (reportChannelOption) {
+                            if (channelOption) {
                                 await Logging.update({
-                                    channelId_Unban: reportChannelOption.id,
+                                    channelId_Unban: channelOption.id,
                                 }, { where: { guildId: interaction.guild.id } });
 
                                 return LoggingEmbed.addFields(
-                                    { name: "**Channel**", value: reportChannelOption.toLocaleString(), inline: true },
+                                    { name: "**Channel**", value: channelOption.toLocaleString(), inline: true },
                                 );
                             } else {
                                 return interaction.reply({

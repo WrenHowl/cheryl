@@ -466,11 +466,7 @@ bot.on("guildMemberAdd", async (newMember) => {
       // Checking if the bot can send message in the channel
 
       let botPermission = newMember.guild.members.me.permissionsIn(loggingData.channelId_Welcome).has(['SendMessages', 'ViewChannel']);
-      if (!botPermission) return;
-
-      // Checking if user is a bot
-
-      if (newMember.user.bot) return;
+      if (!botPermission | newMember.user.bot) return;
 
       // Get the member count of the server
 
@@ -685,11 +681,7 @@ bot.on("guildMemberRemove", async (leavingMember) => {
       // Checking if the bot can send message in the channel
 
       let botPermission = leavingMember.guild.members.me.permissionsIn(loggingData.channelId_Leaving).has(['SendMessages', 'ViewChannel']);
-      if (!botPermission) return;
-
-      // Checking if user is a bot
-
-      if (leavingMember.user.bot) return;
+      if (!botPermission | leavingMember.user.bot) return;
 
       // Get the member count of the server
 
@@ -815,12 +807,12 @@ bot.on("guildCreate", async (guild) => {
     let newGuildEmbed = new EmbedBuilder()
       .setTitle("Bot Added")
       .addFields(
-        { name: "Server Name", value: guild.name, inline: true },
-        { name: "Server ID", value: guild.id, inline: true },
-        { name: "Member Count", value: guild.memberCount, inline: true },
-        { name: "Owner Name", value: owner.user.tag, inline: true },
-        { name: "Owner ID", value: owner.user.id, inline: true },
-        { name: "Owner Blacklisted", value: isBlacklisted, inline: true },
+        { name: "Server Name", value: "``" + guild.name + "``", inline: true },
+        { name: "Server ID", value: "``" + guild.id + "``", inline: true },
+        { name: "Member Count", value: "``" + guild.memberCount.toString() + "``", inline: true },
+        { name: "Owner Name", value: "``" + owner.user.tag + "``", inline: true },
+        { name: "Owner ID", value: "``" + owner.user.id + "``", inline: true },
+        { name: "Owner Blacklisted", value: "``" + isBlacklisted + "``", inline: true },
       )
       .setColor("Green");
 
@@ -851,12 +843,12 @@ bot.on("guildDelete", async (guild) => {
 
     // Making the embed and sending it
 
-    let newGuild = new EmbedBuilder()
+    let removeGuildEmbed = new EmbedBuilder()
       .setTitle("Bot Removed")
       .addFields(
         { name: "Server Name", value: "``" + guild.name + "``", inline: true },
         { name: "Server ID", value: "``" + guild.id + "``", inline: true },
-        { name: "Member Count", value: "``" + guild.memberCount + "``", inline: true },
+        { name: "Member Count", value: "``" + guild.memberCount.toString() + "``", inline: true },
         { name: "Owner Name", value: "``" + owner.user.tag + "``", inline: true },
         { name: "Owner ID", value: "``" + owner.user.id + "``", inline: true },
         { name: "Owner Blacklisted", value: "``" + isBlacklisted + "``", inline: true },
@@ -864,7 +856,7 @@ bot.on("guildDelete", async (guild) => {
       .setColor("Red");
 
     return deleteGuildChannelId.send({
-      embeds: [newGuild]
+      embeds: [removeGuildEmbed]
     });
 
   } catch (error) {
@@ -1156,6 +1148,8 @@ bot.on('interactionCreate', async (interaction) => {
     if (verificationId.includes(interaction.customId)) {
       let verificationData = await Verification.findOne({ where: { messageId: interaction.message.id } });
 
+      let lgVerification = languageSet.verification.buttonToVerify;
+
       if (interaction.isButton()) {
 
         // Checking if the bot has permission to manage role
@@ -1168,8 +1162,6 @@ bot.on('interactionCreate', async (interaction) => {
 
         let verification_CountData = await Verification_Count.findOne({ where: { staffId: interaction.user.id, guildId: interaction.guild.id } });
         let staff = interaction.user.toString();
-
-        let lgVerification = languageSet.verification.buttonToVerify;
 
         switch (interaction.customId) {
           case ("buttonToVerify"):
@@ -1185,7 +1177,7 @@ bot.on('interactionCreate', async (interaction) => {
               .setTitle(lgVerification.modal.title);
 
             let firstOption = new TextInputBuilder()
-              .setCustomId('ageVerify')
+              .setCustomId('firstOption')
               .setLabel(lgVerification.modal.firstOption.label)
               .setPlaceholder(lgVerification.modal.firstOption.placeholder)
               .setStyle(TextInputStyle.Short)
@@ -1194,7 +1186,7 @@ bot.on('interactionCreate', async (interaction) => {
             let firstOptionRow = new ActionRowBuilder().addComponents(firstOption);
 
             let secondOption = new TextInputBuilder()
-              .setCustomId('howServer')
+              .setCustomId('secondOption')
               .setLabel(lgVerification.modal.secondOption.label)
               .setPlaceholder(lgVerification.modal.secondOption.placeholder)
               .setStyle(TextInputStyle.Short)
@@ -1203,7 +1195,7 @@ bot.on('interactionCreate', async (interaction) => {
             let secondOptionRow = new ActionRowBuilder().addComponents(secondOption);
 
             let thirdOption = new TextInputBuilder()
-              .setCustomId('joining')
+              .setCustomId('thirdOption')
               .setLabel(lgVerification.modal.thirdOption.label)
               .setPlaceholder(lgVerification.modal.thirdOption.placeholder)
               .setStyle(TextInputStyle.Paragraph)
@@ -1212,7 +1204,7 @@ bot.on('interactionCreate', async (interaction) => {
             let thirdOptionRow = new ActionRowBuilder().addComponents(thirdOption);
 
             let fourthOption = new TextInputBuilder()
-              .setCustomId('furryFandom')
+              .setCustomId('fourthOption')
               .setLabel(lgVerification.modal.fourthOption.label)
               .setPlaceholder(lgVerification.modal.fourthOption.placeholder)
               .setStyle(TextInputStyle.Paragraph)
@@ -1221,7 +1213,7 @@ bot.on('interactionCreate', async (interaction) => {
             let fourthOptionRow = new ActionRowBuilder().addComponents(fourthOption);
 
             let fifthOption = new TextInputBuilder()
-              .setCustomId('sona')
+              .setCustomId('fifthOption')
               .setLabel(lgVerification.modal.fourthOption.label)
               .setPlaceholder(lgVerification.modal.fourthOption.placeholder)
               .setStyle(TextInputStyle.Paragraph)
@@ -1379,11 +1371,11 @@ bot.on('interactionCreate', async (interaction) => {
               });
             };
 
-            let ageVerify = interaction.fields.getTextInputValue('ageVerify');
-            let howServer = interaction.fields.getTextInputValue('howServer');
-            let joining = interaction.fields.getTextInputValue('joining');
-            let furryFandom = interaction.fields.getTextInputValue('furryFandom');
-            let sona = interaction.fields.getTextInputValue('sona');
+            let firstOption = interaction.fields.getTextInputValue('firstOption');
+            let secondOption = interaction.fields.getTextInputValue('secondOption');
+            let thirdOption = interaction.fields.getTextInputValue('thirdOption');
+            let fourthOption = interaction.fields.getTextInputValue('fourthOption');
+            let fifthOption = interaction.fields.getTextInputValue('fifthOption');
 
             let buttonVerify = new ActionRowBuilder()
               .addComponents(
@@ -1425,11 +1417,11 @@ bot.on('interactionCreate', async (interaction) => {
                 messageId: sent.id,
                 userId: interaction.user.id,
                 userTag: interaction.user.tag,
-                firstOption: ageVerify,
-                secondOption: howServer,
-                thirdOption: joining,
-                fourthOption: furryFandom,
-                fifthOption: sona,
+                firstOption: firstOption,
+                secondOption: secondOption,
+                thirdOption: thirdOption,
+                fourthOption: fourthOption,
+                fifthOption: fifthOption,
               })
 
               return interaction.reply({
@@ -1562,7 +1554,24 @@ bot.on('interactionCreate', async (interaction) => {
               ephemeral: true,
             });
           };
-        };
+        }
+
+        // Increase the ticket counter
+
+        !ticketCountData ?
+          await TicketCount.create({
+            guildId: interaction.guild.id,
+          }) : await ticketCountData.increment('count');
+
+        // Creation of the ticket
+
+        await Ticket.create({
+          guildId: interaction.guild.id,
+          reason: interaction.customId,
+          ticketCount: ticketCountData.count,
+          userId: interaction.user.id,
+          userTag: interaction.user.tag,
+        });
 
         isVerified18 ? messageRefusingTicket = messagePreset.ticket.refusingToCreateVerified : messageRefusingTicket = messagePreset.ticket.error;
         isStaff ? messageRefusingTicket = messagePreset.ticket.refusingToCreateStaff : messageRefusingTicket = messagePreset.ticket.error;
@@ -1604,23 +1613,6 @@ bot.on('interactionCreate', async (interaction) => {
           ephemeral: true,
         });
 
-        // Increase the ticket counter
-
-        !ticketCountData ?
-          await TicketCount.create({
-            guildId: interaction.guild.id,
-          }) : await ticketCountData.increment('count');
-
-        // Creation of the ticket
-
-        await Ticket.create({
-          guildId: interaction.guild.id,
-          reason: interaction.customId,
-          ticketCount: ticketCountData.count,
-          userId: interaction.user.id,
-          userTag: interaction.user.tag,
-        });
-
         // Creation of button and embed
 
         let buttonClaim = new ActionRowBuilder()
@@ -1651,8 +1643,10 @@ bot.on('interactionCreate', async (interaction) => {
         return channelToReceiveTicket.send({
           embeds: [claimingTicket],
           components: [buttonClaim],
-        }).then(async (channel) => {
-          await Ticket.update({ messageId: channel.id }, { where: { userId: interaction.user.id } })
+        }).then(async (message) => {
+          await Ticket.update({
+            messageId: message.id
+          }, { where: { guildId: interaction.guild.id, userId: interaction.user.id, reason: interaction.customId } })
         }).catch(() => { return });
       };
 
@@ -1759,7 +1753,7 @@ bot.on('interactionCreate', async (interaction) => {
 
             await Ticket.update({
               claimedBy: interaction.user.id,
-            }, { where: { messageId: interaction.message.id } });
+            }, { where: { guildId: interaction.guild.id, messageId: interaction.message.id } });
 
             // Creating the ticket channel
 
@@ -1790,7 +1784,7 @@ bot.on('interactionCreate', async (interaction) => {
 
               await Ticket.update({
                 channelId: channel.id
-              }, { where: { claimedBy: interaction.user.id, userId: ticketMessageData.userId } });
+              }, { where: { guildId: interaction.guild.id, messageId: ticketMessageData.messageId, claimedBy: interaction.user.id, userId: ticketMessageData.userId } });
 
               // Messaging the owner of the ticket
 
@@ -1877,7 +1871,7 @@ bot.on('interactionCreate', async (interaction) => {
                     secondmsg.delete()
                   }, 500);
                 });
-              });
+              }).catch(() => { return });
             }).catch(() => { return });
           case ("unclaim_ticket"):
 
@@ -2020,8 +2014,15 @@ bot.on('interactionCreate', async (interaction) => {
             }).then(() => {
               let channel18 = interaction.guild.channels.cache.get("1091220263569461349")
 
+              const verifiedEmbed = new EmbedBuilder()
+                .setDescription(
+                  "To see NSFW channels -> <#1082135024264032297>",
+                )
+                .setColor("Red")
+
               channel18.send({
-                content: member.toString() + " is now part of the cum zone!"
+                content: member.toString() + " is now part of the cum zone!",
+                embeds: [verifiedEmbed],
               });
             });
           case ("buttonDeleteTicket"):

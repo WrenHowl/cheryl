@@ -41,7 +41,7 @@ module.exports = {
                 "nl": nl.avatar.default.user.description
             })
             .setRequired(false)),
-    execute: async (interaction) => {
+    execute: async (interaction, sequelize, Sequelize) => {
         const Logging = sequelize.define("Logging", {
             guildId: {
                 type: Sequelize.STRING,

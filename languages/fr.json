@@ -547,7 +547,7 @@
                         "description": "Channel to send the report"
                     },
                     "staffRole": {
-                        "name": "role",
+                        "name": "staffrole",
                         "description": "Role to ping when a report is received"
                     }
                 },
