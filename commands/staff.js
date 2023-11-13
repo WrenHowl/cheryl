@@ -2,7 +2,6 @@ const { EmbedBuilder } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
 const configPreset = require("../settings/config.json");
-const messagePreset = require("../settings/message.json");
 
 const fr = require("../languages/fr.json");
 const en = require("../languages/en.json");
@@ -85,23 +84,30 @@ module.exports = {
             let user = interaction.options.getUser(en.staff.default.user.name);
             let userCheck = user ? user : interaction.user;
 
-            const staffGet = fetchGuild.members.cache.get(userCheck.id);
-            let staffRole = staffGet ? staffGet.roles.cache.has(configPreset.staffRoleId.developer) | staffGet.roles.cache.has(configPreset.staffRoleId.staff) : false;
-            staffRole ? setThumbnail = Config.CheckMark : setThumbnail = Config.x;
-            staffRole ? isStaff = "is" : isStaff = "isn't";
-            //staffRole ? `${userCheck.toString()} ${isStaff} a **${staffRank}** of **${bot.user.username}**` : `${userCheck.toString()} ${isStaff} a **${staffRank}** of **${bot.user.username}**`;
-            staffGet.roles.cache.has(configPreset.staffRoleId.developer) ? staffRank = "DEVELOPER" : staffRank = "STAFF";
-
             let fetchGuild = interaction.client.guilds.cache.get(configPreset.botInfo.guildId);
             await fetchGuild.members.fetch();
+            let staffGet = fetchGuild.members.cache.get(userCheck.id);
 
             const staffEmbed = new EmbedBuilder()
-                .setDescription(`${userCheck.toString()} ${isStaff} a **${staffRank}** of **${bot.user.username}**`)
-                .setThumbnail(setThumbnail)
-                .setColor("Green");
+
+            let staffRole = staffGet ? staffGet.roles.cache.has(configPreset.staffRoleId.developer) | staffGet.roles.cache.has(configPreset.staffRoleId.staff) : false;
+
+            if (staffRole) {
+                staffEmbed.setThumbnail(configPreset.other.isStaff);
+                isStaff = "is";
+                staffEmbed.setColor("Green");
+            } else {
+                staffEmbed.setThumbnail(configPreset.other.isNotStaff);
+                isStaff = "isn't";
+                staffEmbed.setColor("Red");
+            }
+
+            staffGet.roles.cache.has(configPreset.staffRoleId.developer) ? staffRank = "DEVELOPER" : staffRank = "STAFF";
+
+            staffEmbed.setDescription(`${userCheck.toString()} ${isStaff} a **${staffRank}** of **${bot.user.username}**`);
 
             return interaction.reply({
-                embeds: [staffEmbed]
+                embeds: [staffEmbed],
             });
         } catch (error) {
             let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
