@@ -60,27 +60,21 @@ module.exports = {
     switch (loggingData.language) {
       case ("en"):
         languageSet = en;
-
         break;
       case ("fr"):
         languageSet = fr;
-
         break;
       case ("de"):
         languageSet = de;
-
         break;
       case ("sp"):
         languageSet = sp;
-
         break;
       case ("nl"):
         languageSet = nl;
-
         break;
       default:
         languageSet = en;
-
         break;
     }
 
@@ -101,22 +95,22 @@ module.exports = {
       switch (infoOptions) {
         case ("blacklistInfo"):
           helpEmbed.setDescription(
-            "### 1 - How does the blacklist work?\n" +
+            "### 1. How does the blacklist work?\n" +
             "* The blacklist contains users who have broken rules in any server, they're all stocked and classed in different types of blacklists:\n" +
             " * :black_circle: High - `Suicidal Threats, Sexual Harassment, Gore, etc.`\n" +
             " * :red_circle: Medium - `Anti-Furry, Anti-LGBTQ, Raiding, etc.`\n" +
             " * :yellow_circle: Low - `Racism, Homophobic, etc.`\n\n" +
             "* When a blacklisted user join your server, you will get notified if you have have everything setup. We will not automatically ban, unless you enabled it with `/settings blacklist autoban`\n" +
-            "### 2 - Is there evidence?\n" +
+            "### 2. Is there evidence?\n" +
             "* Yes! We provide evidence for every blacklist\n" +
-            "### 3 - How do I enable the blacklist in my server?\n" +
+            "### 3. How do I enable the blacklist in my server?\n" +
             "* You simply need to do ``/settings blacklist`` and set the blacklist alert to ``Enabled`` and set a channel you wanna receive your alert in"
           );
 
           break;
         case ("verificationInfo"):
           helpEmbed.setDescription(
-            "### 1 - How to enable the verify command?\n" +
+            "### 1. How to enable the verify command?\n" +
             "* Do ``/settings verification`` and choose either ``menu`` or ``command``. You can set up both, it will work!n\n" +
             "* You selected ``menu``? You need to send the menu in a channel afterwards! Do ``/welcomemenu`` and choose the desired channel"
           );
@@ -160,11 +154,11 @@ module.exports = {
 
           helpEmbed.setDescription("*My prefix in this server is ``c.``*");
           helpEmbed.addFields(
-            { name: "Staff Cheryl:", value: "``" + arrayStaffCheryl + "``" },
-            { name: "Administration:", value: "``" + arrayAdminGlobal + "``" },
-            { name: "Moderation:", value: "``" + arrayModGlobal + "``" },
-            { name: "Utilities:", value: "``" + arrayUtilGlobal + "``" },
-            { name: "Fun:", value: "``" + arrayFunGlobal + "``" },
+            { name: "Staff Cheryl", value: "``" + arrayStaffCheryl + "``" },
+            { name: "Administration", value: "``" + arrayAdminGlobal + "``" },
+            { name: "Moderation", value: "``" + arrayModGlobal + "``" },
+            { name: "Utilities", value: "``" + arrayUtilGlobal + "``" },
+            { name: "Fun", value: "``" + arrayFunGlobal + "``" },
           );
 
           break;
@@ -182,7 +176,7 @@ module.exports = {
       console.log(error);
 
       await interaction.reply({
-        content: en.default.errorOccured,
+        content: languageSet.default.errorOccured,
       });
 
       return crashchannelId.send({ content: "**Error in the '" + en.blacklist.default.name + "' event:** \n\n```javascript\n" + error + "```" });

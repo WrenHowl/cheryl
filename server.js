@@ -453,29 +453,24 @@ bot.on("guildMemberAdd", async (newMember) => {
     let lgWelcome = languageSet.welcomeMessage.message.embed.logs;
 
     // Checking for welcome config
-
     if (loggingData.channelId_Welcome) {
 
       // Check if the channel still exist
-
       let welcomeChannel = newMember.guild.channels.cache.get(loggingData.channelId_Welcome);
       if (!welcomeChannel) {
         return Logging.update({ channelId_Welcome: null }, { where: { guildId: guild.id } });
       };
 
       // Checking if the bot can send message in the channel
-
       let botPermission = newMember.guild.members.me.permissionsIn(loggingData.channelId_Welcome).has(['SendMessages', 'ViewChannel']);
       if (!botPermission | newMember.user.bot) return;
 
       // Get the member count of the server
-
       let memberCount = guild.members.cache.filter(newMember => !newMember.user.bot).size;
 
       // Creation of the message to send
-
       let welcomeEmbed = new EmbedBuilder()
-        .setDescription(lgWelcome.description + newMember.user.toString() + "!")
+        .setDescription(`${lgWelcome.description} ${newMember.user.toString()}!`)
         .addFields(
           { name: lgWelcome.fields.createdAt, value: moment(newMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") },
           { name: lgWelcome.fields.memberCount, value: memberCount.toString() }
@@ -501,7 +496,6 @@ bot.on("guildMemberAdd", async (newMember) => {
     }
 
     // Checking for verification config
-
     if (verifierData) {
       if (loggingData.roleAddId_Verify | loggingData.roleRemoveId_Verify) {
         await newMember.roles.add(loggingData.roleAddId_Verify);
@@ -514,23 +508,19 @@ bot.on("guildMemberAdd", async (newMember) => {
     if (blacklistData) {
 
       // Checking if the blacklist is enabled and has a channel
-
       if (loggingData.status_Blacklist === "Enabled" & loggingData.channelId_Blacklist) {
 
         // Check if the channel still exist
-
         let blacklistChannel = newMember.guild.channels.cache.get(loggingData.channelId_Blacklist);
         if (!blacklistChannel) {
           return Logging.update({ channelId_Blacklist: null }, { where: { guildId: guild.id } });
         };
 
         // Checking if the bot can send message in the channel
-
         let botPermission = newMember.guild.members.me.permissionsIn(loggingData.channelId_Blacklist).has(['SendMessages', 'ViewChannel']);
         if (botPermission) return;
 
         // Changing embed color in terms of the risk
-
         switch (blacklistData.risk) {
           case ("Low"):
             riskColorEmbed = "Yellow";
@@ -547,7 +537,6 @@ bot.on("guildMemberAdd", async (newMember) => {
         };
 
         // Creating the embed and sending the message
-
         let blacklistEmbed = new EmbedBuilder()
           .setTitle("<:BanHammer:997932635454197790> New Alert")
           .setDescription(MessageBlacklist.InstantBan)
@@ -567,11 +556,9 @@ bot.on("guildMemberAdd", async (newMember) => {
         });
 
         // Incrementing the join count in the database
-
         await blacklistData.increment("joinedServer");
 
         // Check if the auto ban is on
-
         let autoBanResponse = languageSet.welcomeMessage.message.blacklist.autoBan;
 
         switch (loggingData.status_BlacklistAutoban) {
@@ -579,11 +566,9 @@ bot.on("guildMemberAdd", async (newMember) => {
             if (blacklistData.risk === "Low" | "Medium" | "High") {
 
               // Incrementing the ban count in the database
-
               await blacklistData.increment("joinedServerBan");
 
               // Ban the member
-
               return newMember.guild.members.ban(blacklistData.userId, { reason: [blacklistData.reason + " | " + autoBanResponse] });
             }
 
@@ -592,11 +577,9 @@ bot.on("guildMemberAdd", async (newMember) => {
             if (blacklistData.risk === "Medium" | "High") {
 
               // Incrementing the ban count in the database
-
               await blacklistData.increment("joinedServerBan");
 
               // Ban the member
-
               return newMember.guild.members.ban(blacklistData.userId, { reason: [blacklistData.reason + " | " + autoBanResponse] });
             }
 
@@ -605,11 +588,9 @@ bot.on("guildMemberAdd", async (newMember) => {
             if (blacklistData.risk === "High") {
 
               // Incrementing the ban count in the database
-
               await blacklistData.increment("joinedServerBan");
 
               // Ban the member
-
               return newMember.guild.members.ban(blacklistData.userId, { reason: [blacklistData.reason + " | " + autoBanResponse] });
             }
 
@@ -617,7 +598,6 @@ bot.on("guildMemberAdd", async (newMember) => {
           default:
 
             // Return nothing if it's not on
-
             break;
         };
       }
@@ -664,7 +644,6 @@ bot.on("guildMemberRemove", async (leavingMember) => {
     let lgLeaving = languageSet.leavingMessage.message.embed.logs;
 
     // Checking if they left the support discord and had permission
-
     if (guild.id === configPreset.botInfo.guildId) {
       return Permission.destroy({ where: { userId: leavingMember.user.id } });
     };
@@ -672,25 +651,21 @@ bot.on("guildMemberRemove", async (leavingMember) => {
     if (loggingData.channelId_Leaving) {
 
       // Check if channel still exist
-
       let leavingChannel = leavingMember.guild.channels.cache.get(loggingData.channelId_Leaving);
       if (!leavingChannel) {
         return Logging.update({ channelId_Leaving: null }, { where: { guildId: guild.id } });
       };
 
       // Checking if the bot can send message in the channel
-
       let botPermission = leavingMember.guild.members.me.permissionsIn(loggingData.channelId_Leaving).has(['SendMessages', 'ViewChannel']);
       if (!botPermission | leavingMember.user.bot) return;
 
       // Get the member count of the server
-
       let memberCount = guild.members.cache.filter(leavingMember => !leavingMember.user.bot).size;
 
       // Creation of the message to send
-
       let leavingMemberEmbed = new EmbedBuilder()
-        .setDescription(lgLeaving.description + leavingMember.toString() + "!")
+        .setDescription(`${lgLeaving.description} ${leavingMember.toString()}!`)
         .addFields(
           { name: lgLeaving.fields.createdAt, value: moment(leavingMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") },
           { name: lgLeaving.fields.joinedAt, value: moment(leavingMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') },
@@ -703,7 +678,6 @@ bot.on("guildMemberRemove", async (leavingMember) => {
         .setThumbnail(leavingMember.user.displayAvatarURL());
 
       // Check if the verification is enable
-
       let verifierData = await Verifier.findOne({ where: { guildId: guild.id, userId: leavingMember.user.id } });
       verifierData ? statusVerification = en.leavingMessage.verificationEnable.isVerified : statusVerification = en.leavingMessage.verificationEnable.isVerified;
 
@@ -721,27 +695,22 @@ bot.on("guildMemberRemove", async (leavingMember) => {
     if (ticketData) {
 
       // Check if the ticket channel still exist
-
       let ticketChannel = leavingMember.guild.channels.cache.get(ticketData.channelId);
       if (ticketChannel) {
         await ticketChannel.delete("Ticket Canceled: Member left the server");
       };
 
       // Delete ticket message
-
       await bot.guilds.cache.get(leavingMember.guild.id).channels.cache.get(loggingData.channelId_TicketReceive).messages.fetch(ticketData.messageId).then((message) => {
         message.delete();
       }).catch(() => { return })
 
       // Delete the data in the database
-
       await Ticket.destroy({ where: { guildId: guild.id, userId: leavingMember.user.id } });
 
       // Decrement the ticket counter
-
       return ticketCountData.decrement('count', { by: 1 });
     };
-
   } catch (error) {
     let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
     let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
@@ -755,12 +724,10 @@ bot.on("userUpdate", async (newUpdate, oldUpdate) => {
   try {
 
     // Check if user changed is userTag or discriminator
-
     let changeOfUserTag = oldUpdate.username !== newUpdate.username;
     let changeOfDiscriminator = oldUpdate.discriminator !== newUpdate.discriminator;
 
     // Update if it has been changed
-
     if (changeOfUserTag | changeOfDiscriminator) {
       await Verifier.update({ staffTag: newUpdate.tag }, { where: { staffId: newUpdate.id } });
       return Blacklist.update({ staffTag: newUpdate.tag }, { where: { staffId: newUpdate.id } });
@@ -1146,8 +1113,7 @@ bot.on('interactionCreate', async (interaction) => {
     ];
 
     if (verificationId.includes(interaction.customId)) {
-      let verificationData = await Verification.findOne({ where: { messageId: interaction.message.id } });
-
+      let verificationData = await Verification.findOne({ where: { guildId: interaction.guild.id, userId: interaction.user.id } });
       let lgVerification = languageSet.verification.buttonToVerify;
 
       if (interaction.isButton()) {
@@ -1160,6 +1126,7 @@ bot.on('interactionCreate', async (interaction) => {
           });
         };
 
+        let verificationMessageData = await Verification.findOne({ where: { messageId: interaction.message.id } });
         let verification_CountData = await Verification_Count.findOne({ where: { staffId: interaction.user.id, guildId: interaction.guild.id } });
         let staff = interaction.user.toString();
 
@@ -1228,12 +1195,12 @@ bot.on('interactionCreate', async (interaction) => {
 
         // Checking if the verification/message exist
 
-        if (!verificationData) return;
+        if (!verificationMessageData) return;
 
         // Checking if the member is still in the guild
 
         if (!guild.members.cache.find(member => member.id === verificationData.userId)?.id) {
-          interaction.channel.messages.fetch(interaction.message.id).then(async () => {
+          interaction.channel.messages.fetch(verficationData.messageId).then(async (message) => {
             verificationEmbed.setColor("Grey")
 
             await interaction.update({
@@ -1242,7 +1209,7 @@ bot.on('interactionCreate', async (interaction) => {
               components: [],
             })
 
-            return Verification.destroy({ where: { messageId: interaction.message.id } });
+            return Verification.destroy({ where: { messageId: message.id } });
           })
         }
 
@@ -1813,10 +1780,11 @@ bot.on('interactionCreate', async (interaction) => {
                 case ("age_verification"):
                   ticketMessagEmbed.setTitle("Age Verification - Ticket")
                   ticketMessagEmbed.addFields({
-                    name: "Instruction",
-                    value: "* One picture of a valid gouvernemental paper (driving license, passport, etc.). You can blur everything except the DOB."
-                      + "\n* A paper with the server name on it (" + interaction.guild.name + ") and your name underneath it (" + ticketMessageData.userTag + ")"
-                      + "\n* Place both right next to each other and take a picture displaying the **paper** and **ID**."
+                    name: "Instruction", value:
+                      "1. Write on a piece of paper the server name (`" + interaction.guild.name + "`) and your username underneath it (`" + ticketMessageData.userTag + "`)"
+                      + "\n* Place the ID **on** the piece of paper and take a photo"
+                      + "\n* Send the picture in this channel"
+                      + "\n\n *You can blur everything on your ID of choice, but we must see the border of the card/piece of paper and the DOB must be seen clearly*"
                   });
 
                   buttonTicket.addComponents(

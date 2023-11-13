@@ -382,7 +382,7 @@
                     "description": "Risk of the user"
                 },
                 "evidence": {
-                    "name": "evidence",
+                    "name": "evidence_link",
                     "description": "Evidence of the action done by the user"
                 }
             },
@@ -414,7 +414,7 @@
                     "description": "Reason for the blacklist suggestion"
                 },
                 "evidence": {
-                    "name": "evidence",
+                    "name": "evidence_image",
                     "description": "Evidence of the action done by the user"
                 }
             }

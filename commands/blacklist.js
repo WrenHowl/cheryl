@@ -72,7 +72,16 @@ module.exports = {
                     "es-ES": sp.blacklist.default.add.reason.description,
                     "nl": nl.blacklist.default.add.reason.description
                 })
-                .setRequired(true))
+                .setRequired(true)
+                .addChoices(
+                    { name: "Account - Self-Bot", value: "self-bot" },
+                    { name: "Scamming - Selling art", value: "selling-art" },
+                    { name: "Law Breaking - Soliciting underage user to participate to sexual activities", value: "underage-sexual-activities" },
+                    { name: "Law Breaking - Participating to sexual activities while being underage", value: "underage-do-sexual-activities" },
+                    { name: "Content - Sharing hardcore gore, excessive violence or/and animal harm", value: "hardcore-gore" },
+                    { name: "Content - Sharing or/and selling game cheats", value: "sharing-selling-cheat" },
+                    { name: "Content - Hate speech", value: "hate-speech" },
+                ))
             .addStringOption(option => option
                 .setName(en.blacklist.default.add.risk.name)
                 .setNameLocalizations({
@@ -240,9 +249,6 @@ module.exports = {
             guildId: {
                 type: Sequelize.STRING,
             },
-            channelId_Ban: {
-                type: Sequelize.STRING,
-            },
             language: {
                 type: Sequelize.STRING,
             },
@@ -342,6 +348,7 @@ module.exports = {
             let reason = interaction.options.getString(en.blacklist.default.add.reason.name);
             let risk = interaction.options.getString(en.blacklist.default.add.risk.name);
             let evidenceLink = interaction.options.getString(en.blacklist.default.add.evidence.name);
+            let evidenceImage = interaction.options.getAttachment(en.blacklist.default.suggest.evidence.name);
 
             let fetchGuild = interaction.client.guilds.cache.get(configPreset.botInfo.guildId);
             let blacklistChannel = fetchGuild.channels.cache.get(configPreset.channelsId.blacklist);
@@ -400,6 +407,7 @@ module.exports = {
                     });
                 default:
                     evidenceLink ? isEvidence = "* *" + evidenceLink : isEvidence = `*${en.blacklist.message.embed.options.noEvidence}*`;
+                    evidenceImage ? isEvidence = "* *" + evidenceImage : isEvidence = `*${en.blacklist.message.embed.options.noEvidence}*`;
 
                     switch (risk) {
                         case ("Low"):
@@ -426,7 +434,6 @@ module.exports = {
                         case ("add"):
 
                             // Checking if the user is already blacklisted
-
                             if (blacklistData) {
                                 blacklistEmbed.setDescription(`<:tick:1096181611818647617> ${reply}`)
 
@@ -436,17 +443,17 @@ module.exports = {
                             };
 
                             return interaction.reply({
-                                content: messagePreset.blacklist.addBlacklist,
+                                content: `${user.toString()} has been blacklisted for ${reason} successfully!`,
                                 ephemeral: true,
                             }).then(async () => {
                                 await Blacklist.create({
-                                    UserName: user.tag,
                                     userId: user.id,
-                                    ModName: interaction.user.tag,
-                                    ModID: interaction.user.id,
-                                    Reason: reason,
-                                    Proof: proof,
-                                    Risk: risk,
+                                    userTag: user.tag,
+                                    staffId: interaction.user.id,
+                                    staffTag: interaction.user.tag,
+                                    reason: reason,
+                                    evidence: isEvidence,
+                                    risk: risk,
                                 });
 
                                 blacklistEmbed.addFields(
@@ -464,7 +471,6 @@ module.exports = {
                         case ("remove"):
 
                             // Checking if the user is already blacklisted
-
                             if (!blacklistData) {
                                 return interaction.reply({
                                     content: lgBlacklist.isNotBlacklisted,
@@ -490,11 +496,8 @@ module.exports = {
                                 return Blacklist.destroy({ where: { userId: userCheck } });
                             });
                         case ("suggest"):
-                            let evidenceImage = interaction.options.getAttachment(en.blacklist.default.suggest.evidence.name);
-                            evidenceImage ? isEvidence = "* *" + evidenceImage : isEvidence = `*${en.blacklist.message.embed.options.noEvidence}*`;
 
                             // Checking if the user is already blacklisted
-
                             if (blacklistData) {
                                 return interaction.reply({
                                     content: lgBlacklist.isBlacklisted,
@@ -520,7 +523,6 @@ module.exports = {
                         case ("check"):
 
                             // Checking if the user is blacklisted
-
                             if (!blacklistData) {
                                 blacklistEmbed.setDescription(`<:tick:1096181611818647617> ${reply}`)
                                 blacklistEmbed.setColor("Green")
@@ -562,7 +564,7 @@ module.exports = {
             console.log(error);
 
             await interaction.reply({
-                content: en.default.errorOccured,
+                content: languageSet.default.errorOccured,
                 ephemeral: true,
             });
 

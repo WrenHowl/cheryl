@@ -6,11 +6,18 @@
         "serverOnly": "An error occured. You can only use this command in a server",
         "staffOnly": "An error occured. This command is only available to the staff of Cheryl.",
         "userPermission": {
-            "ban": "Missing Permission: Ban Members",
-            "kick": "Missing Permission: Ban Members",
-            "role": "Missing Permission: Manage Roles",
-            "message": "Missing Permission: Manage Messages",
-            "channel": "Missing Permission: Manage Channels"
+            "ban": "You're missing this permission: Ban Members",
+            "kick": "You're missing this permission: Ban Members",
+            "manageRoles": "You're missing this permission: Manage Roles",
+            "manageMessages": "You're missing this permission: Manage Messages",
+            "manageChannels": "You're missing this permission: Manage Channels"
+        },
+        "botPermission": {
+            "ban": "I'm missing this permission: Ban Members",
+            "kick": "I'm missing this permission: Ban Members",
+            "manageRoles": "I'm missing this permission: Manage Roles",
+            "manageMessages": "I'm missing this permission: Manage Messages",
+            "manageChannels": "I'm missing this permission: Manage Channels"
         },
         "button": {
             "discord": "Support Server"
@@ -255,17 +262,13 @@
                 "by": "by"
             },
             "onWho": {
-                "myself": "An error occured. You can't ban yourself",
-                "bot": "An error occured. You can't ban me",
-                "owner": "An error occured. You can't ban the owner",
-                "punishable": "An error occured. I can't ban this user",
-                "role": "An error occured. You can't ban this user, because they're higher than you",
-                "punished": "An error occured. You can't ban this user, since they are banned already"
+                "isThemself": "An error occured. You can't ban yourself",
+                "isBot": "An error occured. You can't ban me",
+                "isOwner": "An error occured. You can't ban the owner",
+                "isPunishable": "An error occured. I can't ban this user",
+                "isHigher": "An error occured. You can't ban this user, because they're higher than you",
+                "isAlready": "An error occured. You can't ban this user, since they are already banned"
             }
-        },
-        "permission": {
-            "myself": ":warning: Insufficient Permission - You need the following permission: *Ban Members*",
-            "bot": ":warning: Insufficient Permission - I need the following permission: *Ban Members*"
         }
     },
     "unban": {
@@ -286,10 +289,6 @@
                     "mod": "Moderator"
                 }
             }
-        },
-        "permission": {
-            "myself": ":warning: Insufficient Permission - You need the following permission: *Ban Members*",
-            "me": ":warning: Insufficient Permission - I need the following permission: *Ban Members*"
         }
     },
     "kick": {
@@ -327,10 +326,6 @@
                 "punishable": "An error occured. I can't kick this user",
                 "role": "An error occured. You can't kick this user, because they're higher than you"
             }
-        },
-        "permission": {
-            "myself": ":warning: Insufficient Permission - You need the following permission: *Kick Members*",
-            "me": ":warning: Insufficient Permission - I need the following permission: *Kick Members*"
         }
     },
     "warn": {
@@ -365,10 +360,6 @@
         },
         "message": {
             "success": "The channel has been successfully unlocked"
-        },
-        "permission": {
-            "myself": ":warning: Insufficient Permission - You need the following permission: *Manage Messages*",
-            "me": ":warning: Insufficient Permission - I need the following permission: *Manage Messages"
         }
     },
     "blacklist": {
@@ -391,7 +382,7 @@
                     "description": "Risk of the user"
                 },
                 "evidence": {
-                    "name": "evidence",
+                    "name": "evidence_link",
                     "description": "Evidence of the action done by the user"
                 }
             },
@@ -423,7 +414,7 @@
                     "description": "Reason for the blacklist suggestion"
                 },
                 "evidence": {
-                    "name": "evidence",
+                    "name": "evidence_image",
                     "description": "Evidence of the action done by the user"
                 }
             }
@@ -470,10 +461,6 @@
         "default": {
             "name": "ticket",
             "description": "Ticket System - Moderate your server easily with tickets"
-        },
-        "permission": {
-            "myself": ":warning: Insufficient Permission - You need the following permission: *Manage Channels*",
-            "me": ":warning: Insufficient Permission - I need the following permission: *Manage Channels*"
         }
     },
     "report": {

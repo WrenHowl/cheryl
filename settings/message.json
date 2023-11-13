@@ -10,11 +10,11 @@
         "RemovedWhitelistBlacklist": "The user/server has been successfully removed of the following whitelist: ``Blacklist``."
     },
     "blacklist": {
-        "isntBlacklisted": "The user isn't blacklisted",
-        "isBlacklisted": "The user is already blacklisted",
-        "addBlacklist": "The user has been successfully added to the blacklist",
-        "removeBlacklist": "The user has been successfully removed of the blacklist",
-        "suggestBlacklist": "The user has been successfully suggested to be added to the blacklist"
+        "isntBlacklisted": "This user isn't blacklisted",
+        "isBlacklisted": "This user is already blacklisted",
+        "addBlacklist": "This user has been successfully added to the blacklist",
+        "removeBlacklist": "This user has been successfully removed of the blacklist",
+        "suggestBlacklist": "This user has been successfully suggested to be added to the blacklist"
     },
     "ticket": {
         "created": "Your ticket is waiting to be claimed by a staff! You will receive a DM/mention when it will be open!",
