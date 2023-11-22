@@ -188,7 +188,7 @@ module.exports = {
         } catch (error) {
             let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
             let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
-            console.log(interaction.user.id + " -> " + interaction.user.tag);
+            console.log(`${interaction.user.id} -> ${interaction.user.tag}`);
             console.log(error);
 
             await interaction.reply({

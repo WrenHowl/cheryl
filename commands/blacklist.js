@@ -259,27 +259,21 @@ module.exports = {
         switch (loggingData.language) {
             case ("en"):
                 languageSet = en;
-
                 break;
             case ("fr"):
                 languageSet = fr;
-
                 break;
             case ("de"):
                 languageSet = de;
-
                 break;
             case ("sp"):
                 languageSet = sp;
-
                 break;
             case ("nl"):
                 languageSet = nl;
-
                 break;
             default:
                 languageSet = en;
-
                 break;
         }
 
@@ -560,7 +554,7 @@ module.exports = {
         } catch (error) {
             let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
             let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
-            console.log(interaction.user.id + " -> " + interaction.user.tag);
+            console.log(`${interaction.user.id} -> ${interaction.user.tag}`);
             console.log(error);
 
             await interaction.reply({

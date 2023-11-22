@@ -841,34 +841,27 @@ bot.on("messageCreate", async (message) => {
   switch (loggingData.language) {
     case ("en"):
       languageSet = en;
-
       break;
     case ("fr"):
       languageSet = fr;
-
       break;
     case ("de"):
       languageSet = de;
-
       break;
     case ("sp"):
       languageSet = sp;
-
       break;
     case ("nl"):
       languageSet = nl;
-
       break;
     default:
       languageSet = en;
-
       break;
   }
 
   try {
 
     // File Path
-
     let commandsPath = path.join(__dirname, 'commands_noslash');
     let commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
@@ -879,16 +872,13 @@ bot.on("messageCreate", async (message) => {
     }
 
     // Prefix setup
-
     let loggingData = await Logging.findOne({ where: { guildId: message.guild.id } });
     loggingData.prefix ? prefixSet = loggingData.prefix : prefixSet = configPreset.botInfo.messagePrefix;
 
     // Not answering the message if it's a bot or not using the prefix
-
     if (message.author.bot || message.content.indexOf(prefixSet) !== 0) return;
 
     // Setting up the command
-
     let args = message.content.slice(prefixSet.length).trim().split(/ +/);
     let command = args.shift().toLowerCase();
 
@@ -902,23 +892,7 @@ bot.on("messageCreate", async (message) => {
     ];
 
     // Checking if the command that is being executed is 
-
     let statusCommand = await CommandFunction.findOne({ where: { name: commandName.includes(command) } });
-
-    switch (loggingData.language) {
-      case ("en"):
-        languageSet = en;
-      case ("fr"):
-        languageSet = fr;
-      case ("de"):
-        languageSet = de;
-      case ("sp"):
-        languageSet = sp;
-      case ("nl"):
-        languageSet = nl;
-      default:
-        languageSet = en;
-    }
 
     if (statusCommand.value === "Disable" | !message.guild) {
       refusingAction = languageSet.default.commandDisabledGlobally;
@@ -947,7 +921,7 @@ bot.on("messageCreate", async (message) => {
   } catch (error) {
     let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
     let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
-    console.log(message.user.id + " -> " + message.user.tag);
+    console.log(`${interaction.user.id} -> ${interaction.user.tag}`);
     console.log(error);
 
     await message.reply({
@@ -990,34 +964,27 @@ bot.on('interactionCreate', async (interaction) => {
   switch (loggingData.language) {
     case ("en"):
       languageSet = en;
-
       break;
     case ("fr"):
       languageSet = fr;
-
       break;
     case ("de"):
       languageSet = de;
-
       break;
     case ("sp"):
       languageSet = sp;
-
       break;
     case ("nl"):
       languageSet = nl;
-
       break;
     default:
       languageSet = en;
-
       break;
   }
 
   try {
 
     // File Path
-
     let commandsPath = path.join(__dirname, 'commands');
     let commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
@@ -1028,15 +995,12 @@ bot.on('interactionCreate', async (interaction) => {
     }
 
     // Checking if it's an existing interaction command
-
     if (!interaction.isCommand()) return;
 
     // Getting the command if it is
-
     let command = bot.commands.get(interaction.commandName);
 
     // Checking if the command that is being executed is disabled or not in guild
-
     let statusCommand = await CommandFunction.findOne({ where: { name: interaction.commandName } });
 
     if (statusCommand.value === "Disable" | !interaction.guild) {
@@ -1050,12 +1014,11 @@ bot.on('interactionCreate', async (interaction) => {
     };
 
     // Execute the command
-
     return command.execute(interaction, bot, sequelize, Sequelize);
   } catch (error) {
     let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
     let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
-    console.log(interaction.user.id + " -> " + interaction.user.tag);
+    console.log(`${interaction.user.id} -> ${interaction.user.tag}`);
     console.log(error);
 
     await interaction.reply({
@@ -1073,27 +1036,21 @@ bot.on('interactionCreate', async (interaction) => {
   switch (loggingData.language) {
     case ("en"):
       languageSet = en;
-
       break;
     case ("fr"):
       languageSet = fr;
-
       break;
     case ("de"):
       languageSet = de;
-
       break;
     case ("sp"):
       languageSet = sp;
-
       break;
     case ("nl"):
       languageSet = nl;
-
       break;
     default:
       languageSet = en;
-
       break;
   }
 
@@ -1103,7 +1060,6 @@ bot.on('interactionCreate', async (interaction) => {
     if (!interaction.guild) return;
 
     //  Verification System
-
     let verificationId = [
       "buttonToVerify",
       "buttonToAcceptVerify",
@@ -1119,7 +1075,6 @@ bot.on('interactionCreate', async (interaction) => {
       if (interaction.isButton()) {
 
         // Checking if the bot has permission to manage role
-
         if (!interaction.guild.members.me.permissions.has("ManageRoles")) {
           return interaction.reply({
             content: en.default.userPermission.role,
@@ -1194,11 +1149,9 @@ bot.on('interactionCreate', async (interaction) => {
         };
 
         // Checking if the verification/message exist
-
         if (!verificationMessageData) return;
 
         // Checking if the member is still in the guild
-
         if (!guild.members.cache.find(member => member.id === verificationData.userId)?.id) {
           interaction.channel.messages.fetch(verficationData.messageId).then(async (message) => {
             verificationEmbed.setColor("Grey")
@@ -1230,23 +1183,18 @@ bot.on('interactionCreate', async (interaction) => {
           case ("buttonToAcceptVerify"):
 
             // Verify the member
-
             let member = interaction.guild.members.cache.get(verificationData.userId);
             await member.roles.add(loggingData.roleAddId_Verify, `${languageSet.verification.buttonToAcceptVerify.roleAdd} ${interaction.user.tag}`);
 
             // Checking if user had a role to remove
-
             loggingData.roleRemoveId_Verify ? await member.roles.remove(loggingData.roleRemoveId_Verify) : false;
 
             // Check if the channel still exist
-
-            let verifyChannel = newMember.guild.channels.cache.get(loggingData.channelId_Verify);
-            if (!verifyChannel) {
+            if (!newMember.guild.channels.cache.get(loggingData.channelId_Verify)) {
               return Logging.update({ channelId_Verify: null }, { where: { guildId: guild.id } });
             };
 
             // Editing message
-
             interaction.channel.messages.fetch(interaction.message.id).then(async () => {
               verificationEmbed.setColor("Green")
 
@@ -1258,14 +1206,11 @@ bot.on('interactionCreate', async (interaction) => {
             });
 
             // Sending welcome message in a channel
-
-            let sendingMesage = interaction.guild.channels.cache.get(loggingData.channelId_AfterVerify);
-            await sendingMesage.send({
+            await interaction.guild.channels.cache.get(loggingData.channelId_AfterVerify).send({
               content: `${languageSet.verification.buttonToAcceptVerify.welcomeMessage} <@${verificationData.userId}> ${languageSet.verification.buttonToAcceptVerify.guildWelcomeMessage} ${guild.name}!`
             });
 
             // Creating or incrementing the verification counter
-
             if (verification_CountData) {
               if (verification_CountData.guildId === interaction.guild.id) {
                 await verification_CountData.increment('verificationCount');
@@ -1279,7 +1224,6 @@ bot.on('interactionCreate', async (interaction) => {
             };
 
             // Create log of the verification in the database
-
             await Verifier.create({
               userTag: verificationData.userTag,
               userId: verificationData.userId,
@@ -1289,12 +1233,10 @@ bot.on('interactionCreate', async (interaction) => {
             });
 
             // Deleting the verification
-
             return Verification.destroy({ where: { messageId: interaction.message.id } });
           case ("buttonToDenyVerify"):
 
             // Editing message 
-
             interaction.channel.messages.fetch(interaction.message.id).then(async () => {
               verificationEmbed.setColor("Red");
 
@@ -1306,7 +1248,6 @@ bot.on('interactionCreate', async (interaction) => {
             });
 
             // Waiting for answer to send reason to member
-
             let filter = message => message.userId.id === interaction.user.id;
             await interaction.channel.awaitMessages({ filter, max: 1, time: 30000 }).then(async (response) => {
               response.delete();
@@ -1320,7 +1261,6 @@ bot.on('interactionCreate', async (interaction) => {
             });
 
             // Destroy the verification data
-
             return Verification.destroy({ where: { messageId: interaction.message.id } });
         };
       };
@@ -1401,7 +1341,6 @@ bot.on('interactionCreate', async (interaction) => {
     };
 
     //  Action System
-
     let actionId = [
       "AcceptSuggestion",
       "DenySuggestion"
@@ -1454,7 +1393,6 @@ bot.on('interactionCreate', async (interaction) => {
     };
 
     //  Ticket System
-
     let ticketId = [
       "age_verification",
       "report",
@@ -1501,7 +1439,6 @@ bot.on('interactionCreate', async (interaction) => {
       }
 
       //  Ticket System - (reason) Ticket Button
-
       let reasonTicket = [
         "age_verification",
         "report",
@@ -1618,7 +1555,6 @@ bot.on('interactionCreate', async (interaction) => {
       };
 
       //  Ticket System - (Waiting) Ticket Button
-
       let inTicket = [
         "claim_ticket",
         "unclaim_ticket",
@@ -1628,7 +1564,6 @@ bot.on('interactionCreate', async (interaction) => {
       if (inTicket.includes(interaction.customId)) {
 
         // Checking if the member is still in the guild
-
         if (!guild.members.cache.find(user => user.id === ticketMessageData.userId)) {
 
           // Check if the ticket channel still exist
@@ -1658,7 +1593,6 @@ bot.on('interactionCreate', async (interaction) => {
         let memberInServer = bot.users.cache.get(ticketMessageData.userId);
 
         // Checking for missing permission
-
         if (!isStaff | !manageChannelPermission | !ticketMessageData) {
           return interaction.reply({
             content: messageRefusingAction,
@@ -1667,7 +1601,6 @@ bot.on('interactionCreate', async (interaction) => {
         }
 
         // Checking role of user
-
         if (ticketMessageData.reason === "age_verification" | ticketMessageData.reason === "partnership") {
           if (!interaction.member.roles.cache.some(role => role.name === "★★★")) {
             return interaction.reply({
@@ -1681,7 +1614,6 @@ bot.on('interactionCreate', async (interaction) => {
           case ("claim_ticket"):
 
             // Checking for possible error or missing permission
-
             if (ticketMessageData.userId === interaction.user.id) {
               return interaction.reply({
                 content: messagePreset.ticket.own,
@@ -1690,7 +1622,6 @@ bot.on('interactionCreate', async (interaction) => {
             };
 
             // Editing ticket message for staff
-
             interaction.channel.messages.fetch(interaction.message.id).then(async (message) => {
               let buttonClaimEdit = new ActionRowBuilder()
                 .addComponents(
@@ -1717,13 +1648,11 @@ bot.on('interactionCreate', async (interaction) => {
             }).catch(() => { return });
 
             // Updating database
-
             await Ticket.update({
               claimedBy: interaction.user.id,
             }, { where: { guildId: interaction.guild.id, messageId: interaction.message.id } });
 
             // Creating the ticket channel
-
             return interaction.guild.channels.create({
               name: ticketMessageData.reason + "-" + ticketMessageData.ticketCount,
               type: 0,
@@ -1748,17 +1677,14 @@ bot.on('interactionCreate', async (interaction) => {
             }).then(async (channel) => {
 
               // Update database
-
               await Ticket.update({
                 channelId: channel.id
               }, { where: { guildId: interaction.guild.id, messageId: ticketMessageData.messageId, claimedBy: interaction.user.id, userId: ticketMessageData.userId } });
 
               // Messaging the owner of the ticket
-
               findingMember ? memberInServer.send("Your ticket (<#" + channel.id + ">) have been claimed and created by: " + interaction.user.toString()).catch(() => { return }) : false;
 
               // Default ticket message
-
               let ticketMessagEmbed = new EmbedBuilder()
                 .addFields(
                   { name: "Member", value: "<@" + ticketMessageData.userId + ">", inline: true },
@@ -1775,7 +1701,6 @@ bot.on('interactionCreate', async (interaction) => {
                 );
 
               // Adding new field in function of ticket reason
-
               switch (ticketMessageData.reason) {
                 case ("age_verification"):
                   ticketMessagEmbed.setTitle("Age Verification - Ticket")
@@ -1823,7 +1748,6 @@ bot.on('interactionCreate', async (interaction) => {
               };
 
               // Sending messsage in the ticket
-
               return channel.send({
                 embeds: [ticketMessagEmbed],
                 components: [buttonTicket],
@@ -1844,7 +1768,6 @@ bot.on('interactionCreate', async (interaction) => {
           case ("unclaim_ticket"):
 
             // Checking for possible error or missing permission
-
             if (ticketMessageData.claimedBy !== interaction.user.id) {
               return interaction.reply({
                 content: messagePreset.ticket.own,
@@ -1853,7 +1776,6 @@ bot.on('interactionCreate', async (interaction) => {
             }
 
             // Editing ticket message for staff
-
             interaction.channel.messages.fetch(interaction.message.id).then(async (message) => {
               let buttonClaimEdit = new ActionRowBuilder()
                 .addComponents(
@@ -1879,15 +1801,12 @@ bot.on('interactionCreate', async (interaction) => {
             }).catch((error) => { return console.log(error) });
 
             // Messaging the owner of the ticket
-
             findingMember ? memberInServer.send("Your ticket (<#" + ticketMessageData.channelId + ">) have been unclaimed by: " + interaction.user.toString()).catch(() => { return }) : false;
 
             // Deleting the ticket channel
-
             await guildIn.channels.cache.get(ticketMessageData.channelId).delete("Ticket unclaimed of " + ticketMessageData.userTag + " by " + interaction.user.tag)
 
             // Updating database
-
             return await Ticket.update({
               channelId: null,
               claimedBy: null,
@@ -1911,7 +1830,6 @@ bot.on('interactionCreate', async (interaction) => {
       };
 
       //  Ticket System - (Created) Ticket Button
-
       let createdTicket = [
         "buttonToAdd",
         "buttonDeleteTicket"
@@ -1920,7 +1838,6 @@ bot.on('interactionCreate', async (interaction) => {
       if (createdTicket.includes(interaction.customId)) {
 
         // Checking if the member is still in the guild
-
         if (!guild.members.cache.find(member => member.id === ticketChannelData.userId)) {
 
           // Check if the ticket channel still exist
@@ -1949,7 +1866,6 @@ bot.on('interactionCreate', async (interaction) => {
         let guildIn = bot.guilds.cache.get(interaction.guild.id);
 
         // Checking for missing permission
-
         if (!isStaff | !manageChannelPermission | !ticketChannelData) {
           return interaction.reply({
             content: messageRefusingAction,
@@ -1962,11 +1878,9 @@ bot.on('interactionCreate', async (interaction) => {
             let profileCheck = await Profile.findOne({ where: { userId: member.user.id } });
 
             // Giving role
-
             await member.roles.add("1084970943820075050", "Age Verification: Verified by " + interaction.user.tag).catch(() => { return });
 
             // Upadting profile
-
             profileCheck ? await Profile.update({ verified18: true }, { where: { userId: member.user.id } }) :
               await Profile.create({
                 userTag: member.user.tag,
@@ -1976,7 +1890,6 @@ bot.on('interactionCreate', async (interaction) => {
               });
 
             // Sending message in ticket and channel
-
             return interaction.reply({
               content: member.toString() + " is now a **Verified 18+**"
             }).then(() => {
@@ -2014,17 +1927,14 @@ bot.on('interactionCreate', async (interaction) => {
             }).catch(() => { return });
 
             // Messaging the owner of the ticket
-
             findingMember ? findingMember.send("Your ticket (<#" + ticketChannelData.channelId + ">) have been closed and deleted by: " + interaction.user.toString()).catch(() => { return }) : false;
 
             // Alerting of the deletion of the channel
-
             await interaction.reply({
               content: messagePreset.ticket.delete,
             });
 
             // Destroy the channel after x seconds
-
             return setTimeout(async () => {
               await ticketChannelData.destroy({ where: { guildId: interaction.guild.id, channelId: interaction.channel.id } });
 
@@ -2292,7 +2202,7 @@ bot.on('interactionCreate', async (interaction) => {
   } catch (error) {
     let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
     let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
-    console.log(interaction.user.id + " -> " + interaction.user.tag);
+    console.log(`${interaction.user.id} -> ${interaction.user.tag}`);
     console.log(error);
 
     await interaction.reply({

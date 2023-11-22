@@ -56,27 +56,21 @@ module.exports = {
         switch (loggingData.language) {
             case ("en"):
                 languageSet = en;
-
                 break;
             case ("fr"):
                 languageSet = fr;
-
                 break;
             case ("de"):
                 languageSet = de;
-
                 break;
             case ("sp"):
                 languageSet = sp;
-
                 break;
             case ("nl"):
                 languageSet = nl;
-
                 break;
             default:
                 languageSet = en;
-
                 break;
         }
 
@@ -92,17 +86,17 @@ module.exports = {
 
             let staffRole = staffGet ? staffGet.roles.cache.has(configPreset.staffRoleId.developer) | staffGet.roles.cache.has(configPreset.staffRoleId.staff) : false;
 
-            if (staffRole) {
+            if (staffGet & staffRole) {
                 staffEmbed.setThumbnail(configPreset.other.isStaff);
                 isStaff = "is";
                 staffEmbed.setColor("Green");
-            } else {
+                staffGet.roles.cache.has(configPreset.staffRoleId.developer) ? staffRank = "DEVELOPER" : staffRank = "STAFF";
+            } else if (!staffGet | staffRole) {
                 staffEmbed.setThumbnail(configPreset.other.isNotStaff);
                 isStaff = "isn't";
                 staffEmbed.setColor("Red");
+                staffRank = "STAFF";
             }
-
-            staffGet.roles.cache.has(configPreset.staffRoleId.developer) ? staffRank = "DEVELOPER" : staffRank = "STAFF";
 
             staffEmbed.setDescription(`${userCheck.toString()} ${isStaff} a **${staffRank}** of **${bot.user.username}**`);
 
@@ -112,8 +106,8 @@ module.exports = {
         } catch (error) {
             let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
             let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
-            console.log(interaction.user.id + " -> " + interaction.user.tag);
-            console.log(error);
+            console.log(`${interaction.user.id} -> ${interaction.user.tag}`);
+            console.log(error)
 
             await interaction.reply({
                 content: languageSet.default.errorOccured,
