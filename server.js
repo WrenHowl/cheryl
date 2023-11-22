@@ -919,7 +919,7 @@ bot.on("messageCreate", async (message) => {
   } catch (error) {
     let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
     let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
-    console.log(`${message.user.id} -> ${message.user.tag}`);
+    console.log(`${message.author.id} -> ${message.author.tag}`);
     console.log(error);
 
     await message.reply({
