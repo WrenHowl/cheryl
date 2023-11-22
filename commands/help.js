@@ -1,197 +1,184 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const Color = require("../config/color.json");
-const Message = require("../config/message.json");
-const Config = require("../config/config.json");
-const LanguageFR = require("../languages/fr.json");
-const LanguageEN = require("../languages/en.json");
-const LanguageDE = require("../languages/de.json");
-const LanguageSP = require("../languages/sp.json");
-const LanguageNL = require("../languages/nl.json");
 
-const fr = LanguageFR.help;
-const en = LanguageEN.help;
-const de = LanguageDE.help;
-const sp = LanguageSP.help;
-const nl = LanguageNL.help;
+const configPreset = require("../config/main.json");
+
+const fr = require("../languages/fr.json");
+const en = require("../languages/en.json");
+const de = require("../languages/de.json");
+const sp = require("../languages/sp.json");
+const nl = require("../languages/nl.json");
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName(en.Name)
+    .setName(en.help.default.name)
     .setNameLocalizations({
-      fr: fr.Name,
-      de: de.Name,
-      SpanishES: sp.Name,
-      nl: nl.Name
+      "fr": fr.help.default.name,
+      "de": de.help.default.name,
+      "es-ES": sp.help.default.name,
+      nl: nl.help.default.name
     })
-    .setDescription(en.Description)
+    .setDescription(en.help.default.description)
     .setDescriptionLocalizations({
-      fr: fr.Description,
-      de: de.Description,
-      SpanishES: sp.Description,
-      nl: nl.Description
+      "fr": fr.help.default.description,
+      "de": de.help.default.description,
+      "es-ES": sp.help.default.description,
+      nl: nl.help.default.description
     })
     .addStringOption(option => option
-      .setName(en.InfoName)
+      .setName(en.help.default.info.name)
       .setNameLocalizations({
-        fr: fr.InfoName,
-        de: de.InfoName,
-        SpanishES: sp.InfoName,
-        nl: nl.InfoName
+        "fr": fr.help.default.info.name,
+        "de": de.help.default.info.name,
+        "es-ES": sp.help.default.info.name,
+        nl: nl.help.default.info.name
       })
-      .setDescription(en.InfoDescription)
+      .setDescription(en.help.default.info.description)
       .setDescriptionLocalizations({
-        fr: fr.InfoDescription,
-        de: de.InfoDescription,
-        SpanishES: sp.InfoDescription,
-        nl: nl.InfoDescription
+        "fr": fr.help.default.info.description,
+        "de": de.help.default.info.description,
+        "es-ES": sp.help.default.info.description,
+        nl: nl.help.default.info.description
       })
       .addChoices(
         { name: "blacklist", value: "blacklistInfo" },
         { name: "verification", value: "verificationInfo" },
       )),
   execute: async (interaction, bot, sequelize, Sequelize) => {
+    const Logging = sequelize.define("Logging", {
+      guildId: {
+        type: Sequelize.STRING,
+      },
+      language: {
+        type: Sequelize.STRING,
+      },
+    });
+
+    let loggingData = await Logging.findOne({ where: { guildId: interaction.guild.id } });
+
+    switch (loggingData.language) {
+      case ("en"):
+        languageSet = en;
+        break;
+      case ("fr"):
+        languageSet = fr;
+        break;
+      case ("de"):
+        languageSet = de;
+        break;
+      case ("sp"):
+        languageSet = sp;
+        break;
+      case ("nl"):
+        languageSet = nl;
+        break;
+      default:
+        languageSet = en;
+        break;
+    }
+
     try {
-      if (!interaction.guild) {
-        return interaction.reply({
-          content: "Use this command inside a server only!"
-        });
-      };
-
-      const CommandFunction = sequelize.define("CommandFunction", {
-        name: {
-          type: Sequelize.STRING,
-        },
-        value: {
-          type: Sequelize.STRING,
-        },
-      });
-
-      const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
-
-      const MessageReason = require("../config/message.json");
-
-      if (FindCommand) {
-        if (FindCommand.value === "Disable") {
-          return interaction.reply({
-            content: MessageReason.CommandDisabled,
-            ephemeral: true,
-          });
-        };
-      };
-
-      const SupportDiscord = new ActionRowBuilder()
+      const helpButton = new ActionRowBuilder()
         .addComponents(
           new ButtonBuilder()
-            .setLabel('Support Server')
-            .setURL(Config.SupportDiscord)
+            .setLabel(languageSet.default.button.discord)
+            .setURL(configPreset.other.discordLink)
             .setStyle(ButtonStyle.Link),
         );
 
-      const infoOptions = interaction.options.getString(en.InfoName);
+      const infoOptions = interaction.options.getString(en.help.default.info.name);
 
-      if (!infoOptions) {
-        let arrayStaffCheryl = [
-          "blacklist",
-          "permission",
-          "cmd ^",
-          "cop ^",
-        ].join("``, ``");
+      const helpEmbed = new EmbedBuilder()
+        .setColor("Green")
 
-        let arrayAdminGlobal = [
-          "settings",
-          "welcomemenu",
-          "language ^",
-        ].join("``, ``");
+      switch (infoOptions) {
+        case ("blacklistInfo"):
+          helpEmbed.setDescription(
+            "### 1. How does the blacklist work?\n" +
+            "* The blacklist contains users who have broken rules in any server, they're all stocked and classed in different types of blacklists:\n" +
+            " * :black_circle: High - `Suicidal Threats, Sexual Harassment, Gore, etc.`\n" +
+            " * :red_circle: Medium - `Anti-Furry, Anti-LGBTQ, Raiding, etc.`\n" +
+            " * :yellow_circle: Low - `Racism, Homophobic, etc.`\n\n" +
+            "* When a blacklisted user join your server, you will get notified if you have have everything setup. We will not automatically ban, unless you enabled it with `/settings blacklist autoban`\n" +
+            "### 2. Is there evidence?\n" +
+            "* Yes! We provide evidence for every blacklist\n" +
+            "### 3. How do I enable the blacklist in my server?\n" +
+            "* You simply need to do ``/settings blacklist`` and set the blacklist alert to ``Enabled`` and set a channel you wanna receive your alert in"
+          );
 
-        let arrayModGlobal = [
-          "ban",
-          "kick",
-          "warn",
-          "warns",
-          "lock",
-          "unlock",
-          "verify",
-        ].join("``, ``");
+          break;
+        case ("verificationInfo"):
+          helpEmbed.setDescription(
+            "### 1. How to enable the verify command?\n" +
+            "* Do ``/settings verification`` and choose either ``menu`` or ``command``. You can set up both, it will work!n\n" +
+            "* You selected ``menu``? You need to send the menu in a channel afterwards! Do ``/welcomemenu`` and choose the desired channel"
+          );
 
-        let arrayUtilGlobal = [
-          "help",
-          "ping",
-          "profile",
-          "serverinfo",
-          "staff",
-          "report",
-        ].join("``, ``");
+          break;
+        default:
+          let arrayStaffCheryl = [
+            "blacklist",
+            "permission",
+            "cmd",
+            "cop",
+          ].join("``, ``");
 
-        let arrayFunGlobal = [
-          "avatar",
-          "action",
-        ].join("``, ``");
+          let arrayAdminGlobal = [
+            "settings",
+            "welcomemenu",
+            "language",
+          ].join("``, ``");
 
-        if (arrayStaffCheryl) arrayStaffCheryl = "``" + arrayStaffCheryl + "``";
-        if (arrayAdminGlobal) arrayAdminGlobal = "``" + arrayAdminGlobal + "``";
-        if (arrayModGlobal) arrayModGlobal = "``" + arrayModGlobal + "``";
-        if (arrayUtilGlobal) arrayUtilGlobal = "``" + arrayUtilGlobal + "``";
-        if (arrayFunGlobal) arrayFunGlobal = "``" + arrayFunGlobal + "``";
+          let arrayModGlobal = [
+            "ban",
+            "kick",
+            "lock",
+            "unlock",
+            "verify",
+          ].join("``, ``");
 
-        const helpMenu = new EmbedBuilder()
-          .setDescription("*My prefix in this server is ``c.``. Commands with a ^ right next to it, use the prefix.*")
-          .addFields(
-            { name: "Staff Cheryl:", value: arrayStaffCheryl },
-            { name: "Administration:", value: arrayAdminGlobal },
-            { name: "Moderation:", value: arrayModGlobal },
-            { name: "Utilities:", value: arrayUtilGlobal },
-            { name: "Fun:", value: arrayFunGlobal },
-          )
-          .setColor(Color.Green)
+          let arrayUtilGlobal = [
+            "help",
+            "ping",
+            "profile",
+            "serverinfo",
+            "staff",
+            "report",
+          ].join("``, ``");
 
-        return interaction.reply({
-          embeds: [helpMenu],
-          components: [SupportDiscord],
-        });
+          let arrayFunGlobal = [
+            "avatar",
+            "action",
+          ].join("``, ``");
 
-      } else {
-        switch (infoOptions) {
-          case ("blacklistInfo"):
-            const blacklistInfoEmbed = new EmbedBuilder()
-              .setDescription(
-                "**1 - WHAT DOES THE BLACKLIST DO?**\n" +
-                "The blacklist contains users who have broken rules in any server, they're all stocked and classed in different types of blacklists:\n\n" +
-                "> :yellow_circle: Low - `Racism, Homophobic, etc.`\n" +
-                "> :orange_circle: Medium - `Anti-Furry, Anti-LGBTQ, Raiding, etc.`\n" +
-                "> :red_circle: High - `Suicidal Threats, Sexual Harassment, Gore, etc.`\n\n" +
-                "When a blacklisted user join your server, you will get notified if you have have everything setup. We will not automatically ban, unless you enabled it with `/settings blacklist autoban`.\n\n" +
-                "**2 - IS THERE EVIDENCE?**\n" +
-                "Yes! We provide evidence for every blacklist.\n\n" +
-                "**3 - HOW DO I ENABLE THE BLACKLIST ALERT IN MY SERVER?**\n" +
-                "You simply need to do ``/settings blacklist`` and set the blacklist alert to ``Enabled`` and set a channel you wanna receive your alert in.")
-              .setColor(Color.Green)
+          helpEmbed.setDescription("*My prefix in this server is ``c.``*");
+          helpEmbed.addFields(
+            { name: "Staff Cheryl", value: "``" + arrayStaffCheryl + "``" },
+            { name: "Administration", value: "``" + arrayAdminGlobal + "``" },
+            { name: "Moderation", value: "``" + arrayModGlobal + "``" },
+            { name: "Utilities", value: "``" + arrayUtilGlobal + "``" },
+            { name: "Fun", value: "``" + arrayFunGlobal + "``" },
+          );
 
-            return interaction.reply({
-              embeds: [blacklistInfoEmbed],
-              components: [SupportDiscord],
-            });
-          case ("verificationInfo"):
-            const verificationInfoEmbed = new EmbedBuilder()
-              .setDescription(
-                "**1 - HOW TO ENABLE THE VERIFY COMMAND?**\n" +
-                "Do ``/settings verification`` and choose either ``menu`` or ``command``. You can set up both, it will work!\n\n" +
-                "You selected ``menu``? You need to send the menu in a channel afterwards! Do ``/welcomemenu`` and choose the desired channel!"
-              )
-              .setColor(Color.Green)
-
-            return interaction.reply({
-              embeds: [verificationInfoEmbed],
-              components: [SupportDiscord],
-            });
-        };
+          break;
       };
+
+      return interaction.reply({
+        embeds: [helpEmbed],
+        components: [helpButton],
+      });
+
     } catch (error) {
-      let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
-      let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+      let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
+      let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
+      console.log(`${interaction.user.id} -> ${interaction.user.tag}`);
       console.log(error);
 
-      return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
+      await interaction.reply({
+        content: languageSet.default.errorOccured,
+      });
+
+      return crashchannelId.send({ content: "**Error in the '" + en.blacklist.default.name + "' event:** \n\n```javascript\n" + error + "```" });
     };
   }
 };

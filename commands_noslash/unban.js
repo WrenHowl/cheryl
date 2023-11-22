@@ -1,38 +1,16 @@
-const Discord = require('discord.js');
-const Color = require("../config/color.json");
-const Message = require("../config/message.json");
-const Config = require("../config/config.json");
-const LanguageFR = require("../languages/fr.json");
-const LanguageEN = require("../languages/en.json");
-const LanguageDE = require("../languages/de.json");
-const LanguageSP = require("../languages/sp.json");
-const LanguageNL = require("../languages/nl.json");
+const configPreset = require("../config/main.json");
+
+const fr = require("../languages/fr.json");
+const en = require("../languages/en.json");
+const de = require("../languages/de.json");
+const sp = require("../languages/sp.json");
+const nl = require("../languages/nl.json");
 
 module.exports = {
-    name: LanguageEN.unban.Name,
+    name: en.unban.default.name,
     execute: async (bot, message, args, EmbedBuilder, sequelize, Sequelize) => {
         try {
             if (message.guild.members.me.permissionsIn(message.channelId).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
-                const CommandFunction = sequelize.define("CommandFunction", {
-                    name: {
-                        type: Sequelize.STRING,
-                    },
-                    value: {
-                        type: Sequelize.STRING,
-                    },
-                });
-
-                const FindCommand = await CommandFunction.findOne({ where: { name: LanguageEN.unban.Name } });
-
-                if (FindCommand) {
-                    if (FindCommand.value === "Disable") {
-                        return interaction.reply({
-                            content: Message.CommandDisabled,
-                            ephemeral: true,
-                        });
-                    };
-                };
-
                 const Logging = sequelize.define("Logging", {
                     GuildID: {
                         type: Sequelize.STRING,
@@ -58,7 +36,7 @@ module.exports = {
                     if (message.guild.me.permissions.has("BAN_MEMBERS")) {
                         const ErrorEmbed = new EmbedBuilder()
                             .setTitle("Ban Syntax")
-                            .setDescription("**Utilisation:** ``" + Config.Prefix + en.Name + " <@user> <reason>``")
+                            .setDescription("**Utilisation:** ``" + configPreset.botInfo.messagePrefix + en.unban.default.name + " <@user> <reason>``")
                             .setColor(Color.Blue);
 
                         if (!args[0]) {
@@ -140,13 +118,11 @@ module.exports = {
                 };
             };
         } catch (error) {
-            let fetchGuild = bot.guilds.cache.get(Config.guildId);
-            let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
-            console.log("//------------------------------------------------------------------------------//");
+            let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
+            let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
             console.log(error);
-            console.log("//------------------------------------------------------------------------------//");
 
-            return CrashChannel.send({ content: "**Error in the '" + LanguageEN.unban.Name + "' Command:** \n\n```javascript\n" + error + "```" });
+            return crashchannelId.send({ content: "**Error in the '" + en.ban.commandInteraction.name + "' event:** \n\n```javascript\n" + error + "```" });
         };
     }
-};
+}

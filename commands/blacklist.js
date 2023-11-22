@@ -1,97 +1,101 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { EmbedBuilder } = require('discord.js');
-const Color = require("../config/color.json");
-const Message = require("../config/message.json");
-const Config = require("../config/config.json");
-const LanguageFR = require("../languages/fr.json");
-const LanguageEN = require("../languages/en.json");
-const LanguageDE = require("../languages/de.json");
-const LanguageSP = require("../languages/sp.json");
-const LanguageNL = require("../languages/nl.json");
 
-const fr = LanguageFR.blacklist;
-const en = LanguageEN.blacklist;
-const de = LanguageDE.blacklist;
-const sp = LanguageSP.blacklist;
-const nl = LanguageNL.blacklist;
+const configPreset = require("../config/main.json");
+const messagePreset = require("../config/message.json");
+
+const fr = require("../languages/fr.json");
+const en = require("../languages/en.json");
+const de = require("../languages/de.json");
+const sp = require("../languages/sp.json");
+const nl = require("../languages/nl.json");
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName(en.Name)
+        .setName(en.blacklist.default.name)
         .setNameLocalizations({
-            fr: fr.Name,
-            de: de.Name,
-            SpanishES: sp.Name,
-            nl: nl.Name
+            "fr": fr.blacklist.default.name,
+            "de": de.blacklist.default.name,
+            "es-ES": sp.blacklist.default.name,
+            "nl": nl.blacklist.default.name
         })
-        .setDescription(en.Description)
+        .setDescription(en.blacklist.default.description)
         .setDescriptionLocalizations({
-            fr: fr.Description,
-            de: de.Description,
-            SpanishES: sp.Description,
-            nl: nl.Description
+            "fr": fr.blacklist.default.description,
+            "de": de.blacklist.default.description,
+            "es-ES": sp.blacklist.default.description,
+            "nl": nl.blacklist.default.description
         })
         .addSubcommand(subcommand => subcommand
-            .setName(en.AddName)
+            .setName(en.blacklist.default.add.name)
             .setNameLocalizations({
-                fr: fr.AddName,
-                de: de.AddName,
-                SpanishES: sp.AddName,
-                nl: nl.AddName
+                "fr": fr.blacklist.default.add.name,
+                "de": de.blacklist.default.add.name,
+                "es-ES": sp.blacklist.default.add.name,
+                "nl": nl.blacklist.default.add.name
             })
-            .setDescription(en.AddDescription)
+            .setDescription(en.blacklist.default.add.description)
             .setDescriptionLocalizations({
-                fr: fr.AddDescription,
-                de: de.AddDescription,
-                SpanishES: sp.AddDescription,
-                nl: nl.AddDescription
+                "fr": fr.blacklist.default.add.description,
+                "de": de.blacklist.default.add.description,
+                "es-ES": sp.blacklist.default.add.description,
+                "nl": nl.blacklist.default.add.description
             })
             .addUserOption(option => option
-                .setName(en.AddUserName)
+                .setName(en.blacklist.default.add.user.name)
                 .setNameLocalizations({
-                    fr: fr.AddUserName,
-                    de: de.AddUserName,
-                    SpanishES: sp.AddUserName,
-                    nl: nl.AddUserName
+                    "fr": fr.blacklist.default.add.user.name,
+                    "de": de.blacklist.default.add.user.name,
+                    "es-ES": sp.blacklist.default.add.user.name,
+                    "nl": nl.blacklist.default.add.user.name
                 })
-                .setDescription(en.AddUserDescription)
+                .setDescription(en.blacklist.default.add.user.description)
                 .setDescriptionLocalizations({
-                    fr: fr.AddUserDescription,
-                    de: de.AddUserDescription,
-                    SpanishES: sp.AddUserDescription,
-                    nl: nl.AddUserDescription
+                    "fr": fr.blacklist.default.add.user.description,
+                    "de": de.blacklist.default.add.user.description,
+                    "es-ES": sp.blacklist.default.add.user.description,
+                    "nl": nl.blacklist.default.add.user.description
                 })
                 .setRequired(true))
             .addStringOption(option => option
-                .setName(en.AddReasonName)
+                .setName(en.blacklist.default.add.reason.name)
                 .setNameLocalizations({
-                    fr: fr.AddReasonName,
-                    de: de.AddReasonName,
-                    SpanishES: sp.AddReasonName,
-                    nl: nl.AddReasonName
+                    "fr": fr.blacklist.default.add.reason.name,
+                    "de": de.blacklist.default.add.reason.name,
+                    "es-ES": sp.blacklist.default.add.reason.name,
+                    "nl": nl.blacklist.default.add.reason.name
                 })
-                .setDescription(en.AddReasonDescription)
+                .setDescription(en.blacklist.default.add.reason.description)
                 .setDescriptionLocalizations({
-                    fr: fr.AddReasonDescription,
-                    de: de.AddReasonDescription,
-                    SpanishES: sp.AddReasonDescription,
-                    nl: nl.AddReasonDescription
+                    "fr": fr.blacklist.default.add.reason.description,
+                    "de": de.blacklist.default.add.reason.description,
+                    "es-ES": sp.blacklist.default.add.reason.description,
+                    "nl": nl.blacklist.default.add.reason.description
                 })
-                .setRequired(true))
+                .setRequired(true)
+                .addChoices(
+                    { name: "Account - Self-Bot", value: "self-bot" },
+                    { name: "Scamming - Selling art", value: "selling-art" },
+                    { name: "Law Breaking - Soliciting underage user to participate to sexual activities", value: "underage-sexual-activities" },
+                    { name: "Law Breaking - Participating to sexual activities while being underage", value: "underage-do-sexual-activities" },
+                    { name: "Content - Sharing hardcore gore, excessive violence or/and animal harm", value: "hardcore-gore" },
+                    { name: "Content - Sharing or/and selling game cheats", value: "sharing-selling-cheat" },
+                    { name: "Content - Hate speech", value: "hate-speech" },
+                ))
             .addStringOption(option => option
-                .setName(en.AddRiskName)
+                .setName(en.blacklist.default.add.risk.name)
                 .setNameLocalizations({
-                    fr: fr.AddRiskName,
-                    de: de.AddRiskName,
-                    SpanishES: sp.AddRiskName,
-                    nl: nl.AddRiskName
+                    "fr": fr.blacklist.default.add.risk.name,
+                    "de": de.blacklist.default.add.risk.name,
+                    "es-ES": sp.blacklist.default.add.risk.name,
+                    "nl": nl.blacklist.default.add.risk.name
                 })
-                .setDescription(en.AddRiskDescription)
+                .setDescription(en.blacklist.default.add.risk.description)
                 .setDescriptionLocalizations({
-                    fr: fr.AddRiskDescription,
-                    de: de.AddRiskDescription,
-                    SpanishES: sp.AddRiskDescription,
-                    nl: nl.AddRiskDescription
+                    "fr": fr.blacklist.default.add.risk.description,
+                    "de": de.blacklist.default.add.risk.description,
+                    "es-ES": sp.blacklist.default.add.risk.description,
+                    "nl": nl.blacklist.default.add.risk.description
                 })
                 .setRequired(true)
                 .addChoices(
@@ -100,471 +104,465 @@ module.exports = {
                     { name: 'high', value: 'High' },
                 ))
             .addStringOption(option => option
-                .setName(en.AddEvidenceName)
+                .setName(en.blacklist.default.add.evidence.name)
                 .setNameLocalizations({
-                    fr: fr.AddEvidenceName,
-                    de: de.AddEvidenceName,
-                    SpanishES: sp.AddEvidenceName,
-                    nl: nl.AddEvidenceName
+                    "fr": fr.blacklist.default.add.evidence.name,
+                    "de": de.blacklist.default.add.evidence.name,
+                    "es-ES": sp.blacklist.default.add.evidence.name,
+                    "nl": nl.blacklist.default.add.evidence.name
                 })
-                .setDescription(en.AddEvidenceDescription)
+                .setDescription(en.blacklist.default.add.evidence.description)
                 .setDescriptionLocalizations({
-                    fr: fr.AddEvidenceDescription,
-                    de: de.AddEvidenceDescription,
-                    SpanishES: sp.AddEvidenceDescription,
-                    nl: nl.AddEvidenceDescription
+                    "fr": fr.blacklist.default.add.evidence.description,
+                    "de": de.blacklist.default.add.evidence.description,
+                    "es-ES": sp.blacklist.default.add.evidence.description,
+                    "nl": nl.blacklist.default.add.evidence.description
                 })
                 .setRequired(true)))
         .addSubcommand(subcommand => subcommand
-            .setName(en.RemoveName)
+            .setName(en.blacklist.default.remove.name)
             .setNameLocalizations({
-                fr: fr.RemoveName,
-                de: de.RemoveName,
-                SpanishES: sp.RemoveName,
-                nl: nl.RemoveName
+                "fr": fr.blacklist.default.remove.name,
+                "de": de.blacklist.default.remove.name,
+                "es-ES": sp.blacklist.default.remove.name,
+                "nl": nl.blacklist.default.remove.name
             })
-            .setDescription(en.RemoveDescription)
+            .setDescription(en.blacklist.default.remove.description)
             .setDescriptionLocalizations({
-                fr: fr.RemoveDescription,
-                de: de.RemoveDescription,
-                SpanishES: sp.RemoveDescription,
-                nl: nl.RemoveDescription
+                "fr": fr.blacklist.default.remove.description,
+                "de": de.blacklist.default.remove.description,
+                "es-ES": sp.blacklist.default.remove.description,
+                "nl": nl.blacklist.default.remove.description
             })
             .addUserOption(option => option
-                .setName(en.RemoveUserName)
+                .setName(en.blacklist.default.remove.user.name)
                 .setNameLocalizations({
-                    fr: fr.RemoveUserName,
-                    de: de.RemoveUserName,
-                    SpanishES: sp.RemoveUserName,
-                    nl: nl.RemoveUserName
+                    "fr": fr.blacklist.default.remove.user.name,
+                    "de": de.blacklist.default.remove.user.name,
+                    "es-ES": sp.blacklist.default.remove.user.name,
+                    "nl": nl.blacklist.default.remove.user.name
                 })
-                .setDescription(en.RemoveUserDescription)
+                .setDescription(en.blacklist.default.remove.user.description)
                 .setDescriptionLocalizations({
-                    fr: fr.RemoveUserDescription,
-                    de: de.RemoveUserDescription,
-                    SpanishES: sp.RemoveUserDescription,
-                    nl: nl.RemoveUserDescription
+                    "fr": fr.blacklist.default.remove.user.description,
+                    "de": de.blacklist.default.remove.user.description,
+                    "es-ES": sp.blacklist.default.remove.user.description,
+                    "nl": nl.blacklist.default.remove.user.description
                 })
                 .setRequired(true)))
         .addSubcommand(subcommand => subcommand
-            .setName(en.CheckName)
+            .setName(en.blacklist.default.check.name)
             .setNameLocalizations({
-                fr: fr.CheckName,
-                de: de.CheckName,
-                SpanishES: sp.CheckName,
-                nl: nl.CheckName
+                "fr": fr.blacklist.default.check.name,
+                "de": de.blacklist.default.check.name,
+                "es-ES": sp.blacklist.default.check.name,
+                "nl": nl.blacklist.default.check.name
             })
-            .setDescription(en.CheckDescription)
+            .setDescription(en.blacklist.default.check.description)
             .setDescriptionLocalizations({
-                fr: fr.CheckDescription,
-                de: de.CheckDescription,
-                SpanishES: sp.CheckDescription,
-                nl: nl.CheckDescription
+                "fr": fr.blacklist.default.check.description,
+                "de": de.blacklist.default.check.description,
+                "es-ES": sp.blacklist.default.check.description,
+                "nl": nl.blacklist.default.check.description
             })
             .addUserOption(option => option
-                .setName(en.CheckUserName)
+                .setName(en.blacklist.default.check.user.name)
                 .setNameLocalizations({
-                    fr: fr.CheckUserName,
-                    de: de.CheckUserName,
-                    SpanishES: sp.CheckUserName,
-                    nl: nl.CheckUserName
+                    "fr": fr.blacklist.default.check.user.name,
+                    "de": de.blacklist.default.check.user.name,
+                    "es-ES": sp.blacklist.default.check.user.name,
+                    "nl": nl.blacklist.default.check.user.name
                 })
-                .setDescription(en.CheckUserDescription)
+                .setDescription(en.blacklist.default.check.user.description)
                 .setDescriptionLocalizations({
-                    fr: fr.CheckUserDescription,
-                    de: de.CheckUserDescription,
-                    SpanishES: sp.CheckUserDescription,
-                    nl: nl.CheckUserDescription
+                    "fr": fr.blacklist.default.check.user.description,
+                    "de": de.blacklist.default.check.user.description,
+                    "es-ES": sp.blacklist.default.check.user.description,
+                    "nl": nl.blacklist.default.check.user.description
                 })
                 .setRequired(false)))
         .addSubcommand(subcommand => subcommand
-            .setName(en.SuggestName)
+            .setName(en.blacklist.default.suggest.name)
             .setNameLocalizations({
-                fr: fr.SuggestName,
-                de: de.SuggestName,
-                SpanishES: sp.SuggestName,
-                nl: nl.SuggestName
+                "fr": fr.blacklist.default.suggest.name,
+                "de": de.blacklist.default.suggest.name,
+                "es-ES": sp.blacklist.default.suggest.name,
+                "nl": nl.blacklist.default.suggest.name
             })
-            .setDescription(en.SuggestDescription)
+            .setDescription(en.blacklist.default.suggest.description)
             .setDescriptionLocalizations({
-                fr: fr.SuggestDescription,
-                de: de.SuggestDescription,
-                SpanishES: sp.SuggestDescription,
-                nl: nl.SuggestDescription
+                "fr": fr.blacklist.default.suggest.description,
+                "de": de.blacklist.default.suggest.description,
+                "es-ES": sp.blacklist.default.suggest.description,
+                "nl": nl.blacklist.default.suggest.description
             })
             .addUserOption(option => option
-                .setName(en.SuggestUserName)
+                .setName(en.blacklist.default.suggest.user.name)
                 .setNameLocalizations({
-                    fr: fr.SuggestUserName,
-                    de: de.SuggestUserName,
-                    SpanishES: sp.SuggestUserName,
-                    nl: nl.SuggestUserName
+                    "fr": fr.blacklist.default.suggest.user.name,
+                    "de": de.blacklist.default.suggest.user.name,
+                    "es-ES": sp.blacklist.default.suggest.user.name,
+                    "nl": nl.blacklist.default.suggest.user.name
                 })
-                .setDescription(en.SuggestUserDescription)
+                .setDescription(en.blacklist.default.suggest.user.description)
                 .setDescriptionLocalizations({
-                    fr: fr.SuggestUserDescription,
-                    de: de.SuggestUserDescription,
-                    SpanishES: sp.SuggestUserDescription,
-                    nl: nl.SuggestUserDescription
+                    "fr": fr.blacklist.default.suggest.user.description,
+                    "de": de.blacklist.default.suggest.user.description,
+                    "es-ES": sp.blacklist.default.suggest.user.description,
+                    "nl": nl.blacklist.default.suggest.user.description
                 })
                 .setRequired(true))
             .addStringOption(option => option
-                .setName(en.SuggestReasonName)
+                .setName(en.blacklist.default.suggest.reason.name)
                 .setNameLocalizations({
-                    fr: fr.SuggestReasonName,
-                    de: de.SuggestReasonName,
-                    SpanishES: sp.SuggestReasonName,
-                    nl: nl.SuggestReasonName
+                    "fr": fr.blacklist.default.suggest.reason.name,
+                    "de": de.blacklist.default.suggest.reason.name,
+                    "es-ES": sp.blacklist.default.suggest.reason.name,
+                    "nl": nl.blacklist.default.suggest.reason.name
                 })
-                .setDescription(en.SuggestReasonDescription)
+                .setDescription(en.blacklist.default.suggest.reason.description)
                 .setDescriptionLocalizations({
-                    fr: fr.SuggestReasonDescription,
-                    de: de.SuggestReasonDescription,
-                    SpanishES: sp.SuggestReasonDescription,
-                    nl: nl.SuggestReasonDescription
+                    "fr": fr.blacklist.default.suggest.reason.description,
+                    "de": de.blacklist.default.suggest.reason.description,
+                    "es-ES": sp.blacklist.default.suggest.reason.description,
+                    "nl": nl.blacklist.default.suggest.reason.description
                 })
                 .setRequired(true))
             .addAttachmentOption(option => option
-                .setName(en.SuggestEvidenceName)
+                .setName(en.blacklist.default.suggest.evidence.name)
                 .setNameLocalizations({
-                    fr: fr.SuggestEvidenceName,
-                    de: de.SuggestEvidenceName,
-                    SpanishES: sp.SuggestEvidenceName,
-                    nl: nl.SuggestEvidenceName
+                    "fr": fr.blacklist.default.suggest.evidence.name,
+                    "de": de.blacklist.default.suggest.evidence.name,
+                    "es-ES": sp.blacklist.default.suggest.evidence.name,
+                    "nl": nl.blacklist.default.suggest.evidence.name
                 })
-                .setDescription(en.SuggestEvidenceDescription)
+                .setDescription(en.blacklist.default.suggest.evidence.description)
                 .setDescriptionLocalizations({
-                    fr: fr.SuggestEvidenceDescription,
-                    de: de.SuggestEvidenceDescription,
-                    SpanishES: sp.SuggestEvidenceDescription,
-                    nl: nl.SuggestEvidenceDescription
+                    "fr": fr.blacklist.default.suggest.evidence.description,
+                    "de": de.blacklist.default.suggest.evidence.description,
+                    "es-ES": sp.blacklist.default.suggest.evidence.description,
+                    "nl": nl.blacklist.default.suggest.evidence.description
                 })
                 .setRequired(true))),
     execute: async (interaction, bot, sequelize, Sequelize) => {
+        const Logging = sequelize.define("Logging", {
+            guildId: {
+                type: Sequelize.STRING,
+            },
+            language: {
+                type: Sequelize.STRING,
+            },
+        });
+
+        let loggingData = await Logging.findOne({ where: { guildId: interaction.guild.id } });
+
+        switch (loggingData.language) {
+            case ("en"):
+                languageSet = en;
+                break;
+            case ("fr"):
+                languageSet = fr;
+                break;
+            case ("de"):
+                languageSet = de;
+                break;
+            case ("sp"):
+                languageSet = sp;
+                break;
+            case ("nl"):
+                languageSet = nl;
+                break;
+            default:
+                languageSet = en;
+                break;
+        }
+
         try {
-            if (!interaction.guild) {
-                return interaction.reply({
-                    content: "Use this command inside a server only!"
-                });
-            };
-
-            let CommandFunction = sequelize.define("CommandFunction", {
-                name: {
-                    type: Sequelize.STRING,
-                },
-                value: {
-                    type: Sequelize.STRING,
-                },
-            });
-
-            let FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
-
-            if (FindCommand) {
-                if (FindCommand.value === "Disable") {
-                    return interaction.reply({
-                        content: Message.CommandDisabled,
-                        ephemeral: true,
-                    });
-                };
-            };
-
-            let Blacklist = sequelize.define("Blacklist", {
-                UserName: {
+            const Blacklist = sequelize.define("Blacklist", {
+                userId: {
                     type: Sequelize.STRING,
                     unique: true,
                 },
-                UserID: {
+                userTag: {
                     type: Sequelize.STRING,
                     unique: true,
                 },
-                ModName: {
+                staffId: {
                     type: Sequelize.STRING,
                     unique: false,
                 },
-                ModID: {
+                staffTag: {
                     type: Sequelize.STRING,
                     unique: false,
                 },
-                Reason: {
+                reason: {
                     type: Sequelize.STRING,
                     unique: false,
                 },
-                Proof: {
+                evidence: {
                     type: Sequelize.STRING,
                     unique: false,
                 },
-                Risk: {
+                risk: {
                     type: Sequelize.STRING,
                     unique: false,
+                },
+                joinedServer: {
+                    type: Sequelize.INTEGER,
+                    defaultValue: 1,
+                    allowNull: false,
+                },
+                joinedServerBan: {
+                    type: Sequelize.INTEGER,
+                    defaultValue: 1,
+                    allowNull: false,
                 },
             });
-            let Permission = sequelize.define("Permission", {
-                UserName: {
+            const Permission = sequelize.define("Permission", {
+                guildId: {
                     type: Sequelize.STRING,
                     unique: false,
                 },
-                UserID: {
+                userId: {
                     type: Sequelize.STRING,
                     unique: false,
                 },
-                BlacklistPermission: {
+                userTag: {
                     type: Sequelize.STRING,
                     unique: false,
                 },
-                GuildID: {
+                blacklistPermission: {
                     type: Sequelize.STRING,
                     unique: false,
                 }
             });
 
             let options = interaction.options.getSubcommand();
-            let user = interaction.options.getUser(en.AddUserName);
-            let reason = interaction.options.getString(en.AddReasonName);
-            let risk = interaction.options.getString(en.AddRiskName);
+            let user = interaction.options.getUser(en.blacklist.default.add.user.name);
+            let reason = interaction.options.getString(en.blacklist.default.add.reason.name);
+            let risk = interaction.options.getString(en.blacklist.default.add.risk.name);
+            let evidenceLink = interaction.options.getString(en.blacklist.default.add.evidence.name);
+            let evidenceImage = interaction.options.getAttachment(en.blacklist.default.suggest.evidence.name);
 
-            user ? UserCheck = user.id : UserCheck = interaction.user.id;
+            let fetchGuild = interaction.client.guilds.cache.get(configPreset.botInfo.guildId);
+            let blacklistChannel = fetchGuild.channels.cache.get(configPreset.channelsId.blacklist);
+            let blacklistSuggestChannel = fetchGuild.channels.cache.get(configPreset.channelsId.suggestBlacklist);
 
-            let PermissionCheck = await Permission.findOne({ where: { UserID: interaction.user.id } });
-            let GuildCheck = await Permission.findOne({ where: { GuildID: interaction.guild.id } });
-            let CheckBlacklist = await Blacklist.findOne({ where: { UserID: UserCheck } });
+            let lgBlacklist = en.blacklist.message.embed.options;
 
-            PermissionCheck ? StaffCheck = PermissionCheck.BlacklistPermission === "1" : PermissionCheck = false;
-            PermissionCheck ? TargetCheck = PermissionCheck.UserID : StaffCheck = false;
+            if (user) {
+                userCheck = user;
+                boolUser = lgBlacklist.isNotBlacklisted
+            } else {
+                userCheck = interaction.user;
+                reply = lgBlacklist.youreNotBlacklisted;
+            };
 
-            let MessageReason = Message.Blacklist;
+            let permissionUserData = await Permission.findOne({ where: { userId: interaction.user.id } });
+            let permissionGuildData = await Permission.findOne({ where: { guildId: interaction.guild.id } });
+            let blacklistData = await Blacklist.findOne({ where: { userId: userCheck.id } });
 
-            if (risk === "Low") ColorEmbed = Color.RiskLow;
-            if (risk === "Medium") ColorEmbed = Color.RiskMedium;
-            if (risk === "High") ColorEmbed = Color.RiskHigh;
+            if (permissionUserData & options !== "check") {
+                return interaction.reply({
+                    content: languageSet.default.staffOnly,
+                });
+            };
 
-            const Logging = sequelize.define("Logging", {
-                GuildID: {
-                    type: Sequelize.STRING,
-                },
-                ChannelIDBan: {
-                    type: Sequelize.STRING,
-                },
-                Language: {
-                    type: Sequelize.STRING,
-                },
-            });
-            const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
-
-            let LanguageData = LoggingData.language;
-
-            if (!LanguageData || LanguageData === "en") Language = LanguageEN;
-            if (LanguageData === "fr") Language = LanguageFR;
-            if (LanguageData === "de") Language = LanguageDE;
-            if (LanguageData === "sp") Language = LanguageSP;
-            if (LanguageData === "nl") Language = LanguageNL;
-
-            if (options === "check") {
-                if (CheckBlacklist) {
-                    let Name = "``" + CheckBlacklist.UserName + "``";
-                    let ID = "``" + CheckBlacklist.UserID + "``";
-                    let Reason = "``" + CheckBlacklist.Reason + "``";
-                    let ModeratorName = "``" + CheckBlacklist.ModName + "``";
-                    let ModeratorID = "``" + CheckBlacklist.ModID + "``";
-
-                    CheckBlacklist.Proof ? Evidence = CheckBlacklist.Proof : Evidence = "``No Evidence Found``";
-
-                    let BlacklistEmbed = new EmbedBuilder()
-                        .addFields(
-                            { name: "User", value: Name, inline: true },
-                            { name: "ID", value: ID, inline: true },
-                            { name: "Reason", value: Reason, inline: true },
-                            { name: "Moderator Name", value: ModeratorName, inline: true },
-                            { name: "Moderator ID", value: ModeratorID, inline: true },
-                            { name: "Evidence", value: Evidence, inline: true }
-                        )
-                        .setColor(ColorEmbed);
-
+            switch (userCheck.id) {
+                case (!user || !interaction.user):
                     return interaction.reply({
-                        embeds: [BlacklistEmbed],
-                    });
-                } else {
-                    return interaction.reply({
-                        content: MessageReason.NotBlacklisted,
+                        content: languageSet.default.unknownUser,
                         ephemeral: true,
                     });
-                };
-            };
+                case (interaction.user.id & options !== "check"):
+                    return interaction.reply({
+                        content: languageSet.blacklist.message.onWho.isThemself,
+                        ephemeral: true,
+                    });
+                case (bot.user.id & options !== "check"):
+                    return interaction.reply({
+                        content: languageSet.blacklist.message.onWho.isBot,
+                        ephemeral: true,
+                    });
+                case (permissionUserData):
+                    return interaction.reply({
+                        content: languageSet.blacklist.message.onWho.isStaff,
+                        ephemeral: true,
+                    });
+                case (blacklistData & options !== "check" | "remove"):
+                    return interaction.reply({
+                        content: languageSet.blacklist.message.onWho.isBlacklisted,
+                        ephemeral: true,
+                    });
+                case (permissionGuildData & options === "suggest"):
+                    return interaction.reply({
+                        content: languageSet.blacklist.permission.server,
+                        ephemeral: true,
+                    });
+                default:
+                    evidenceLink ? isEvidence = "* *" + evidenceLink : isEvidence = `*${en.blacklist.message.embed.options.noEvidence}*`;
+                    evidenceImage ? isEvidence = "* *" + evidenceImage : isEvidence = `*${en.blacklist.message.embed.options.noEvidence}*`;
 
-            if (StaffCheck) {
-                switch (UserCheck) {
-                    case (!user || !interaction.user):
-                        return interaction.reply({
-                            content: Language.default.UnknownUser,
-                            ephemeral: true,
-                        });
-                    case (interaction.user.id):
-                        return interaction.reply({
-                            content: Language.default.user.Myself,
-                            ephemeral: true,
-                        });
-                    case (bot.user.id):
-                        return interaction.reply({
-                            content: Language.default.user.Me,
-                            ephemeral: true,
-                        });
-                    case (TargetCheck):
-                        return interaction.reply({
-                            content: Language.default.user.Staff,
-                            ephemeral: true,
-                        });
-                    default:
-                        let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
+                    switch (risk) {
+                        case ("Low"):
+                            colorRisk = "Yellow";
+                            break;
+                        case ("Medium"):
+                            colorRisk = "Red";
+                            break;
+                        case ("High"):
+                            colorRisk = "Black";
+                            break;
+                    };
 
-                        switch (options) {
-                            case ("add"):
-                                if (CheckBlacklist) {
-                                    return interaction.reply({
-                                        content: MessageReason.AlreadyBlacklisted,
-                                        ephemeral: true,
-                                    });
-                                } else {
-                                    let proof = interaction.options.getString(en.AddEvidenceName);
-                                    let blacklistChannel = fetchGuild.channels.cache.get(Config.BlacklistChannel);
+                    let blacklistEmbed = new EmbedBuilder()
 
-                                    await Blacklist.create({
-                                        UserName: user.tag,
-                                        UserID: user.id,
-                                        ModName: interaction.user.tag,
-                                        ModID: interaction.user.id,
-                                        Reason: reason,
-                                        Proof: proof,
-                                        Risk: risk,
-                                    });
+                    if (blacklistData) {
+                        blacklistEmbed.addFields(
+                            { name: lgBlacklist.default.userTag, value: "`" + userCheck.tag + "`", inline: true },
+                            { name: lgBlacklist.default.userId, value: "`" + userCheck.id + "`", inline: true },
+                        );
+                    }
 
-                                    return interaction.reply({
-                                        content: MessageReason.AddedToBlacklist,
-                                        ephemeral: true,
-                                    }).then(() => {
-                                        let Name = "``" + user.tag + "``";
-                                        let ID = "``" + user.id + "``";
-                                        let Reason = "``" + reason + "``";
-                                        let ModeratorName = "``" + interaction.user.tag + "``";
-                                        let ModeratorID = "``" + interaction.user.id + "``";
+                    switch (options) {
+                        case ("add"):
 
-                                        proof ? Evidence = proof : Evidence = "``No Evidence Found``";
+                            // Checking if the user is already blacklisted
+                            if (blacklistData) {
+                                blacklistEmbed.setDescription(`<:tick:1096181611818647617> ${reply}`)
 
-                                        let InfoBlacklist = new EmbedBuilder()
-                                            .addFields(
-                                                { name: "User", value: Name, inline: true },
-                                                { name: "ID", value: ID, inline: true },
-                                                { name: "Reason", value: Reason, inline: true },
-                                                { name: "Moderator Name", value: ModeratorName, inline: true },
-                                                { name: "Moderator ID", value: ModeratorID, inline: true },
-                                                { name: "Evidence", value: Evidence, inline: true }
-                                            )
-                                            .setColor(ColorEmbed);
+                                return interaction.reply({
+                                    embeds: [blacklistEmbed],
+                                });
+                            };
 
-                                        return blacklistChannel.send({
-                                            embeds: [InfoBlacklist]
-                                        });
-                                    });
-                                };
-                            case ("remove"):
-                                if (!CheckBlacklist) {
-                                    return interaction.reply({
-                                        content: MessageReason.NotBlacklisted,
-                                        ephemeral: true,
-                                    });
-                                } else {
-                                    let proof = interaction.options.getString(en.AddEvidenceName);
+                            return interaction.reply({
+                                content: `${user.toString()} has been blacklisted for ${reason} successfully!`,
+                                ephemeral: true,
+                            }).then(async () => {
+                                await Blacklist.create({
+                                    userId: user.id,
+                                    userTag: user.tag,
+                                    staffId: interaction.user.id,
+                                    staffTag: interaction.user.tag,
+                                    reason: reason,
+                                    evidence: isEvidence,
+                                    risk: risk,
+                                });
 
-                                    return interaction.reply({
-                                        content: MessageReason.RemovedToBlacklist,
-                                        ephemeral: true,
-                                    }).then(async () => {
-                                        let blacklistChannel = fetchGuild.channels.cache.get(Config.BlacklistChannel);
+                                blacklistEmbed.addFields(
+                                    { name: lgBlacklist.default.reason, value: "`" + reason + "`", inline: true },
+                                    { name: lgBlacklist.default.staffTag, value: "`" + interaction.user.tag + "`", inline: true },
+                                    { name: lgBlacklist.default.staffId, value: "`" + interaction.user.id + "`", inline: true },
+                                    { name: lgBlacklist.default.evidence, value: isEvidence, inline: true }
+                                );
+                                blacklistEmbed.setColor(colorRisk);
 
-                                        let Name = "``" + user.tag + "``";
-                                        let ID = "``" + user.id + "``";
-                                        let Reason = "``" + reason + "``";
-                                        let ModeratorName = "``" + interaction.user.tag + "``";
-                                        let ModeratorID = "``" + interaction.user.id + "``";
+                                return blacklistChannel.send({
+                                    embeds: [blacklistEmbed]
+                                });
+                            });
+                        case ("remove"):
 
-                                        proof ? Evidence = proof : Evidence = "``No Evidence Found``";
+                            // Checking if the user is already blacklisted
+                            if (!blacklistData) {
+                                return interaction.reply({
+                                    content: lgBlacklist.isNotBlacklisted,
+                                });
+                            };
 
-                                        let InfoBlacklist = new EmbedBuilder()
-                                            .addFields(
-                                                { name: "User", value: Name, inline: true },
-                                                { name: "ID", value: ID, inline: true },
-                                                { name: "Reason", value: Reason, inline: true },
-                                                { name: "Moderator Name", value: ModeratorName, inline: true },
-                                                { name: "Moderator ID", value: ModeratorID, inline: true },
-                                                { name: "Evidence", value: Evidence, inline: true }
-                                            )
-                                            .setColor(ColorEmbed);
+                            return interaction.reply({
+                                content: messagePreset.blacklist.removeBlacklist,
+                                ephemeral: true,
+                            }).then(async () => {
+                                blacklistEmbed.addFields(
+                                    { name: lgBlacklist.default.reason, value: "`" + blacklistData.reason + "`", inline: true },
+                                    { name: lgBlacklist.default.staffTag, value: "`" + blacklistData.userTag + "`", inline: true },
+                                    { name: lgBlacklist.default.staffId, value: "`" + blacklistData.staffId + "`", inline: true },
+                                    { name: lgBlacklist.default.evidence, value: blacklistData.evidence, inline: true }
+                                );
+                                blacklistEmbed.setColor(colorRisk);
 
-                                        await blacklistChannel.send({
-                                            embeds: [InfoBlacklist],
-                                        });
+                                await blacklistChannel.send({
+                                    embeds: [InfoBlacklist],
+                                });
 
-                                        return Blacklist.destroy({ where: { UserID: UserCheck } });
-                                    })
-                                };
-                            case ("suggest"):
-                                if (GuildCheck) {
-                                    let proof = interaction.options.getAttachment(en.AddEvidenceName);
-                                    let suggestChannel = fetchGuild.channels.cache.get(Config.SuggestBlacklist);
+                                return Blacklist.destroy({ where: { userId: userCheck } });
+                            });
+                        case ("suggest"):
 
-                                    if (CheckBlacklist) {
-                                        return interaction.reply({
-                                            content: MessageReason.AlreadyBlacklisted,
-                                            ephemeral: true,
-                                        });
-                                    } else {
-                                        return interaction.reply({
-                                            content: MessageReason.SuggestedToBlacklist,
-                                            ephemeral: true,
-                                        }).then(() => {
-                                            const Name = "``" + user.tag + "``";
-                                            const ID = "``" + user.id + "``";
-                                            const Reason = "``" + reason + "``";
-                                            const ModeratorName = "``" + interaction.user.tag + "``";
-                                            const ModeratorID = "``" + interaction.user.id + "``";
-                                            const ServerName = "``" + interaction.guild.name + "``";
-                                            const ServerID = "``" + interaction.guild.id + "``";
+                            // Checking if the user is already blacklisted
+                            if (blacklistData) {
+                                return interaction.reply({
+                                    content: lgBlacklist.isBlacklisted,
+                                });
+                            };
 
-                                            proof ? Evidence = proof : Evidence = Config.x;
+                            return interaction.reply({
+                                content: messagePreset.blacklist.suggestBlacklist,
+                                ephemeral: true,
+                            }).then(() => {
+                                blacklistEmbed.addFields(
+                                    { name: lgBlacklist.default.reason, value: "`" + reason + "`", inline: true },
+                                    { name: lgBlacklist.default.staffTag, value: "`" + interaction.user.tag + "`", inline: true },
+                                    { name: lgBlacklist.default.staffId, value: "`" + interaction.user.id + "`", inline: true },
+                                );
+                                blacklistEmbed.setImage(evidenceImage.url);
+                                blacklistEmbed.setColor(colorRisk);
 
-                                            const InfoBlacklist = new EmbedBuilder()
-                                                .addFields(
-                                                    { name: "User", value: Name, inline: true },
-                                                    { name: "ID", value: ID, inline: true },
-                                                    { name: "Reason", value: Reason, inline: true },
-                                                    { name: "Moderator Name", value: ModeratorName, inline: true },
-                                                    { name: "Moderator ID", value: ModeratorID, inline: true },
-                                                    { name: "Server Name", value: ServerName, inline: true },
-                                                    { name: "Server ID", value: ServerID, inline: true },
-                                                )
-                                                .setImage(proof.url)
-                                                .setColor(Color.Green);
+                                return blacklistSuggestChannel.send({
+                                    embeds: [InfoBlacklist],
+                                });
+                            });
+                        case ("check"):
 
-                                            return suggestChannel.send({
-                                                embeds: [InfoBlacklist],
-                                            });
-                                        });
-                                    };
-                                } else {
-                                    return interaction.reply({
-                                        content: LanguageEN.blacklist.permission.Server,
-                                        ephemeral: true,
-                                    });
-                                };
-                        };
-                };
+                            // Checking if the user is blacklisted
+                            if (!blacklistData) {
+                                blacklistEmbed.setDescription(`<:tick:1096181611818647617> ${reply}`)
+                                blacklistEmbed.setColor("Green")
+
+                                return interaction.reply({
+                                    embeds: [blacklistEmbed],
+                                });
+                            };
+
+                            switch (blacklistData.risk) {
+                                case ("Low"):
+                                    colorRisk = "Yellow";
+                                    break;
+                                case ("Medium"):
+                                    colorRisk = "Red";
+                                    break;
+                                case ("High"):
+                                    colorRisk = "Black";
+                                    break;
+                            };
+
+                            blacklistEmbed.addFields(
+                                { name: lgBlacklist.default.reason, value: "`" + blacklistData.reason + "`", inline: true },
+                                { name: lgBlacklist.default.staffTag, value: "`" + blacklistData.staffTag + "`", inline: true },
+                                { name: lgBlacklist.default.staffId, value: "`" + blacklistData.staffId + "`", inline: true },
+                                { name: lgBlacklist.default.evidence, value: blacklistData.evidence, inline: true }
+                            );
+                            blacklistEmbed.setColor(colorRisk)
+
+                            return interaction.reply({
+                                embeds: [blacklistEmbed],
+                            });
+                    };
             };
         } catch (error) {
-            let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
-            let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
-            console.log("//------------------------------------------------------------------------------//");
+            let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
+            let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
+            console.log(`${interaction.user.id} -> ${interaction.user.tag}`);
             console.log(error);
-            console.log("//------------------------------------------------------------------------------//");
 
-            return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
+            await interaction.reply({
+                content: languageSet.default.errorOccured,
+                ephemeral: true,
+            });
+
+            return crashchannelId.send({ content: "**Error in the '" + en.blacklist.default.name + "' event:** \n\n```javascript\n" + error + "```" });
         };
     }
 };

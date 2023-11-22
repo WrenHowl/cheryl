@@ -1,295 +1,644 @@
 {
     "default": {
-        "UnknownUser": "I can't find this user!",
-        "user": {
-            "Myself": "You can't execute this command on yourself!",
-            "Me": "You can't execute this command on me!",
-            "Staff": "You can't execute this command on a staff of OCF!"
+        "errorOccured": "An error occured. Please contact @baddwagon",
+        "unknownUser": "An error occured. I can't find this user",
+        "commandDisabledGlobally": "An error occured. This command is disabled globally by the developpers",
+        "serverOnly": "An error occured. You can only use this command in a server",
+        "staffOnly": "An error occured. This command is only available to the staff of Cheryl.",
+        "userPermission": {
+            "ban": "You're missing this permission: Ban Members",
+            "kick": "You're missing this permission: Ban Members",
+            "manageRoles": "You're missing this permission: Manage Roles",
+            "manageMessages": "You're missing this permission: Manage Messages",
+            "manageChannels": "You're missing this permission: Manage Channels"
+        },
+        "botPermission": {
+            "ban": "I'm missing this permission: Ban Members",
+            "kick": "I'm missing this permission: Ban Members",
+            "manageRoles": "I'm missing this permission: Manage Roles",
+            "manageMessages": "I'm missing this permission: Manage Messages",
+            "manageChannels": "I'm missing this permission: Manage Channels"
+        },
+        "button": {
+            "discord": "Support Server"
         }
-    },
-    "action": {
-        "Name": "aktion",
-        "Description": "Führen Sie eine Aktion (oder schlagen Sie ein Bild für eine Aktion vor) für ein Mitglied aus.",
-        "ChoiceName": "auswahl",
-        "ChoiceDescription": "Welche Maßnahme möchten Sie tun?",
-        "SuggestName": "vorschlagen",
-        "SuggestDescription": "Ein Bild vorschlagen, um eine Aktion hinzuzufügen.",
-        "MemberName": "mitglied",
-        "MemberDescription": "Mitglied zum Ziel."
-    },
-    "avatar": {
-        "Name": "avatar",
-        "Description": "Abrufen des Avatars eines Benutzers.",
-        "UserName": "benutzer",
-        "UserDescription": "Benutzer um den Avatar zu erhalten."
-    },
-    "ban": {
-        "Name": "sperren",
-        "Description": "Einen Benutzer sperren.",
-        "UserName": "benutzer",
-        "UserDescription": "Benutzer zum Sperren",
-        "ReasonName": "grund",
-        "ReasonDescription": "Grund für die Sperre.",
-        "default": {
-            "Myself": "You can't ban yourself!",
-            "Me": "You can't ban me!",
-            "Owner": "You can't ban the owner!",
-            "Punishable": "I can't ban this user",
-            "Role": "You can't ban this user, because they're higher than you!",
-            "Punished": "You can't ban this user, since they are banned already!"
-        },
-        "server": {
-            "Message": "has been banned.",
-            "New": "New Ban",
-            "User": "User",
-            "Reason": "Reason",
-            "Mod": "Moderator"
-        },
-        "dm": {
-            "you": "You have been banned on",
-            "for": "for",
-            "by": "by"
-        },
-        "permission": {
-            "Myself": ":warning: Insufficient Permission - You need the following permission: ``Ban Members``.",
-            "Me": ":warning: Insufficient Permission - I need the following permission: ``Ban Members``."
-        }
-    },
-    "blacklist": {
-        "Name": "schwarzeliste",
-        "Description": "System der schwarzen Liste - Schützen Sie Ihren Server vor bösartigen Benutzern.",
-        "AddName": "hinzufügen",
-        "AddDescription": "Hinzufüg eines Benutzers zur schwarzen Liste.",
-        "AddUserName": "benutzer",
-        "AddUserDescription": "Benutzer auf die schwarze Liste setzen.",
-        "AddReasonName": "grund",
-        "AddReasonDescription": "Grund für die Aufnahme des Benutzers in die schwarze Liste.",
-        "AddRiskName": "risiko",
-        "AddRiskDescription": "Risiko des Nutzers.",
-        "AddEvidenceName": "beweise",
-        "AddEvidenceDescription": "Ein Beweis für die vom Nutzer durchgeführte Aktion.",
-        "RemoveName": "entfernen",
-        "RemoveDescription": "Entfernen Sie einen Benutzer von der schwarzen Liste.",
-        "RemoveUserName": "benutzer",
-        "RemoveUserDescription": "Benutzer der von der schwarzen Liste entfernt werden soll.",
-        "CheckName": "siehe",
-        "CheckDescription": "Prüfen Sie, ob ein Benutzer auf der schwarzen Liste steht.",
-        "CheckUserName": "benutzer",
-        "CheckUserDescription": "Benutzer zum Ziel.",
-        "SuggestName": "vorschlagen",
-        "SuggestDescription": "Vorschlagen eines Benutzers, der auf die schwarze Liste gesetzt werden soll.",
-        "SuggestUserName": "benutzer",
-        "SuggestUserDescription": "Benutzer der die Aufnahme in die schwarze Liste vorschlägt.",
-        "SuggestReasonName": "grund",
-        "SuggestReasonDescription": "Grund für den Vorschlag einer schwarzen Liste.",
-        "SuggestEvidenceName": "beweise",
-        "SuggestEvidenceDescription": "Nachweis der vom Nutzer durchgeführten Aktion."
     },
     "help": {
-        "Name": "hilfe",
-        "Description": "Anzeige der verfügbaren Befehle (oder Informationen über einen bestimmten Befehl).",
-        "InfoName": "infos",
-        "InfoDescription": "Informationen über bestimmte Befehle/Funktionen anzeigen."
-    },
-    "kick": {
-        "Name": "kicken",
-        "Description": "Einen Benutzer treten.",
-        "UserName": "benutzer",
-        "UserDescription": "Benutzer zu treten.",
-        "ReasonName": "grund",
-        "ReasonDescription": "Der Grund für den Tritt.",
         "default": {
-            "Myself": "You can't kick yourself!",
-            "Me": "You can't kick me!",
-            "Owner": "You can't kick the owner!",
-            "Punishable": "I can't kick this user",
-            "Role": "You can't kick this user, because they're higher than you!"
-        },
-        "server": {
-            "Message": "has been kicked from the server for",
-            "New": "New Kick",
-            "User": "User",
-            "Reason": "Reason",
-            "Mod": "Moderator"
-        },
-        "dm": {
-            "you": "You have been kicked on",
-            "for": "for",
-            "by": "by"
-        },
-        "permission": {
-            "Myself": ":warning: Insufficient Permission - You need the following permission: ``Kick Members``.",
-            "Me": ":warning: Insufficient Permission - I need the following permission: ``Kick Members``."
+            "name": "help",
+            "description": "Display the commands available (or information about a certain command)",
+            "info": {
+                "name": "info",
+                "description": "Display information about certain commands/functionalities"
+            }
         }
     },
-    "lock": {
-        "Name": "verriegeln",
-        "Description": "Sperren Sie den Kanal."
-    },
-    "permission": {
-        "Name": "genehmigung",
-        "Description": "Einem Benutzer/Server die Erlaubnis erteilen.",
-        "UserName": "benutzer",
-        "UserDescription": "Einem Benutzer [Staff Cheryl] die Erlaubnis erteilen.",
-        "UserUserName": "benutzer",
-        "UserUserDescription": "Benutzer zum Hinzufügen/Entfernen von Berechtigungen.",
-        "UserOptionsName": "optionen",
-        "UserOptionsDescription": "Hinzufügen/Entfernen",
-        "UserPermissionName": "genehmigung",
-        "UserPermissionDescription": "Genehmigung zum Hinzufügen/Entfernen.",
-        "ServerName": "server",
-        "ServerDescription": "Erlaubnis für einen Server erteilen [Staff Cheryl].",
-        "ServerUserName": "server",
-        "ServerUserDescription": "Server zum Hinzufügen/Entfernen von Berechtigungen.",
-        "ServerOptionsName": "optionen",
-        "ServerOptionsDescription": "Hinzufügen/Entfernen",
-        "ServerPermissionName": "genehmigung",
-        "ServerPermissionDescription": "Genehmigung zum Hinzufügen/Entfernen."
-    },
-    "profile": {
-        "Name": "profil",
-        "Description": "Abrufen von Informationen über einen Benutzer.",
-        "UserName": "benutzer",
-        "UserDescription": "Benutzer um die Informationen zu erhalten.",
-        "PronounsName": "pronomen",
-        "PronounsDescription": "Ändern Sie Ihr Pronomen.",
-        "GenderName": "geschlecht",
-        "GenderDescription": "Ändern Sie Ihr Geschlecht.",
-        "AgeName": "alter",
-        "AgeDescription": "Ändern Sie Ihr Alter."
-    },
-    "report": {
-        "Name": "bericht",
-        "Description": "Report a member to the staff of the server."
+    "language": {
+        "default": {
+            "name": "language",
+            "description": "Change the language of the bot in the server"
+        }
     },
     "serverinfo": {
-        "Name": "serverinfo",
-        "Description": "Show information about the server."
+        "default": {
+            "name": "serverinfo",
+            "description": "Show information about the server"
+        }
     },
-    "settings": {
-        "Name": "einstellungen",
-        "Description": "Ändern Sie Ihre Servereinstellungen.",
-        "SetupName": "einrichten",
-        "SetupDescription": "Richten Sie einen Befehl ein.",
-        "SetupReportName": "bericht",
-        "SetupReportDescription": "Ändern Sie die Einstellungen des Berichtssystems.",
-        "SetupReportChannelName": "kanal",
-        "SetupReportChannelDescription": "Kanal zum Senden des Berichts.",
-        "SetupReportRoleName": "rolle",
-        "SetupReportRoleDescription": "Rolle die bei Erhalt eines Berichts einen Ping auslöst.",
-        "SetupWelcomeName": "willkommen",
-        "SetupWelcomeDescription": "Ändern Sie die Einstellungen des Willkommen System.",
-        "SetupWelcomeChannelName": "kanal",
-        "SetupWelcomeChannelDescription": "Kanal zum Senden der Begrüßungsnachricht.",
-        "SetupWelcomeRoleName": "auto-rolle",
-        "SetupWelcomeRoleDescription": "Rolle, die automatisch vergeben wird, wenn ein Benutzer beitritt.",
-        "SetupBlacklistName": "schwarzeliste",
-        "SetupBlacklistDescription": "Ändern Sie die Einstellungen für die Schwarze Liste System.",
-        "SetupBlacklistStatusName": "status",
-        "SetupBlacklistStatusDescription": "Aktivieren/Deaktivieren",
-        "SetupBlacklistChannelName": "kanal",
-        "SetupBlacklistChannelDescription": "Kanal zum Senden der Meldung.",
-        "SetupBlacklistAutobanName": "auto-sperre",
-        "SetupBlacklistAutobanDescription": "Aktivieren/Deaktivieren",
-        "SetupActionName": "aktion",
-        "SetupActionDescription": "Ändern Sie die Einstellungen des Befehls: Aktion.",
-        "SetupActionOptionsName": "optionen",
-        "SetupActionOptionsDescription": "Zu aktivierende/deaktivierende Funktionen.",
-        "SetupActionStatusName": "status",
-        "SetupActionStatusDescription": "Aktivieren/Deaktivieren",
-        "Verification": {
-            "VerificationAge": "Age",
-            "VerificationHow": "How did you find our server?",
-            "VerificationWhy": "Why are you joining us?",
-            "VerificationWhat": "What do you think about the furry fandom?",
-            "VerificationSona": "Do you have any sona? Tell us about it."
-        },
-        "VerificationName": "überprüfung",
-        "VerificationDescription": "Ändern Sie die Einstellungen des Verifizierungssystems.",
-        "VerificationCommandName": "befehl",
-        "VerificationCommandDescription": "Ändern Sie die Einstellungen des Befehls: Überprüfen.",
-        "VerificationWelcomeName": "willkommen",
-        "VerificationWelcomeDescription": "Kanal zum Senden der Begrüßungsnachricht.",
-        "VerificationWelcomeStaffName": "mitarbeiter",
-        "VerificationWelcomeStaffDescription": "Rolle, die verifizieren kann.",
-        "VerificationWelcomeAddName": "hinzufügen",
-        "VerificationWelcomeAddDescription": "Rolle zu geben.",
-        "VerificationWelcomeRemoveName": "entfernen",
-        "VerificationWelcomeRemoveDescription": "Zu entfernende Rolle.",
-        "VerificationMenuName": "menü",
-        "VerificationMenuDescription": "Ändern Sie die Einstellungen des Verifizierungsmenüs.",
-        "VerificationMenuWelcomeName": "willkommen",
-        "VerificationMenuWelcomeDescription": "Kanal zum Senden der Begrüßungsnachricht.",
-        "VerificationMenuWelcomeReceiveName": "erhalten",
-        "VerificationMenuWelcomeReceiveDescription": "Kanal zum Senden der Überprüfung.",
-        "VerificationMenuWelcomeStaffName": "mitarbeiter",
-        "VerificationMenuWelcomeStaffDescription": "Rolle, die Mitglieder verifizieren kann.",
-        "VerificationMenuWelcomeAddName": "hinzufügen",
-        "VerificationMenuWelcomeAddDescription": "Rolle zu geben.",
-        "VerificationMenuWelcomeRemoveName": "entfernen",
-        "VerificationMenuWelcomeRemoveDescription": "Zu entfernende Rolle.",
-        "LoggingName": "protokollierung",
-        "LoggingDescription": "Ändern Sie die Einstellungen des Protokollierungssystems.",
-        "LoggingOptionsName": "optionen",
-        "LoggingOptionsDescription": "Ändern Sie den Protokollierungskanal für ein bestimmtes Ereignis.",
-        "LoggingChannelName": "kanal",
-        "LoggingChannelDescription": "An welchen Kanal soll ich das Logging senden?"
+    "profile": {
+        "default": {
+            "name": "profile",
+            "description": "Get information of a user",
+            "user": {
+                "name": "user",
+                "description": "User to obtain the information"
+            },
+            "choice": {
+                "age": {
+                    "name": "age",
+                    "description": "Change your age"
+                },
+                "pronouns": {
+                    "name": "pronoun",
+                    "description": "Change your pronoun",
+                    "list": {
+                        "they": "they",
+                        "them": "them",
+                        "their": "their",
+                        "she": "she",
+                        "her": "her",
+                        "he": "he",
+                        "him": "him",
+                        "his": "his"
+                    }
+                },
+                "gender": {
+                    "name": "gender",
+                    "description": "Change your gender"
+                }
+            }
+        }
     },
     "staff": {
-        "Name": "mitarbeiter",
-        "Description": "Show if a user is a staff of Cheryl.",
-        "UserName": "user",
-        "UserDescription": "User to check."
-    },
-    "ticket": {
-        "Name": "ticket",
-        "Description": "Ticket System - Moderate your server easily with tickets.",
-        "permission": {
-            "Myself": ":warning: Insufficient Permission - You need the following permission: ``Manage Channels``.",
-            "Me": ":warning: Insufficient Permission - I need the following permission: ``Manage Channels``."
+        "default": {
+            "name": "staff",
+            "description": "Verify if a user is part of the staff of the bot",
+            "user": {
+                "name": "user",
+                "description": "User to verify staff"
+            }
         }
     },
-    "unban": {
-        "Name": "entsperren",
-        "Description": "Unban a user.",
-        "UserName": "user",
-        "UserDescription": "User to unban.",
-        "server": {
-            "Message": "has been unban from the server",
-            "New": "New Unban",
-            "User": "User",
-            "Mod": "Moderator"
+    "welcomeMessage": {
+        "message": {
+            "embed": {
+                "logs": {
+                    "description": "Welcome",
+                    "fields": {
+                        "createdAt": "Created At",
+                        "memberCount": "Member Count"
+                    }
+                }
+            },
+            "blacklist": {
+                "autoBan": "Blacklist | Auto-Ban"
+            }
+        }
+    },
+    "welcomeMenu": {
+        "default": {
+            "name": "welcomemenu",
+            "description": "Send the verification embed in the channel"
+        }
+    },
+    "leavingMessage": {
+        "message": {
+            "embed": {
+                "logs": {
+                    "description": "Bye",
+                    "fields": {
+                        "createdAt": "Created At",
+                        "joinedAt": "Joined At",
+                        "memberCount": "Member Count",
+                        "statusVerification": "Status Verification"
+                    },
+                    "verificationEnable": {
+                        "isVerified": "Was Verified",
+                        "isNotVerified": "Wasn't Verified"
+                    }
+                }
+            }
+        }
+    },
+    "verification": {
+        "reply": {
+            "default": "Verification from",
+            "cancelled": "cancelled",
+            "accepted": "accepted by",
+            "denied": "denied by"
         },
-        "permission": {
-            "Myself": ":warning: Insufficient Permission - You need the following permission: ``Ban Members``.",
-            "Me": ":warning: Insufficient Permission - I need the following permission: ``Ban Members``."
-        }
-    },
-    "unlock": {
-        "Name": "freischalten",
-        "Description": "Unlock the channel.",
-        "permission": {
-            "Myself": ":warning: Insufficient Permission - You need the following permission: ``Manage Messages``.",
-            "Me": ":warning: Insufficient Permission - I need the following permission: ``Manage Messages``."
+        "buttonToVerify": {
+            "alreadyVerified": "An error occured. You're already verified",
+            "modal": {
+                "title": "Verification",
+                "firstOption": {
+                    "label": "Age",
+                    "placeholder": "Write your age.."
+                },
+                "secondOption": {
+                    "label": "How did you find our server?",
+                    "placeholder": "Write the website/friend name where you got the server.."
+                },
+                "thirdOption": {
+                    "label": "Why are you joining us?",
+                    "placeholder": "Write the reason of you joining the server.."
+                },
+                "fourthOption": {
+                    "label": "What do you think about the furry fandom?",
+                    "placeholder": "Write your opinion about the furry fandom in a short paragraph.."
+                },
+                "fifthOption": {
+                    "label": "Do you have any sona? ",
+                    "placeholder": "Write a short but detailed description of your sona.."
+                }
+            }
+        },
+        "buttonToAcceptVerify": {
+            "roleAdd": "Verification System: Verified by",
+            "welcomeMessage": "Welcome",
+            "guildWelcomeMessage": "to"
+        },
+        "buttonToDenyVerify": {
+            "reason": "Your verification has been denied.\n\nReason:"
+        },
+        "modalSubmit": {
+            "waiting": "You've already done a verification. You will receive a dm/mention about the status of your verification shortly",
+            "received": "You've successfully sent your verification. You will receive a dm/mention about the status of your verification shortly",
+            "accept": "Accept",
+            "deny": "Deny"
         }
     },
     "verify": {
-        "Name": "überprüfen",
-        "Description": "Manually verify a member."
+        "default": {
+            "name": "verify",
+            "description": "Manually verify a member"
+        }
+    },
+    "action": {
+        "default": {
+            "name": "action",
+            "description": "Do an action (or suggest an image for an action) on a member",
+            "choice": {
+                "name": "choice",
+                "description": "What action would you like to do?"
+            },
+            "suggest": {
+                "name": "suggest",
+                "description": "Send a link that will redirect to the image itself and not a website"
+            },
+            "member": {
+                "name": "member",
+                "description": "Member to target"
+            }
+        },
+        "message": {
+            "error": {
+                "wrongUrl": "You must sent a valid URL",
+                "alreadyExist": "This image has already been suggested/added",
+                "disable": "This command has been disabled in this server",
+                "notNsfw": "You cannot use NSFW command into this channel. This channel must be age-restricted to use this command"
+            },
+            "success": {
+                "suggested": "Your image has been successfully sent to the staff of"
+            }
+        },
+        "button": {
+            "source": "Source"
+        }
+    },
+    "avatar": {
+        "default": {
+            "name": "avatar",
+            "description": "Get the avatar of a user",
+            "user": {
+                "name": "user",
+                "description": "User to get the avatar"
+            }
+        },
+        "message": {
+            "embed": {
+                "title": "Avatar of"
+            }
+        }
+    },
+    "ban": {
+        "default": {
+            "name": "ban",
+            "description": "Ban a user",
+            "user": {
+                "name": "user",
+                "description": "User to ban"
+            },
+            "reason": {
+                "name": "reason",
+                "description": "Reason of the ban"
+            }
+        },
+        "message": {
+            "success": "has been banned",
+            "embed": {
+                "log": {
+                    "title": "New Ban",
+                    "fields": {
+                        "member": "Member",
+                        "reason": "Reason",
+                        "mod": "Moderator"
+                    }
+                }
+            },
+            "dm": {
+                "you": "You have been banned on",
+                "for": "for",
+                "by": "by"
+            },
+            "onWho": {
+                "isThemself": "An error occured. You can't ban yourself",
+                "isBot": "An error occured. You can't ban me",
+                "isOwner": "An error occured. You can't ban the owner",
+                "isPunishable": "An error occured. I can't ban this user",
+                "isHigher": "An error occured. You can't ban this user, because they're higher than you",
+                "isAlready": "An error occured. You can't ban this user, since they are already banned"
+            }
+        }
+    },
+    "unban": {
+        "default": {
+            "name": "unban",
+            "description": "Unban a user",
+            "user": {
+                "name": "user",
+                "description": "User to unban"
+            }
+        },
+        "message": {
+            "success": "has been unban from the server",
+            "embed": {
+                "log": {
+                    "new": "New Unban",
+                    "user": "User",
+                    "mod": "Moderator"
+                }
+            }
+        }
+    },
+    "kick": {
+        "default": {
+            "name": "kick",
+            "description": "Kick a user",
+            "user": {
+                "name": "user",
+                "description": "User to kick"
+            },
+            "reason": {
+                "name": "reason",
+                "description": "Reason of the kick"
+            }
+        },
+        "message": {
+            "success": "has been kicked from the server for",
+            "embed": {
+                "log": {
+                    "new": "New Kick",
+                    "user": "User",
+                    "reason": "Reason",
+                    "mod": "Moderator"
+                }
+            },
+            "dm": {
+                "you": "You have been kicked on",
+                "for": "for",
+                "by": "by"
+            },
+            "onWho": {
+                "myself": "An error occured. You can't kick yourself",
+                "bot": "An error occured. You can't kick me",
+                "owner": "An error occured. You can't kick the owner",
+                "punishable": "An error occured. I can't kick this user",
+                "role": "An error occured. You can't kick this user, because they're higher than you"
+            }
+        }
     },
     "warn": {
-        "Name": "warnen",
-        "Description": "Warn a member."
+        "default": {
+            "name": "warn",
+            "description": "Warn a member"
+        }
     },
     "warns": {
-        "Name": "warnt",
-        "Description": "Show your warn(s) or the warn(s) of another member."
+        "default": {
+            "name": "warns",
+            "description": "Show your warn(s) or the warn(s) of another member"
+        }
     },
-    "welcomemenu": {
-        "Name": "willkommensmenü",
-        "Description": "Send the verification embed in a channel."
+    "lock": {
+        "default": {
+            "name": "lock",
+            "description": "Lock the channel"
+        },
+        "message": {
+            "success": "The channel has been successfully locked"
+        },
+        "permission": {
+            "myself": ":warning: Insufficient Permission - You need the following permission: *Manage Messages*",
+            "me": ":warning: Insufficient Permission - I need the following permission: *Manage Messages*"
+        }
     },
-    "language": {
-        "Name": "language"
+    "unlock": {
+        "default": {
+            "name": "unlock",
+            "description": "Unlock the channel"
+        },
+        "message": {
+            "success": "The channel has been successfully unlocked"
+        }
+    },
+    "blacklist": {
+        "default": {
+            "name": "blacklist",
+            "description": "Blacklist System - Protect your server against bad user",
+            "add": {
+                "name": "add",
+                "description": "Add a user to the blacklist",
+                "user": {
+                    "name": "user",
+                    "description": "User to blacklist"
+                },
+                "reason": {
+                    "name": "reason",
+                    "description": "Reason for adding the user to the blacklist"
+                },
+                "risk": {
+                    "name": "risk",
+                    "description": "Risk of the user"
+                },
+                "evidence": {
+                    "name": "evidence_link",
+                    "description": "Evidence of the action done by the user"
+                }
+            },
+            "remove": {
+                "name": "remove",
+                "description": "Remove a user of the blacklist",
+                "user": {
+                    "name": "user",
+                    "description": "User to unblacklist"
+                }
+            },
+            "check": {
+                "name": "check",
+                "description": "Check if a user is blacklisted",
+                "user": {
+                    "name": "user",
+                    "description": "User to target"
+                }
+            },
+            "suggest": {
+                "name": "suggest",
+                "description": "Suggest a user to be blacklisted",
+                "user": {
+                    "name": "user",
+                    "description": "User to suggest addition to the blacklist"
+                },
+                "reason": {
+                    "name": "reason",
+                    "description": "Reason for the blacklist suggestion"
+                },
+                "evidence": {
+                    "name": "evidence_image",
+                    "description": "Evidence of the action done by the user"
+                }
+            }
+        },
+        "message": {
+            "embed": {
+                "log": {
+                    "user": "User",
+                    "reason": "Reason",
+                    "mod": "Moderator"
+                },
+                "options": {
+                    "default": {
+                        "userTag": "User Name",
+                        "userId": "User Id",
+                        "reason": "Reason",
+                        "staffTag": "Staff Name",
+                        "staffId": "Staff Id",
+                        "evidence": "Evidence"
+                    },
+                    "noEvidence": "No evidence were found",
+                    "isBlacklisted": "This user is already blacklisted",
+                    "isNotBlacklisted": "This user isn't blacklisted",
+                    "youreNotBlacklisted": "You are not blacklisted"
+                }
+            },
+            "onWho": {
+                "isThemself": "An error occured. You can't blacklist yourself",
+                "isCheryl": "An error occured. You can't blacklist me",
+                "isOwner": "An error occured. You can't blacklist the owner",
+                "isStaff": "An error occured. You can't blacklist this user, because they're a staff of Cheryl",
+                "isBlacklisted": "An error occured. You can't blacklist this user, since they are blacklisted already"
+            },
+            "success": {
+                "blacklisted": "has been blacklisted"
+            }
+        },
+        "permission": {
+            "server": ":warning: Insufficient Permission - You need the following permission: *Whitelist Blacklist : For Server*",
+            "user": ":warning: Insufficient Permission - You need the following permission: *Whitelist Blacklist : For User*"
+        }
+    },
+    "ticket": {
+        "default": {
+            "name": "ticket",
+            "description": "Ticket System - Moderate your server easily with tickets"
+        }
+    },
+    "report": {
+        "default": {
+            "name": "report",
+            "description": "Report a member to the staff of the server"
+        }
+    },
+    "permission": {
+        "default": {
+            "name": "permission",
+            "description": "Give permission to a user/server",
+            "user": {
+                "name": "user",
+                "description": "Give permission to a user [Developper Only]",
+                "user": {
+                    "name": "user",
+                    "description": "User to add/remove permission"
+                },
+                "options": {
+                    "name": "options",
+                    "description": "Add/Remove"
+                },
+                "permission": {
+                    "name": "permission",
+                    "description": "Permission to add/remove"
+                }
+            },
+            "server": {
+                "name": "server",
+                "description": "Give permission to a server [Developper Only]",
+                "server": {
+                    "name": "server",
+                    "description": "Server to add/remove permission"
+                },
+                "options": {
+                    "name": "options",
+                    "description": "Add/Remove"
+                },
+                "permission": {
+                    "name": "permission",
+                    "description": "Permission to add/remove"
+                }
+            }
+        }
+    },
+    "cmd": {
+        "default": {
+            "name": "cmd",
+            "description": "Disable certain command [Developper Only]"
+        }
+    },
+    "dataRemove": {
+        "default": {
+            "name": "dataRemove",
+            "description": "Remove an image in the database [Developper Only]"
+        }
+    },
+    "settings": {
+        "default": {
+            "name": "settings",
+            "description": "Change your server settings",
+            "setup": {
+                "name": "setup",
+                "description": "Setup a command",
+                "report_system": {
+                    "name": "report",
+                    "description": "Change the settings of the Report System",
+                    "channel": {
+                        "name": "channel",
+                        "description": "Channel to send the report"
+                    },
+                    "staffRole": {
+                        "name": "staffrole",
+                        "description": "Role to ping when a report is received"
+                    }
+                },
+                "welcome_system": {
+                    "name": "welcome",
+                    "description": "Change the settings of the Welcome System",
+                    "channel": {
+                        "name": "channel",
+                        "description": "Channel to send the welcome message"
+                    },
+                    "autorole": {
+                        "name": "auto-role",
+                        "description": "Role to automatically give when a user join"
+                    }
+                },
+                "blacklist_system": {
+                    "name": "blacklist",
+                    "description": "Change the settings of the Blacklist System",
+                    "status": {
+                        "name": "status",
+                        "description": "enable/disable"
+                    },
+                    "channel": {
+                        "name": "channel",
+                        "description": "Channel to send the alert"
+                    },
+                    "autoban": {
+                        "name": "auto-ban",
+                        "description": "enable/disable"
+                    }
+                },
+                "action_system": {
+                    "name": "action",
+                    "description": "Change the settings of the command: Action",
+                    "options": {
+                        "name": "options",
+                        "description": "Select a feature that you wish to disable/enable"
+                    },
+                    "status": {
+                        "name": "status",
+                        "description": "enable/disable"
+                    }
+                },
+                "verification_system": {
+                    "name": "verification",
+                    "description": "Change the settings of the Verification System",
+                    "command": {
+                        "name": "command",
+                        "description": "Change the settings of the command: Verify",
+                        "channel": {
+                            "name": "welcomechannel",
+                            "description": "Channel to send the welcome message"
+                        },
+                        "staffRole": {
+                            "name": "staffrole",
+                            "description": "Role that can verify members"
+                        },
+                        "addRole": {
+                            "name": "addrole",
+                            "description": "Role to add to the member"
+                        },
+                        "removeRole": {
+                            "name": "removerole",
+                            "description": "Role to remove to the member"
+                        }
+                    },
+                    "menu": {
+                        "name": "menu",
+                        "description": "Change the settings of the menu: Verify",
+                        "channel": {
+                            "name": "welcomechannel",
+                            "description": "Channel to send the welcome message"
+                        },
+                        "receiveChannel": {
+                            "name": "receivechannel",
+                            "description": "Channel to send the verification"
+                        },
+                        "staffRole": {
+                            "name": "staffrole",
+                            "description": "Role that can verify members"
+                        },
+                        "addRole": {
+                            "name": "addrole",
+                            "description": "Role to add to the member"
+                        },
+                        "removeRole": {
+                            "name": "removerole",
+                            "description": "Role to remove to the member"
+                        }
+                    }
+                },
+                "logging_system": {
+                    "name": "logging",
+                    "description": "Change the settings of the Logging System",
+                    "options": {
+                        "name": "options",
+                        "description": "Change the log channel of a certain event"
+                    },
+                    "channel": {
+                        "name": "channel",
+                        "description": "What channel should I send the log to?"
+                    }
+                }
+            }
+        }
     }
 }

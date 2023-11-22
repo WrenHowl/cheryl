@@ -1,223 +1,202 @@
 const { EmbedBuilder } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const Color = require("../config/color.json");
-const Message = require("../config/message.json");
-const Config = require("../config/config.json");
-const LanguageFR = require("../languages/fr.json");
-const LanguageEN = require("../languages/en.json");
-const LanguageDE = require("../languages/de.json");
-const LanguageSP = require("../languages/sp.json");
-const LanguageNL = require("../languages/nl.json");
 
-const fr = LanguageFR.ban;
-const en = LanguageEN.ban;
-const de = LanguageDE.ban;
-const sp = LanguageSP.ban;
-const nl = LanguageNL.ban;
+const configPreset = require("../config/main.json");
+
+const fr = require("../languages/fr.json");
+const en = require("../languages/en.json");
+const de = require("../languages/de.json");
+const sp = require("../languages/sp.json");
+const nl = require("../languages/nl.json");
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName(en.Name)
+        .setName(en.ban.default.name)
         .setNameLocalizations({
-            fr: fr.Name,
-            de: de.Name,
-            SpanishES: sp.Name,
-            nl: nl.Name
+            "fr": fr.ban.default.name,
+            "de": de.ban.default.name,
+            "es-ES": sp.ban.default.name,
+            "nl": nl.ban.default.name
         })
-        .setDescription(en.Description)
+        .setDescription(en.ban.default.description)
         .setDescriptionLocalizations({
-            fr: fr.Description,
-            de: de.Description,
-            SpanishES: sp.Description,
-            nl: nl.Description
+            "fr": fr.ban.default.description,
+            "de": de.ban.default.description,
+            "es-ES": sp.ban.default.description,
+            "nl": nl.ban.default.description
         })
         .addUserOption(option => option
-            .setName(en.UserName)
+            .setName(en.ban.default.user.name)
             .setNameLocalizations({
-                fr: fr.UserName,
-                de: de.UserName,
-                SpanishES: sp.UserName,
-                nl: nl.UserName
+                "fr": fr.ban.default.user.name,
+                "de": de.ban.default.user.name,
+                "es-ES": sp.ban.default.user.name,
+                "nl": nl.ban.default.user.name
             })
-            .setDescription(en.UserDescription)
+            .setDescription(en.ban.default.user.description)
             .setDescriptionLocalizations({
-                fr: fr.UserDescription,
-                de: de.UserDescription,
-                SpanishES: sp.UserDescription,
-                nl: nl.UserDescription
+                "fr": fr.ban.default.user.description,
+                "de": de.ban.default.user.description,
+                "es-ES": sp.ban.default.user.description,
+                "nl": nl.ban.default.user.description
             })
             .setRequired(true))
         .addStringOption(option => option
-            .setName(en.ReasonName)
+            .setName(en.ban.default.reason.name)
             .setNameLocalizations({
-                fr: fr.ReasonName,
-                de: de.ReasonName,
-                SpanishES: sp.ReasonName,
-                nl: nl.ReasonName
+                "fr": fr.ban.default.reason.name,
+                "de": de.ban.default.reason.name,
+                "es-ES": sp.ban.default.reason.name,
+                "nl": nl.ban.default.reason.name
             })
-            .setDescription(en.ReasonDescription)
+            .setDescription(en.ban.default.reason.description)
             .setDescriptionLocalizations({
-                fr: fr.ReasonDescription,
-                de: de.ReasonDescription,
-                SpanishES: sp.ReasonDescription,
-                nl: nl.ReasonDescription
+                "fr": fr.ban.default.reason.description,
+                "de": de.ban.default.reason.description,
+                "es-ES": sp.ban.default.reason.description,
+                "nl": nl.ban.default.reason.description
             })
             .setRequired(true)
         ),
     execute: async (interaction, bot, sequelize, Sequelize) => {
+        const Logging = sequelize.define("Logging", {
+            guildId: {
+                type: Sequelize.STRING,
+            },
+            language: {
+                type: Sequelize.STRING,
+            },
+            channelId_Ban: {
+                type: Sequelize.STRING,
+            },
+        });
+
+        let loggingData = await Logging.findOne({ where: { guildId: interaction.guild.id } });
+
+        switch (loggingData.language) {
+            case ("en"):
+                languageSet = en;
+                break;
+            case ("fr"):
+                languageSet = fr;
+                break;
+            case ("de"):
+                languageSet = de;
+                break;
+            case ("sp"):
+                languageSet = sp;
+                break;
+            case ("nl"):
+                languageSet = nl;
+                break;
+            default:
+                languageSet = en;
+                break;
+        };
+
         try {
-            if (!interaction.guild) {
+            let botCanBan = interaction.guild.members.me.permissions.has("BanMembers");
+            let memberCanBan = interaction.guild.members.me.permissions.has("BanMembers");
+
+            if (!botCanBan | !memberCanBan) {
+                !botCanBan ? refusingAction = languageSet.ban.permission.bot : refusingAction = languageSet.default.errorOccured;
+                !memberCanBan ? refusingAction = languageSet.ban.permission.bot : refusingAction = languageSet.default.errorOccured;
+
                 return interaction.reply({
-                    content: "Use this command inside a server only!"
+                    content: messageRefusingAction,
+                    ephemeral: true,
                 });
             };
 
-            const CommandFunction = sequelize.define("CommandFunction", {
-                name: {
-                    type: Sequelize.STRING,
-                },
-                value: {
-                    type: Sequelize.STRING,
-                },
-            });
+            let user = interaction.options.getUser(en.ban.default.UserName);
+            let member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(error => { });
 
-            const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
+            let reason = interaction.options.getString(en.ban.default.ReasonName);
 
-            if (FindCommand) {
-                if (FindCommand.value === "Disable") {
+            let banList = await interaction.guild.bans.fetch();
+            let bannedUser = banList.find(user => user.id === user.id);
+            let guild = bot.guilds.cache.get(interaction.guild.id);
+
+            switch (user.id) {
+                case (!user):
                     return interaction.reply({
-                        content: Message.CommandDisabled,
+                        content: languageSet.default.unknownUser,
                         ephemeral: true,
                     });
-                };
-            };
-
-            const Logging = sequelize.define("Logging", {
-                GuildID: {
-                    type: Sequelize.STRING,
-                },
-                ChannelIDBan: {
-                    type: Sequelize.STRING,
-                },
-                Language: {
-                    type: Sequelize.STRING,
-                },
-            });
-            const LoggingData = await Logging.findOne({ where: { GuildID: interaction.guild.id } });
-
-            let LanguageData = LoggingData.language;
-
-            if (!LanguageData || LanguageData === "en") Language = LanguageEN;
-            if (LanguageData === "fr") Language = LanguageFR;
-            if (LanguageData === "de") Language = LanguageDE;
-            if (LanguageData === "sp") Language = LanguageSP;
-            if (LanguageData === "nl") Language = LanguageNL;
-
-            if (interaction.member.permissions.has("BanMembers")) {
-                if (interaction.guild.members.me.permissions.has("BanMembers")) {
-                    let user = interaction.options.getUser(en.UserName);
-                    let member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(error => { });
-                    let banList = await interaction.guild.bans.fetch();
-                    let bannedUser = banList.find(user => user.id === user.id);
-                    let guild = bot.guilds.cache.get(interaction.guild.id);
-
-                    switch (user.id) {
-                        case (!user):
-                            return interaction.reply({
-                                content: Language.default.UnknownUser,
-                                ephemeral: true,
-                            });
-                        case (interaction.member.id):
-                            return interaction.reply({
-                                content: Language.ban.default.Myself,
-                                ephemeral: true,
-                            });
-                        case (bot.user.id):
-                            return interaction.reply({
-                                content: Language.ban.default.Me,
-                                ephemeral: true,
-                            });
-                        case (interaction.guild.ownerId):
-                            return interaction.reply({
-                                content: Language.ban.default.Owner,
-                                ephemeral: true,
-                            });
-                        case (!user.bannable):
-                            return interaction.reply({
-                                content: Language.ban.default.Punishable,
-                                ephemeral: true,
-                            });
-                        default:
-                            if (guild.members.cache.find(m => m.id === user.id)?.id) {
-                                if (member.roles.highest.position >= interaction.member.roles.highest.position) {
-                                    return interaction.reply({
-                                        content: Language.ban.default.Role,
-                                        ephemeral: true,
-                                    });
-                                };
-                            } else if (bannedUser) {
-                                return interaction.reply({
-                                    content: Language.ban.default.Punished,
-                                    ephemeral: true,
-                                });
-                            };
-
-                            const reason = interaction.options.getString(en.ReasonName);
-                            const mod = interaction.user.tag;
-
-                            await interaction.reply({
-                                content: "***" + user.tag + "*** " + Language.ban.server.Message,
-                            });
-
-                            if (LoggingData) {
-                                if (LoggingData.ChannelIDBan) {
-                                    if (interaction.guild.members.me.permissionsIn(LoggingData.ChannelIDBan).has(['SendMessages', 'ViewChannel'])) {
-                                        const logChannel = interaction.guild.channels.cache.get(LoggingData.ChannelIDBan);
-
-                                        const logMessage = new EmbedBuilder()
-                                            .setTitle(Language.ban.server.New)
-                                            .addFields(
-                                                { name: Language.ban.server.User, value: "``" + user.tag + "``" },
-                                                { name: Language.ban.server.Reason, value: "``" + reason + "``" },
-                                                { name: Language.ban.server.Mod, value: "``" + mod + "``" },
-                                            )
-                                            .setFooter({
-                                                text: "ID: " + user.id
-                                            })
-                                            .setTimestamp()
-                                            .setColor(Color.RiskHigh);
-
-                                        await logChannel.send({
-                                            embeds: [logMessage],
-                                        });
-                                    };
-                                };
-                            };
-
-                            await user.send({
-                                conmtent: Language.ban.dm.you + " ``" + interaction.guild.name + "`` " + Language.ban.dm.for + " ``" + reason + "`` " + Language.ban.dm.by + " ``" + mod + "``.",
-                            }).catch(() => { return });
-
-                            return interaction.guild.members.ban(user.id, { reason: [reason + " | " + mod] });
-                    };
-                } else {
+                case (interaction.member.id):
                     return interaction.reply({
-                        content: Language.ban.permission.Me,
+                        content: languageSet.blacklist.message.onWho.isThemself,
                         ephemeral: true,
                     });
-                };
-            } else {
-                return interaction.reply({
-                    content: Language.ban.permission.Myself,
-                    ephemeral: true
-                });
+                case (bot.user.id):
+                    return interaction.reply({
+                        content: languageSet.blacklist.message.onWho.isBot,
+                        ephemeral: true,
+                    });
+                case (interaction.guild.ownerId):
+                    return interaction.reply({
+                        content: languageSet.ban.message.onWho.isOwner,
+                        ephemeral: true,
+                    });
+                case (!user.bannable):
+                    return interaction.reply({
+                        content: languageSet.ban.message.onWho.isPunishable,
+                        ephemeral: true,
+                    });
+                case (guild.members.cache.find(m => m.id === user.id)?.id & member.roles.highest.position >= interaction.member.roles.highest.position):
+                    return interaction.reply({
+                        content: languageSet.ban.message.onWho.isHigher,
+                        ephemeral: true,
+                    });
+                case (bannedUser):
+                    return interaction.reply({
+                        content: languageSet.ban.message.onWho.isAlready,
+                        ephemeral: true,
+                    });
+                default:
+                    await user.send({
+                        content: languageSet.ban.message.dm.you + " *" + interaction.guild.name + "* " + languageSet.ban.message.dm.for + " *" + reason + "* " + languageSet.ban.message.dm.by + " *" + interaction.user.tag + "*.",
+                    }).catch(() => { return });
+
+                    await interaction.guild.members.ban(user.id, { reason: [reason + " | " + mod] });
+
+                    await interaction.reply({
+                        content: "*" + user.tag + "* " + languageSet.ban.message.success,
+                    });
+
+                    if (loggingData.channelId_Ban & interaction.guild.members.me.permissionsIn(loggingData.channelId_Ban).has(['SendMessages', 'ViewChannel'])) {
+                        let logMessage = new EmbedBuilder()
+                            .setTitle(languageSet.ban.message.embed.log.title)
+                            .addFields(
+                                { name: languageSet.ban.message.embed.log.fields.user, value: "``" + user.tag + "``" },
+                                { name: languageSet.ban.message.embed.log.fields.reason, value: "``" + reason + "``" },
+                                { name: languageSet.ban.message.embed.log.fields.mod, value: "``" + interaction.user.tag + "``" },
+                            )
+                            .setFooter(
+                                { text: "ID: " + user.id }
+                            )
+                            .setTimestamp()
+                            .setColor("Red");
+
+                        let logChannel = interaction.guild.channels.cache.get(loggingData.channelId_Ban);
+
+                        return logChannel.send({
+                            embeds: [logMessage],
+                        });
+                    } else return;
             };
         } catch (error) {
-            let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
-            let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
+            let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
+            let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
+            console.log(`${interaction.user.id} -> ${interaction.user.tag}`);
             console.log(error);
 
-            return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
+            await interaction.reply({
+                content: languageSet.default.errorOccured,
+                ephemeral: true,
+            });
+
+            return crashchannelId.send({ content: "**Error in the '" + en.ban.default.name + "' event:** \n\n```javascript\n" + error + "```" });
         };
     }
 };

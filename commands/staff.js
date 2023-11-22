@@ -1,110 +1,120 @@
 const { EmbedBuilder } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const Color = require("../config/color.json");
-const Message = require("../config/message.json");
-const Config = require("../config/config.json");
-const LanguageFR = require("../languages/fr.json");
-const LanguageEN = require("../languages/en.json");
-const LanguageDE = require("../languages/de.json");
-const LanguageSP = require("../languages/sp.json");
-const LanguageNL = require("../languages/nl.json");
 
-const fr = LanguageFR.staff;
-const en = LanguageEN.staff;
-const de = LanguageDE.staff;
-const sp = LanguageSP.staff;
-const nl = LanguageNL.staff;
+const configPreset = require("../config/main.json");
+
+const fr = require("../languages/fr.json");
+const en = require("../languages/en.json");
+const de = require("../languages/de.json");
+const sp = require("../languages/sp.json");
+const nl = require("../languages/nl.json");
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName(en.Name)
+        .setName(en.staff.default.name)
         .setNameLocalizations({
-            fr: fr.Name,
-            de: de.Name,
-            SpanishES: sp.Name,
-            nl: nl.Name
+            "fr": en.staff.default.name,
+            "de": de.staff.default.name,
+            "es-ES": sp.staff.default.name,
+            "nl": nl.staff.default.name
         })
-        .setDescription(en.Description)
+        .setDescription(en.staff.default.description)
         .setDescriptionLocalizations({
-            fr: fr.Description,
-            de: de.Description,
-            SpanishES: sp.Description,
-            nl: nl.Description
+            "fr": fr.staff.default.description,
+            "de": de.staff.default.description,
+            "es-ES": sp.staff.default.description,
+            "nl": nl.staff.default.description
         })
         .addUserOption(option => option
-            .setName(en.UserName)
+            .setName(en.staff.default.user.name)
             .setNameLocalizations({
-                fr: fr.Name,
-                de: de.Name,
-                SpanishES: sp.Name,
-                nl: nl.Name
+                "fr": fr.staff.default.user.name,
+                "de": de.staff.default.user.name,
+                "es-ES": sp.staff.default.user.name,
+                "nl": nl.staff.default.user.name
             })
-            .setDescription(en.UserDescription)
+            .setDescription(en.staff.default.user.description)
             .setDescriptionLocalizations({
-                fr: fr.UserDescription,
-                de: de.UserDescription,
-                SpanishES: sp.UserDescription,
-                nl: nl.UserDescription
+                "fr": fr.staff.default.user.description,
+                "de": de.staff.default.user.description,
+                "es-ES": sp.staff.default.user.description,
+                "nl": nl.staff.default.user.description
             })
             .setRequired(false)),
     execute: async (interaction, bot, sequelize, Sequelize) => {
+        const Logging = sequelize.define("Logging", {
+            guildId: {
+                type: Sequelize.STRING,
+            },
+            language: {
+                type: Sequelize.STRING,
+            },
+        });
+
+        let loggingData = await Logging.findOne({ where: { guildId: interaction.guild.id } });
+
+        switch (loggingData.language) {
+            case ("en"):
+                languageSet = en;
+                break;
+            case ("fr"):
+                languageSet = fr;
+                break;
+            case ("de"):
+                languageSet = de;
+                break;
+            case ("sp"):
+                languageSet = sp;
+                break;
+            case ("nl"):
+                languageSet = nl;
+                break;
+            default:
+                languageSet = en;
+                break;
+        }
+
         try {
-            if (!interaction.guild) {
-                return interaction.reply({
-                    content: "Use this command inside a server only!"
-                });
-            };
+            let user = interaction.options.getUser(en.staff.default.user.name);
+            let userCheck = user ? user : interaction.user;
 
-            const CommandFunction = sequelize.define("CommandFunction", {
-                name: {
-                    type: Sequelize.STRING,
-                },
-                value: {
-                    type: Sequelize.STRING,
-                },
-            });
-
-            const FindCommand = await CommandFunction.findOne({ where: { name: en.Name } });
-            const MessageReason = require("../config/message.json");
-
-            if (FindCommand) {
-                if (FindCommand.value === "Disable") {
-                    return interaction.reply({
-                        content: MessageReason.CommandDisabled,
-                        ephemeral: true,
-                    });
-                };
-            };
-
-            const user = interaction.options.getUser(en.UserName);
-
-            let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
+            let fetchGuild = interaction.client.guilds.cache.get(configPreset.botInfo.guildId);
             await fetchGuild.members.fetch();
+            let staffGet = fetchGuild.members.cache.get(userCheck.id);
 
-            let MemberData = user ? user : interaction.user;
+            const staffEmbed = new EmbedBuilder()
 
-            const StaffMember = fetchGuild.members.cache.get(MemberData.id);
-            let StaffCheck = StaffMember ? StaffMember.roles.cache.has(Config.DevID) | StaffMember.roles.cache.has(Config.StaffID) : false;
+            let staffRole = staffGet ? staffGet.roles.cache.has(configPreset.staffRoleId.developer) | staffGet.roles.cache.has(configPreset.staffRoleId.staff) : false;
 
-            StaffCheck ? Thumbnail = Config.CheckMark : Thumbnail = Config.x;
-            StaffCheck ? IsOrIsnt = "is" : IsOrIsnt = "isn't";
+            if (staffGet & staffRole) {
+                staffEmbed.setThumbnail(configPreset.other.isStaff);
+                isStaff = "is";
+                staffEmbed.setColor("Green");
+                staffGet.roles.cache.has(configPreset.staffRoleId.developer) ? staffRank = "DEVELOPER" : staffRank = "STAFF";
+            } else if (!staffGet | staffRole) {
+                staffEmbed.setThumbnail(configPreset.other.isNotStaff);
+                isStaff = "isn't";
+                staffEmbed.setColor("Red");
+                staffRank = "STAFF";
+            }
 
-            StaffMember.roles.cache.has(Config.DevID) ? StaffRank = "**DEVELOPER**" : StaffRank = "**STAFF**";
-
-            const staffList = new EmbedBuilder()
-                .setDescription(MemberData.toString() + " " + IsOrIsnt + " a " + StaffRank + " of **" + bot.user.username + "**")
-                .setThumbnail(Thumbnail)
-                .setColor(Color.Green);
+            staffEmbed.setDescription(`${userCheck.toString()} ${isStaff} a **${staffRank}** of **${bot.user.username}**`);
 
             return interaction.reply({
-                embeds: [staffList]
+                embeds: [staffEmbed],
             });
         } catch (error) {
-            let fetchGuild = interaction.client.guilds.cache.get(Config.guildId);
-            let CrashChannel = fetchGuild.channels.cache.get(Config.CrashChannel);
-            console.log(error);
+            let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
+            let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
+            console.log(`${interaction.user.id} -> ${interaction.user.tag}`);
+            console.log(error)
 
-            return CrashChannel.send({ content: "**Error in the '" + en.Name + "' Command:** \n\n```javascript\n" + error + "```" });
+            await interaction.reply({
+                content: languageSet.default.errorOccured,
+                ephemeral: true,
+            });
+
+            return crashchannelId.send({ content: "**Error in the '" + en.blacklist.default.name + "' event:** \n\n```javascript\n" + error + "```" });
         };
     }
 };

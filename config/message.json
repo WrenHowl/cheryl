@@ -1,38 +1,40 @@
 {
-    "CannotFindDataOfMessage": "No Data Found - If this persist, please contact us!",
-    "UnknownUser": "I can't find this user!",
-    "CommandDisabled": "This command is disabled globally by the developers!",
-    "Crash": "There was an error while executing this command, the developer have been alerted!",
+    "default": {
+        "errorOccured": "An error occured. Please contact @baddwagon",
+        "unknownUser": "An error occured. I can't find this user",
+        "commandDisabledGlobally": "An error occured. This command is disabled globally by the developpers"
+    },
     "Permission": {
         "AddedWhitelistBlacklist": "The user/server has been successfully added to the following whitelist: ``Blacklist``.",
         "AlreadyWhitelistedBlacklist": "The user/server is already whitelisted for the following whitelist: ``Blacklist``.",
         "RemovedWhitelistBlacklist": "The user/server has been successfully removed of the following whitelist: ``Blacklist``."
     },
-    "Blacklist": {
-        "AutoBanMessage": "Blacklist - Auto-Ban",
-        "InstantBan": "*If this server has the auto-ban enabled to this level of risk, the user is instantly banned!*",
-        "NotBlacklisted": "The user isn't blacklisted.",
-        "AlreadyBlacklisted": "The user is already blacklisted.",
-        "AddedToBlacklist": "The user has been successfully added to the blacklist.",
-        "RemovedToBlacklist": "The user has been successfully removed of the blacklist.",
-        "SuggestedToBlacklist": "The user has been successfully suggested to be added to the blacklist."
+    "blacklist": {
+        "isntBlacklisted": "This user isn't blacklisted",
+        "isBlacklisted": "This user is already blacklisted",
+        "addBlacklist": "This user has been successfully added to the blacklist",
+        "removeBlacklist": "This user has been successfully removed of the blacklist",
+        "suggestBlacklist": "This user has been successfully suggested to be added to the blacklist"
     },
-    "Verification": {
-        "ReasonToDeny": {
-            "NoDetails": "Your verification has been denied. You can try again!\n\n*Reason: You did not put enough details.*",
-            "Troll": "Your verification has been denied. You can try again!\n\n*Reason: You've been flagged for trolling.*",
-            "NewAccount": "Your verification has been denied.\n\n*Reason: Your account is too new to be accepted, your account must be at least 2 weeks old.*",
-            "TooYoung": "Your verification has been denied.\n\n*Reason: You're too young to join this server,  you must be over 13 years old.*",
-            "Website": "Your verification has been denied. You can try again!\n\n*Reason: You haven't provided the website or person who invited you.*"
-        },
-        "Received": "You've successfully sent your verification! Please wait while our team review your verification.",
-        "AlreadyWaitingVerification": "You already have a pending verification, please be patient while our staff review your verification."
+    "ticket": {
+        "created": "Your ticket is waiting to be claimed by a staff! You will receive a DM/mention when it will be open!",
+        "waiting": "You have a ticket waiting to be claimed already! Please wait for the staff to claim it.",
+        "claim": "Claimed",
+        "unclaim": "Unclaimed",
+        "done": "Completed",
+        "delete": "This channel will be deleted in 3 seconds.",
+        "own": "You cannot claim your own ticket.",
+        "unclaimingOwn": "Only the staff who claim the ticket can unclaim it.",
+        "refusingToCreateStaff": "Invalid Reason: You're a staff! You can only make a ticket for a Partnership",
+        "refusingToCreateVerified": "Invalid Reason: You've already verified your age",
+        "isNotStaff": "Missing Role: Staff",
+        "isntAdmin": "Missing Role: Admin",
+        "isntOwner": "Missing Role: Owner, Co-Owner",
+        "cantManageChannels": "You're missing this permission: Manage Channels",
+        "unknownMessage": "An error occured. The message couldn't be found",
+        "error": "An error occured. Please contact @baddwagon"
     },
-    "Ticket": {
-        "Created": "Your ticket is waiting to be claimed by a staff. You will receive a DM when it will be open!",
-        "Waiting": "You have a ticket waiting to be claimed already!",
-        "Claim": "<:check_ocf:962115470549458954> Claimed",
-        "Unclaim": "<:cross_ocf:962115493253222420> Unclaimed",
-        "Done": "<:check_ocf:962115470549458954> Done"
+    "settings": {
+        "disabled": "`None`"
     }
 }
