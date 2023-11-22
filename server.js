@@ -18,8 +18,8 @@ const bot = new Client({
   partials: [Partials.Message, Partials.Channel, Partials.Reaction]
 });
 
-const configPreset = require("./settings/config.json");
-const messagePreset = require("./settings/message.json");
+const configPreset = require("./config/main.json");
+const messagePreset = require("./config/message.json");
 
 const fr = require("./languages/fr.json");
 const en = require("./languages/en.json");
@@ -381,20 +381,18 @@ bot.once("ready", async () => {
       counter++;
     }, 5000)
 
-    setInterval(function () {
-      Verification_Count.sync();
-      Verifier.sync();
-      Verification.sync();
-      Blacklist.sync();
-      Warns.sync();
-      Logging.sync();
-      ActionImage.sync();
-      Permission.sync();
-      Profile.sync();
-      CommandFunction.sync();
-      Ticket.sync();
-      TicketCount.sync();
-    }, 5000);
+    await Verification_Count.sync();
+    await Verifier.sync();
+    await Verification.sync();
+    await Blacklist.sync();
+    await Warns.sync();
+    await Logging.sync();
+    await ActionImage.sync();
+    await Permission.sync();
+    await Profile.sync();
+    await CommandFunction.sync();
+    await Ticket.sync();
+    await TicketCount.sync();
 
     bot.guilds.cache.forEach(async (guild) => {
       let loggingData = await Logging.findOne({ where: { guildId: guild.id } });
@@ -921,7 +919,7 @@ bot.on("messageCreate", async (message) => {
   } catch (error) {
     let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
     let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
-    console.log(`${interaction.user.id} -> ${interaction.user.tag}`);
+    console.log(`${message.author.id} -> ${message.author.tag}`);
     console.log(error);
 
     await message.reply({

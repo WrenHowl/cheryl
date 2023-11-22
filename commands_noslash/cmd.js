@@ -1,4 +1,4 @@
-const configPreset = require("../settings/config.json");
+const configPreset = require("../config/main.json");
 
 const en = require("../languages/en.json");
 

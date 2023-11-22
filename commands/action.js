@@ -1,8 +1,8 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
-const configPreset = require("../settings/config.json");
-const profileInfo = require("../settings/profile.json");
+const configPreset = require("../config/main.json");
+const profileInfo = require("../config/profile.json");
 
 const fr = require("../languages/fr.json");
 const en = require("../languages/en.json");
@@ -295,19 +295,15 @@ module.exports = {
                     switch (ProfileData1.Pronouns) {
                         case (profileInfo.pronouns.th):
                             Pronouns1 = pronouns.their;
-
                             break;
                         case (profileInfo.pronouns.he):
                             Pronouns1 = pronouns.him;
-
                             break;
                         case (profileInfo.pronouns.sh):
                             Pronouns1 = pronouns.her;
-
                             break;
                         default:
                             Pronouns1 = pronouns.their;
-
                             break;
                     }
                 } else {
@@ -319,22 +315,18 @@ module.exports = {
                         case (profileInfo.pronouns.th):
                             Pronouns1 = pronouns.their;
                             Pronouns4 = pronouns.their;
-
                             break;
                         case (profileInfo.pronouns.he):
                             Pronouns1 = pronouns.him;
                             Pronouns4 = pronouns.his;
-
                             break;
                         case (profileInfo.pronouns.sh):
                             Pronouns2 = pronouns.her;
                             Pronouns4 = pronouns.her;
-
                             break;
                         default:
                             Pronouns2 = pronouns.them;
                             Pronouns4 = pronouns.their;
-
                             break;
                     }
                 } else {
@@ -390,47 +382,36 @@ module.exports = {
                 switch (choice) {
                     case ("hug"):
                         sentence = hugSentence;
-
                         break;
                     case ("kiss"):
                         sentence = kissSentence;
-
                         break;
                     case ("boop"):
                         sentence = boopSentence;
-
                         break;
                     case ("lick"):
                         sentence = lickSentence;
-
                         break;
                     case ("cuddle"):
                         sentence = cuddleSentence;
-
                         break;
                     case ("yeet"):
                         sentence = yeetSentence;
-
                         break;
                     case ("pat"):
                         sentence = patSentence;
-
                         break;
                     case ("bite"):
                         sentence = biteSentence;
-
                         break;
                     case ("bonk"):
                         sentence = bonkSentence;
-
                         break;
                     case ("fuckstraight"):
                         sentence = fuckStraightSentence;
-
                         break;
                     case ("fuckgay"):
                         sentence = fuckGaySentence;
-
                         break;
                 }
 
@@ -473,7 +454,6 @@ module.exports = {
                     });
                 }
             };
-
         } catch (error) {
             let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
             let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);

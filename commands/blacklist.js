@@ -1,8 +1,8 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { EmbedBuilder } = require('discord.js');
 
-const configPreset = require("../settings/config.json");
-const messagePreset = require("../settings/message.json");
+const configPreset = require("../config/main.json");
+const messagePreset = require("../config/message.json");
 
 const fr = require("../languages/fr.json");
 const en = require("../languages/en.json");
