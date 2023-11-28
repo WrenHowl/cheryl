@@ -44,12 +44,3 @@ Functionality
 <br>
 
 <br>
-
-<h3><p align="center">
-Credits
-</p></h3>
-
-----
-- @Kalitry: Translation in German
-- @FloofyRulezz: Translation in Dutch
-- @AFuckinBullDozer: Translation in Spanish
