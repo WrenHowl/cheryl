@@ -56,7 +56,11 @@
             "choice": {
                 "age": {
                     "name": "age",
-                    "description": "Change your age"
+                    "description": "Change your age",
+                    "list": {
+                        "minor": "Minor",
+                        "adult": "Adult"
+                    }
                 },
                 "pronouns": {
                     "name": "pronoun",
@@ -75,6 +79,21 @@
                 "gender": {
                     "name": "gender",
                     "description": "Change your gender"
+                },
+                "message": {
+                    "option": {
+                        "embed": {
+                            "description": "Profile updated",
+                            "name": "Name",
+                            "id": "Id",
+                            "verified18": "Verified 18+",
+                            "verifier": "Verifier",
+                            "createdAt": "Created At",
+                            "joinedAt": "Joined At",
+                            "roles": "Roles",
+                            "noDataFound": "No data found"
+                        }
+                    }
                 }
             }
         }
@@ -203,7 +222,8 @@
         },
         "message": {
             "error": {
-                "wrongUrl": "You must sent a valid URL",
+                "wrongUrl": "You must send a valid URL",
+                "wrongFormat": "We only accept gif for actions",
                 "alreadyExist": "This image has already been suggested/added",
                 "disable": "This command has been disabled in this server",
                 "notNsfw": "You cannot use NSFW command into this channel. This channel must be age-restricted to use this command"

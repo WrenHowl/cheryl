@@ -1104,7 +1104,7 @@ module.exports = {
                 ephemeral: true,
             });
 
-            return crashchannelId.send({ content: "**Error in the '" + en.action.default.name + "' event:** \n\n```javascript\n" + error + "```" });
+            return crashchannelId.send({ content: "**Error in the '" + en.settings.default.name + "' event:** \n\n```javascript\n" + error + "```" });
         };
     }
 };

@@ -187,6 +187,7 @@ module.exports = {
                 // Check if the suggestion string is a URL
                 try {
                     new URL(suggestImage);
+                    !suggestImage.endsWith("gif")
                 } catch (error) {
                     return interaction.reply({
                         content: languageSet.action.message.error.wrongUrl,
@@ -417,15 +418,15 @@ module.exports = {
                         break;
                     case ("suckstraight"):
                         const suckStraightSentence = [
-                            userOne + " use " + userTwo + "'s maw~",
-                            userOne + " thrust into " + userTwo + "'s maw~",
+                            userOne + " suck " + userTwo + "'s dick~",
+                            userOne + " enjoys " + userTwo + "'s dick while sucking it~",
                         ];
                         sentence = suckStraightSentence;
                         break;
                     case ("suckgay"):
                         const suckGaySentence = [
-                            userOne + " use " + userTwo + "'s maw~",
-                            userOne + " thrust into " + userTwo + "'s maw~",
+                            userOne + " suck " + userTwo + "'s dick~",
+                            userOne + " enjoys " + userTwo + "'s dick while sucking it~",
                         ];
                         sentence = suckGaySentence;
                         break;

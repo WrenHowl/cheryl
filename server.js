@@ -1691,7 +1691,7 @@ bot.on('interactionCreate', async (interaction) => {
                       "1. Write on a piece of paper the server name (`" + interaction.guild.name + "`) and your username underneath it (`" + ticketMessageData.userTag + "`)"
                       + "\n* Place the ID **on** the piece of paper and take a photo"
                       + "\n* Send the picture in this channel"
-                      + "\n\n *You can blur everything on your ID of choice, but we must see the border of the card/piece of paper and the DOB must be seen clearly*"
+                      + "\n\n *You can blur everything on your ID of choice, but we must see the border of the card/piece of paper, the DOB and expiry date must be seen clearly*"
                   });
 
                   buttonTicket.addComponents(
