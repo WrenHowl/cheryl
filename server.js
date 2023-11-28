@@ -695,6 +695,7 @@ bot.on("guildMemberRemove", async (leavingMember) => {
       // Check if the ticket channel still exist
       let ticketChannel = leavingMember.guild.channels.cache.get(ticketData.channelId);
       if (ticketChannel) {
+
         await ticketChannel.delete("Ticket Canceled: Member left the server");
       };
 
@@ -880,17 +881,8 @@ bot.on("messageCreate", async (message) => {
     let args = message.content.slice(prefixSet.length).trim().split(/ +/);
     let command = args.shift().toLowerCase();
 
-    let commandName = [
-      "ban",
-      "cmd",
-      "cop",
-      "language",
-      "ticket",
-      "unban",
-    ];
-
     // Checking if the command that is being executed is 
-    let statusCommand = await CommandFunction.findOne({ where: { name: commandName.includes(command) } });
+    let statusCommand = await CommandFunction.findOne({ where: { name: command } });
 
     if (statusCommand.value === "Disable" | !message.guild) {
       refusingAction = languageSet.default.commandDisabledGlobally;
@@ -1340,8 +1332,8 @@ bot.on('interactionCreate', async (interaction) => {
 
     //  Action System
     let actionId = [
-      "AcceptSuggestion",
-      "DenySuggestion"
+      "acceptSuggestionAction",
+      "denySuggestionAction"
     ];
 
     if (interaction.isButton() & actionId.includes(interaction.customId)) {
@@ -1350,18 +1342,18 @@ bot.on('interactionCreate', async (interaction) => {
       if (!actionImageData) return;
 
       switch (interaction.customId) {
-        case ("AcceptSuggestion"):
+        case ("acceptSuggestionAction"):
           interaction.channel.messages.fetch(interaction.message.id).then(async (message) => {
+            await ActionImage.update({ ImageURL: message.embeds[0].image.url }, { where: { messageId: interaction.message.id } });
+
             let imageEmbed = new EmbedBuilder()
               .addFields(
-                { name: "Category:", value: actionImageData.category, inline: true },
-                { name: "User:", value: actionImageData.userTag + " ``(" + actionImageData.userId + ")``", inline: true },
-                { name: "Status:", value: "Accepted" }
+                { name: "Category", value: actionImageData.category, inline: true },
+                { name: "User", value: actionImageData.userTag + " ``(" + actionImageData.userId + ")``", inline: true },
+                { name: "Status", value: "Accepted" }
               )
               .setColor("Green")
               .setImage(message.embeds[0].image.url);
-
-            await ActionImage.update({ ImageURL: message.embeds[0].image.url }, { where: { messageId: interaction.message.id } });
 
             return interaction.update({
               embeds: [imageEmbed],
@@ -1370,24 +1362,26 @@ bot.on('interactionCreate', async (interaction) => {
           });
 
           break;
-        case ("DenySuggestion"):
+        case ("denySuggestionAction"):
           interaction.channel.messages.fetch(interaction.message.id).then(async () => {
             let imageEmbed = new EmbedBuilder()
               .addFields(
-                { name: "Category:", value: actionImageData.category + "** **", inline: true },
-                { name: "User:", value: actionImageData.userTag + " ``(" + actionImageData.userId + ")``" + "** **", inline: true },
-                { name: "Status:", value: "Denied" },
+                { name: "Category", value: actionImageData.category + "** **", inline: true },
+                { name: "User", value: actionImageData.userTag + " ``(" + actionImageData.userId + ")``" + "** **", inline: true },
+                { name: "Status", value: "Denied" },
               )
-              .setColor("Red")
+              .setColor("Red");
 
-            return interaction.update({
+            await interaction.update({
               embeds: [imageEmbed],
               components: []
-            })
-          })
+            });
 
-          return ActionImage.destroy({ where: { messageId: interaction.message.id } });
-      }
+            return ActionImage.destroy({ where: { messageId: interaction.message.id } });
+          });
+
+          break;
+      };
     };
 
     //  Ticket System
@@ -1420,19 +1414,15 @@ bot.on('interactionCreate', async (interaction) => {
       switch (interaction.customId) {
         case ("age_verification"):
           reasonTicketChange = "Age Verification";
-
           break;
         case ("report"):
           reasonTicketChange = "Report";
-
           break;
         case ("support"):
           reasonTicketChange = "Support";
-
           break;
         case ("partnership"):
           reasonTicketChange = "Partnership";
-
           break;
       }
 
@@ -1448,7 +1438,6 @@ bot.on('interactionCreate', async (interaction) => {
         let channelToReceiveTicket = interaction.guild.channels.cache.get(loggingData.channelId_TicketReceive);
 
         // Check if there's not an existing ticket
-
         if (ticketData) {
           if (ticketData.reason === interaction.customId) {
             return interaction.reply({
@@ -1459,14 +1448,12 @@ bot.on('interactionCreate', async (interaction) => {
         }
 
         // Increase the ticket counter
-
         !ticketCountData ?
           await TicketCount.create({
             guildId: interaction.guild.id,
           }) : await ticketCountData.increment('count');
 
         // Creation of the ticket
-
         await Ticket.create({
           guildId: interaction.guild.id,
           reason: interaction.customId,
@@ -1487,6 +1474,7 @@ bot.on('interactionCreate', async (interaction) => {
               });
             };
 
+            staffToPing = "<@&1082104096959504404>";
             break;
           case ("report"):
             if (isStaff) {
@@ -1496,6 +1484,7 @@ bot.on('interactionCreate', async (interaction) => {
               });
             };
 
+            staffToPing = "<@&1083475130241523852>";
             break;
           case ("support"):
             if (isStaff) {
@@ -1505,18 +1494,17 @@ bot.on('interactionCreate', async (interaction) => {
               });
             };
 
+            staffToPing = "<@&1083475130241523852>";
             break;
         }
 
         // Send the default message of success creation
-
         await interaction.reply({
           content: messagePreset.ticket.created,
           ephemeral: true,
         });
 
         // Creation of button and embed
-
         let buttonClaim = new ActionRowBuilder()
           .addComponents(
             new ButtonBuilder()
@@ -1541,9 +1529,9 @@ bot.on('interactionCreate', async (interaction) => {
           .setColor("Yellow");
 
         // Sending ticket message in channel
-
         return channelToReceiveTicket.send({
           embeds: [claimingTicket],
+          content: staffToPing,
           components: [buttonClaim],
         }).then(async (message) => {
           await Ticket.update({
@@ -1565,24 +1553,20 @@ bot.on('interactionCreate', async (interaction) => {
         if (!guild.members.cache.find(user => user.id === ticketMessageData.userId)) {
 
           // Check if the ticket channel still exist
-
           let ticketChannel = interaction.guild.channels.cache.get(ticketMessageData.channelId);
           if (ticketChannel) {
             await ticketChannel.delete("Ticket Canceled: Member left the server");
           };
 
           // Delete ticket message
-
           await bot.guilds.cache.get(interaction.guild.id).channels.cache.get(loggingData.channelId_TicketReceive).messages.fetch(ticketMessageData.messageId).then((message) => {
             message.delete();
           }).catch(() => { return })
 
           // Delete the data in the database
-
           await Ticket.destroy({ where: { guildId: guild.id, userId: ticketMessageData.userId } });
 
           // Decrement the ticket counter
-
           return ticketCountData.decrement('count', { by: 1 });
         };
 
@@ -1839,20 +1823,17 @@ bot.on('interactionCreate', async (interaction) => {
         if (!guild.members.cache.find(member => member.id === ticketChannelData.userId)) {
 
           // Check if the ticket channel still exist
-
           let ticketChannel = interaction.guild.channels.cache.get(ticketChannelData.channelId);
           if (ticketChannel) {
             await ticketChannel.delete("Ticket Canceled: Member left the server");
           };
 
           // Delete ticket message
-
           await bot.guilds.cache.get(interaction.guild.id).channels.cache.get(loggingData.channelId_TicketReceive).messages.fetch(ticketChannelData.messageId).then((message) => {
             message.delete();
           }).catch(() => { return })
 
           // Delete the data in the database
-
           await Ticket.destroy({ where: { guildId: guild.id, userId: ticketChannelData.userId } });
 
           // Decrement the ticket counter

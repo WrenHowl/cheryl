@@ -43,17 +43,19 @@ module.exports = {
             })
             .setRequired(true)
             .addChoices(
-                { name: "hug", value: "hug" },
-                { name: "kiss", value: "kiss" },
-                { name: "boop", value: "boop" },
-                { name: "lick", value: "lick" },
-                { name: "cuddle", value: "cuddle" },
-                { name: "yeet", value: "yeet" },
-                { name: "pat", value: "pat" },
-                { name: "bite", value: "bite" },
-                { name: "bonk", value: "bonk" },
-                { name: "fuck (straight)", value: "fuckstraight" },
-                { name: "fuck (gay)", value: "fuckgay" },
+                { name: "Hug", value: "hug" },
+                { name: "Kiss", value: "kiss" },
+                { name: "Boop", value: "boop" },
+                { name: "Lick", value: "lick" },
+                { name: "Cuddle", value: "cuddle" },
+                { name: "Yeet", value: "yeet" },
+                { name: "Pat", value: "pat" },
+                { name: "Bite", value: "bite" },
+                { name: "Bonk", value: "bonk" },
+                { name: "Fuck -> male/female", value: "fuckstraight" },
+                { name: "Fuck -> male/male", value: "fuckgay" },
+                { name: "Suck -> male/female", value: "suckstraight" },
+                { name: "Suck -> male/male", value: "suckgay" },
             ))
         .addStringOption(option => option
             .setName(en.action.default.suggest.name)
@@ -174,14 +176,15 @@ module.exports = {
 
             let nsfwChoice = [
                 "fuckstraight",
-                "fuckgay"
+                "fuckgay",
+                "suckstraight",
+                "suckgay"
             ];
 
             if (suggestImage) {
-                let fetchGuild = interaction.client.guilds.cache.get(configPreset.botInfo.guildIdguildId);
+                let fetchGuild = interaction.client.guilds.cache.get(configPreset.botInfo.guildId);
 
                 // Check if the suggestion string is a URL
-
                 try {
                     new URL(suggestImage);
                 } catch (error) {
@@ -192,7 +195,6 @@ module.exports = {
                 }
 
                 // Check if image has already been suggested/added
-
                 let imageData = await ActionImage.findOne({ where: { imageUrl: suggestImage } });
 
                 if (imageData) {
@@ -203,24 +205,22 @@ module.exports = {
                 };
 
                 // Notify that the suggestion has been received
-
                 await interaction.reply({
                     content: `${languageSet.action.message.success.suggested} *${bot.user.username}*`,
                     ephemeral: true
                 })
 
                 // Creating the embed and button
-
                 let buttonSuggestion = new ActionRowBuilder()
                     .addComponents(
                         new ButtonBuilder()
-                            .setCustomId('AcceptSuggestion')
+                            .setCustomId('acceptSuggestionAction')
                             .setLabel("Accept")
                             .setStyle(ButtonStyle.Success),
                     )
                     .addComponents(
                         new ButtonBuilder()
-                            .setCustomId('DenySuggestion')
+                            .setCustomId('denySuggestionAction')
                             .setLabel("Deny")
                             .setStyle(ButtonStyle.Danger),
                     );
@@ -231,24 +231,30 @@ module.exports = {
                         { name: "Author:", value: interaction.user.tag + " *(" + interaction.user.id + ")*", inline: true }
                     )
                     .setImage(suggestImage)
+                    .setColor("Yellow");
 
                 // Change the channel ID in function of the choice (sfw or nsfw)
-
                 !choice === !nsfwChoice.includes(choice) ? channelSuggestionId = configPreset.channelsId.nsfwSuggestion : channelSuggestionId = configPreset.channelsId.sfwSuggestion;
                 let suggestChannel = fetchGuild.channels.cache.get(channelSuggestionId);
 
                 if (interaction.user.id === configPreset.botInfo.ownerId) {
-                    imageEmbed.setColor("Green")
+                    imageEmbed.setColor("Green");
                     imageEmbed.addFields(
                         { name: "Status:", value: "Accepted" }
-                    )
+                    );
 
                     return suggestChannel.send({
                         embeds: [imageEmbed],
+                    }).then(async (sent) => {
+                        await ActionImage.create({
+                            messageId: sent.id,
+                            category: choice,
+                            imageUrl: suggestImage,
+                            userTag: interaction.user.tag,
+                            userId: interaction.user.id,
+                        });
                     });
-                } else {
-                    imageEmbed.setColor("Yellow")
-                }
+                };
 
                 return suggestChannel.send({
                     embeds: [imageEmbed],
@@ -256,162 +262,172 @@ module.exports = {
                 }).then(async (sent) => {
 
                     // Adding the image to the database
-
                     await ActionImage.create({
                         messageId: sent.id,
                         category: choice,
-                        imageUrl: suggestImage.url,
+                        imageUrl: suggestImage,
                         userTag: interaction.user.tag,
                         userId: interaction.user.id,
                     });
                 });
             } else {
-                let User1 = interaction.user.toString();
-                let User2 = user ? user.toString() : bot.user.toString();
-                let User3 = user ? user.id : bot.user.id;
+                let userOne = interaction.user.toString();
+                let userTwo = user ? user.toString() : bot.user.toString();
+                let userThree = user ? user.id : bot.user.id;
 
-                let ProfileData1 = await Profile.findOne({ where: { userId: interaction.user.id } });
-                let ProfileData2 = await Profile.findOne({ where: { userId: User3 } });
+                let profileInteractionData = await Profile.findOne({ where: { userId: interaction.user.id } });
+                let profileTargetData = await Profile.findOne({ where: { userId: userThree } });
 
                 if (loggingData.status_canActionImage === "Disabled" && loggingData.status_canActionMessage === "Disabled") {
                     return interaction.reply({
                         content: languageSet.action.message.error.disable,
                         ephemeral: true,
                     });
-                };
-
-                if (!choice === !nsfwChoice.includes(choice)) {
+                } else if (!choice === !nsfwChoice.includes(choice)) {
                     if (!interaction.channel.nsfw) {
                         return interaction.reply({
                             content: languageSet.action.message.error.notNsfw,
                             ephemeral: true,
                         });
-                    }
-                }
+                    };
+                };
 
                 let pronouns = languageSet.profile.default.choice.pronouns.list;
 
-                if (ProfileData1) {
-                    switch (ProfileData1.Pronouns) {
+                if (profileInteractionData) {
+                    switch (profileInteractionData.pronouns) {
                         case (profileInfo.pronouns.th):
-                            Pronouns1 = pronouns.their;
+                            pronounsOne = pronouns.their;
                             break;
                         case (profileInfo.pronouns.he):
-                            Pronouns1 = pronouns.him;
+                            pronounsOne = pronouns.him;
                             break;
                         case (profileInfo.pronouns.sh):
-                            Pronouns1 = pronouns.her;
+                            pronounsOne = pronouns.her;
                             break;
                         default:
-                            Pronouns1 = pronouns.their;
+                            pronounsOne = pronouns.their;
                             break;
                     }
                 } else {
-                    Pronouns1 = pronouns.their;
+                    pronounsOne = pronouns.their;
                 };
 
-                if (ProfileData2) {
-                    switch (ProfileData2.Pronouns) {
+                if (profileTargetData) {
+                    switch (profileTargetData.pronouns) {
                         case (profileInfo.pronouns.th):
-                            Pronouns1 = pronouns.their;
-                            Pronouns4 = pronouns.their;
+                            pronounsOne = pronouns.their;
+                            pronounsFour = pronouns.their;
                             break;
                         case (profileInfo.pronouns.he):
-                            Pronouns1 = pronouns.him;
-                            Pronouns4 = pronouns.his;
+                            pronounsOne = pronouns.him;
+                            pronounsFour = pronouns.his;
                             break;
                         case (profileInfo.pronouns.sh):
-                            Pronouns2 = pronouns.her;
-                            Pronouns4 = pronouns.her;
+                            pronounsTwo = pronouns.her;
+                            pronounsFour = pronouns.her;
                             break;
                         default:
-                            Pronouns2 = pronouns.them;
-                            Pronouns4 = pronouns.their;
+                            pronounsTwo = pronouns.them;
+                            pronounsFour = pronouns.their;
                             break;
                     }
                 } else {
-                    Pronouns2 = pronouns.them;
-                    Pronouns4 = pronouns.their;
+                    pronounsTwo = pronouns.them;
+                    pronounsFour = pronouns.their;
                 };
-
-                const hugSentence = [
-                    User1 + " approaches " + User2 + " gently and hugs " + Pronouns2 + " from behind!~",
-                    User1 + " wraps " + Pronouns1 + " arms around " + User2 + ", taking " + Pronouns2 + " into " + Pronouns1 + " warm embrace!~",
-                    User1 + " jump on " + User2 + "'s back and hug " + Pronouns2 + " tightly!~"
-                ];
-                const kissSentence = [
-                    User1 + " approches slowly " + User2 + "'s face and gently kiss " + Pronouns2 + "!~",
-                    User1 + " gets close to " + User2 + " and kiss " + Pronouns2 + "!~"
-                ];
-                const boopSentence = [
-                    User1 + " raises " + Pronouns1 + " paw and places it apon " + User2 + "'s snoot!~",
-                ];
-                const lickSentence = [
-                    User1 + " gets really close to " + User2 + " face and lick " + Pronouns2 + "!~",
-                ];
-                const cuddleSentence = [
-                    User1 + " approches " + User2 + " and pounces, cuddling the suprised floofer!~",
-                    User1 + " join " + User2 + " and cuddle " + Pronouns2 + "!~",
-                ];
-                const yeetSentence = [
-                    User1 + " yeeted " + User2 + " into the stratosphere!~",
-                    User1 + " grabbed " + User2 + " and yeeted " + Pronouns2 + " 10 miles into the sky!",
-                    User1 + " grabs " + User2 + " and throws " + Pronouns2 + " to Ohio!"
-                ];
-                const patSentence = [
-                    User1 + " rub " + User2 + " on the head!~",
-                    User1 + " mess " + User2 + " hair!~",
-                    User1 + " strokes " + User2 + " head, messing with " + Pronouns4 + " hair!~"
-                ];
-                const biteSentence = [
-                    User1 + " decided to bite " + User2 + " a little!~",
-                    User1 + " bite " + User2 + " to taste " + Pronouns2 + "!~",
-                ];
-                const bonkSentence = [
-                    User1 + " swing a baseball bat on " + User2 + "'s head. Bonking " + Pronouns2 + "!~"
-                ];
-                const fuckStraightSentence = [
-                    User1 + " fuck " + User2 + " pussy really hard~",
-                    User1 + " thrust into " + User2 + " back and forth into " + Pronouns4 + " pussy making " + Pronouns2 + " all wet~",
-                ]
-                const fuckGaySentence = [
-                    User1 + " fuck " + User2 + " really hard into " + Pronouns4 + " ass~",
-                    User1 + " thrust into " + User2 + " back and forth into " + Pronouns4 + " ass~",
-                ]
 
                 switch (choice) {
                     case ("hug"):
+                        const hugSentence = [
+                            userOne + " approaches " + userTwo + " gently and hugs " + pronounsTwo + " from behind!~",
+                            userOne + " wraps " + pronounsOne + " arms around " + userTwo + ", taking " + pronounsTwo + " into " + pronounsOne + " warm embrace!~",
+                            userOne + " jump on " + userTwo + "'s back and hug " + pronounsTwo + " tightly!~"
+                        ];
                         sentence = hugSentence;
                         break;
                     case ("kiss"):
+                        const kissSentence = [
+                            userOne + " approches slowly " + userTwo + "'s face and gently kiss " + pronounsTwo + "!~",
+                            userOne + " gets close to " + userTwo + " and kiss " + pronounsTwo + "!~"
+                        ];
                         sentence = kissSentence;
                         break;
                     case ("boop"):
+                        const boopSentence = [
+                            userOne + " raises " + pronounsOne + " paw and places it apon " + userTwo + "'s snoot!~",
+                        ];
                         sentence = boopSentence;
                         break;
                     case ("lick"):
+                        const lickSentence = [
+                            userOne + " gets really close to " + userTwo + " face and lick " + pronounsTwo + "!~",
+                        ];
                         sentence = lickSentence;
                         break;
                     case ("cuddle"):
+                        const cuddleSentence = [
+                            userOne + " approches " + userTwo + " and pounces, cuddling the suprised floofer!~",
+                            userOne + " join " + userTwo + " and cuddle " + pronounsTwo + "!~",
+                        ];
                         sentence = cuddleSentence;
                         break;
                     case ("yeet"):
+                        const yeetSentence = [
+                            userOne + " yeeted " + userTwo + " into the stratosphere!~",
+                            userOne + " grabbed " + userTwo + " and yeeted " + pronounsTwo + " 10 miles into the sky!",
+                            userOne + " grabs " + userTwo + " and throws " + pronounsTwo + " to Ohio!"
+                        ];
                         sentence = yeetSentence;
                         break;
                     case ("pat"):
+                        const patSentence = [
+                            userOne + " rub " + userTwo + " on the head!~",
+                            userOne + " mess " + userTwo + " hair!~",
+                            userOne + " strokes " + userTwo + " head, messing with " + pronounsFour + " hair!~"
+                        ];
                         sentence = patSentence;
                         break;
                     case ("bite"):
+                        const biteSentence = [
+                            userOne + " decided to bite " + userTwo + " a little!~",
+                            userOne + " bite " + userTwo + " to taste " + pronounsTwo + "!~",
+                        ];
                         sentence = biteSentence;
                         break;
                     case ("bonk"):
+                        const bonkSentence = [
+                            userOne + " swing a baseball bat on " + userTwo + "'s head. Bonking " + pronounsTwo + "!~"
+                        ];
                         sentence = bonkSentence;
                         break;
                     case ("fuckstraight"):
+                        const fuckStraightSentence = [
+                            userOne + " fuck " + userTwo + " pussy really hard~",
+                            userOne + " thrust into " + userTwo + " back and forth into " + pronounsFour + " pussy making " + pronounsTwo + " all wet~",
+                        ];
                         sentence = fuckStraightSentence;
                         break;
                     case ("fuckgay"):
+                        const fuckGaySentence = [
+                            userOne + " fuck " + userTwo + " really hard into " + pronounsFour + " ass~",
+                            userOne + " thrust into " + userTwo + " back and forth into " + pronounsFour + " ass~",
+                        ];
                         sentence = fuckGaySentence;
+                        break;
+                    case ("suckstraight"):
+                        const suckStraightSentence = [
+                            userOne + " use " + userTwo + "'s maw~",
+                            userOne + " thrust into " + userTwo + "'s maw~",
+                        ];
+                        sentence = suckStraightSentence;
+                        break;
+                    case ("suckgay"):
+                        const suckGaySentence = [
+                            userOne + " use " + userTwo + "'s maw~",
+                            userOne + " thrust into " + userTwo + "'s maw~",
+                        ];
+                        sentence = suckGaySentence;
                         break;
                 }
 

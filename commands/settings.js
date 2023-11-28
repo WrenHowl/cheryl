@@ -1,7 +1,7 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
-const loggingPreset = require("../main/logging.json");
+const loggingPreset = require("../config/logging.json");
 const configPreset = require("../config/main.json");
 
 const fr = require("../languages/fr.json");

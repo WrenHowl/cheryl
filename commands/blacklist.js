@@ -429,7 +429,8 @@ module.exports = {
 
                             // Checking if the user is already blacklisted
                             if (blacklistData) {
-                                blacklistEmbed.setDescription(`<:tick:1096181611818647617> ${reply}`)
+                                blacklistEmbed.setDescription(`<:tick:1096181611818647617> ${messagePreset.blacklist.isBlacklisted}`)
+                                blacklistEmbed.setColor("Green")
 
                                 return interaction.reply({
                                     embeds: [blacklistEmbed],
@@ -518,7 +519,7 @@ module.exports = {
 
                             // Checking if the user is blacklisted
                             if (!blacklistData) {
-                                blacklistEmbed.setDescription(`<:tick:1096181611818647617> ${reply}`)
+                                blacklistEmbed.setDescription(`<:tick:1096181611818647617> ${messagePreset.blacklist.isBlacklisted}`)
                                 blacklistEmbed.setColor("Green")
 
                                 return interaction.reply({
