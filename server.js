@@ -420,6 +420,7 @@ bot.once("ready", async () => {
 });
 
 bot.on("guildMemberAdd", async (newMember) => {
+  let guild = bot.guilds.cache.get(newMember.guild.id);
   let loggingData = await Logging.findOne({ where: { guildId: guild.id } });
 
   switch (loggingData.language) {
@@ -444,7 +445,6 @@ bot.on("guildMemberAdd", async (newMember) => {
   };
 
   try {
-    let guild = bot.guilds.cache.get(newMember.guild.id);
     let verifierData = await Verifier.findOne({ where: { userId: newMember.user.id } });
     let blacklistData = await Blacklist.findOne({ where: { userId: newMember.user.id } });
 
@@ -610,6 +610,7 @@ bot.on("guildMemberAdd", async (newMember) => {
 });
 
 bot.on("guildMemberRemove", async (leavingMember) => {
+  let guild = bot.guilds.cache.get(newMember.guild.id);
   let loggingData = await Logging.findOne({ where: { guildId: guild.id } });
 
   switch (loggingData.language) {
@@ -634,8 +635,6 @@ bot.on("guildMemberRemove", async (leavingMember) => {
   }
 
   try {
-    let guild = bot.guilds.cache.get(leavingMember.guild.id);
-
     let ticketData = await Ticket.findOne({ where: { guildId: guild.id, userId: leavingMember.user.id } });
     let ticketCountData = await TicketCount.findOne({ where: { guildId: guild.id } });
 
@@ -731,7 +730,7 @@ bot.on("guildBanAdd", async (user) => {
     let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
     console.log(error);
 
-    return crashchannelId.send({ content: "**Error in the 'guildMemberRemove' event:** \n\n```javascript\n" + error + "```" });
+    return crashchannelId.send({ content: "**Error in the 'guildBanAdd' event:** \n\n```javascript\n" + error + "```" });
   };
 });
 
