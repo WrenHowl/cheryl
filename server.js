@@ -420,33 +420,33 @@ bot.once("ready", async () => {
 });
 
 bot.on("guildMemberAdd", async (newMember) => {
+  let loggingData = await Logging.findOne({ where: { guildId: guild.id } });
+
+  switch (loggingData.language) {
+    case ("en"):
+      languageSet = en;
+      break;
+    case ("fr"):
+      languageSet = fr;
+      break;
+    case ("de"):
+      languageSet = de;
+      break;
+    case ("sp"):
+      languageSet = sp;
+      break;
+    case ("nl"):
+      languageSet = nl;
+      break;
+    default:
+      languageSet = en;
+      break;
+  };
+
   try {
     let guild = bot.guilds.cache.get(newMember.guild.id);
-
-    let loggingData = await Logging.findOne({ where: { guildId: guild.id } });
     let verifierData = await Verifier.findOne({ where: { userId: newMember.user.id } });
     let blacklistData = await Blacklist.findOne({ where: { userId: newMember.user.id } });
-
-    switch (loggingData.language) {
-      case ("en"):
-        languageSet = en;
-        break;
-      case ("fr"):
-        languageSet = fr;
-        break;
-      case ("de"):
-        languageSet = de;
-        break;
-      case ("sp"):
-        languageSet = sp;
-        break;
-      case ("nl"):
-        languageSet = nl;
-        break;
-      default:
-        languageSet = en;
-        break;
-    }
 
     let lgWelcome = languageSet.welcomeMessage.message.embed.logs;
 
@@ -518,43 +518,42 @@ bot.on("guildMemberAdd", async (newMember) => {
         let botPermission = newMember.guild.members.me.permissionsIn(loggingData.channelId_Blacklist).has(['SendMessages', 'ViewChannel']);
         if (botPermission) return;
 
+        let blacklistEmbed = new EmbedBuilder()
+
         // Changing embed color in terms of the risk
         switch (blacklistData.risk) {
           case ("Low"):
-            riskColorEmbed = "Yellow";
-
+            blacklistEmbed.setColor("57F287");
             break;
           case ("Medium"):
-            riskColorEmbed = "Red";
-
+            blacklistEmbed.setColor("FEE75C");
             break;
           case ("High"):
-            riskColorEmbed = "Black";
-
+            blacklistEmbed.setColor("ED4245");
+            break;
+          default:
+            blacklistEmbed.setColor("FFFFFF");
             break;
         };
 
         // Creating the embed and sending the message
-        let blacklistEmbed = new EmbedBuilder()
-          .setTitle("<:BanHammer:997932635454197790> New Alert")
-          .setDescription(MessageBlacklist.InstantBan)
-          .addFields(
-            { name: "User", value: newMember.user.toString(), inline: true },
-            { name: "reason", value: blacklistData.reason, inline: true },
-            { name: "Evidence", value: blacklistData.evidence, inline: true }
-          )
-          .setColor(riskColorEmbed)
-          .setFooter({
-            text: "ID: " + newMember.user.id
-          })
-          .setTimestamp();
+        blacklistEmbed.setTitle("<:BanHammer:997932635454197790> New Alert");
+        blacklistEmbed.addFields(
+          { name: "User", value: newMember.user.toString(), inline: true },
+          { name: "reason", value: blacklistData.reason, inline: true },
+          { name: "Evidence", value: blacklistData.evidence, inline: true }
+        );
+        blacklistEmbed.setFooter({
+          text: "ID: " + newMember.user.id
+        });
+        blacklistEmbed.setTimestamp();
 
         await blacklistChannel.send({
           embeds: [blacklistEmbed],
         });
 
         // Incrementing the join count in the database
-        await blacklistData.increment("joinedServer");
+        await blacklistData.increment("joinedServer", { by: 1 });
 
         // Check if the auto ban is on
         let autoBanResponse = languageSet.welcomeMessage.message.blacklist.autoBan;
@@ -611,33 +610,34 @@ bot.on("guildMemberAdd", async (newMember) => {
 });
 
 bot.on("guildMemberRemove", async (leavingMember) => {
+  let loggingData = await Logging.findOne({ where: { guildId: guild.id } });
+
+  switch (loggingData.language) {
+    case ("en"):
+      languageSet = en;
+      break;
+    case ("fr"):
+      languageSet = fr;
+      break;
+    case ("de"):
+      languageSet = de;
+      break;
+    case ("sp"):
+      languageSet = sp;
+      break;
+    case ("nl"):
+      languageSet = nl;
+      break;
+    default:
+      languageSet = en;
+      break;
+  }
+
   try {
     let guild = bot.guilds.cache.get(leavingMember.guild.id);
 
-    let loggingData = await Logging.findOne({ where: { guildId: guild.id } });
     let ticketData = await Ticket.findOne({ where: { guildId: guild.id, userId: leavingMember.user.id } });
     let ticketCountData = await TicketCount.findOne({ where: { guildId: guild.id } });
-
-    switch (loggingData.language) {
-      case ("en"):
-        languageSet = en;
-        break;
-      case ("fr"):
-        languageSet = fr;
-        break;
-      case ("de"):
-        languageSet = de;
-        break;
-      case ("sp"):
-        languageSet = sp;
-        break;
-      case ("nl"):
-        languageSet = nl;
-        break;
-      default:
-        languageSet = en;
-        break;
-    }
 
     let lgLeaving = languageSet.leavingMessage.message.embed.logs;
 
@@ -709,6 +709,22 @@ bot.on("guildMemberRemove", async (leavingMember) => {
 
       // Decrement the ticket counter
       return ticketCountData.decrement('count', { by: 1 });
+    };
+  } catch (error) {
+    let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
+    let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
+    console.log(error);
+
+    return crashchannelId.send({ content: "**Error in the 'guildMemberRemove' event:** \n\n```javascript\n" + error + "```" });
+  };
+});
+
+bot.on("guildBanAdd", async (user) => {
+  try {
+    let blacklistData = await Blacklist.findOne({ where: { userId: user.id } });
+
+    if (blacklistData) {
+      blacklistData.increment("joinedServerBan", { by: 1 })
     };
   } catch (error) {
     let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);

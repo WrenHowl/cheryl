@@ -166,12 +166,12 @@ module.exports = {
             } else {
                 const guild = bot.guilds.cache.get(interaction.guild.id);
 
-                function checkDays(date) {
+                /*function checkDays(date) {
                     let now = new Date();
                     let diff = now.getTime() - date.getTime();
                     let days = Math.floor(diff / 86400000);
                     return days + (days == 1 ? " day" : " days") + " ago";
-                };
+                };*/
 
                 let user = interaction.options.getUser(en.profile.default.user.name);
 
@@ -193,16 +193,16 @@ module.exports = {
 
                 const infoEmbed = new EmbedBuilder()
                     .addFields(
-                        { name: languageSet.profile.default.choice.message.option.embed.name, value: memberData.toString(), inline: true },
+                        { name: languageSet.profile.default.choice.message.option.embed.name, value: memberData.toString(), inline: false },
                         { name: languageSet.profile.default.choice.message.option.embed.id, value: "`" + memberData.id + "`", inline: true },
                     )
                     .setThumbnail(memberData.displayAvatarURL())
                     .setColor("Blue");
 
                 if (profileTargetData) {
-                    profileTargetData.verified18 === "1" ? isVerified18 = "true" : isVerified18 = "false";
+                    profileTargetData.verified18 === 1 ? isVerified18 = "Yes" : isVerified18 = "No";
                     infoEmbed.addFields(
-                        { name: languageSet.profile.default.choice.age.name, value: "`" + profileTargetData.age + "`", inline: true },
+                        { name: languageSet.profile.default.choice.message.option.embed.age, value: "`" + profileTargetData.age + "`", inline: true },
                         { name: languageSet.profile.default.choice.message.option.embed.verified18, value: "`" + isVerified18 + "`", inline: true },
                     );
                 };
@@ -213,9 +213,9 @@ module.exports = {
                     );
                 };
 
-                infoEmbed.addFields(
+                /*infoEmbed.addFields(
                     { name: languageSet.profile.default.choice.message.option.embed.createdAt, value: "`" + moment(createdAt).format("Do MMMM YYYY hh:ss:mm A") + " / " + (checkDays(createdAt)) + "`" },
-                );
+                );*/
 
                 if (guild.members.cache.get(memberData.id)) {
                     roleMap = member.roles.cache
@@ -224,7 +224,7 @@ module.exports = {
                         .map((role) => role.toLocaleString())
                         .join(", ");
                     infoEmbed.addFields(
-                        { name: languageSet.profile.default.choice.message.option.embed.joinedAt, value: "`" + moment(joinedAt).format("Do MMMM YYYY hh:ss:mm A") + " / " + (checkDays(joinedAt)) + "`" },
+                        //{ name: languageSet.profile.default.choice.message.option.embed.joinedAt, value: "`" + moment(joinedAt).format("Do MMMM YYYY hh:ss:mm A") + " / " + (checkDays(joinedAt)) + "`" },
                         { name: languageSet.profile.default.choice.message.option.embed.roles, value: roleMap },
                     );
                 };

@@ -432,8 +432,8 @@ module.exports = {
                         break;
                 }
 
-                let randomAnswer = sentence[Math.floor(Math.random() * sentence.length)];
-                let randomImage = actionImageData[Math.floor(Math.random() * actionImageData.length)];
+                let randomAnswer = await sentence[Math.floor(Math.random() * sentence.length)];
+                let randomImage = await actionImageData[Math.floor(Math.random() * actionImageData.length)];
 
                 const supportDiscord = new ActionRowBuilder()
                     .addComponents(

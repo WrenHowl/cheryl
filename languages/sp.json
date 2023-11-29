@@ -85,7 +85,8 @@
                         "embed": {
                             "description": "Profile updated",
                             "name": "Name",
-                            "id": "Id",
+                            "id": "ID",
+                            "age": "Age",
                             "verified18": "Verified 18+",
                             "verifier": "Verifier",
                             "createdAt": "Created At",
@@ -448,11 +449,11 @@
                 },
                 "options": {
                     "default": {
-                        "userTag": "User Name",
-                        "userId": "User Id",
+                        "userTag": "Name",
+                        "userId": "ID",
                         "reason": "Reason",
                         "staffTag": "Staff Name",
-                        "staffId": "Staff Id",
+                        "staffId": "Staff ID",
                         "evidence": "Evidence"
                     },
                     "noEvidence": "No evidence were found",
