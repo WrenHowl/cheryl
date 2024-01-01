@@ -52,10 +52,14 @@ module.exports = {
                 { name: "Pat", value: "pat" },
                 { name: "Bite", value: "bite" },
                 { name: "Bonk", value: "bonk" },
-                { name: "Fuck -> male/female", value: "fuckstraight" },
-                { name: "Fuck -> male/male", value: "fuckgay" },
-                { name: "Suck -> male/female", value: "suckstraight" },
-                { name: "Suck -> male/male", value: "suckgay" },
+                { name: "Fuck → male/female", value: "fuckstraight" },
+                { name: "Suck → male/female", value: "suckstraight" },
+                { name: "Ride → male/female", value: "ridestraight" },
+                { name: "Fill → male/female", value: "fillstraight" },
+                { name: "Fuck → male/male", value: "fuckgay" },
+                { name: "Suck → male/male", value: "suckgay" },
+                { name: "Ride → male/male", value: "ridegay" },
+                { name: "Fill → male/male", value: "fillgay" },
             ))
         .addStringOption(option => option
             .setName(en.action.default.suggest.name)
@@ -178,7 +182,11 @@ module.exports = {
                 "fuckstraight",
                 "fuckgay",
                 "suckstraight",
-                "suckgay"
+                "suckgay",
+                "ridestraight",
+                "ridegay",
+                "fillstraight",
+                "fillgay"
             ];
 
             if (suggestImage) {
@@ -298,86 +306,91 @@ module.exports = {
                 if (profileInteractionData) {
                     switch (profileInteractionData.pronouns) {
                         case (profileInfo.pronouns.th):
-                            pronounsOne = pronouns.their;
+                            pronounsOne = pronouns.them;
+                            pronounsTwo = pronouns.their;
                             break;
                         case (profileInfo.pronouns.he):
                             pronounsOne = pronouns.him;
+                            pronounsTwo = pronouns.his;
                             break;
                         case (profileInfo.pronouns.sh):
-                            pronounsOne = pronouns.her;
+                            pronounsOne = pronouns.she;
+                            pronounsTwo = pronouns.her;
                             break;
                         default:
-                            pronounsOne = pronouns.their;
+                            pronounsOne = pronouns.them;
+                            pronounsTwo = pronouns.their;
                             break;
                     }
                 } else {
-                    pronounsOne = pronouns.their;
+                    pronounsOne = pronouns.them;
+                    pronounsTwo = pronouns.their;
                 };
 
                 if (profileTargetData) {
                     switch (profileTargetData.pronouns) {
                         case (profileInfo.pronouns.th):
-                            pronounsOne = pronouns.their;
+                            pronounsThree = pronouns.them;
                             pronounsFour = pronouns.their;
                             break;
                         case (profileInfo.pronouns.he):
-                            pronounsOne = pronouns.him;
+                            pronounsThree = pronouns.him;
                             pronounsFour = pronouns.his;
                             break;
                         case (profileInfo.pronouns.sh):
-                            pronounsTwo = pronouns.her;
+                            pronounsThree = pronouns.her;
                             pronounsFour = pronouns.her;
                             break;
                         default:
-                            pronounsTwo = pronouns.them;
+                            pronounsThree = pronouns.them;
                             pronounsFour = pronouns.their;
                             break;
                     }
                 } else {
-                    pronounsTwo = pronouns.them;
+                    pronounsThree = pronouns.them;
                     pronounsFour = pronouns.their;
                 };
 
                 switch (choice) {
                     case ("hug"):
                         const hugSentence = [
-                            userOne + " approaches " + userTwo + " gently and hugs " + pronounsTwo + " from behind!~",
-                            userOne + " wraps " + pronounsOne + " arms around " + userTwo + ", taking " + pronounsTwo + " into " + pronounsOne + " warm embrace!~",
-                            userOne + " jump on " + userTwo + "'s back and hug " + pronounsTwo + " tightly!~"
+                            userOne + " approaches " + userTwo + " gently and hugs " + pronounsThree + " from behind!~",
+                            userOne + " wraps " + pronounsTwo + " arms around " + userTwo + ", taking " + pronounsThree + " into " + pronounsTwo + " warm embrace!~",
+                            userOne + " jump on " + userTwo + "'s back and hug " + pronounsThree + " tightly!~"
                         ];
                         sentence = hugSentence;
                         break;
                     case ("kiss"):
                         const kissSentence = [
-                            userOne + " approches slowly " + userTwo + "'s face and gently kiss " + pronounsTwo + "!~",
-                            userOne + " gets close to " + userTwo + " and kiss " + pronounsTwo + "!~"
+                            userOne + " approches slowly " + userTwo + "'s face and gently kiss " + pronounsThree + "!~",
+                            userOne + " gets close to " + userTwo + " and kiss " + pronounsThree + "!~"
                         ];
                         sentence = kissSentence;
                         break;
                     case ("boop"):
                         const boopSentence = [
-                            userOne + " raises " + pronounsOne + " paw and places it apon " + userTwo + "'s snoot!~",
+                            userOne + " raises " + pronounsTwo + " paw and places it apon " + userTwo + "'s snoot!~",
                         ];
                         sentence = boopSentence;
                         break;
                     case ("lick"):
                         const lickSentence = [
-                            userOne + " gets really close to " + userTwo + " face and lick " + pronounsTwo + "!~",
+                            userOne + " gets really close to " + userTwo + " face and lick " + pronounsThree + "!~",
                         ];
                         sentence = lickSentence;
                         break;
                     case ("cuddle"):
                         const cuddleSentence = [
                             userOne + " approches " + userTwo + " and pounces, cuddling the suprised floofer!~",
-                            userOne + " join " + userTwo + " and cuddle " + pronounsTwo + "!~",
+                            userOne + " join " + userTwo + " and cuddle " + pronounsThree + "!~",
                         ];
                         sentence = cuddleSentence;
                         break;
                     case ("yeet"):
                         const yeetSentence = [
                             userOne + " yeeted " + userTwo + " into the stratosphere!~",
-                            userOne + " grabbed " + userTwo + " and yeeted " + pronounsTwo + " 10 miles into the sky!",
-                            userOne + " grabs " + userTwo + " and throws " + pronounsTwo + " to Ohio!"
+                            userOne + " grabbed " + userTwo + " and yeeted " + pronounsThree + " 10 miles into the sky!",
+                            userOne + " grabs " + userTwo + " and throws " + pronounsThree + " to Ohio!"
                         ];
                         sentence = yeetSentence;
                         break;
@@ -392,20 +405,20 @@ module.exports = {
                     case ("bite"):
                         const biteSentence = [
                             userOne + " decided to bite " + userTwo + " a little!~",
-                            userOne + " bite " + userTwo + " to taste " + pronounsTwo + "!~",
+                            userOne + " bite " + userTwo + " to taste " + pronounsThree + "!~",
                         ];
                         sentence = biteSentence;
                         break;
                     case ("bonk"):
                         const bonkSentence = [
-                            userOne + " swing a baseball bat on " + userTwo + "'s head. Bonking " + pronounsTwo + "!~"
+                            userOne + " swing a baseball bat on " + userTwo + "'s head. Bonking " + pronounsThree + "!~"
                         ];
                         sentence = bonkSentence;
                         break;
                     case ("fuckstraight"):
                         const fuckStraightSentence = [
                             userOne + " fuck " + userTwo + " pussy really hard~",
-                            userOne + " thrust into " + userTwo + " back and forth into " + pronounsFour + " pussy making " + pronounsTwo + " all wet~",
+                            userOne + " thrust into " + userTwo + " back and forth into " + pronounsFour + " pussy making " + pronounsThree + " all wet~",
                         ];
                         sentence = fuckStraightSentence;
                         break;
@@ -430,12 +443,40 @@ module.exports = {
                         ];
                         sentence = suckGaySentence;
                         break;
+                    case ("ridestraight"):
+                        const rideStraightSentence = [
+                            userOne + " ride " + userTwo + "'s dick~",
+                            userOne + " enjoys " + userTwo + "'s dick while riding it~",
+                        ];
+                        sentence = rideStraightSentence;
+                        break;
+                    case ("ridegay"):
+                        const rideGaySentence = [
+                            userOne + " ride " + userTwo + "'s dick~",
+                            userOne + " enjoys " + userTwo + "'s dick while riding it~",
+                        ];
+                        sentence = rideGaySentence;
+                        break;
+                    case ("fillstraight"):
+                        const fillStraightSentence = [
+                            userOne + " fills up " + userTwo + "'s ass with " + pronounsTwo + " seed~",
+                            userOne + " pushes " + pronounsFour + " dick deep inside " + userTwo + "'s ass, filling it up with " + pronounsTwo + " juicy cum~",
+                        ];
+                        sentence = fillStraightSentence;
+                        break;
+                    case ("fillgay"):
+                        const fillGaySentence = [
+                            userOne + " fills up " + userTwo + "'s ass with " + pronounsTwo + " seed~",
+                            userOne + " pushes " + pronounsFour + " dick deep inside " + userTwo + "'s ass, filling it up with " + pronounsTwo + " juicy cum~",
+                        ];
+                        sentence = fillGaySentence;
+                        break;
                 }
 
                 let randomAnswer = await sentence[Math.floor(Math.random() * sentence.length)];
                 let randomImage = await actionImageData[Math.floor(Math.random() * actionImageData.length)];
 
-                const supportDiscord = new ActionRowBuilder()
+                /*const supportDiscord = new ActionRowBuilder()
                     .addComponents(
                         new ButtonBuilder()
                             .setLabel(languageSet.action.button.source)
@@ -451,23 +492,24 @@ module.exports = {
 
                 const imageEmbed = new EmbedBuilder()
                     .setColor("Blue")
-                    .setImage(randomImage.imageUrl)
+                    .setImage(randomImage.imageUrl)*/
 
                 if (loggingData.status_canActionImage === "Disabled") {
                     return interaction.reply({
-                        content: randomAnswer,
-                        components: [supportDiscord],
+                        content: randomAnswer + "\n\n" + randomImage.imageUrl,
+                        //components: [supportDiscord],
                     });
                 } else if (loggingData.status_canActionMessage === "Disabled") {
                     return interaction.reply({
-                        embeds: [imageEmbed],
-                        components: [supportDiscord],
+                        content: randomImage.imageUrl,
+                        //embeds: [imageEmbed],
+                        //components: [supportDiscord],
                     });
                 } else {
                     return interaction.reply({
-                        content: randomAnswer,
-                        embeds: [imageEmbed],
-                        components: [supportDiscord],
+                        content: randomAnswer + "\n\n" + randomImage.imageUrl,
+                        //embeds: [imageEmbed],
+                        //components: [supportDiscord],
                     });
                 }
             };

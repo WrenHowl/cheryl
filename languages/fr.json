@@ -396,11 +396,27 @@
                 },
                 "reason": {
                     "name": "reason",
-                    "description": "Reason for adding the user to the blacklist"
+                    "description": "Reason for adding the user to the blacklist",
+                    "list": {
+                        "account-self-bot": "Account - Self-bot",
+                        "scam-selling-art": "Scamming - Selling art",
+                        "scam-sugar": "Scamming - Sugar Daddy/Babby/Mommy",
+                        "lawbreaking-soliciting-underage": "Law Breaking - Soliciting underage user to participate to sexual activities",
+                        "lawbreaking-partipating-underage": "Law Breaking - Participating to sexual activities while being underage",
+                        "content-sharing-gore": "Content - Sharing hardcore gore, excessive violence or/and animal harm",
+                        "content-sharing-cheats": "Content - Sharing or/and selling game cheats",
+                        "content-hate-speech": "Content - Hate speech",
+                        "content-self-harm": "Content - Promoting, glorifing or/and normalizing self-harm or suicide"
+                    }
                 },
                 "risk": {
                     "name": "risk",
-                    "description": "Risk of the user"
+                    "description": "Risk of the user to them being in a server",
+                    "list": {
+                        "low": "Low",
+                        "medium": "Medium",
+                        "high": "High"
+                    }
                 },
                 "evidence": {
                     "name": "evidence_link",
@@ -534,9 +550,9 @@
             "description": "Disable certain command [Developper Only]"
         }
     },
-    "dataRemove": {
+    "data": {
         "default": {
-            "name": "dataRemove",
+            "name": "data",
             "description": "Remove an image in the database [Developper Only]"
         }
     },

@@ -10,6 +10,9 @@ const de = require("../languages/de.json");
 const sp = require("../languages/sp.json");
 const nl = require("../languages/nl.json");
 
+let reasonList = en.blacklist.default.add.reason.list;
+let riskList = en.blacklist.default.add.risk.list;
+
 module.exports = {
     data: new SlashCommandBuilder()
         .setName(en.blacklist.default.name)
@@ -74,13 +77,15 @@ module.exports = {
                 })
                 .setRequired(true)
                 .addChoices(
-                    { name: "Account - Self-bot", value: "Account - Self-Bot" },
-                    { name: "Scamming - Selling art", value: "Scamming - Selling art" },
-                    { name: "Law Breaking - Soliciting underage user to participate to sexual activities", value: "Law Breaking - Soliciting underage user to participate to sexual activities" },
-                    { name: "Law Breaking - Participating to sexual activities while being underage", value: "Content - Sharing hardcore gore, excessive violence or/and animal harm" },
-                    { name: "Content - Sharing hardcore gore, excessive violence or/and animal harm", value: "Content - Sharing hardcore gore, excessive violence or/and animal harm" },
-                    { name: "Content - Sharing or/and selling game cheats", value: "Content - Sharing or/and selling game cheats" },
-                    { name: "Content - Hate speech", value: "Content - Hate speech" },
+                    { name: reasonList['account-self-bot'], value: reasonList['account-self-bot'] },
+                    { name: reasonList['scam-selling-art'], value: reasonList['scam-selling-art'] },
+                    { name: reasonList['scam-sugar'], value: reasonList['scam-sugar'] },
+                    { name: reasonList['lawbreaking-soliciting-underage'], value: reasonList['lawbreaking-soliciting-underage'] },
+                    { name: reasonList['lawbreaking-partipating-underage'], value: reasonList['lawbreaking-partipating-underage'] },
+                    { name: reasonList['content-sharing-gore'], value: reasonList['content-sharing-gore'] },
+                    { name: reasonList['content-sharing-cheats'], value: reasonList['content-sharing-cheats'] },
+                    { name: reasonList['content-self-harm'], value: reasonList['content-self-harm'] },
+                    { name: reasonList['content-hate-speech'], value: reasonList['content-hate-speech'] },
                 ))
             .addStringOption(option => option
                 .setName(en.blacklist.default.add.risk.name)
@@ -99,9 +104,9 @@ module.exports = {
                 })
                 .setRequired(true)
                 .addChoices(
-                    { name: 'low', value: 'Low' },
-                    { name: 'medium', value: 'Medium' },
-                    { name: 'high', value: 'High' },
+                    { name: riskList.low, value: riskList.low },
+                    { name: riskList.medium, value: riskList.medium },
+                    { name: riskList.high, value: riskList.high },
                 ))
             .addStringOption(option => option
                 .setName(en.blacklist.default.add.evidence.name)
