@@ -1628,23 +1628,30 @@ bot.on('interactionCreate', async (interaction) => {
       ];
 
       if (inTicket.includes(interaction.customId)) {
+        let user_Id = interaction.message.embeds[0].fields[0].value.replace(">", "").replace("<@", "");
 
         // Checking if the member is still in the guild
-        if (!guild.members.cache.find(user => user.id === ticketMessageData.userId)) {
+        if (!guild.members.cache.find(user => user.id === user_Id)) {
 
           // Check if the ticket channel still exist
-          let ticketChannel = interaction.guild.channels.cache.get(ticketMessageData.channelId);
-          if (ticketChannel) {
-            await ticketChannel.delete("Ticket Canceled: Member left the server");
+          if (ticketMessageData) {
+            let ticketChannel = interaction.guild.channels.cache.get(ticketMessageData.channelId);
+            if (ticketChannel) {
+              await ticketChannel.delete("Cancelled: Member left");
+            };
           };
 
           // Delete ticket message
-          await bot.guilds.cache.get(interaction.guild.id).channels.cache.get(loggingData.channelId_TicketReceive).messages.fetch(ticketMessageData.messageId).then((message) => {
+          await bot.guilds.cache.get(interaction.guild.id).channels.cache.get(loggingData.channelId_TicketReceive).messages.fetch(interaction.message.id).then((message) => {
             message.delete();
           }).catch(() => { return })
 
           // Delete the data in the database
-          await Ticket.destroy({ where: { guildId: guild.id, userId: ticketMessageData.userId } });
+          await Ticket.destroy({
+            where: {
+              guildId: guild.id, userId: user_Id,
+            }
+          });
 
           // Decrement the ticket counter
           return ticketCountData.decrement('count', { by: 1 });
@@ -1912,12 +1919,12 @@ bot.on('interactionCreate', async (interaction) => {
       if (createdTicket.includes(interaction.customId)) {
 
         // Checking if the member is still in the guild
-        if (!guild.members.cache.find(member => member.id === ticketChannelData.userId)) {
+        if (!guild.members.cache.find(member => member.id === interaction.message.embeds[0].fields[0].value.replace(">", "").replace("<@", ""))) {
 
           // Check if the ticket channel still exist
           let ticketChannel = interaction.guild.channels.cache.get(ticketChannelData.channelId);
           if (ticketChannel) {
-            await ticketChannel.delete("Ticket Canceled: Member left the server");
+            await ticketChannel.delete("Canceled: Member left");
           };
 
           // Delete ticket message
