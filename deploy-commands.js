@@ -3,7 +3,7 @@ const path = require('node:path');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 
-const configPreset = require('./config/main.json');
+const configPreset = require('./settings/config.json');
 
 const commands = [];
 const commandsPath = path.join(__dirname, 'commands');
