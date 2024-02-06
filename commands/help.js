@@ -16,14 +16,14 @@ module.exports = {
       "fr": fr.help.default.name,
       "de": de.help.default.name,
       "es-ES": sp.help.default.name,
-      nl: nl.help.default.name
+      "nl": nl.help.default.name
     })
     .setDescription(en.help.default.description)
     .setDescriptionLocalizations({
       "fr": fr.help.default.description,
       "de": de.help.default.description,
       "es-ES": sp.help.default.description,
-      nl: nl.help.default.description
+      "nl": nl.help.default.description
     })
     .addStringOption(option => option
       .setName(en.help.default.info.name)
@@ -31,14 +31,14 @@ module.exports = {
         "fr": fr.help.default.info.name,
         "de": de.help.default.info.name,
         "es-ES": sp.help.default.info.name,
-        nl: nl.help.default.info.name
+        "nl": nl.help.default.info.name
       })
       .setDescription(en.help.default.info.description)
       .setDescriptionLocalizations({
         "fr": fr.help.default.info.description,
         "de": de.help.default.info.description,
         "es-ES": sp.help.default.info.description,
-        nl: nl.help.default.info.description
+        "nl": nl.help.default.info.description
       })
       .addChoices(
         { name: "blacklist", value: "blacklistInfo" },
@@ -176,9 +176,10 @@ module.exports = {
 
       await interaction.reply({
         content: languageSet.default.errorOccured,
+        ephemeral: true,
       });
 
-      return crashchannelId.send({ content: "**Error in the '" + en.blacklist.default.name + "' event:** \n\n```javascript\n" + error + "```" });
+      return crashchannelId.send({ content: "**Error in the '" + en.help.default.name + "' event:** \n\n```javascript\n" + error + "```" });
     };
   }
 };

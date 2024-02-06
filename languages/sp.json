@@ -56,7 +56,11 @@
             "choice": {
                 "age": {
                     "name": "age",
-                    "description": "Change your age"
+                    "description": "Change your age",
+                    "list": {
+                        "minor": "Minor",
+                        "adult": "Adult"
+                    }
                 },
                 "pronouns": {
                     "name": "pronoun",
@@ -75,6 +79,22 @@
                 "gender": {
                     "name": "gender",
                     "description": "Change your gender"
+                },
+                "message": {
+                    "option": {
+                        "embed": {
+                            "description": "Profile updated",
+                            "name": "Name",
+                            "id": "ID",
+                            "age": "Age",
+                            "verified18": "Verified 18+",
+                            "verifier": "Verifier",
+                            "createdAt": "Created At",
+                            "joinedAt": "Joined At",
+                            "roles": "Roles",
+                            "noDataFound": "No data found"
+                        }
+                    }
                 }
             }
         }
@@ -203,7 +223,8 @@
         },
         "message": {
             "error": {
-                "wrongUrl": "You must sent a valid URL",
+                "wrongUrl": "You must send a valid URL",
+                "wrongFormat": "We only accept gif for actions",
                 "alreadyExist": "This image has already been suggested/added",
                 "disable": "This command has been disabled in this server",
                 "notNsfw": "You cannot use NSFW command into this channel. This channel must be age-restricted to use this command"
@@ -375,11 +396,27 @@
                 },
                 "reason": {
                     "name": "reason",
-                    "description": "Reason for adding the user to the blacklist"
+                    "description": "Reason for adding the user to the blacklist",
+                    "list": {
+                        "account-self-bot": "Account - Self-bot",
+                        "scam-selling-art": "Scamming - Selling art",
+                        "scam-sugar": "Scamming - Sugar Daddy/Babby/Mommy",
+                        "lawbreaking-soliciting-underage": "Law Breaking - Soliciting underage user to participate to sexual activities",
+                        "lawbreaking-partipating-underage": "Law Breaking - Participating to sexual activities while being underage",
+                        "content-sharing-gore": "Content - Sharing hardcore gore, excessive violence or/and animal harm",
+                        "content-sharing-cheats": "Content - Sharing or/and selling game cheats",
+                        "content-hate-speech": "Content - Hate speech",
+                        "content-self-harm": "Content - Promoting, glorifing or/and normalizing self-harm or suicide"
+                    }
                 },
                 "risk": {
                     "name": "risk",
-                    "description": "Risk of the user"
+                    "description": "Risk of the user to them being in a server",
+                    "list": {
+                        "low": "Low",
+                        "medium": "Medium",
+                        "high": "High"
+                    }
                 },
                 "evidence": {
                     "name": "evidence_link",
@@ -428,11 +465,11 @@
                 },
                 "options": {
                     "default": {
-                        "userTag": "User Name",
-                        "userId": "User Id",
+                        "userTag": "Name",
+                        "userId": "ID",
                         "reason": "Reason",
                         "staffTag": "Staff Name",
-                        "staffId": "Staff Id",
+                        "staffId": "Staff ID",
                         "evidence": "Evidence"
                     },
                     "noEvidence": "No evidence were found",
@@ -513,9 +550,9 @@
             "description": "Disable certain command [Developper Only]"
         }
     },
-    "dataRemove": {
+    "data": {
         "default": {
-            "name": "dataRemove",
+            "name": "data",
             "description": "Remove an image in the database [Developper Only]"
         }
     },

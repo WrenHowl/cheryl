@@ -10,6 +10,9 @@ const de = require("../languages/de.json");
 const sp = require("../languages/sp.json");
 const nl = require("../languages/nl.json");
 
+let reasonList = en.blacklist.default.add.reason.list;
+let riskList = en.blacklist.default.add.risk.list;
+
 module.exports = {
     data: new SlashCommandBuilder()
         .setName(en.blacklist.default.name)
@@ -74,13 +77,15 @@ module.exports = {
                 })
                 .setRequired(true)
                 .addChoices(
-                    { name: "Account - Self-Bot", value: "self-bot" },
-                    { name: "Scamming - Selling art", value: "selling-art" },
-                    { name: "Law Breaking - Soliciting underage user to participate to sexual activities", value: "underage-sexual-activities" },
-                    { name: "Law Breaking - Participating to sexual activities while being underage", value: "underage-do-sexual-activities" },
-                    { name: "Content - Sharing hardcore gore, excessive violence or/and animal harm", value: "hardcore-gore" },
-                    { name: "Content - Sharing or/and selling game cheats", value: "sharing-selling-cheat" },
-                    { name: "Content - Hate speech", value: "hate-speech" },
+                    { name: reasonList['account-self-bot'], value: reasonList['account-self-bot'] },
+                    { name: reasonList['scam-selling-art'], value: reasonList['scam-selling-art'] },
+                    { name: reasonList['scam-sugar'], value: reasonList['scam-sugar'] },
+                    { name: reasonList['lawbreaking-soliciting-underage'], value: reasonList['lawbreaking-soliciting-underage'] },
+                    { name: reasonList['lawbreaking-partipating-underage'], value: reasonList['lawbreaking-partipating-underage'] },
+                    { name: reasonList['content-sharing-gore'], value: reasonList['content-sharing-gore'] },
+                    { name: reasonList['content-sharing-cheats'], value: reasonList['content-sharing-cheats'] },
+                    { name: reasonList['content-self-harm'], value: reasonList['content-self-harm'] },
+                    { name: reasonList['content-hate-speech'], value: reasonList['content-hate-speech'] },
                 ))
             .addStringOption(option => option
                 .setName(en.blacklist.default.add.risk.name)
@@ -99,9 +104,9 @@ module.exports = {
                 })
                 .setRequired(true)
                 .addChoices(
-                    { name: 'low', value: 'Low' },
-                    { name: 'medium', value: 'Medium' },
-                    { name: 'high', value: 'High' },
+                    { name: riskList.low, value: riskList.low },
+                    { name: riskList.medium, value: riskList.medium },
+                    { name: riskList.high, value: riskList.high },
                 ))
             .addStringOption(option => option
                 .setName(en.blacklist.default.add.evidence.name)
@@ -348,7 +353,7 @@ module.exports = {
             let blacklistChannel = fetchGuild.channels.cache.get(configPreset.channelsId.blacklist);
             let blacklistSuggestChannel = fetchGuild.channels.cache.get(configPreset.channelsId.suggestBlacklist);
 
-            let lgBlacklist = en.blacklist.message.embed.options;
+            let lgBlacklist = languageSet.blacklist.message.embed.options;
 
             if (user) {
                 userCheck = user;
@@ -400,47 +405,68 @@ module.exports = {
                         ephemeral: true,
                     });
                 default:
-                    evidenceLink ? isEvidence = "* *" + evidenceLink : isEvidence = `*${en.blacklist.message.embed.options.noEvidence}*`;
-                    evidenceImage ? isEvidence = "* *" + evidenceImage : isEvidence = `*${en.blacklist.message.embed.options.noEvidence}*`;
-
-                    switch (risk) {
-                        case ("Low"):
-                            colorRisk = "Yellow";
-                            break;
-                        case ("Medium"):
-                            colorRisk = "Red";
-                            break;
-                        case ("High"):
-                            colorRisk = "Black";
-                            break;
-                    };
+                    evidenceLink ? isEvidence = evidenceLink : isEvidence = null;
 
                     let blacklistEmbed = new EmbedBuilder()
 
-                    if (blacklistData) {
-                        blacklistEmbed.addFields(
-                            { name: lgBlacklist.default.userTag, value: "`" + userCheck.tag + "`", inline: true },
-                            { name: lgBlacklist.default.userId, value: "`" + userCheck.id + "`", inline: true },
-                        );
-                    }
+                    let optionsList = [
+                        "add",
+                        "remove",
+                        "suggest"
+                    ];
+
+                    if (optionsList.includes(options)) {
+                        switch (risk) {
+                            case ("Low"):
+                                blacklistEmbed.setColor("57F287");
+                                break;
+                            case ("Medium"):
+                                blacklistEmbed.setColor("FEE75C");
+                                break;
+                            case ("High"):
+                                blacklistEmbed.setColor("ED4245");
+                                break;
+                            default:
+                                blacklistEmbed.setColor("FFFFFF");
+                                break;
+                        };
+                    };
+
+                    blacklistEmbed.addFields(
+                        { name: lgBlacklist.default.userTag, value: "`" + userCheck.tag + "`", inline: true },
+                        { name: lgBlacklist.default.userId, value: "`" + userCheck.id + "`", inline: true },
+                    );
 
                     switch (options) {
                         case ("add"):
 
                             // Checking if the user is already blacklisted
                             if (blacklistData) {
-                                blacklistEmbed.setDescription(`<:tick:1096181611818647617> ${reply}`)
+                                blacklistEmbed.setDescription(`:white_check_mark: ${messagePreset.blacklist.isBlacklisted}`)
+                                blacklistEmbed.setColor("Green")
 
                                 return interaction.reply({
                                     embeds: [blacklistEmbed],
+                                    ephemeral: true,
                                 });
                             };
 
                             return interaction.reply({
-                                content: `${user.toString()} has been blacklisted for ${reason} successfully!`,
+                                content: user.toString() + ' has been blacklisted for `' + reason + '` successfully!',
                                 ephemeral: true,
                             }).then(async () => {
-                                await Blacklist.create({
+                                blacklistEmbed.addFields(
+                                    { name: lgBlacklist.default.reason, value: "`" + reason + "`", inline: true },
+                                    { name: lgBlacklist.default.staffTag, value: "`" + interaction.user.tag + "`", inline: true },
+                                    { name: lgBlacklist.default.staffId, value: "`" + interaction.user.id + "`", inline: true },
+                                    { name: lgBlacklist.default.evidence, value: isEvidence, inline: true }
+                                );
+
+                                await blacklistChannel.send({
+                                    embeds: [blacklistEmbed]
+                                });
+
+                                return Blacklist.create({
                                     userId: user.id,
                                     userTag: user.tag,
                                     staffId: interaction.user.id,
@@ -449,25 +475,17 @@ module.exports = {
                                     evidence: isEvidence,
                                     risk: risk,
                                 });
-
-                                blacklistEmbed.addFields(
-                                    { name: lgBlacklist.default.reason, value: "`" + reason + "`", inline: true },
-                                    { name: lgBlacklist.default.staffTag, value: "`" + interaction.user.tag + "`", inline: true },
-                                    { name: lgBlacklist.default.staffId, value: "`" + interaction.user.id + "`", inline: true },
-                                    { name: lgBlacklist.default.evidence, value: isEvidence, inline: true }
-                                );
-                                blacklistEmbed.setColor(colorRisk);
-
-                                return blacklistChannel.send({
-                                    embeds: [blacklistEmbed]
-                                });
                             });
                         case ("remove"):
 
                             // Checking if the user is already blacklisted
                             if (!blacklistData) {
+                                blacklistEmbed.setDescription(`:white_check_mark: ${messagePreset.blacklist.isntBlacklisted}`)
+                                blacklistEmbed.setColor("Green")
+
                                 return interaction.reply({
-                                    content: lgBlacklist.isNotBlacklisted,
+                                    embeds: [blacklistEmbed],
+                                    ephemeral: true,
                                 });
                             };
 
@@ -481,20 +499,25 @@ module.exports = {
                                     { name: lgBlacklist.default.staffId, value: "`" + blacklistData.staffId + "`", inline: true },
                                     { name: lgBlacklist.default.evidence, value: blacklistData.evidence, inline: true }
                                 );
-                                blacklistEmbed.setColor(colorRisk);
 
                                 await blacklistChannel.send({
                                     embeds: [InfoBlacklist],
+                                    ephemeral: true,
                                 });
 
                                 return Blacklist.destroy({ where: { userId: userCheck } });
                             });
                         case ("suggest"):
+                            evidenceImage ? isEvidence = evidenceImage : isEvidence = null;
 
                             // Checking if the user is already blacklisted
                             if (blacklistData) {
+                                blacklistEmbed.setDescription(`:white_check_mark: ${messagePreset.blacklist.isBlacklisted}`)
+                                blacklistEmbed.setColor("Green")
+
                                 return interaction.reply({
-                                    content: lgBlacklist.isBlacklisted,
+                                    embeds: [blacklistEmbed],
+                                    ephemeral: true,
                                 });
                             };
 
@@ -508,34 +531,23 @@ module.exports = {
                                     { name: lgBlacklist.default.staffId, value: "`" + interaction.user.id + "`", inline: true },
                                 );
                                 blacklistEmbed.setImage(evidenceImage.url);
-                                blacklistEmbed.setColor(colorRisk);
 
                                 return blacklistSuggestChannel.send({
                                     embeds: [InfoBlacklist],
+                                    ephemeral: true,
                                 });
                             });
                         case ("check"):
 
                             // Checking if the user is blacklisted
                             if (!blacklistData) {
-                                blacklistEmbed.setDescription(`<:tick:1096181611818647617> ${reply}`)
+                                blacklistEmbed.setDescription(`:white_check_mark: ${messagePreset.blacklist.isntBlacklisted}`)
                                 blacklistEmbed.setColor("Green")
 
                                 return interaction.reply({
                                     embeds: [blacklistEmbed],
+                                    ephemeral: true,
                                 });
-                            };
-
-                            switch (blacklistData.risk) {
-                                case ("Low"):
-                                    colorRisk = "Yellow";
-                                    break;
-                                case ("Medium"):
-                                    colorRisk = "Red";
-                                    break;
-                                case ("High"):
-                                    colorRisk = "Black";
-                                    break;
                             };
 
                             blacklistEmbed.addFields(
@@ -544,10 +556,25 @@ module.exports = {
                                 { name: lgBlacklist.default.staffId, value: "`" + blacklistData.staffId + "`", inline: true },
                                 { name: lgBlacklist.default.evidence, value: blacklistData.evidence, inline: true }
                             );
-                            blacklistEmbed.setColor(colorRisk)
+
+                            switch (blacklistData.risk) {
+                                case ("Low"):
+                                    blacklistEmbed.setColor("57F287");
+                                    break;
+                                case ("Medium"):
+                                    blacklistEmbed.setColor("FEE75C");
+                                    break;
+                                case ("High"):
+                                    blacklistEmbed.setColor("ED4245");
+                                    break;
+                                default:
+                                    blacklistEmbed.setColor("FFFFFF");
+                                    break;
+                            };
 
                             return interaction.reply({
                                 embeds: [blacklistEmbed],
+                                ephemeral: true,
                             });
                     };
             };

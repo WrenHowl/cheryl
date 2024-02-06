@@ -1,7 +1,7 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
-const loggingPreset = require("../main/logging.json");
+const loggingPreset = require("../config/logging.json");
 const configPreset = require("../config/main.json");
 
 const fr = require("../languages/fr.json");
@@ -1104,7 +1104,7 @@ module.exports = {
                 ephemeral: true,
             });
 
-            return crashchannelId.send({ content: "**Error in the '" + en.action.default.name + "' event:** \n\n```javascript\n" + error + "```" });
+            return crashchannelId.send({ content: "**Error in the '" + en.settings.default.name + "' event:** \n\n```javascript\n" + error + "```" });
         };
     }
 };

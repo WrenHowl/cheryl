@@ -114,7 +114,7 @@ module.exports = {
                 ephemeral: true,
             });
 
-            return crashchannelId.send({ content: "**Error in the '" + en.blacklist.default.name + "' event:** \n\n```javascript\n" + error + "```" });
+            return crashchannelId.send({ content: "**Error in the '" + en.staff.default.name + "' event:** \n\n```javascript\n" + error + "```" });
         };
     }
 };

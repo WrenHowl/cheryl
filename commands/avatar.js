@@ -41,7 +41,7 @@ module.exports = {
                 "nl": nl.avatar.default.user.description
             })
             .setRequired(false)),
-    execute: async (interaction, sequelize, Sequelize) => {
+    execute: async (interaction, bot, sequelize, Sequelize) => {
         const Logging = sequelize.define("Logging", {
             guildId: {
                 type: Sequelize.STRING,
@@ -72,11 +72,11 @@ module.exports = {
             default:
                 languageSet = en;
                 break;
-        }
+        };
 
         try {
             let userOption = interaction.options.getUser(en.avatar.default.user.name);
-            let member = userOption ? user : interaction.user;
+            let member = userOption ? userOption : interaction.user;
 
             let avatarEmbed = new EmbedBuilder()
                 .setTitle(`${en.avatar.message.embed.title} ${member.tag}`)

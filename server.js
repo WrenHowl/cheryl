@@ -12,6 +12,8 @@ const bot = new Client({
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildInvites,
+    GatewayIntentBits.GuildModeration,
     GatewayIntentBits.GuildMessageReactions,
     GatewayIntentBits.MessageContent,
   ],
@@ -222,6 +224,10 @@ const Logging = sequelize.define("Logging", {
     type: Sequelize.STRING,
     unique: false,
   },
+  roleAddId_AgeVerified: {
+    type: Sequelize.STRING,
+    unique: false,
+  },
   status_Blacklist: {
     type: Sequelize.STRING,
     unique: false,
@@ -419,34 +425,40 @@ bot.once("ready", async () => {
   };
 });
 
-bot.on("guildMemberAdd", async (newMember) => {
-  try {
-    let guild = bot.guilds.cache.get(newMember.guild.id);
+let serverAvailableCrossVerification = [
+  "1082103667181764659",
+  "1137603416818987028",
+  "1166442246300778517"
+];
 
-    let loggingData = await Logging.findOne({ where: { guildId: guild.id } });
+bot.on("guildMemberAdd", async (newMember) => {
+  let guild = bot.guilds.cache.get(newMember.guild.id);
+  let loggingData = await Logging.findOne({ where: { guildId: guild.id } });
+
+  switch (loggingData.language) {
+    case ("en"):
+      languageSet = en;
+      break;
+    case ("fr"):
+      languageSet = fr;
+      break;
+    case ("de"):
+      languageSet = de;
+      break;
+    case ("sp"):
+      languageSet = sp;
+      break;
+    case ("nl"):
+      languageSet = nl;
+      break;
+    default:
+      languageSet = en;
+      break;
+  };
+
+  try {
     let verifierData = await Verifier.findOne({ where: { userId: newMember.user.id } });
     let blacklistData = await Blacklist.findOne({ where: { userId: newMember.user.id } });
-
-    switch (loggingData.language) {
-      case ("en"):
-        languageSet = en;
-        break;
-      case ("fr"):
-        languageSet = fr;
-        break;
-      case ("de"):
-        languageSet = de;
-        break;
-      case ("sp"):
-        languageSet = sp;
-        break;
-      case ("nl"):
-        languageSet = nl;
-        break;
-      default:
-        languageSet = en;
-        break;
-    }
 
     let lgWelcome = languageSet.welcomeMessage.message.embed.logs;
 
@@ -502,7 +514,6 @@ bot.on("guildMemberAdd", async (newMember) => {
     };
 
     // Checking for blacklist config
-
     if (blacklistData) {
 
       // Checking if the blacklist is enabled and has a channel
@@ -518,43 +529,42 @@ bot.on("guildMemberAdd", async (newMember) => {
         let botPermission = newMember.guild.members.me.permissionsIn(loggingData.channelId_Blacklist).has(['SendMessages', 'ViewChannel']);
         if (botPermission) return;
 
+        let blacklistEmbed = new EmbedBuilder()
+
         // Changing embed color in terms of the risk
         switch (blacklistData.risk) {
           case ("Low"):
-            riskColorEmbed = "Yellow";
-
+            blacklistEmbed.setColor("57F287");
             break;
           case ("Medium"):
-            riskColorEmbed = "Red";
-
+            blacklistEmbed.setColor("FEE75C");
             break;
           case ("High"):
-            riskColorEmbed = "Black";
-
+            blacklistEmbed.setColor("ED4245");
+            break;
+          default:
+            blacklistEmbed.setColor("FFFFFF");
             break;
         };
 
         // Creating the embed and sending the message
-        let blacklistEmbed = new EmbedBuilder()
-          .setTitle("<:BanHammer:997932635454197790> New Alert")
-          .setDescription(MessageBlacklist.InstantBan)
-          .addFields(
-            { name: "User", value: newMember.user.toString(), inline: true },
-            { name: "reason", value: blacklistData.reason, inline: true },
-            { name: "Evidence", value: blacklistData.evidence, inline: true }
-          )
-          .setColor(riskColorEmbed)
-          .setFooter({
-            text: "ID: " + newMember.user.id
-          })
-          .setTimestamp();
+        blacklistEmbed.setTitle("<:BanHammer:997932635454197790> New Alert");
+        blacklistEmbed.addFields(
+          { name: "User", value: newMember.user.toString(), inline: true },
+          { name: "reason", value: blacklistData.reason, inline: true },
+          { name: "Evidence", value: blacklistData.evidence, inline: true }
+        );
+        blacklistEmbed.setFooter({
+          text: "ID: " + newMember.user.id
+        });
+        blacklistEmbed.setTimestamp();
 
         await blacklistChannel.send({
           embeds: [blacklistEmbed],
         });
 
         // Incrementing the join count in the database
-        await blacklistData.increment("joinedServer");
+        await blacklistData.increment("joinedServer", { by: 1 });
 
         // Check if the auto ban is on
         let autoBanResponse = languageSet.welcomeMessage.message.blacklist.autoBan;
@@ -601,6 +611,10 @@ bot.on("guildMemberAdd", async (newMember) => {
       }
     };
 
+    // Cross Age Verification
+    if (serverAvailableCrossVerification.includes(newMember.guild.id)) {
+
+    };
   } catch (error) {
     let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
     let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
@@ -611,33 +625,33 @@ bot.on("guildMemberAdd", async (newMember) => {
 });
 
 bot.on("guildMemberRemove", async (leavingMember) => {
-  try {
-    let guild = bot.guilds.cache.get(leavingMember.guild.id);
+  let guild = bot.guilds.cache.get(leavingMember.guild.id);
+  let loggingData = await Logging.findOne({ where: { guildId: guild.id } });
 
-    let loggingData = await Logging.findOne({ where: { guildId: guild.id } });
+  switch (loggingData.language) {
+    case ("en"):
+      languageSet = en;
+      break;
+    case ("fr"):
+      languageSet = fr;
+      break;
+    case ("de"):
+      languageSet = de;
+      break;
+    case ("sp"):
+      languageSet = sp;
+      break;
+    case ("nl"):
+      languageSet = nl;
+      break;
+    default:
+      languageSet = en;
+      break;
+  }
+
+  try {
     let ticketData = await Ticket.findOne({ where: { guildId: guild.id, userId: leavingMember.user.id } });
     let ticketCountData = await TicketCount.findOne({ where: { guildId: guild.id } });
-
-    switch (loggingData.language) {
-      case ("en"):
-        languageSet = en;
-        break;
-      case ("fr"):
-        languageSet = fr;
-        break;
-      case ("de"):
-        languageSet = de;
-        break;
-      case ("sp"):
-        languageSet = sp;
-        break;
-      case ("nl"):
-        languageSet = nl;
-        break;
-      default:
-        languageSet = en;
-        break;
-    }
 
     let lgLeaving = languageSet.leavingMessage.message.embed.logs;
 
@@ -695,6 +709,7 @@ bot.on("guildMemberRemove", async (leavingMember) => {
       // Check if the ticket channel still exist
       let ticketChannel = leavingMember.guild.channels.cache.get(ticketData.channelId);
       if (ticketChannel) {
+
         await ticketChannel.delete("Ticket Canceled: Member left the server");
       };
 
@@ -718,17 +733,75 @@ bot.on("guildMemberRemove", async (leavingMember) => {
   };
 });
 
-bot.on("userUpdate", async (newUpdate, oldUpdate) => {
+bot.on("guildBanAdd", async (bannedUser) => {
+  try {
+    let blacklistData = await Blacklist.findOne({ where: { userId: bannedUser.user.id } });
+
+    if (blacklistData) {
+      blacklistData.increment("joinedServerBan", { by: 1 })
+    };
+  } catch (error) {
+    let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
+    let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
+    console.log(error);
+
+    return crashchannelId.send({ content: "**Error in the 'guildBanAdd' event:** \n\n```javascript\n" + error + "```" });
+  };
+});
+
+bot.on("guildMemberUpdate", async (oldUpdate, newUpdate) => {
+  if (serverAvailableCrossVerification.includes(newUpdate.guild.id)) {
+    let loggingData = await Logging.findOne({ where: { guildId: newUpdate.guild.id } });
+
+    switch (loggingData.language) {
+      case ("en"):
+        languageSet = en;
+        break;
+      case ("fr"):
+        languageSet = fr;
+        break;
+      case ("de"):
+        languageSet = de;
+        break;
+      case ("sp"):
+        languageSet = sp;
+        break;
+      case ("nl"):
+        languageSet = nl;
+        break;
+      default:
+        languageSet = en;
+        break;
+    };
+
+    try {
+      // Cross Age Verification
+      if (bot.guilds.cache.filter(guild => guild.id !== serverAvailableCrossVerification.includes(newUpdate.guild.id))) {
+        if (loggingData.roleAddId_AgeVerified) {
+          return newUpdate.roles.add(loggingData.roleAddId_AgeVerified)
+        };
+      }
+    } catch (error) {
+      let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
+      let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
+      console.log(error);
+
+      return crashchannelId.send({ content: "**Error in the 'guildMemberUpdate' event:** \n\n```javascript\n" + error + "```" });
+    };
+  };
+});
+
+bot.on("userUpdate", async (oldUpdate, newUpdate) => {
   try {
 
     // Check if user changed is userTag or discriminator
-    let changeOfUserTag = oldUpdate.username !== newUpdate.username;
-    let changeOfDiscriminator = oldUpdate.discriminator !== newUpdate.discriminator;
+    let changeOfUserTag = newUpdate.username !== oldUpdate.username;
+    let changeOfDiscriminator = newUpdate.discriminator !== oldUpdate.discriminator;
 
     // Update if it has been changed
     if (changeOfUserTag | changeOfDiscriminator) {
-      await Verifier.update({ staffTag: newUpdate.tag }, { where: { staffId: newUpdate.id } });
-      return Blacklist.update({ staffTag: newUpdate.tag }, { where: { staffId: newUpdate.id } });
+      await Verifier.update({ staffTag: oldUpdate.tag }, { where: { staffId: oldUpdate.id } });
+      return Blacklist.update({ staffTag: oldUpdate.tag }, { where: { staffId: oldUpdate.id } });
     };
 
   } catch (error) {
@@ -880,34 +953,27 @@ bot.on("messageCreate", async (message) => {
     let args = message.content.slice(prefixSet.length).trim().split(/ +/);
     let command = args.shift().toLowerCase();
 
-    let commandName = [
-      "ban",
-      "cmd",
-      "cop",
-      "language",
-      "ticket",
-      "unban",
-    ];
-
     // Checking if the command that is being executed is 
-    let statusCommand = await CommandFunction.findOne({ where: { name: commandName.includes(command) } });
+    let statusCommand = await CommandFunction.findOne({ where: { name: command } });
 
-    if (statusCommand.value === "Disable" | !message.guild) {
-      refusingAction = languageSet.default.commandDisabledGlobally;
-      !interaction.guild ? refusingAction = languageSet.default.serverOnly : false;
+    if (statusCommand) {
+      if (statusCommand.value === "Disable" | !message.guild) {
+        refusingAction = languageSet.default.commandDisabledGlobally;
+        !interaction.guild ? refusingAction = languageSet.default.serverOnly : false;
 
-      return message.reply({
-        content: refusingAction,
-      });
+        return message.reply({
+          content: refusingAction,
+        });
+      };
     };
 
     switch (command) {
       case (en.cmd.default.name):
-        return bot.commands.get(en.cmd.default.name).execute(bot, message, args);
+        return bot.commands.get(en.cmd.default.name).execute(bot, message, args, sequelize, Sequelize);
       case (en.language.default.name):
         return bot.commands.get(en.language.default.name).execute(bot, message, args, sequelize, Sequelize);
-      case (en.dataRemove.default.name):
-        return bot.commands.get(en.dataRemove.default.name).execute(bot, message, args, sequelize, Sequelize);
+      case (en.data.default.name):
+        return bot.commands.get(en.data.default.name).execute(bot, message, args, sequelize, Sequelize);
       case (en.ban.default.name):
         return bot.commands.get(en.ban.default.name).execute(bot, message, args, EmbedBuilder, sequelize, Sequelize);
       case (en.unban.default.name):
@@ -916,6 +982,7 @@ bot.on("messageCreate", async (message) => {
         return bot.commands.get(en.ticket.default.name).execute(bot, message, args, EmbedBuilder, sequelize, Sequelize);
     };
 
+    console.log("BBB")
   } catch (error) {
     let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
     let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
@@ -1068,7 +1135,7 @@ bot.on('interactionCreate', async (interaction) => {
 
     if (verificationId.includes(interaction.customId)) {
       let verificationData = await Verification.findOne({ where: { guildId: interaction.guild.id, userId: interaction.user.id } });
-      let lgVerification = languageSet.verification.buttonToVerify;
+      let lgVerification = en.verification.buttonToVerify;
 
       if (interaction.isButton()) {
 
@@ -1240,7 +1307,7 @@ bot.on('interactionCreate', async (interaction) => {
 
               await interaction.update({
                 content: `<@&${loggingData.staffRoleId_Verify}> | ${languageSet.verification.reply.default} <@${verificationData.userId}> ${languageSet.verification.reply.denied} ${staff}`,
-                embeds: [verificationEmbedAccepted],
+                embeds: [verificationEmbed],
                 components: [],
               });
             });
@@ -1268,7 +1335,6 @@ bot.on('interactionCreate', async (interaction) => {
           case ("verificationModal"):
 
             // Checking if the member is already waiting for a verification
-
             if (verificationData) {
               return interaction.reply({
                 content: languageSet.verification.modalSubmit.waiting,
@@ -1298,22 +1364,22 @@ bot.on('interactionCreate', async (interaction) => {
 
             let verificationEmbed = new EmbedBuilder()
               .addFields(
-                { name: lgVerification.modal.firstOption.label, value: verificationData.firstOption },
-                { name: lgVerification.modal.secondOption.label, value: verificationData.secondOption },
-                { name: lgVerification.modal.thirdOption.label, value: verificationData.thirdOption },
-                { name: lgVerification.modal.fourthOption.label, value: verificationData.fourthOption },
-                { name: lgVerification.modal.fifthOption.label, value: verificationData.fifthOption },
+                { name: lgVerification.modal.firstOption.label, value: firstOption },
+                { name: lgVerification.modal.secondOption.label, value: secondOption },
+                { name: lgVerification.modal.thirdOption.label, value: thirdOption },
+                { name: lgVerification.modal.fourthOption.label, value: fourthOption },
+                { name: lgVerification.modal.fifthOption.label, value: fifthOption },
               )
               .setTimestamp()
               .setFooter(
-                { text: "ID: " + verificationData.userId }
+                { text: "ID: " + interaction.user.id }
               )
               .setColor("Blue")
 
             let channelForVerification = interaction.guild.channels.cache.get(loggingData.channelId_ReceiveVerification);
 
             await channelForVerification.send({
-              content: `<@&${loggingData.staffRoleId_Verify}> | ${languageSet.verification.reply.default} <@${interaction.user.toString()}>`,
+              content: `<@&${loggingData.staffRoleId_Verify}> | ${languageSet.verification.reply.default} ${interaction.user.toString()}`,
               embeds: [verificationEmbed],
               components: [buttonVerify],
             }).then(async (sent) => {
@@ -1340,8 +1406,8 @@ bot.on('interactionCreate', async (interaction) => {
 
     //  Action System
     let actionId = [
-      "AcceptSuggestion",
-      "DenySuggestion"
+      "acceptSuggestionAction",
+      "denySuggestionAction"
     ];
 
     if (interaction.isButton() & actionId.includes(interaction.customId)) {
@@ -1350,18 +1416,18 @@ bot.on('interactionCreate', async (interaction) => {
       if (!actionImageData) return;
 
       switch (interaction.customId) {
-        case ("AcceptSuggestion"):
+        case ("acceptSuggestionAction"):
           interaction.channel.messages.fetch(interaction.message.id).then(async (message) => {
+            await ActionImage.update({ ImageURL: message.embeds[0].image.url }, { where: { messageId: interaction.message.id } });
+
             let imageEmbed = new EmbedBuilder()
               .addFields(
-                { name: "Category:", value: actionImageData.category, inline: true },
-                { name: "User:", value: actionImageData.userTag + " ``(" + actionImageData.userId + ")``", inline: true },
-                { name: "Status:", value: "Accepted" }
+                { name: "Category", value: actionImageData.category, inline: true },
+                { name: "User", value: actionImageData.userTag + " ``(" + actionImageData.userId + ")``", inline: true },
+                { name: "Status", value: "Accepted" }
               )
               .setColor("Green")
               .setImage(message.embeds[0].image.url);
-
-            await ActionImage.update({ ImageURL: message.embeds[0].image.url }, { where: { messageId: interaction.message.id } });
 
             return interaction.update({
               embeds: [imageEmbed],
@@ -1370,24 +1436,26 @@ bot.on('interactionCreate', async (interaction) => {
           });
 
           break;
-        case ("DenySuggestion"):
+        case ("denySuggestionAction"):
           interaction.channel.messages.fetch(interaction.message.id).then(async () => {
             let imageEmbed = new EmbedBuilder()
               .addFields(
-                { name: "Category:", value: actionImageData.category + "** **", inline: true },
-                { name: "User:", value: actionImageData.userTag + " ``(" + actionImageData.userId + ")``" + "** **", inline: true },
-                { name: "Status:", value: "Denied" },
+                { name: "Category", value: actionImageData.category + "** **", inline: true },
+                { name: "User", value: actionImageData.userTag + " ``(" + actionImageData.userId + ")``" + "** **", inline: true },
+                { name: "Status", value: "Denied" },
               )
-              .setColor("Red")
+              .setColor("Red");
 
-            return interaction.update({
+            await interaction.update({
               embeds: [imageEmbed],
               components: []
-            })
-          })
+            });
 
-          return ActionImage.destroy({ where: { messageId: interaction.message.id } });
-      }
+            return ActionImage.destroy({ where: { messageId: interaction.message.id } });
+          });
+
+          break;
+      };
     };
 
     //  Ticket System
@@ -1404,35 +1472,73 @@ bot.on('interactionCreate', async (interaction) => {
     ];
 
     if (interaction.isButton() && ticketId.includes(interaction.customId)) {
+
+      // Database
       let ticketData = await Ticket.findOne({ where: { guildId: interaction.guild.id, userId: interaction.user.id } });
       let ticketMessageData = await Ticket.findOne({ where: { guildId: interaction.guild.id, messageId: interaction.message.id } });
       let ticketChannelData = await Ticket.findOne({ where: { guildId: interaction.guild.id, channelId: interaction.channel.id } });
       let ticketCountData = await TicketCount.findOne({ where: { guildId: interaction.guild.id } });
 
+      // Channel
       let manageChannelPermission = interaction.guild.members.me.permissions.has("ManageChannels");
+
+      // Role
       let isStaff = interaction.member.roles.cache.some(role => role.name === "Staff");
+      let isManagement = interaction.member.roles.cache.some(role => role.id === "1191482864156557332");
+      let isAdmin = interaction.member.roles.cache.some(role => role.id === "1082104096959504404");
       let isVerified18 = interaction.member.roles.cache.some(role => role.name === "Verified 18+");
+      let isPartner = interaction.member.roles.cache.some(role => role.name === "Partnership");
 
       !ticketMessageData ? messageRefusingAction = messagePreset.ticket.unknownMessage : messageRefusingAction = messagePreset.ticket.error;
       !manageChannelPermission ? messageRefusingAction = messagePreset.ticket.cantManageChannels : messageRefusingAction = messagePreset.ticket.error;
       !isStaff ? messageRefusingAction = messagePreset.ticket.isNotStaff : messageRefusingAction = messagePreset.ticket.error;
 
+      isVerified18 | isStaff | isPartner ? messageRefusingTicket = messagePreset.ticket.refusingToCreateVerified : messageRefusingTicket = messagePreset.ticket.error;
+
       switch (interaction.customId) {
         case ("age_verification"):
-          reasonTicketChange = "Age Verification";
+          if (isStaff | isVerified18) {
+            return interaction.reply({
+              content: messageRefusingTicket,
+              ephemeral: true
+            });
+          };
 
+          reasonTicketChange = "Age Verification";
+          staffToPing = "<@&1082104096959504404> & <@&1191482864156557332>";
           break;
         case ("report"):
-          reasonTicketChange = "Report";
+          if (isStaff) {
+            return interaction.reply({
+              content: messageRefusingTicket,
+              ephemeral: true
+            });
+          };
 
+          reasonTicketChange = "Report";
+          staffToPing = "<@&1083475130241523852>";
           break;
         case ("support"):
-          reasonTicketChange = "Support";
+          if (isStaff) {
+            return interaction.reply({
+              content: messageRefusingTicket,
+              ephemeral: true
+            });
+          };
 
+          reasonTicketChange = "Support";
+          staffToPing = "<@&1083475130241523852>";
           break;
         case ("partnership"):
-          reasonTicketChange = "Partnership";
+          if (isPartner) {
+            return interaction.reply({
+              content: messageRefusingTicket,
+              ephemeral: true
+            });
+          };
 
+          reasonTicketChange = "Partnership";
+          staffToPing = "<@&1191482864156557332>";
           break;
       }
 
@@ -1448,7 +1554,6 @@ bot.on('interactionCreate', async (interaction) => {
         let channelToReceiveTicket = interaction.guild.channels.cache.get(loggingData.channelId_TicketReceive);
 
         // Check if there's not an existing ticket
-
         if (ticketData) {
           if (ticketData.reason === interaction.customId) {
             return interaction.reply({
@@ -1459,14 +1564,12 @@ bot.on('interactionCreate', async (interaction) => {
         }
 
         // Increase the ticket counter
-
         !ticketCountData ?
           await TicketCount.create({
             guildId: interaction.guild.id,
           }) : await ticketCountData.increment('count');
 
         // Creation of the ticket
-
         await Ticket.create({
           guildId: interaction.guild.id,
           reason: interaction.customId,
@@ -1475,48 +1578,13 @@ bot.on('interactionCreate', async (interaction) => {
           userTag: interaction.user.tag,
         });
 
-        isVerified18 ? messageRefusingTicket = messagePreset.ticket.refusingToCreateVerified : messageRefusingTicket = messagePreset.ticket.error;
-        isStaff ? messageRefusingTicket = messagePreset.ticket.refusingToCreateStaff : messageRefusingTicket = messagePreset.ticket.error;
-
-        switch (interaction.customId) {
-          case ("age_verification"):
-            if (isStaff | isVerified18) {
-              return interaction.reply({
-                content: messageRefusingTicket,
-                ephemeral: true
-              });
-            };
-
-            break;
-          case ("report"):
-            if (isStaff) {
-              return interaction.reply({
-                content: messageRefusingTicket,
-                ephemeral: true
-              });
-            };
-
-            break;
-          case ("support"):
-            if (isStaff) {
-              return interaction.reply({
-                content: messageRefusingTicket,
-                ephemeral: true
-              });
-            };
-
-            break;
-        }
-
         // Send the default message of success creation
-
         await interaction.reply({
           content: messagePreset.ticket.created,
           ephemeral: true,
         });
 
         // Creation of button and embed
-
         let buttonClaim = new ActionRowBuilder()
           .addComponents(
             new ButtonBuilder()
@@ -1541,9 +1609,9 @@ bot.on('interactionCreate', async (interaction) => {
           .setColor("Yellow");
 
         // Sending ticket message in channel
-
         return channelToReceiveTicket.send({
           embeds: [claimingTicket],
+          content: staffToPing,
           components: [buttonClaim],
         }).then(async (message) => {
           await Ticket.update({
@@ -1560,29 +1628,32 @@ bot.on('interactionCreate', async (interaction) => {
       ];
 
       if (inTicket.includes(interaction.customId)) {
+        let user_Id = interaction.message.embeds[0].fields[0].value.replace(">", "").replace("<@", "");
 
         // Checking if the member is still in the guild
-        if (!guild.members.cache.find(user => user.id === ticketMessageData.userId)) {
+        if (!guild.members.cache.find(user => user.id === user_Id)) {
 
           // Check if the ticket channel still exist
-
-          let ticketChannel = interaction.guild.channels.cache.get(ticketMessageData.channelId);
-          if (ticketChannel) {
-            await ticketChannel.delete("Ticket Canceled: Member left the server");
+          if (ticketMessageData) {
+            let ticketChannel = interaction.guild.channels.cache.get(ticketMessageData.channelId);
+            if (ticketChannel) {
+              await ticketChannel.delete("Cancelled: Member left");
+            };
           };
 
           // Delete ticket message
-
-          await bot.guilds.cache.get(interaction.guild.id).channels.cache.get(loggingData.channelId_TicketReceive).messages.fetch(ticketMessageData.messageId).then((message) => {
+          await bot.guilds.cache.get(interaction.guild.id).channels.cache.get(loggingData.channelId_TicketReceive).messages.fetch(interaction.message.id).then((message) => {
             message.delete();
           }).catch(() => { return })
 
           // Delete the data in the database
-
-          await Ticket.destroy({ where: { guildId: guild.id, userId: ticketMessageData.userId } });
+          await Ticket.destroy({
+            where: {
+              guildId: guild.id, userId: user_Id,
+            }
+          });
 
           // Decrement the ticket counter
-
           return ticketCountData.decrement('count', { by: 1 });
         };
 
@@ -1598,14 +1669,26 @@ bot.on('interactionCreate', async (interaction) => {
           });
         }
 
-        // Checking role of user
-        if (ticketMessageData.reason === "age_verification" | ticketMessageData.reason === "partnership") {
-          if (!interaction.member.roles.cache.some(role => role.name === "★★★")) {
-            return interaction.reply({
-              content: messagePreset.ticket.isntAdmin,
-              ephemeral: true,
-            });
-          };
+        // Checking ticket reason and permission of staff
+        switch (ticketMessageData.reason) {
+          case ("age_verification"):
+            if (!isAdmin & !isManagement) {
+              return interaction.reply({
+                content: messagePreset.ticket.cantAgeVerify,
+                ephemeral: true,
+              });
+            };
+
+            break;
+          case ("partnership"):
+            if (!isManagement) {
+              return interaction.reply({
+                content: messagePreset.ticket.cantPartnership,
+                ephemeral: true,
+              });
+            };
+
+            break;
         };
 
         switch (interaction.customId) {
@@ -1707,7 +1790,7 @@ bot.on('interactionCreate', async (interaction) => {
                       "1. Write on a piece of paper the server name (`" + interaction.guild.name + "`) and your username underneath it (`" + ticketMessageData.userTag + "`)"
                       + "\n* Place the ID **on** the piece of paper and take a photo"
                       + "\n* Send the picture in this channel"
-                      + "\n\n *You can blur everything on your ID of choice, but we must see the border of the card/piece of paper and the DOB must be seen clearly*"
+                      + "\n\n *You can blur everything on your ID of choice, but we must see the border of the card/piece of paper, the DOB and expiry date must be seen clearly*"
                   });
 
                   buttonTicket.addComponents(
@@ -1836,23 +1919,20 @@ bot.on('interactionCreate', async (interaction) => {
       if (createdTicket.includes(interaction.customId)) {
 
         // Checking if the member is still in the guild
-        if (!guild.members.cache.find(member => member.id === ticketChannelData.userId)) {
+        if (!guild.members.cache.find(member => member.id === interaction.message.embeds[0].fields[0].value.replace(">", "").replace("<@", ""))) {
 
           // Check if the ticket channel still exist
-
           let ticketChannel = interaction.guild.channels.cache.get(ticketChannelData.channelId);
           if (ticketChannel) {
-            await ticketChannel.delete("Ticket Canceled: Member left the server");
+            await ticketChannel.delete("Canceled: Member left");
           };
 
           // Delete ticket message
-
           await bot.guilds.cache.get(interaction.guild.id).channels.cache.get(loggingData.channelId_TicketReceive).messages.fetch(ticketChannelData.messageId).then((message) => {
             message.delete();
           }).catch(() => { return })
 
           // Delete the data in the database
-
           await Ticket.destroy({ where: { guildId: guild.id, userId: ticketChannelData.userId } });
 
           // Decrement the ticket counter
@@ -1895,12 +1975,13 @@ bot.on('interactionCreate', async (interaction) => {
 
               const verifiedEmbed = new EmbedBuilder()
                 .setDescription(
-                  "To see NSFW channels -> <#1082135024264032297>",
+                  "NSFW channels access -> <#1082135024264032297>",
+                  "Informative roles -> <#1082135082246078464>",
                 )
                 .setColor("Red")
 
               channel18.send({
-                content: member.toString() + " is now part of the cum zone!",
+                content: "Please <@&1181362122945462323> " + member.toString() + " to the cum zone!",
                 embeds: [verifiedEmbed],
               });
             });

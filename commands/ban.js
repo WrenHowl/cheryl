@@ -108,10 +108,10 @@ module.exports = {
                 });
             };
 
-            let user = interaction.options.getUser(en.ban.default.UserName);
+            let user = interaction.options.getUser(en.ban.default.user.name);
             let member = interaction.guild.members.cache.get(user.id) || await interaction.guild.members.fetch(user.id).catch(error => { });
 
-            let reason = interaction.options.getString(en.ban.default.ReasonName);
+            let reason = interaction.options.getString(en.ban.default.reason.name);
 
             let banList = await interaction.guild.bans.fetch();
             let bannedUser = banList.find(user => user.id === user.id);
@@ -158,7 +158,7 @@ module.exports = {
                         content: languageSet.ban.message.dm.you + " *" + interaction.guild.name + "* " + languageSet.ban.message.dm.for + " *" + reason + "* " + languageSet.ban.message.dm.by + " *" + interaction.user.tag + "*.",
                     }).catch(() => { return });
 
-                    await interaction.guild.members.ban(user.id, { reason: [reason + " | " + mod] });
+                    await interaction.guild.members.ban(user.id, { reason: [reason + " | " + interaction.user.tag] });
 
                     await interaction.reply({
                         content: "*" + user.tag + "* " + languageSet.ban.message.success,
