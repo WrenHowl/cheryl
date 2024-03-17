@@ -154,7 +154,7 @@ module.exports = {
                 await Profile.update({
                     age: ageOptions
                 }, { where: { userId: interaction.user.id } });
-
+                console.log(ageOptions)
                 optionEmbed.addFields(
                     { name: en.profile.default.choice.age, value: ageOptions, inline: true },
                 );

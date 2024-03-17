@@ -9,6 +9,24 @@ const nl = require("../languages/nl.json");
 module.exports = {
     name: en.language.default.Name,
     execute: async (bot, message, args, sequelize, Sequelize) => {
+        const CommandFunction = sequelize.define("CommandFunction", {
+            name: {
+                type: Sequelize.STRING,
+            },
+            value: {
+                type: Sequelize.STRING,
+            },
+        });
+
+        let statusCommand = await CommandFunction.findOne({ where: { name: en.dataRemove.default.name } });
+
+        if (!statusCommand) {
+            return CommandFunction.create({
+                name: en.dataRemove.default.name,
+                value: "Enable",
+            });
+        };
+
         try {
             if (message.guild.members.me.permissionsIn(message.channelId).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
 
@@ -70,7 +88,7 @@ module.exports = {
             let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
             console.log(error);
 
-            return crashchannelId.send({ content: "**Error in the '" + en.ban.commandInteraction.name + "' event:** \n\n```javascript\n" + error + "```" });
+            return crashchannelId.send({ content: "**Error in the '" + en.language.default.name + "' event:** \n\n```javascript\n" + error + "```" });
         };
     }
 }

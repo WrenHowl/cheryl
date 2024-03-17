@@ -4,17 +4,26 @@ const en = require("../languages/en.json");
 
 module.exports = {
     name: en.cmd.default.name,
-    execute: async (bot, message, args) => {
-        try {
-            let CommandFunction = sequelize.define("CommandFunction", {
-                name: {
-                    type: Sequelize.STRING,
-                },
-                value: {
-                    type: Sequelize.STRING,
-                },
-            });
+    execute: async (bot, message, args, sequelize, Sequelize) => {
+        const CommandFunction = sequelize.define("CommandFunction", {
+            name: {
+                type: Sequelize.STRING,
+            },
+            value: {
+                type: Sequelize.STRING,
+            },
+        });
 
+        let statusCommand = await CommandFunction.findOne({ where: { name: en.dataRemove.default.name } });
+
+        if (!statusCommand) {
+            return CommandFunction.create({
+                name: en.dataRemove.default.name,
+                value: "Enable",
+            });
+        };
+
+        try {
             if (message.guild.members.me.permissionsIn(message.channelId).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
 
                 if (message.author.id === configPreset.botInfo.ownerId) {
@@ -94,7 +103,7 @@ module.exports = {
             let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
             console.log(error);
 
-            return crashchannelId.send({ content: "**Error in the '" + en.cmd.commandInteraction.name + "' event:** \n\n```javascript\n" + error + "```" });
+            return crashchannelId.send({ content: "**Error in the '" + en.cmd.default.name + "' event:** \n\n```javascript\n" + error + "```" });
         };
     }
 };
