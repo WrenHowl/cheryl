@@ -280,7 +280,7 @@ module.exports = {
             default:
                 languageSet = en;
                 break;
-        }
+        };
 
         try {
             const Blacklist = sequelize.define("Blacklist", {
@@ -367,9 +367,26 @@ module.exports = {
             let permissionGuildData = await Permission.findOne({ where: { guildId: interaction.guild.id } });
             let blacklistData = await Blacklist.findOne({ where: { userId: userCheck.id } });
 
-            if (permissionUserData & options !== "check") {
+            if (permissionUserData) {
+                return interaction.reply({
+                    content: languageSet.blacklist.message.onWho.isStaff,
+                    ephemeral: true,
+                });
+            };
+
+            if (options !== "check" & permissionUserData) {
                 return interaction.reply({
                     content: languageSet.default.staffOnly,
+                });
+            } else if (options !== "check" | "remove" & blacklistData) {
+                return interaction.reply({
+                    content: languageSet.blacklist.message.onWho.isBlacklisted,
+                    ephemeral: true,
+                });
+            } else if (options !== "suggest" | permissionGuildData) {
+                return interaction.reply({
+                    content: languageSet.blacklist.permission.server,
+                    ephemeral: true,
                 });
             };
 
@@ -387,21 +404,6 @@ module.exports = {
                 case (bot.user.id & options !== "check"):
                     return interaction.reply({
                         content: languageSet.blacklist.message.onWho.isBot,
-                        ephemeral: true,
-                    });
-                case (permissionUserData):
-                    return interaction.reply({
-                        content: languageSet.blacklist.message.onWho.isStaff,
-                        ephemeral: true,
-                    });
-                case (blacklistData & options !== "check" | "remove"):
-                    return interaction.reply({
-                        content: languageSet.blacklist.message.onWho.isBlacklisted,
-                        ephemeral: true,
-                    });
-                case (permissionGuildData & options === "suggest"):
-                    return interaction.reply({
-                        content: languageSet.blacklist.permission.server,
                         ephemeral: true,
                     });
                 default:

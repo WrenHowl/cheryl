@@ -1542,7 +1542,7 @@ bot.on('interactionCreate', async (interaction) => {
           break;
       }
 
-      //  Ticket System - (reason) Ticket Button
+      // Ticket System - (reason) Ticket Button
       let reasonTicket = [
         "age_verification",
         "report",
@@ -1620,7 +1620,7 @@ bot.on('interactionCreate', async (interaction) => {
         }).catch(() => { return });
       };
 
-      //  Ticket System - (Waiting) Ticket Button
+      // Ticket System - (Waiting) Ticket Button
       let inTicket = [
         "claim_ticket",
         "unclaim_ticket",
@@ -1910,7 +1910,7 @@ bot.on('interactionCreate', async (interaction) => {
         };
       };
 
-      //  Ticket System - (Created) Ticket Button
+      // Ticket System - (Created) Ticket Button
       let createdTicket = [
         "buttonToAdd",
         "buttonDeleteTicket"
