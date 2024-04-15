@@ -158,6 +158,11 @@ const Blacklist = sequelize.define("Blacklist", {
   },
 });
 const ActionImage = sequelize.define("ActionImage", {
+  id: {
+    type: Sequelize.INTEGER,
+    unique: true,
+    primaryKey: true,
+  },
   imageUrl: {
     type: Sequelize.STRING,
     unique: false,
@@ -425,12 +430,6 @@ bot.once("ready", async () => {
   };
 });
 
-let serverAvailableCrossVerification = [
-  "1082103667181764659",
-  "1137603416818987028",
-  "1166442246300778517"
-];
-
 bot.on("guildMemberAdd", async (newMember) => {
   let guild = bot.guilds.cache.get(newMember.guild.id);
   let loggingData = await Logging.findOne({ where: { guildId: guild.id } });
@@ -610,11 +609,6 @@ bot.on("guildMemberAdd", async (newMember) => {
         };
       }
     };
-
-    // Cross Age Verification
-    if (serverAvailableCrossVerification.includes(newMember.guild.id)) {
-
-    };
   } catch (error) {
     let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
     let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
@@ -746,48 +740,6 @@ bot.on("guildBanAdd", async (bannedUser) => {
     console.log(error);
 
     return crashchannelId.send({ content: "**Error in the 'guildBanAdd' event:** \n\n```javascript\n" + error + "```" });
-  };
-});
-
-bot.on("guildMemberUpdate", async (oldUpdate, newUpdate) => {
-  if (serverAvailableCrossVerification.includes(newUpdate.guild.id)) {
-    let loggingData = await Logging.findOne({ where: { guildId: newUpdate.guild.id } });
-
-    switch (loggingData.language) {
-      case ("en"):
-        languageSet = en;
-        break;
-      case ("fr"):
-        languageSet = fr;
-        break;
-      case ("de"):
-        languageSet = de;
-        break;
-      case ("sp"):
-        languageSet = sp;
-        break;
-      case ("nl"):
-        languageSet = nl;
-        break;
-      default:
-        languageSet = en;
-        break;
-    };
-
-    try {
-      // Cross Age Verification
-      if (bot.guilds.cache.filter(guild => guild.id !== serverAvailableCrossVerification.includes(newUpdate.guild.id))) {
-        if (loggingData.roleAddId_AgeVerified) {
-          return newUpdate.roles.add(loggingData.roleAddId_AgeVerified)
-        };
-      }
-    } catch (error) {
-      let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
-      let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
-      console.log(error);
-
-      return crashchannelId.send({ content: "**Error in the 'guildMemberUpdate' event:** \n\n```javascript\n" + error + "```" });
-    };
   };
 });
 
@@ -1429,9 +1381,13 @@ bot.on('interactionCreate', async (interaction) => {
               .setColor("Green")
               .setImage(message.embeds[0].image.url);
 
-            return interaction.update({
+            await interaction.update({
               embeds: [imageEmbed],
               components: []
+            });
+
+            return bot.users.cache.get(actionmImageData.userId).send({
+              content: ["The image (" + actionImageData.id + ") you suggested has been denied. Thank you for your contribution!"]
             });
           });
 
@@ -1451,7 +1407,11 @@ bot.on('interactionCreate', async (interaction) => {
               components: []
             });
 
-            return ActionImage.destroy({ where: { messageId: interaction.message.id } });
+            await ActionImage.destroy({ where: { messageId: interaction.message.id } });
+
+            return bot.users.cache.get(actionmImageData.userId).send({
+              content: ["The image (" + actionImageData.id + ") you suggested has been denied."]
+            });
           });
 
           break;
@@ -1634,11 +1594,11 @@ bot.on('interactionCreate', async (interaction) => {
         if (!guild.members.cache.find(user => user.id === user_Id)) {
 
           // Check if the ticket channel still exist
-          if (ticketMessageData) {
-            let ticketChannel = interaction.guild.channels.cache.get(ticketMessageData.channelId);
-            if (ticketChannel) {
-              await ticketChannel.delete("Cancelled: Member left");
-            };
+          if (!ticketMessageData) return;
+
+          let ticketChannel = interaction.guild.channels.cache.get(ticketMessageData.channelId);
+          if (ticketChannel) {
+            await ticketChannel.delete("Cancelled: Member left");
           };
 
           // Delete ticket message
@@ -1922,6 +1882,8 @@ bot.on('interactionCreate', async (interaction) => {
         if (!guild.members.cache.find(member => member.id === interaction.message.embeds[0].fields[0].value.replace(">", "").replace("<@", ""))) {
 
           // Check if the ticket channel still exist
+          if (!ticketChannelData) return;
+
           let ticketChannel = interaction.guild.channels.cache.get(ticketChannelData.channelId);
           if (ticketChannel) {
             await ticketChannel.delete("Canceled: Member left");

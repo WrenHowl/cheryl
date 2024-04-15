@@ -56,10 +56,12 @@ module.exports = {
                 { name: "Suck → male/female", value: "suckstraight" },
                 { name: "Ride → male/female", value: "ridestraight" },
                 { name: "Fill → male/female", value: "fillstraight" },
+                { name: "Eat → male/female", value: "eatstraight" },
                 { name: "Fuck → male/male", value: "fuckgay" },
                 { name: "Suck → male/male", value: "suckgay" },
                 { name: "Ride → male/male", value: "ridegay" },
                 { name: "Fill → male/male", value: "fillgay" },
+                { name: "Eat → male/male", value: "eatgay" },
             ))
         .addStringOption(option => option
             .setName(en.action.default.suggest.name)
@@ -186,7 +188,9 @@ module.exports = {
                 "ridestraight",
                 "ridegay",
                 "fillstraight",
-                "fillgay"
+                "fillgay",
+                "eatstraight",
+                "eatgay"
             ];
 
             if (suggestImage) {
@@ -436,6 +440,12 @@ module.exports = {
                         ];
                         sentence = suckStraightSentence;
                         break;
+                    case ("eatstraight"):
+                        const eatStraightSentence = [
+                            userOne + " eat " + userTwo + "'s ass~",
+                        ];
+                        sentence = eatStraightSentence;
+                        break;
                     case ("suckgay"):
                         const suckGaySentence = [
                             userOne + " suck " + userTwo + "'s dick~",
@@ -470,6 +480,12 @@ module.exports = {
                             userOne + " pushes " + pronounsFour + " dick deep inside " + userTwo + "'s ass, filling it up with " + pronounsTwo + " juicy cum~",
                         ];
                         sentence = fillGaySentence;
+                        break;
+                    case ("eatgay"):
+                        const eatGaySentence = [
+                            userOne + " eat " + userTwo + "'s ass~",
+                        ];
+                        sentence = eatGaySentence;
                         break;
                 }
 
