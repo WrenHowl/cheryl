@@ -1,4 +1,4 @@
-const { TextInputStyle, ActionRowBuilder, ButtonStyle, ButtonBuilder, Partials, ActivityType, Client, GatewayIntentBits, EmbedBuilder, Collection, ModalBuilder, TextInputBuilder } = require("discord.js");
+const { ContextMenuCommandBuilder, TextInputStyle, ActionRowBuilder, ButtonStyle, ButtonBuilder, Partials, ActivityType, Client, GatewayIntentBits, EmbedBuilder, Collection, ModalBuilder, TextInputBuilder } = require("discord.js");
 const fs = require("node:fs");
 const path = require('node:path');
 const Sequelize = require('sequelize');
@@ -883,7 +883,6 @@ bot.on("messageCreate", async (message) => {
   }
 
   try {
-
     // File Path
     let commandsPath = path.join(__dirname, 'commands_noslash');
     let commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
@@ -1465,7 +1464,7 @@ bot.on('interactionCreate', async (interaction) => {
           };
 
           reasonTicketChange = "Age Verification";
-          staffToPing = "<@&1082104096959504404> & <@&1191482864156557332>";
+          staffToPing = "<@&1105937890011250872> & <@&1191482864156557332>";
           break;
         case ("report"):
           if (isStaff) {
@@ -1877,10 +1876,8 @@ bot.on('interactionCreate', async (interaction) => {
       ];
 
       if (createdTicket.includes(interaction.customId)) {
-
         // Checking if the member is still in the guild
         if (!guild.members.cache.find(member => member.id === interaction.message.embeds[0].fields[0].value.replace(">", "").replace("<@", ""))) {
-
           // Check if the ticket channel still exist
           if (!ticketChannelData) return;
 
@@ -1898,7 +1895,6 @@ bot.on('interactionCreate', async (interaction) => {
           await Ticket.destroy({ where: { guildId: guild.id, userId: ticketChannelData.userId } });
 
           // Decrement the ticket counter
-
           return ticketCountData.decrement('count', { by: 1 });
         }
 
