@@ -1,4 +1,4 @@
-const { ContextMenuCommandBuilder, ApplicationCommandType } = require('discord.js');
+const { EmbedBuilder, ContextMenuCommandBuilder, ApplicationCommandType } = require('discord.js');
 
 const configPreset = require("../config/main.json");
 
@@ -52,7 +52,7 @@ module.exports = {
         }
 
         try {
-            if (!guild.id === "1082103667181764659") return;
+            if (!interaction.guild.id === "1082103667181764659") return;
 
             const Profile = sequelize.define("Profile", {
                 userTag: {
@@ -74,6 +74,24 @@ module.exports = {
             });
 
             let profileCheck = await Profile.findOne({ where: { userId: interaction.targetId } });
+            let member = interaction.guild.members.cache.get(interaction.targetId);
+
+            if (!interaction.member.roles.cache.some(role => role.name === "Staff")) {
+                return interaction.reply({
+                    content: "You do not have the permission to do that.",
+                    ephemeral: true,
+                });
+            } else if (interaction.targetMember.roles.cache.some(role => role.name === "Verified 18+")) {
+                return interaction.reply({
+                    content: "This member is already verified.",
+                    ephemeral: true,
+                });
+            };
+
+            await interaction.reply({
+                content: "Success.",
+                ephemeral: true,
+            });
 
             // Giving role
             await member.roles.add("1084970943820075050", "Age Verification: Verified by " + interaction.user.tag).catch(() => { return });
@@ -81,7 +99,7 @@ module.exports = {
             // Upadting profile
             profileCheck ? await Profile.update({ verified18: true }, { where: { userId: interaction.targetId } }) :
                 await Profile.create({
-                    userTag: interaction.targetMember,
+                    userTag: interaction.targetUser.username,
                     userId: interaction.targetId,
                     age: "Adult",
                     verified18: true,
