@@ -883,7 +883,6 @@ bot.on("messageCreate", async (message) => {
   }
 
   try {
-
     // File Path
     let commandsPath = path.join(__dirname, 'commands_noslash');
     let commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
@@ -1048,7 +1047,10 @@ bot.on('interactionCreate', async (interaction) => {
 });
 
 bot.on('interactionCreate', async (interaction) => {
+  if (!interaction.guild) return;
+
   let loggingData = await Logging.findOne({ where: { guildId: interaction.guild.id } });
+  let guild = bot.guilds.cache.get(interaction.guild.id);
 
   switch (loggingData.language) {
     case ("en"):
@@ -1072,11 +1074,9 @@ bot.on('interactionCreate', async (interaction) => {
   }
 
   try {
-    let guild = bot.guilds.cache.get(interaction.guild.id);
-
-    if (!interaction.guild) return;
-
-    //  Verification System
+    ///////////////////////////
+    //  Verification System  //
+    ///////////////////////////
     let verificationId = [
       "buttonToVerify",
       "buttonToAcceptVerify",
@@ -1356,7 +1356,10 @@ bot.on('interactionCreate', async (interaction) => {
       };
     };
 
-    //  Action System
+    /////////////////////
+    //  Action System  //
+    /////////////////////
+
     let actionId = [
       "acceptSuggestionAction",
       "denySuggestionAction"
@@ -1418,7 +1421,10 @@ bot.on('interactionCreate', async (interaction) => {
       };
     };
 
-    //  Ticket System
+    /////////////////////
+    //  Ticket System  //
+    /////////////////////
+
     let ticketId = [
       "age_verification",
       "report",
@@ -1428,50 +1434,50 @@ bot.on('interactionCreate', async (interaction) => {
       "unclaim_ticket",
       "cancel_ticket",
       "buttonToAdd",
-      "buttonDeleteTicket"
+      "buttonDeleteTicket",
     ];
 
     if (interaction.isButton() && ticketId.includes(interaction.customId)) {
-
-      // Database
+      // Database Find
       let ticketData = await Ticket.findOne({ where: { guildId: interaction.guild.id, userId: interaction.user.id } });
       let ticketMessageData = await Ticket.findOne({ where: { guildId: interaction.guild.id, messageId: interaction.message.id } });
       let ticketChannelData = await Ticket.findOne({ where: { guildId: interaction.guild.id, channelId: interaction.channel.id } });
       let ticketCountData = await TicketCount.findOne({ where: { guildId: interaction.guild.id } });
 
-      // Channel
+      // Permission Check
       let manageChannelPermission = interaction.guild.members.me.permissions.has("ManageChannels");
 
-      // Role
-      let isStaff = interaction.member.roles.cache.some(role => role.name === "Staff");
+      // Role Check
+      let isStaff = interaction.member.roles.cache.some(role => role.id === "1083475130241523852");
       let isManagement = interaction.member.roles.cache.some(role => role.id === "1191482864156557332");
       let isAdmin = interaction.member.roles.cache.some(role => role.id === "1082104096959504404");
-      let isVerified18 = interaction.member.roles.cache.some(role => role.name === "Verified 18+");
-      let isPartner = interaction.member.roles.cache.some(role => role.name === "Partnership");
+      let isVerified18 = interaction.member.roles.cache.some(role => role.id === "1084970943820075050");
+      let isPartner = interaction.member.roles.cache.some(role => role.id === "1088952912610328616");
 
+      // Errors
       !ticketMessageData ? messageRefusingAction = messagePreset.ticket.unknownMessage : messageRefusingAction = messagePreset.ticket.error;
       !manageChannelPermission ? messageRefusingAction = messagePreset.ticket.cantManageChannels : messageRefusingAction = messagePreset.ticket.error;
       !isStaff ? messageRefusingAction = messagePreset.ticket.isNotStaff : messageRefusingAction = messagePreset.ticket.error;
-
       isVerified18 | isStaff | isPartner ? messageRefusingTicket = messagePreset.ticket.refusingToCreateVerified : messageRefusingTicket = messagePreset.ticket.error;
 
+      // Send error message or confirmation
       switch (interaction.customId) {
         case ("age_verification"):
           if (isStaff | isVerified18) {
             return interaction.reply({
               content: messageRefusingTicket,
-              ephemeral: true
+              ephemeral: true,
             });
           };
 
           reasonTicketChange = "Age Verification";
-          staffToPing = "<@&1082104096959504404> & <@&1191482864156557332>";
+          staffToPing = "<@&1105937890011250872> & <@&1191482864156557332>";
           break;
         case ("report"):
           if (isStaff) {
             return interaction.reply({
               content: messageRefusingTicket,
-              ephemeral: true
+              ephemeral: true,
             });
           };
 
@@ -1482,7 +1488,7 @@ bot.on('interactionCreate', async (interaction) => {
           if (isStaff) {
             return interaction.reply({
               content: messageRefusingTicket,
-              ephemeral: true
+              ephemeral: true,
             });
           };
 
@@ -1493,24 +1499,27 @@ bot.on('interactionCreate', async (interaction) => {
           if (isPartner) {
             return interaction.reply({
               content: messageRefusingTicket,
-              ephemeral: true
+              ephemeral: true,
             });
           };
 
           reasonTicketChange = "Partnership";
           staffToPing = "<@&1191482864156557332>";
           break;
-      }
+      };
 
-      // Ticket System - (reason) Ticket Button
-      let reasonTicket = [
+      //////////////////////////////////////////
+      //   Ticket System - Button for Reason  //
+      //////////////////////////////////////////
+
+      let buttonReasonTicket = [
         "age_verification",
         "report",
         "support",
-        "partnership"
+        "partnership",
       ];
 
-      if (reasonTicket.includes(interaction.customId)) {
+      if (buttonReasonTicket.includes(interaction.customId)) {
         let channelToReceiveTicket = interaction.guild.channels.cache.get(loggingData.channelId_TicketReceive);
 
         // Check if there's not an existing ticket
@@ -1521,13 +1530,10 @@ bot.on('interactionCreate', async (interaction) => {
               ephemeral: true,
             });
           };
-        }
+        };
 
-        // Increase the ticket counter
-        !ticketCountData ?
-          await TicketCount.create({
-            guildId: interaction.guild.id,
-          }) : await ticketCountData.increment('count');
+        // Increase the ticket counter or create a ticket counter for the server
+        !ticketCountData ? await TicketCount.create({ guildId: interaction.guild.id }) : await ticketCountData.increment('count');
 
         // Creation of the ticket
         await Ticket.create({
@@ -1538,13 +1544,13 @@ bot.on('interactionCreate', async (interaction) => {
           userTag: interaction.user.tag,
         });
 
-        // Send the default message of success creation
+        // Send the message to the member that the ticket has been created/waiting to be claimed
         await interaction.reply({
           content: messagePreset.ticket.created,
           ephemeral: true,
         });
 
-        // Creation of button and embed
+        // Creation of claim and cancel buttons
         let buttonClaim = new ActionRowBuilder()
           .addComponents(
             new ButtonBuilder()
@@ -1559,6 +1565,7 @@ bot.on('interactionCreate', async (interaction) => {
               .setStyle(ButtonStyle.Secondary)
           );
 
+        // Creation of the ticket embed
         let claimingTicket = new EmbedBuilder()
           .setTitle("Ticket #" + ticketCountData.count)
           .addFields(
@@ -1576,29 +1583,37 @@ bot.on('interactionCreate', async (interaction) => {
         }).then(async (message) => {
           await Ticket.update({
             messageId: message.id
-          }, { where: { guildId: interaction.guild.id, userId: interaction.user.id, reason: interaction.customId } })
+          }, {
+            where: {
+              guildId: interaction.guild.id,
+              userId: interaction.user.id,
+              reason: interaction.customId,
+            }
+          });
         }).catch(() => { return });
       };
 
-      // Ticket System - (Waiting) Ticket Button
-      let inTicket = [
+      ////////////////////////////////////////////////////////
+      //  Ticket System - Button Claim, Unclaim and Cancel  //
+      ////////////////////////////////////////////////////////
+
+      let buttonClaimTicket = [
         "claim_ticket",
         "unclaim_ticket",
         "cancel_ticket"
       ];
 
-      if (inTicket.includes(interaction.customId)) {
+      if (buttonClaimTicket.includes(interaction.customId)) {
         let user_Id = interaction.message.embeds[0].fields[0].value.replace(">", "").replace("<@", "");
 
         // Checking if the member is still in the guild
         if (!guild.members.cache.find(user => user.id === user_Id)) {
-
           // Check if the ticket channel still exist
           if (!ticketMessageData) return;
 
           let ticketChannel = interaction.guild.channels.cache.get(ticketMessageData.channelId);
           if (ticketChannel) {
-            await ticketChannel.delete("Cancelled: Member left");
+            await ticketChannel.delete();
           };
 
           // Delete ticket message
@@ -1609,7 +1624,8 @@ bot.on('interactionCreate', async (interaction) => {
           // Delete the data in the database
           await Ticket.destroy({
             where: {
-              guildId: guild.id, userId: user_Id,
+              guildId: guild.id,
+              userId: user_Id,
             }
           });
 
@@ -1877,10 +1893,8 @@ bot.on('interactionCreate', async (interaction) => {
       ];
 
       if (createdTicket.includes(interaction.customId)) {
-
         // Checking if the member is still in the guild
         if (!guild.members.cache.find(member => member.id === interaction.message.embeds[0].fields[0].value.replace(">", "").replace("<@", ""))) {
-
           // Check if the ticket channel still exist
           if (!ticketChannelData) return;
 
@@ -1898,7 +1912,6 @@ bot.on('interactionCreate', async (interaction) => {
           await Ticket.destroy({ where: { guildId: guild.id, userId: ticketChannelData.userId } });
 
           // Decrement the ticket counter
-
           return ticketCountData.decrement('count', { by: 1 });
         }
 
@@ -1984,262 +1997,6 @@ bot.on('interactionCreate', async (interaction) => {
         };
       };
     };
-
-    /*let settingsId = [
-      "adminButton",
-      "welcomeButton",
-      "languageButton",
-      "channelButton",
-      "roleAutoRoleId_WelcomeButton",
-      "backAdminPage",
-      "nextAdminPage2",
-      "backSettingsMainMenu",
-      "nextSettingsMenu2",
-      "modButton",
-      "utilitiesButton",
-      "funButton"
-    ];
-
-    if (settingsId.includes(interaction.customId)) {
-      if (interaction.isButton()) {
-        let loggingData = await Logging.findOne({ where: { guildId: interaction.guild.id } });
-
-        let backAdminButton = new ActionRowBuilder()
-          .addComponents(
-            new ButtonBuilder()
-              .setCustomId('backAdminPage')
-              .setLabel('◀️')
-              .setStyle(ButtonStyle.Secondary),
-          );
-
-        loggingData.channelId_Welcome !== null ? ChannelWelcomeStatus = "<#" + loggingData.channelId_Welcome + ">" : ChannelWelcomeStatus = messagePreset.Settings.Disabled;
-        loggingData.roleAutoRoleId_Welcome !== null ? roleAutoRoleId_WelcomeStatus = "<@&" + loggingData.roleAutoRoleId_Welcome + ">" : roleAutoRoleId_WelcomeStatus = messagePreset.Settings.Disabled;
-
-        if (interaction.customId === "backSettingsMainMenu") {
-          let settingsButton = new ActionRowBuilder()
-            .addComponents(
-              new ButtonBuilder()
-                .setCustomId('adminButton')
-                .setLabel('⚒️')
-                .setStyle(ButtonStyle.Success),
-            )
-            .addComponents(
-              new ButtonBuilder()
-                .setCustomId('modButton')
-                .setLabel('🛡️')
-                .setStyle(ButtonStyle.Success),
-            )
-            .addComponents(
-              new ButtonBuilder()
-                .setCustomId('utilitiesButton')
-                .setLabel('🔧')
-                .setStyle(ButtonStyle.Success),
-            )
-            .addComponents(
-              new ButtonBuilder()
-                .setCustomId('funButton')
-                .setLabel('🎲')
-                .setStyle(ButtonStyle.Success),
-            ).addComponents(
-              new ButtonBuilder()
-                .setLabel('Support Server')
-                .setURL(Config.SupportDiscord)
-                .setStyle(ButtonStyle.Link),
-            );
-
-          let settingsMainMenu = new EmbedBuilder()
-            .setTitle("⚙️ Settings")
-            .setDescription("Click on the reaction according to what you want.")
-            .addFields(
-              { name: "⚒️ Administration", value: "View the page of the admin command/function." },
-              { name: "🛡️ Moderation", value: "View the page of the moderation command/function." },
-              { name: "🔧 Utilities", value: "View the page of the utilities command/function." },
-              { name: "🎲 Fun", value: "View the page of the fun command/function." }
-            )
-            .setColor("Blue")
-
-          return interaction.update({
-            embeds: [settingsMainMenu],
-            components: [settingsButton]
-          });
-        }
-
-        let adminMainPageButton = [
-          "adminButton",
-          "backAdminPage"
-        ];
-
-        if (adminMainPageButton.includes(interaction.customId)) {
-          let adminButtonPage = new ActionRowBuilder()
-            .addComponents(
-              new ButtonBuilder()
-                .setCustomId('backSettingsMainMenu')
-                .setLabel('◀️')
-                .setStyle(ButtonStyle.Secondary),
-            )
-            .addComponents(
-              new ButtonBuilder()
-                .setCustomId('welcomeButton')
-                .setLabel('👋')
-                .setStyle(ButtonStyle.Success),
-            )
-            .addComponents(
-              new ButtonBuilder()
-                .setCustomId('languageButton')
-                .setLabel('🗣️')
-                .setStyle(ButtonStyle.Success),
-            )
-            .addComponents(
-              new ButtonBuilder()
-                .setCustomId('nextSettingsMenu2')
-                .setLabel('▶️')
-                .setStyle(ButtonStyle.Secondary)
-                .setDisabled(),
-            );
-
-          let adminPage = new EmbedBuilder()
-            .setTitle("⚙️ Settings")
-            .setDescription("Click on the reaction according to what you want.")
-            .addFields(
-              { name: "👋 Welcome", value: "Change/View the settings of the welcome system." },
-              { name: "🗣️ Language", value: "Change/View the settings of the language system." },
-            )
-            .setColor("Blue")
-
-          return interaction.update({
-            embeds: [adminPage],
-            components: [adminButtonPage]
-          });
-        };
-
-        {
-          loggingData.channelId_Welcome !== null ? ChannelWelcomeStatus = "<#" + loggingData.channelId_Welcome + ">" : ChannelWelcomeStatus = messagePreset.Settings.Disabled;
-          loggingData.roleAutoRoleId_Welcome !== null ? roleAutoRoleId_WelcomeStatus = "<@&" + loggingData.roleAutoRoleId_Welcome + ">" : roleAutoRoleId_WelcomeStatus = messagePreset.Settings.Disabled;
-
-          switch (interaction.customId) {
-            case ("welcomeButton"):
-              let welcomeButtonPage = new ActionRowBuilder()
-                .addComponents(
-                  new ButtonBuilder()
-                    .setCustomId('backAdminPage')
-                    .setLabel('◀️')
-                    .setStyle(ButtonStyle.Secondary),
-                )
-                .addComponents(
-                  new ButtonBuilder()
-                    .setCustomId('channelButton')
-                    .setLabel('1️⃣')
-                    .setStyle(ButtonStyle.Success),
-                )
-                .addComponents(
-                  new ButtonBuilder()
-                    .setCustomId('roleAutoRoleId_WelcomeButton')
-                    .setLabel('2️⃣')
-                    .setStyle(ButtonStyle.Success),
-                )
-                .addComponents(
-                  new ButtonBuilder()
-                    .setCustomId('nextAdminPage2')
-                    .setLabel('▶️')
-                    .setStyle(ButtonStyle.Secondary)
-                    .setDisabled()
-                );
-
-              let welcomePage = new EmbedBuilder()
-                .setTitle("⚙️ Settings")
-                .setDescription("Click on the reaction according to what you want.")
-                .addFields(
-                  { name: "1️⃣ Channel", value: "*Current:* " + ChannelWelcomeStatus },
-                  { name: "2️⃣ Auto-Role", value: "*Current:* " + roleAutoRoleId_WelcomeStatus }
-                )
-                .setColor("Blue")
-
-              return interaction.update({
-                embeds: [welcomePage],
-                components: [welcomeButtonPage]
-              });
-          }
-        }
-
-        let adminSecondPage = [
-          "channelButton",
-          "roleAutoRoleId_WelcomeButton"
-        ];
-
-        if (adminSecondPage.includes(interaction.customId)) {
-          switch (interaction.customId) {
-            case ("channelButton"):
-              loggingData.channelId_Welcome !== null ? Status = "<#" + loggingData.channelId_Welcome + ">" : Status = messagePreset.Settings.Disabled;
-              NameInt = "channel";
-              Mention = "<#";
-              Description = "Please send the channel you want the welcome message to be sent.";
-              UpdateLog = "channelId_Welcome";
-
-              break;
-            case ("roleAutoRoleId_WelcomeButton"):
-              loggingData.roleAutoRoleId_Welcome !== null ? Status = "<@&" + loggingData.roleAutoRoleId_Welcome + ">" : Status = messagePreset.Settings.Disabled;
-              NameInt = "role";
-              Mention = "<@&";
-              Description = "Please send the role you want to be given when new member arrived in your server.";
-              UpdateLog = "roleAutoRoleId_Welcome";
-
-              break;
-          };
-
-          let welcomePage2 = new EmbedBuilder()
-            .setTitle("⚙️ Settings")
-            .setDescription(Description)
-            .addFields(
-              { name: "Old " + NameInt, value: Status },
-            )
-            .setColor("Blue")
-
-          return interaction.update({
-            embeds: [welcomePage2],
-            components: [backAdminButton],
-            fetchReply: true,
-          }).then((msg) => {
-            interaction.channel.awaitMessages({
-              max: 1,
-              time: 10000,
-              errors: ['time'],
-            }).then(async (collected) => {
-              switch (interaction.customId) {
-                case ("channelButton"):
-                  idCollect = collected.first().mentions.channels.map(NameInt => NameInt.id);
-                  idCollect2 = !collected.first().mentions.channels;
-                  break;
-                case ("roleAutoRoleId_WelcomeButton"):
-                  idCollect = collected.first().mentions.roles.map(NameInt => NameInt.id);
-                  idCollect2 = !collected.first().mentions.roles;
-                  break;
-              };
-
-              if (idCollect2) {
-                return interaction.followUp({
-                  content: "Please mention a " + NameInt + ".",
-                  ephemeral: true
-                });
-              };
-
-              welcomePage2.addFields(
-                { name: "New " + NameInt, value: Mention + idCollect[0] + ">" },
-              );
-
-              interaction.channel.messages.fetch(msg.id).then(async (msg) => {
-                await msg.edit({
-                  embeds: [welcomePage2],
-                  components: [backAdminButton],
-                });
-              });
-
-              return loggingData.update({ UpdateLog: idCollect[0] }, { where: { guildId: interaction.guild.id } });
-            })//.catch(() => { return; })
-          });
-        }
-      };
-    };*/
-
   } catch (error) {
     let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
     let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);

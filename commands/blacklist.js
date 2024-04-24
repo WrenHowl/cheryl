@@ -363,7 +363,7 @@ module.exports = {
                 reply = lgBlacklist.youreNotBlacklisted;
             };
 
-            let permissionUserData = await Permission.findOne({ where: { userId: interaction.user.id } });
+            let permissionUserData = await Permission.findOne({ where: { userId: user } });
             let permissionGuildData = await Permission.findOne({ where: { guildId: interaction.guild.id } });
             let blacklistData = await Blacklist.findOne({ where: { userId: userCheck.id } });
 

@@ -200,7 +200,7 @@
     },
     "verify": {
         "default": {
-            "name": "verify",
+            "name": "Verify",
             "description": "Manually verify a member"
         }
     },
