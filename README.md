@@ -43,4 +43,6 @@ Functionality
 
 <br>
 
-<br>
+<hr>
+
+If you wish to test the bot or just can't afford to host it yourself, you can invite it to your server : https://top.gg/bot/940369423125061633
