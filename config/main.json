@@ -8,8 +8,7 @@
     "botInfo": {
         "messagePrefix": "c.",
         "interactionPrefix": "/",
-        "guildId": "1030517199951110224",
-        "vrcharadise": "1137603416818987028",
+        "supportServerId": "1030517199951110224",
         "ownerId": "291262778730217472"
     },
     "channelsId": {
@@ -22,6 +21,7 @@
         "crash": "1043767023123046400"
     },
     "staffRoleId": {
+        "leadDeveloper": "1030517379270189096",
         "developer": "1030630693413343324",
         "staff": "1030518144088932413"
     },
