@@ -27,6 +27,8 @@ Functionality
 
 #### ├ Verification System
 
+CURRENTLY NON-FUNCTIONAL, IT HAS BEEN REPLACED WITH A TICKET SYSTEM
+
 <sub>This system will give you more security to your server, our verification system use the new features, button and modal. This will open a menu asking for questions for the user to answer, they will not be asked in DMs for these questions. Everything is server sided.</sub>
 
 <br>
