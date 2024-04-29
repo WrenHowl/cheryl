@@ -422,7 +422,7 @@ bot.once("ready", async () => {
 
     return console.log(dateTime.toLocaleString() + " -> The bot is ready!");
   } catch (error) {
-    let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
+    let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.supportServerId);
     let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
     console.log(error);
 
@@ -610,7 +610,7 @@ bot.on("guildMemberAdd", async (newMember) => {
       }
     };
   } catch (error) {
-    let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
+    let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.supportServerId);
     let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
     console.log(error);
 
@@ -650,7 +650,7 @@ bot.on("guildMemberRemove", async (leavingMember) => {
     let lgLeaving = languageSet.leavingMessage.message.embed.logs;
 
     // Checking if they left the support discord and had permission
-    if (guild.id === configPreset.botInfo.guildId) {
+    if (guild.id === configPreset.botInfo.supportServerId) {
       return Permission.destroy({ where: { userId: leavingMember.user.id } });
     };
 
@@ -719,7 +719,7 @@ bot.on("guildMemberRemove", async (leavingMember) => {
       return ticketCountData.decrement('count', { by: 1 });
     };
   } catch (error) {
-    let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
+    let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.supportServerId);
     let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
     console.log(error);
 
@@ -735,7 +735,7 @@ bot.on("guildBanAdd", async (bannedUser) => {
       blacklistData.increment("joinedServerBan", { by: 1 })
     };
   } catch (error) {
-    let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
+    let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.supportServerId);
     let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
     console.log(error);
 
@@ -757,7 +757,7 @@ bot.on("userUpdate", async (oldUpdate, newUpdate) => {
     };
 
   } catch (error) {
-    let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
+    let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.supportServerId);
     let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
     console.log(error);
 
@@ -773,7 +773,7 @@ bot.on("guildCreate", async (guild) => {
     let owner = await guild.fetchOwner();
     let blacklistData = await Blacklist.findOne({ where: { userId: owner.user.id } });
 
-    let fetchGuild = guild.client.guilds.cache.get(configPreset.botInfo.guildId);
+    let fetchGuild = guild.client.guilds.cache.get(configPreset.botInfo.supportServerId);
     let newGuildChannelId = fetchGuild.channels.cache.get(configPreset.channelsId.botAdded);
 
     // Checking if the logging data or/and ticket data are missing
@@ -811,7 +811,7 @@ bot.on("guildCreate", async (guild) => {
     });
 
   } catch (error) {
-    let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
+    let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.supportServerId);
     let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
     console.log(error);
 
@@ -824,7 +824,7 @@ bot.on("guildDelete", async (guild) => {
     let owner = await guild.fetchOwner();
     let blacklistData = await Blacklist.findOne({ where: { userId: owner.user.id } });
 
-    let fetchGuild = guild.client.guilds.cache.get(configPreset.botInfo.guildId);
+    let fetchGuild = guild.client.guilds.cache.get(configPreset.botInfo.supportServerId);
     let deleteGuildChannelId = fetchGuild.channels.cache.get(configPreset.channelsId.botRemoved);
 
     // Checking if the owner is blacklisted
@@ -850,7 +850,7 @@ bot.on("guildDelete", async (guild) => {
     });
 
   } catch (error) {
-    let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
+    let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.supportServerId);
     let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
     console.log(error);
 
@@ -932,10 +932,8 @@ bot.on("messageCreate", async (message) => {
       case (en.ticket.default.name):
         return bot.commands.get(en.ticket.default.name).execute(bot, message, args, EmbedBuilder, sequelize, Sequelize);
     };
-
-    console.log("BBB")
   } catch (error) {
-    let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
+    let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.supportServerId);
     let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
     console.log(`${message.author.id} -> ${message.author.tag}`);
     console.log(error);
@@ -1032,7 +1030,7 @@ bot.on('interactionCreate', async (interaction) => {
     // Execute the command
     return command.execute(interaction, bot, sequelize, Sequelize);
   } catch (error) {
-    let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
+    let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.supportServerId);
     let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
     console.log(`${interaction.user.id} -> ${interaction.user.tag}`);
     console.log(error);
@@ -1452,6 +1450,7 @@ bot.on('interactionCreate', async (interaction) => {
       let isManagement = interaction.member.roles.cache.some(role => role.id === "1191482864156557332");
       let isAdmin = interaction.member.roles.cache.some(role => role.id === "1082104096959504404");
       let isVerified18 = interaction.member.roles.cache.some(role => role.id === "1084970943820075050");
+      let isntVerified = interaction.member.roles.cache.some(role => role.id === "1233066501825892383");
       let isPartner = interaction.member.roles.cache.some(role => role.id === "1088952912610328616");
 
       // Errors
@@ -1930,8 +1929,9 @@ bot.on('interactionCreate', async (interaction) => {
           case ("buttonToAdd"):
             let profileCheck = await Profile.findOne({ where: { userId: member.user.id } });
 
-            // Giving role
+            // Giving/removing roles
             await member.roles.add("1084970943820075050", "Age Verification: Verified by " + interaction.user.tag).catch(() => { return });
+            await member.roles.remove("1233066501825892383", "Age verification process");
 
             // Upadting profile
             profileCheck ? await Profile.update({ verified18: true }, { where: { userId: member.user.id } }) :
@@ -1998,7 +1998,7 @@ bot.on('interactionCreate', async (interaction) => {
       };
     };
   } catch (error) {
-    let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
+    let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.supportServerId);
     let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
     console.log(`${interaction.user.id} -> ${interaction.user.tag}`);
     console.log(error);

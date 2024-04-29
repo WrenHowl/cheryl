@@ -194,7 +194,7 @@ module.exports = {
             ];
 
             if (suggestImage) {
-                let fetchGuild = interaction.client.guilds.cache.get(configPreset.botInfo.guildId);
+                let fetchGuild = interaction.client.guilds.cache.get(configPreset.botInfo.supportServerId);
 
                 // Check if the suggestion string is a URL
                 try {
@@ -492,47 +492,24 @@ module.exports = {
                 let randomAnswer = await sentence[Math.floor(Math.random() * sentence.length)];
                 let randomImage = await actionImageData[Math.floor(Math.random() * actionImageData.length)];
 
-                /*const supportDiscord = new ActionRowBuilder()
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setLabel(languageSet.action.button.source)
-                            .setURL(randomImage.imageUrl)
-                            .setStyle(ButtonStyle.Link),
-                    )
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setLabel(languageSet.default.button.discord)
-                            .setURL(configPreset.other.discordLink)
-                            .setStyle(ButtonStyle.Link),
-                    );
-
-                const imageEmbed = new EmbedBuilder()
-                    .setColor("Blue")
-                    .setImage(randomImage.imageUrl)*/
-
                 if (loggingData.status_canActionImage === "Disabled") {
                     return interaction.reply({
                         content: randomAnswer + "\n\n" + randomImage.imageUrl,
-                        //components: [supportDiscord],
                     });
                 } else if (loggingData.status_canActionMessage === "Disabled") {
                     return interaction.reply({
                         content: randomImage.imageUrl,
-                        //embeds: [imageEmbed],
-                        //components: [supportDiscord],
                     });
                 } else {
                     return interaction.reply({
                         content: randomAnswer + "\n\n" + randomImage.imageUrl,
-                        //embeds: [imageEmbed],
-                        //components: [supportDiscord],
                     });
                 }
             };
         } catch (error) {
-            let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
+            let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.supportServerId);
             let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
-            console.log(`${interaction.user.id} -> ${interaction.user.tag}`);
+            console.log(`${interaction.user.id} -> ${interaction.user.username}`);
             console.log(error);
 
             await interaction.reply({

@@ -186,9 +186,9 @@ module.exports = {
                     } else return;
             };
         } catch (error) {
-            let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
+            let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.supportServerId);
             let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
-            console.log(`${interaction.user.id} -> ${interaction.user.tag}`);
+            console.log(`${interaction.user.id} -> ${interaction.user.username}`);
             console.log(error);
 
             await interaction.reply({

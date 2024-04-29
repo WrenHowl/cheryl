@@ -349,7 +349,7 @@ module.exports = {
             let evidenceLink = interaction.options.getString(en.blacklist.default.add.evidence.name);
             let evidenceImage = interaction.options.getAttachment(en.blacklist.default.suggest.evidence.name);
 
-            let fetchGuild = interaction.client.guilds.cache.get(configPreset.botInfo.guildId);
+            let fetchGuild = interaction.client.guilds.cache.get(configPreset.botInfo.supportServerId);
             let blacklistChannel = fetchGuild.channels.cache.get(configPreset.channelsId.blacklist);
             let blacklistSuggestChannel = fetchGuild.channels.cache.get(configPreset.channelsId.suggestBlacklist);
 
@@ -363,7 +363,7 @@ module.exports = {
                 reply = lgBlacklist.youreNotBlacklisted;
             };
 
-            let permissionUserData = await Permission.findOne({ where: { userId: user } });
+            let permissionUserData = await Permission.findOne({ where: { userId: user.id } });
             let permissionGuildData = await Permission.findOne({ where: { guildId: interaction.guild.id } });
             let blacklistData = await Blacklist.findOne({ where: { userId: userCheck.id } });
 
@@ -378,12 +378,12 @@ module.exports = {
                 return interaction.reply({
                     content: languageSet.default.staffOnly,
                 });
-            } else if (options !== "check" | "remove" & blacklistData) {
+            } else if (options === "add" || options === "suggest" && blacklistData) {
                 return interaction.reply({
                     content: languageSet.blacklist.message.onWho.isBlacklisted,
                     ephemeral: true,
                 });
-            } else if (options !== "suggest" | permissionGuildData) {
+            } else if (options !== "suggest" & permissionGuildData) {
                 return interaction.reply({
                     content: languageSet.blacklist.permission.server,
                     ephemeral: true,
@@ -581,9 +581,9 @@ module.exports = {
                     };
             };
         } catch (error) {
-            let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
+            let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.supportServerId);
             let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
-            console.log(`${interaction.user.id} -> ${interaction.user.tag}`);
+            console.log(`${interaction.user.id} -> ${interaction.user.username}`);
             console.log(error);
 
             await interaction.reply({
