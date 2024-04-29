@@ -866,8 +866,6 @@ bot.on("messageCreate", async (message) => {
   }
 
   try {
-    let statusCommand = await CommandFunction.findOne({ where: { name: command } });
-
     // File Path
     let commandsPath = path.join(__dirname, 'commands_noslash');
     let commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
@@ -887,6 +885,7 @@ bot.on("messageCreate", async (message) => {
     // Setting up the command
     let args = message.content.slice(prefixSet.length).trim().split(/ +/);
     let command = args.shift().toLowerCase();
+    let statusCommand = await CommandFunction.findOne({ where: { name: command } });
 
     if (!statusCommand) {
       await CommandFunction.create({
