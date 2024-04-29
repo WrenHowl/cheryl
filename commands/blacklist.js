@@ -441,7 +441,6 @@ module.exports = {
 
                     switch (options) {
                         case ("add"):
-
                             // Checking if the user is already blacklisted
                             if (blacklistData) {
                                 blacklistEmbed.setDescription(`:white_check_mark: ${messagePreset.blacklist.isBlacklisted}`)
@@ -479,7 +478,6 @@ module.exports = {
                                 });
                             });
                         case ("remove"):
-
                             // Checking if the user is already blacklisted
                             if (!blacklistData) {
                                 blacklistEmbed.setDescription(`:white_check_mark: ${messagePreset.blacklist.isntBlacklisted}`)

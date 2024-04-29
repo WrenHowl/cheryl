@@ -177,7 +177,6 @@ module.exports = {
             let choice = interaction.options.getString(en.action.default.choice.name);
             let suggestImage = interaction.options.getString(en.action.default.suggest.name);
             let user = interaction.options.getUser(en.action.default.member.name);
-
             let actionImageData = await ActionImage.findAll({ where: { category: choice }, order: sequelize.random(), limit: 1 });
 
             let nsfwChoice = [
@@ -209,7 +208,6 @@ module.exports = {
 
                 // Check if image has already been suggested/added
                 let imageData = await ActionImage.findOne({ where: { imageUrl: suggestImage } });
-
                 if (imageData) {
                     return interaction.reply({
                         content: languageSet.action.message.error.alreadyExist,
@@ -273,7 +271,6 @@ module.exports = {
                     embeds: [imageEmbed],
                     components: [buttonSuggestion]
                 }).then(async (sent) => {
-
                     // Adding the image to the database
                     await ActionImage.create({
                         messageId: sent.id,

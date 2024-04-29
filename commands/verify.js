@@ -49,7 +49,7 @@ module.exports = {
             default:
                 languageSet = en;
                 break;
-        }
+        };
 
         try {
             if (!interaction.guild.id === "1082103667181764659") return;

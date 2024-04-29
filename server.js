@@ -459,52 +459,41 @@ bot.on("guildMemberAdd", async (newMember) => {
     let verifierData = await Verifier.findOne({ where: { userId: newMember.user.id } });
     let blacklistData = await Blacklist.findOne({ where: { userId: newMember.user.id } });
 
-    let lgWelcome = languageSet.welcomeMessage.message.embed.logs;
+    ///////////////////////////////////
+    //  Checking for welcome config  //
+    ///////////////////////////////////
 
-    // Checking for welcome config
-    if (loggingData.channelId_Welcome) {
+    switch (loggingData) {
+      case (channelId_Welcome):
+        let lgWelcome = languageSet.welcomeMessage.message.embed.logs;
 
-      // Check if the channel still exist
-      let welcomeChannel = newMember.guild.channels.cache.get(loggingData.channelId_Welcome);
-      if (!welcomeChannel) {
-        return Logging.update({ channelId_Welcome: null }, { where: { guildId: guild.id } });
-      };
+        // Check if the channel still exist
+        let welcomeChannel = newMember.guild.channels.cache.get(loggingData.channelId_Welcome);
+        if (!welcomeChannel) {
+          return Logging.update({ channelId_Welcome: null }, { where: { guildId: guild.id } });
+        };
 
-      // Checking if the bot can send message in the channel
-      let botPermission = newMember.guild.members.me.permissionsIn(loggingData.channelId_Welcome).has(['SendMessages', 'ViewChannel']);
-      if (!botPermission | newMember.user.bot) return;
+        // Checking if the bot can send message in the channel
+        let botPermission = newMember.guild.members.me.permissionsIn(loggingData.channelId_Welcome).has(['SendMessages', 'ViewChannel']);
+        if (!botPermission | newMember.user.bot) return;
 
-      // Get the member count of the server
-      let memberCount = guild.members.cache.filter(newMember => !newMember.user.bot).size;
+        // Creation of the message to send
+        await welcomeChannel.send({
+          content: [`${lgWelcome.description} ${newMember.user.toString()}!`],
+        }).catch(() => { return });
+      case (roleAutoRoleId_Welcome):
+        let botPermissionRole = newMember.guild.members.me.permissions.has("ManageRoles");
+        let botPostion = newMember.roles.highest.position >= (await newMember.guild.members.fetch(configPreset.botPrivateInfo.botId)).roles.highest.position;
 
-      // Creation of the message to send
-      let welcomeEmbed = new EmbedBuilder()
-        .setDescription(`${lgWelcome.description} ${newMember.user.toString()}!`)
-        .addFields(
-          { name: lgWelcome.fields.createdAt, value: moment(newMember.user.createdAt).format("Do MMMM YYYY hh:ss:mm A") },
-          { name: lgWelcome.fields.memberCount, value: memberCount.toString() }
-        )
-        .setColor("Green")
-        .setThumbnail(newMember.user.displayAvatarURL())
-        .setFooter({
-          text: "ID:" + newMember.user.id
-        })
-        .setTimestamp();
+        if (botPermissionRole & botPostion) {
+          return newMember.roles.add(loggingData.roleAutoRoleId_Welcome);
+        };
+    };
 
-      await welcomeChannel.send({
-        embeds: [welcomeEmbed],
-      }).catch(() => { return });
-    }
+    ////////////////////////////////////////
+    //  Checking for verification config  //
+    ////////////////////////////////////////
 
-    if (loggingData.roleAutoRoleId_Welcome) {
-      let botPermissionRole = newMember.guild.members.me.permissions.has("ManageRoles");
-      let botPostion = newMember.roles.highest.position >= (await newMember.guild.members.fetch(configPreset.botPrivateInfo.botId)).roles.highest.position;
-      if (botPermissionRole & botPostion) {
-        return newMember.roles.add(loggingData.roleAutoRoleId_Welcome);
-      };
-    }
-
-    // Checking for verification config
     if (verifierData) {
       if (loggingData.roleAddId_Verify | loggingData.roleRemoveId_Verify) {
         await newMember.roles.add(loggingData.roleAddId_Verify);
@@ -512,12 +501,12 @@ bot.on("guildMemberAdd", async (newMember) => {
       };
     };
 
-    // Checking for blacklist config
+    /////////////////////////////////////
+    //  Checking for blacklist config  //
+    /////////////////////////////////////
+
     if (blacklistData) {
-
-      // Checking if the blacklist is enabled and has a channel
       if (loggingData.status_Blacklist === "Enabled" & loggingData.channelId_Blacklist) {
-
         // Check if the channel still exist
         let blacklistChannel = newMember.guild.channels.cache.get(loggingData.channelId_Blacklist);
         if (!blacklistChannel) {
@@ -568,10 +557,15 @@ bot.on("guildMemberAdd", async (newMember) => {
         // Check if the auto ban is on
         let autoBanResponse = languageSet.welcomeMessage.message.blacklist.autoBan;
 
+        let riskLevel = [
+          "Low",
+          "Medium",
+          "High"
+        ];
+
         switch (loggingData.status_BlacklistAutoban) {
           case ("Low+"):
-            if (blacklistData.risk === "Low" | "Medium" | "High") {
-
+            if (riskLevel.includes(blacklistData.risk)) {
               // Incrementing the ban count in the database
               await blacklistData.increment("joinedServerBan");
 
@@ -581,8 +575,7 @@ bot.on("guildMemberAdd", async (newMember) => {
 
             break;
           case ("Medium+"):
-            if (blacklistData.risk === "Medium" | "High") {
-
+            if (blacklistData.risk === "Medium" | blacklistData.risk === "High") {
               // Incrementing the ban count in the database
               await blacklistData.increment("joinedServerBan");
 
@@ -593,7 +586,6 @@ bot.on("guildMemberAdd", async (newMember) => {
             break;
           case ("High+"):
             if (blacklistData.risk === "High") {
-
               // Incrementing the ban count in the database
               await blacklistData.increment("joinedServerBan");
 
@@ -603,11 +595,10 @@ bot.on("guildMemberAdd", async (newMember) => {
 
             break;
           default:
-
             // Return nothing if it's not on
-            break;
+            return;
         };
-      }
+      };
     };
   } catch (error) {
     let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.supportServerId);
@@ -655,7 +646,6 @@ bot.on("guildMemberRemove", async (leavingMember) => {
     };
 
     if (loggingData.channelId_Leaving) {
-
       // Check if channel still exist
       let leavingChannel = leavingMember.guild.channels.cache.get(loggingData.channelId_Leaving);
       if (!leavingChannel) {
@@ -699,7 +689,6 @@ bot.on("guildMemberRemove", async (leavingMember) => {
     };
 
     if (ticketData) {
-
       // Check if the ticket channel still exist
       let ticketChannel = leavingMember.guild.channels.cache.get(ticketData.channelId);
       if (ticketChannel) {
@@ -745,7 +734,6 @@ bot.on("guildBanAdd", async (bannedUser) => {
 
 bot.on("userUpdate", async (oldUpdate, newUpdate) => {
   try {
-
     // Check if user changed is userTag or discriminator
     let changeOfUserTag = newUpdate.username !== oldUpdate.username;
     let changeOfDiscriminator = newUpdate.discriminator !== oldUpdate.discriminator;
@@ -777,7 +765,6 @@ bot.on("guildCreate", async (guild) => {
     let newGuildChannelId = fetchGuild.channels.cache.get(configPreset.channelsId.botAdded);
 
     // Checking if the logging data or/and ticket data are missing
-
     if (!loggingData) {
       await Logging.create({
         guildId: guild.id,
@@ -789,11 +776,9 @@ bot.on("guildCreate", async (guild) => {
     }
 
     // Checking if the owner is blacklisted
-
     blacklistData ? isBlacklisted = "Yes" : isBlacklisted = "No";
 
     // Making the embed and sending it
-
     let newGuildEmbed = new EmbedBuilder()
       .setTitle("Bot Added")
       .addFields(
@@ -828,11 +813,9 @@ bot.on("guildDelete", async (guild) => {
     let deleteGuildChannelId = fetchGuild.channels.cache.get(configPreset.channelsId.botRemoved);
 
     // Checking if the owner is blacklisted
-
     blacklistData ? isBlacklisted = "Yes" : isBlacklisted = "No";
 
     // Making the embed and sending it
-
     let removeGuildEmbed = new EmbedBuilder()
       .setTitle("Bot Removed")
       .addFields(
@@ -883,6 +866,8 @@ bot.on("messageCreate", async (message) => {
   }
 
   try {
+    let statusCommand = await CommandFunction.findOne({ where: { name: command } });
+
     // File Path
     let commandsPath = path.join(__dirname, 'commands_noslash');
     let commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
@@ -891,10 +876,9 @@ bot.on("messageCreate", async (message) => {
       let filePath = path.join(commandsPath, file);
       let command = require(filePath);
       bot.commands.set(command.name, command);
-    }
+    };
 
     // Prefix setup
-    let loggingData = await Logging.findOne({ where: { guildId: message.guild.id } });
     loggingData.prefix ? prefixSet = loggingData.prefix : prefixSet = configPreset.botInfo.messagePrefix;
 
     // Not answering the message if it's a bot or not using the prefix
@@ -904,16 +888,20 @@ bot.on("messageCreate", async (message) => {
     let args = message.content.slice(prefixSet.length).trim().split(/ +/);
     let command = args.shift().toLowerCase();
 
-    // Checking if the command that is being executed is 
-    let statusCommand = await CommandFunction.findOne({ where: { name: command } });
+    if (!statusCommand) {
+      await CommandFunction.create({
+        name: command,
+        value: true,
+      });
+    } else {
+      if (statusCommand.value === false | !message.guild) {
+        !message.guild ?
+          refusingAction = languageSet.default.serverOnly :
+          refusingAction = languageSet.default.commandDisabledGlobally;
 
-    if (statusCommand) {
-      if (statusCommand.value === "Disable" | !message.guild) {
-        refusingAction = languageSet.default.commandDisabledGlobally;
-        !interaction.guild ? refusingAction = languageSet.default.serverOnly : false;
-
-        return message.reply({
+        return interaction.reply({
           content: refusingAction,
+          ephemeral: true,
         });
       };
     };
@@ -935,7 +923,7 @@ bot.on("messageCreate", async (message) => {
   } catch (error) {
     let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.supportServerId);
     let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
-    console.log(`${message.author.id} -> ${message.author.tag}`);
+    console.log(`${message.author.id} -> ${message.author.username}`);
     console.log(error);
 
     await message.reply({
@@ -997,6 +985,7 @@ bot.on('interactionCreate', async (interaction) => {
   }
 
   try {
+    let statusCommand = await CommandFunction.findOne({ where: { name: interaction.commandName } });
 
     // File Path
     let commandsPath = path.join(__dirname, 'commands');
@@ -1006,25 +995,28 @@ bot.on('interactionCreate', async (interaction) => {
       let filePath = path.join(commandsPath, file);
       let command = require(filePath);
       bot.commands.set(command.data.name, command);
-    }
+    };
 
     // Checking if it's an existing interaction command
     if (!interaction.isCommand()) return;
 
-    // Getting the command if it is
     let command = bot.commands.get(interaction.commandName);
 
-    // Checking if the command that is being executed is disabled or not in guild
-    let statusCommand = await CommandFunction.findOne({ where: { name: interaction.commandName } });
-
-    if (statusCommand.value === "Disable" | !interaction.guild) {
-      refusingAction = languageSet.default.commandDisabledGlobally;
-      !interaction.guild ? refusingAction = languageSet.default.serverOnly : false;
-
-      return interaction.reply({
-        content: refusingAction,
-        ephemeral: true,
+    if (!statusCommand) {
+      await CommandFunction.create({
+        name: interaction.commandName,
+        value: true,
       });
+    } else {
+      if (statusCommand.value === false | !interaction.guild) {
+        refusingAction = languageSet.default.commandDisabledGlobally;
+        !interaction.guild ? refusingAction = languageSet.default.serverOnly : false;
+
+        return interaction.reply({
+          content: refusingAction,
+          ephemeral: true,
+        });
+      };
     };
 
     // Execute the command
@@ -1032,7 +1024,7 @@ bot.on('interactionCreate', async (interaction) => {
   } catch (error) {
     let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.supportServerId);
     let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
-    console.log(`${interaction.user.id} -> ${interaction.user.tag}`);
+    console.log(`${interaction.user.id} -> ${interaction.user.username}`);
     console.log(error);
 
     await interaction.reply({
@@ -2000,7 +1992,7 @@ bot.on('interactionCreate', async (interaction) => {
   } catch (error) {
     let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.supportServerId);
     let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
-    console.log(`${interaction.user.id} -> ${interaction.user.tag}`);
+    console.log(`${interaction.user.id} -> ${interaction.user.username}`);
     console.log(error);
 
     await interaction.reply({

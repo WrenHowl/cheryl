@@ -86,8 +86,8 @@ module.exports = {
                 | staffGet.roles.cache.some(
                     role => role.id === configPreset.staffRoleId.developer)
                 | staffGet.roles.cache.some(
-                    role => role.id === configPreset.staffRoleId.staff)
-                : false;
+                    role => role.id === configPreset.staffRoleId.staff) :
+                false;
 
             const staffEmbed = new EmbedBuilder()
 
