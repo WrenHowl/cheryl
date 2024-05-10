@@ -134,10 +134,16 @@ module.exports = {
             default:
                 languageSet = en;
                 break;
-        }
+        };
 
         try {
             const ActionImage = sequelize.define("ActionImage", {
+                id: {
+                    type: Sequelize.INTEGER,
+                    primaryKey: true,
+                    unique: false,
+                    autoIncrement: true
+                },
                 imageUrl: {
                     type: Sequelize.STRING,
                     unique: false,
@@ -195,16 +201,23 @@ module.exports = {
             if (suggestImage) {
                 let fetchGuild = interaction.client.guilds.cache.get(configPreset.botInfo.supportServerId);
 
-                // Check if the suggestion string is a URL
+                // Check if the suggestion is an URL
                 try {
                     new URL(suggestImage);
-                    !suggestImage.endsWith("gif")
                 } catch (error) {
                     return interaction.reply({
-                        content: languageSet.action.message.error.wrongUrl,
+                        content: languageSet.action.message.error.wrongURL,
                         ephemeral: true,
                     });
-                }
+                };
+
+                // Check if the suggestion string is a valid format URL
+                if (!['jpg', 'png', 'gif'].some(sm => suggestImage.endsWith(sm))) {
+                    return interaction.reply({
+                        content: languageSet.action.message.error.wrongFormat,
+                        ephemeral: true,
+                    });
+                };
 
                 // Check if image has already been suggested/added
                 let imageData = await ActionImage.findOne({ where: { imageUrl: suggestImage } });
@@ -238,8 +251,10 @@ module.exports = {
 
                 let imageEmbed = new EmbedBuilder()
                     .addFields(
-                        { name: "Category:", value: choice, inline: true },
-                        { name: "Author:", value: interaction.user.tag + " *(" + interaction.user.id + ")*", inline: true }
+                        { name: "Category", value: choice, inline: true },
+                        { name: "Name", value: interaction.user.username, inline: true },
+                        { name: "ID", value: interaction.user.id, inline: true },
+                        { name: "Image URL", value: `[URL](${suggestImage})`, inline: true }
                     )
                     .setImage(suggestImage)
                     .setColor("Yellow");
@@ -251,7 +266,7 @@ module.exports = {
                 if (interaction.user.id === configPreset.botInfo.ownerId) {
                     imageEmbed.setColor("Green");
                     imageEmbed.addFields(
-                        { name: "Status:", value: "Accepted" }
+                        { name: "Status:", value: "Accepted", inline: true }
                     );
 
                     return suggestChannel.send({
@@ -281,6 +296,15 @@ module.exports = {
                     });
                 });
             } else {
+                if (!actionImageData) {
+                    const noImage = `There is no image in the database for the following: ${choice}`
+                    await interaction.reply({
+                        content: `${noImage}\n\nThe developers have been alerted!`,
+                        ephemeral: true,
+                    })
+                    return console.log(noImage)
+                };
+
                 let userOne = interaction.user.toString();
                 let userTwo = user ? user.toString() : bot.user.toString();
                 let userThree = user ? user.id : bot.user.id;
@@ -491,17 +515,17 @@ module.exports = {
 
                 if (loggingData.status_canActionImage === "Disabled") {
                     return interaction.reply({
-                        content: randomAnswer + "\n\n" + randomImage.imageUrl,
+                        content: randomAnswer,
                     });
                 } else if (loggingData.status_canActionMessage === "Disabled") {
                     return interaction.reply({
-                        content: randomImage.imageUrl,
+                        content: `[Image URL](${randomImage.imageUrl})`,
                     });
                 } else {
                     return interaction.reply({
-                        content: randomAnswer + "\n\n" + randomImage.imageUrl,
+                        content: `${randomAnswer}\n\n[Image URL](${randomImage.imageUrl})`,
                     });
-                }
+                };
             };
         } catch (error) {
             let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.supportServerId);

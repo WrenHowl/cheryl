@@ -1,10 +1,10 @@
 {
     "default": {
-        "errorOccured": "An error occured. Please contact @baddwagon",
+        "errorOccured": "An error occured. Please contact @baddwagon or he will contact you soon if it's relevant",
         "unknownUser": "An error occured. I can't find this user",
         "commandDisabledGlobally": "An error occured. This command is disabled globally by the developpers",
         "serverOnly": "An error occured. You can only use this command in a server",
-        "staffOnly": "An error occured. This command is only available to the staff of Cheryl.",
+        "staffOnly": "An error occured. This command is only available to the staff of Cheryl",
         "userPermission": {
             "ban": "You're missing this permission: Ban Members",
             "kick": "You're missing this permission: Ban Members",
@@ -223,8 +223,8 @@
         },
         "message": {
             "error": {
-                "wrongUrl": "You must send a valid URL",
-                "wrongFormat": "We only accept gif for actions",
+                "wrongUrl": "Invalid URL. You must provide a valid URL.",
+                "wrongFormat": "You must send a valid format. The URL must end with `.jpg`, `.gif` or `.png`",
                 "alreadyExist": "This image has already been suggested/added",
                 "disable": "This command has been disabled in this server",
                 "notNsfw": "You cannot use NSFW command into this channel. This channel must be age-restricted to use this command"

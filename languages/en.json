@@ -1,6 +1,6 @@
 {
     "default": {
-        "errorOccured": "An error occured. Please contact @baddwagon",
+        "errorOccured": "An error occured. Please contact @baddwagon or he will contact you soon if it's relevant",
         "unknownUser": "An error occured. I can't find this user",
         "commandDisabledGlobally": "An error occured. This command is disabled globally by the developpers",
         "serverOnly": "An error occured. You can only use this command in a server",
@@ -21,6 +21,16 @@
         },
         "button": {
             "discord": "Support Server"
+        }
+    },
+    "bump": {
+        "message": {
+            "thanks_first": "Thank you for bumping the server! I will remind",
+            "thanks_second": "in 2 hours to bump it again.",
+            "embed": {
+                "title": "Bump Time",
+                "description": "It's been 2 hours already and it's now time to bump the server!\n'* Use the command `/bump` from Disboard"
+            }
         }
     },
     "help": {
@@ -223,8 +233,8 @@
         },
         "message": {
             "error": {
-                "wrongUrl": "You must send a valid URL",
-                "wrongFormat": "We only accept gif for actions",
+                "wrongUrl": "Invalid URL. You must provide a valid URL.",
+                "wrongFormat": "You must send a valid format. The URL must end with `.jpg`, `.gif` or `.png`",
                 "alreadyExist": "This image has already been suggested/added",
                 "disable": "This command has been disabled in this server",
                 "notNsfw": "You cannot use NSFW command into this channel. This channel must be age-restricted to use this command"
