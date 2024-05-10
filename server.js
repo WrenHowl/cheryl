@@ -1634,44 +1634,41 @@ bot.on('interactionCreate', async (interaction) => {
         'buttonDeleteTicket'
       ];
 
-      async function cancel_func() {
-        if (button_claim_ticket.includes(interaction.customId)) {
-          user_id = interaction.message.embeds[0].fields[0].value.replace('>', '').replace('<@', '');
-          ticket = ticket_message_data;
-        } else if (created_ticket.includes(interaction.customId)) {
-          user_id = ticket_channel_data.userId;
-          ticket = ticket_channel_data;
+      let user_id = interaction.message.embeds[0].fields[0].value.replace('>', '').replace('<@', '');
+      let member_in_guild = guild.members.cache.find(member => member.id === user_id);
 
-          // Delete ticket message
-          await bot.guilds.cache.get(interaction.guild.id).channels.cache.get(logging_data.channelId_TicketReceive).messages.fetch(ticket_channel_data.messageId).then((message) => {
-            message.delete();
-          }).catch(() => { return })
+      async function cancel_func() {
+        if (created_ticket.includes(interaction.customId)) {
+          // Check if member is still in guild
+          if (member_in_guild & ticket_data) {
+            // Delete ticket message
+            await bot.guilds.cache.get(interaction.guild.id).channels.cache.get(logging_data.channelId_TicketReceive).messages.fetch(ticket_channel_data.messageId).then((message) => {
+              message.delete();
+            }).catch(() => { return });
+          };
         };
 
-        // Check if the ticket channel still exist
-        if (!ticket_channel_data) return;
+        // Decrement the ticket counter
+        await ticket_count_data.decrement('count', { by: 1 });
 
         // Delete the ticket channel if there is one created
-        let ticket_channel = interaction.guild.channels.cache.get(ticket.channelId);
+        let ticket_channel = interaction.guild.channels.cache.get(interaction.channel.id);
         if (ticket_channel) {
-          await ticket_channel.delete('Canceled: Member left');
+          await ticket_channel.delete('Error: Member left the server or error with database');
         };
 
         // Delete the data in the database
-        await Ticket.destroy({
+        return Ticket.destroy({
           where: {
             guildId: guild.id,
-            userId: user_id
+            userId: user_id,
           },
         });
-
-        // Decrement the ticket counter
-        return ticket_count_data.decrement('count', { by: 1 });
       };
 
       if (button_claim_ticket.includes(interaction.customId)) {
         // Checking if the member is still in the guild
-        if (!guild.members.cache.find(member => member.id === interaction.message.embeds[0].fields[0].value.replace('>', '').replace('<@', ''))) return cancel_func();
+        if (!member_in_guild) return cancel_func();
 
         let findingMember = guild.members.cache.get(ticket_message_data.userId);
         let memberInServer = bot.users.cache.get(ticket_message_data.userId);
@@ -1927,9 +1924,8 @@ bot.on('interactionCreate', async (interaction) => {
       ////////////////////////////////////////////////
 
       if (created_ticket.includes(interaction.customId)) {
-        let find_member = !guild.members.cache.find(member => member.id === ticket_channel_data.userId);
         // Checking if the member is still in the guild
-        if (find_member) return cancel_func();
+        if (!member_in_guild | !ticket_channel_data | !ticket_message_data) return cancel_func();
 
         let member = interaction.guild.members.cache.get(ticket_channel_data.userId);
 
@@ -1946,7 +1942,12 @@ bot.on('interactionCreate', async (interaction) => {
             let profileCheck = await Profile.findOne({ where: { userId: member.user.id } });
 
             // Giving/removing roles
-            await member.roles.add('1084970943820075050', `Age Verification: Verified by ${interaction.user.tag}`).catch(() => { return });
+            let role_add = [
+              '1084970943820075050',
+              '1084970943820075050'
+            ];
+
+            await member.roles.add(role_add, `Age Verification: Verified by ${interaction.user.tag}`).catch(() => { return });
             await member.roles.remove('1233066501825892383');
 
             // Upadting profile
@@ -2002,7 +2003,7 @@ bot.on('interactionCreate', async (interaction) => {
             }).catch(() => { return });
 
             // Messaging the owner of the ticket
-            find_member ? find_member.send(`Your ticket (<#${ticket_channel_data.channelId}>) have been closed and deleted by: ${interaction.user.toString()}`).catch(() => { return }) : false;
+            member_in_guild ? member_in_guild.send(`Your ticket (<#${ticket_channel_data.channelId}>) have been closed and deleted by: ${interaction.user.toString()}`).catch(() => { return }) : false;
 
             // Alerting of the deletion of the channel
             await interaction.reply({
