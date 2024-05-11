@@ -41,8 +41,8 @@ module.exports = {
         "nl": nl.help.default.info.description
       })
       .addChoices(
-        { name: "blacklist", value: "blacklistInfo" },
-        { name: "verification", value: "verificationInfo" },
+        { name: "blacklist", value: "blacklist-help" },
+        { name: "verification", value: "verification-help" },
       )),
   execute: async (interaction, bot, sequelize, Sequelize) => {
     const Logging = sequelize.define("Logging", {
@@ -92,7 +92,7 @@ module.exports = {
         .setColor("Green")
 
       switch (infoOptions) {
-        case ("blacklistInfo"):
+        case ("blacklist-help"):
           helpEmbed.setDescription(
             "### 1. How does the blacklist work?\n" +
             "* The blacklist contains users who have broken rules in any server, they're all stocked and classed in different types of blacklists:\n" +
@@ -107,7 +107,7 @@ module.exports = {
           );
 
           break;
-        case ("verificationInfo"):
+        case ("verification-help"):
           helpEmbed.setDescription(
             "### 1. How to enable the verify command?\n" +
             "* Do ``/settings verification`` and choose either ``menu`` or ``command``. You can set up both, it will work!n\n" +

@@ -381,6 +381,7 @@ bot.once('ready', async () => {
         `${memberCount} Members!`,
         `${allServers} Servers!`,
         `${blacklisted.length} Blacklisted Users!`,
+        `Version ${configPreset.botInfo.version}`
       ]
 
       if (counter === Status.length) counter = 0;
@@ -985,12 +986,12 @@ bot.on('messageCreate', async (message) => {
       return setTimeout(async () => {
         let bumpTimeEmbed = new EmbedBuilder()
           .setTitle(languageSet.bump.message.embed.title)
-          .setURL(`'https://disboard.org/server/${message.guild.id}`)
+          .setURL(`https://disboard.org/server/${message.guild.id}`)
           .setDescription(languageSet.bump.message.embed.description)
           .setColor('Blue');
 
         return message.channel.send({
-          content: '<@' + member + '>',
+          content: `<@${member}>`,
           embeds: [bumpTimeEmbed]
         });
       }, 7200000);
@@ -1400,7 +1401,9 @@ bot.on('interactionCreate', async (interaction) => {
       let suggestionEmbed = new EmbedBuilder()
         .addFields(
           { name: 'Category', value: actionImageData.category, inline: true },
-          { name: 'User', value: `${actionImageData.userTag} (${actionImageData.userId})`, inline: true },
+          { name: 'User', value: `${actionImageData.userTag}`, inline: true },
+          { name: 'ID', value: `${actionImageData.userId}`, inline: true },
+          { name: 'Image URL', value: `${actionImageData.imageUrl}`, inline: true },
         )
         .setImage(interaction.message.embeds[0].image.url);
 
@@ -1409,7 +1412,7 @@ bot.on('interactionCreate', async (interaction) => {
         // Checking for the interaction name and sending the appropriate response
         switch (interaction.customId) {
           case ('acceptSuggestionAction'):
-            actionUpdate = await ActionImage.update({ ImageURL: message.embeds[0].image.url }, { where: { messageId: interaction.message.id } });
+            actionUpdate = await ActionImage.update({ ImageURL: interaction.message.embeds[0].image.url }, { where: { messageId: interaction.message.id } });
 
             suggestionEmbed.addFields(
               { name: 'Status', value: 'Accepted' }

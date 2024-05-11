@@ -1,14 +1,14 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { EmbedBuilder } = require('discord.js');
 
-const configPreset = require("../config/main.json");
-const messagePreset = require("../config/message.json");
+const configPreset = require('../config/main.json');
+const messagePreset = require('../config/message.json');
 
-const fr = require("../languages/fr.json");
-const en = require("../languages/en.json");
-const de = require("../languages/de.json");
-const sp = require("../languages/sp.json");
-const nl = require("../languages/nl.json");
+const fr = require('../languages/fr.json');
+const en = require('../languages/en.json');
+const de = require('../languages/de.json');
+const sp = require('../languages/sp.json');
+const nl = require('../languages/nl.json');
 
 let reasonList = en.blacklist.default.add.reason.list;
 let riskList = en.blacklist.default.add.risk.list;
@@ -17,63 +17,63 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName(en.blacklist.default.name)
         .setNameLocalizations({
-            "fr": fr.blacklist.default.name,
-            "de": de.blacklist.default.name,
-            "es-ES": sp.blacklist.default.name,
-            "nl": nl.blacklist.default.name
+            'fr': fr.blacklist.default.name,
+            'de': de.blacklist.default.name,
+            'es-ES': sp.blacklist.default.name,
+            'nl': nl.blacklist.default.name
         })
         .setDescription(en.blacklist.default.description)
         .setDescriptionLocalizations({
-            "fr": fr.blacklist.default.description,
-            "de": de.blacklist.default.description,
-            "es-ES": sp.blacklist.default.description,
-            "nl": nl.blacklist.default.description
+            'fr': fr.blacklist.default.description,
+            'de': de.blacklist.default.description,
+            'es-ES': sp.blacklist.default.description,
+            'nl': nl.blacklist.default.description
         })
         .addSubcommand(subcommand => subcommand
             .setName(en.blacklist.default.add.name)
             .setNameLocalizations({
-                "fr": fr.blacklist.default.add.name,
-                "de": de.blacklist.default.add.name,
-                "es-ES": sp.blacklist.default.add.name,
-                "nl": nl.blacklist.default.add.name
+                'fr': fr.blacklist.default.add.name,
+                'de': de.blacklist.default.add.name,
+                'es-ES': sp.blacklist.default.add.name,
+                'nl': nl.blacklist.default.add.name
             })
             .setDescription(en.blacklist.default.add.description)
             .setDescriptionLocalizations({
-                "fr": fr.blacklist.default.add.description,
-                "de": de.blacklist.default.add.description,
-                "es-ES": sp.blacklist.default.add.description,
-                "nl": nl.blacklist.default.add.description
+                'fr': fr.blacklist.default.add.description,
+                'de': de.blacklist.default.add.description,
+                'es-ES': sp.blacklist.default.add.description,
+                'nl': nl.blacklist.default.add.description
             })
             .addUserOption(option => option
                 .setName(en.blacklist.default.add.user.name)
                 .setNameLocalizations({
-                    "fr": fr.blacklist.default.add.user.name,
-                    "de": de.blacklist.default.add.user.name,
-                    "es-ES": sp.blacklist.default.add.user.name,
-                    "nl": nl.blacklist.default.add.user.name
+                    'fr': fr.blacklist.default.add.user.name,
+                    'de': de.blacklist.default.add.user.name,
+                    'es-ES': sp.blacklist.default.add.user.name,
+                    'nl': nl.blacklist.default.add.user.name
                 })
                 .setDescription(en.blacklist.default.add.user.description)
                 .setDescriptionLocalizations({
-                    "fr": fr.blacklist.default.add.user.description,
-                    "de": de.blacklist.default.add.user.description,
-                    "es-ES": sp.blacklist.default.add.user.description,
-                    "nl": nl.blacklist.default.add.user.description
+                    'fr': fr.blacklist.default.add.user.description,
+                    'de': de.blacklist.default.add.user.description,
+                    'es-ES': sp.blacklist.default.add.user.description,
+                    'nl': nl.blacklist.default.add.user.description
                 })
                 .setRequired(true))
             .addStringOption(option => option
                 .setName(en.blacklist.default.add.reason.name)
                 .setNameLocalizations({
-                    "fr": fr.blacklist.default.add.reason.name,
-                    "de": de.blacklist.default.add.reason.name,
-                    "es-ES": sp.blacklist.default.add.reason.name,
-                    "nl": nl.blacklist.default.add.reason.name
+                    'fr': fr.blacklist.default.add.reason.name,
+                    'de': de.blacklist.default.add.reason.name,
+                    'es-ES': sp.blacklist.default.add.reason.name,
+                    'nl': nl.blacklist.default.add.reason.name
                 })
                 .setDescription(en.blacklist.default.add.reason.description)
                 .setDescriptionLocalizations({
-                    "fr": fr.blacklist.default.add.reason.description,
-                    "de": de.blacklist.default.add.reason.description,
-                    "es-ES": sp.blacklist.default.add.reason.description,
-                    "nl": nl.blacklist.default.add.reason.description
+                    'fr': fr.blacklist.default.add.reason.description,
+                    'de': de.blacklist.default.add.reason.description,
+                    'es-ES': sp.blacklist.default.add.reason.description,
+                    'nl': nl.blacklist.default.add.reason.description
                 })
                 .setRequired(true)
                 .addChoices(
@@ -90,17 +90,17 @@ module.exports = {
             .addStringOption(option => option
                 .setName(en.blacklist.default.add.risk.name)
                 .setNameLocalizations({
-                    "fr": fr.blacklist.default.add.risk.name,
-                    "de": de.blacklist.default.add.risk.name,
-                    "es-ES": sp.blacklist.default.add.risk.name,
-                    "nl": nl.blacklist.default.add.risk.name
+                    'fr': fr.blacklist.default.add.risk.name,
+                    'de': de.blacklist.default.add.risk.name,
+                    'es-ES': sp.blacklist.default.add.risk.name,
+                    'nl': nl.blacklist.default.add.risk.name
                 })
                 .setDescription(en.blacklist.default.add.risk.description)
                 .setDescriptionLocalizations({
-                    "fr": fr.blacklist.default.add.risk.description,
-                    "de": de.blacklist.default.add.risk.description,
-                    "es-ES": sp.blacklist.default.add.risk.description,
-                    "nl": nl.blacklist.default.add.risk.description
+                    'fr': fr.blacklist.default.add.risk.description,
+                    'de': de.blacklist.default.add.risk.description,
+                    'es-ES': sp.blacklist.default.add.risk.description,
+                    'nl': nl.blacklist.default.add.risk.description
                 })
                 .setRequired(true)
                 .addChoices(
@@ -111,146 +111,146 @@ module.exports = {
             .addStringOption(option => option
                 .setName(en.blacklist.default.add.evidence.name)
                 .setNameLocalizations({
-                    "fr": fr.blacklist.default.add.evidence.name,
-                    "de": de.blacklist.default.add.evidence.name,
-                    "es-ES": sp.blacklist.default.add.evidence.name,
-                    "nl": nl.blacklist.default.add.evidence.name
+                    'fr': fr.blacklist.default.add.evidence.name,
+                    'de': de.blacklist.default.add.evidence.name,
+                    'es-ES': sp.blacklist.default.add.evidence.name,
+                    'nl': nl.blacklist.default.add.evidence.name
                 })
                 .setDescription(en.blacklist.default.add.evidence.description)
                 .setDescriptionLocalizations({
-                    "fr": fr.blacklist.default.add.evidence.description,
-                    "de": de.blacklist.default.add.evidence.description,
-                    "es-ES": sp.blacklist.default.add.evidence.description,
-                    "nl": nl.blacklist.default.add.evidence.description
+                    'fr': fr.blacklist.default.add.evidence.description,
+                    'de': de.blacklist.default.add.evidence.description,
+                    'es-ES': sp.blacklist.default.add.evidence.description,
+                    'nl': nl.blacklist.default.add.evidence.description
                 })
                 .setRequired(true)))
         .addSubcommand(subcommand => subcommand
             .setName(en.blacklist.default.remove.name)
             .setNameLocalizations({
-                "fr": fr.blacklist.default.remove.name,
-                "de": de.blacklist.default.remove.name,
-                "es-ES": sp.blacklist.default.remove.name,
-                "nl": nl.blacklist.default.remove.name
+                'fr': fr.blacklist.default.remove.name,
+                'de': de.blacklist.default.remove.name,
+                'es-ES': sp.blacklist.default.remove.name,
+                'nl': nl.blacklist.default.remove.name
             })
             .setDescription(en.blacklist.default.remove.description)
             .setDescriptionLocalizations({
-                "fr": fr.blacklist.default.remove.description,
-                "de": de.blacklist.default.remove.description,
-                "es-ES": sp.blacklist.default.remove.description,
-                "nl": nl.blacklist.default.remove.description
+                'fr': fr.blacklist.default.remove.description,
+                'de': de.blacklist.default.remove.description,
+                'es-ES': sp.blacklist.default.remove.description,
+                'nl': nl.blacklist.default.remove.description
             })
             .addUserOption(option => option
                 .setName(en.blacklist.default.remove.user.name)
                 .setNameLocalizations({
-                    "fr": fr.blacklist.default.remove.user.name,
-                    "de": de.blacklist.default.remove.user.name,
-                    "es-ES": sp.blacklist.default.remove.user.name,
-                    "nl": nl.blacklist.default.remove.user.name
+                    'fr': fr.blacklist.default.remove.user.name,
+                    'de': de.blacklist.default.remove.user.name,
+                    'es-ES': sp.blacklist.default.remove.user.name,
+                    'nl': nl.blacklist.default.remove.user.name
                 })
                 .setDescription(en.blacklist.default.remove.user.description)
                 .setDescriptionLocalizations({
-                    "fr": fr.blacklist.default.remove.user.description,
-                    "de": de.blacklist.default.remove.user.description,
-                    "es-ES": sp.blacklist.default.remove.user.description,
-                    "nl": nl.blacklist.default.remove.user.description
+                    'fr': fr.blacklist.default.remove.user.description,
+                    'de': de.blacklist.default.remove.user.description,
+                    'es-ES': sp.blacklist.default.remove.user.description,
+                    'nl': nl.blacklist.default.remove.user.description
                 })
                 .setRequired(true)))
         .addSubcommand(subcommand => subcommand
             .setName(en.blacklist.default.check.name)
             .setNameLocalizations({
-                "fr": fr.blacklist.default.check.name,
-                "de": de.blacklist.default.check.name,
-                "es-ES": sp.blacklist.default.check.name,
-                "nl": nl.blacklist.default.check.name
+                'fr': fr.blacklist.default.check.name,
+                'de': de.blacklist.default.check.name,
+                'es-ES': sp.blacklist.default.check.name,
+                'nl': nl.blacklist.default.check.name
             })
             .setDescription(en.blacklist.default.check.description)
             .setDescriptionLocalizations({
-                "fr": fr.blacklist.default.check.description,
-                "de": de.blacklist.default.check.description,
-                "es-ES": sp.blacklist.default.check.description,
-                "nl": nl.blacklist.default.check.description
+                'fr': fr.blacklist.default.check.description,
+                'de': de.blacklist.default.check.description,
+                'es-ES': sp.blacklist.default.check.description,
+                'nl': nl.blacklist.default.check.description
             })
             .addUserOption(option => option
                 .setName(en.blacklist.default.check.user.name)
                 .setNameLocalizations({
-                    "fr": fr.blacklist.default.check.user.name,
-                    "de": de.blacklist.default.check.user.name,
-                    "es-ES": sp.blacklist.default.check.user.name,
-                    "nl": nl.blacklist.default.check.user.name
+                    'fr': fr.blacklist.default.check.user.name,
+                    'de': de.blacklist.default.check.user.name,
+                    'es-ES': sp.blacklist.default.check.user.name,
+                    'nl': nl.blacklist.default.check.user.name
                 })
                 .setDescription(en.blacklist.default.check.user.description)
                 .setDescriptionLocalizations({
-                    "fr": fr.blacklist.default.check.user.description,
-                    "de": de.blacklist.default.check.user.description,
-                    "es-ES": sp.blacklist.default.check.user.description,
-                    "nl": nl.blacklist.default.check.user.description
+                    'fr': fr.blacklist.default.check.user.description,
+                    'de': de.blacklist.default.check.user.description,
+                    'es-ES': sp.blacklist.default.check.user.description,
+                    'nl': nl.blacklist.default.check.user.description
                 })
                 .setRequired(false)))
         .addSubcommand(subcommand => subcommand
             .setName(en.blacklist.default.suggest.name)
             .setNameLocalizations({
-                "fr": fr.blacklist.default.suggest.name,
-                "de": de.blacklist.default.suggest.name,
-                "es-ES": sp.blacklist.default.suggest.name,
-                "nl": nl.blacklist.default.suggest.name
+                'fr': fr.blacklist.default.suggest.name,
+                'de': de.blacklist.default.suggest.name,
+                'es-ES': sp.blacklist.default.suggest.name,
+                'nl': nl.blacklist.default.suggest.name
             })
             .setDescription(en.blacklist.default.suggest.description)
             .setDescriptionLocalizations({
-                "fr": fr.blacklist.default.suggest.description,
-                "de": de.blacklist.default.suggest.description,
-                "es-ES": sp.blacklist.default.suggest.description,
-                "nl": nl.blacklist.default.suggest.description
+                'fr': fr.blacklist.default.suggest.description,
+                'de': de.blacklist.default.suggest.description,
+                'es-ES': sp.blacklist.default.suggest.description,
+                'nl': nl.blacklist.default.suggest.description
             })
             .addUserOption(option => option
                 .setName(en.blacklist.default.suggest.user.name)
                 .setNameLocalizations({
-                    "fr": fr.blacklist.default.suggest.user.name,
-                    "de": de.blacklist.default.suggest.user.name,
-                    "es-ES": sp.blacklist.default.suggest.user.name,
-                    "nl": nl.blacklist.default.suggest.user.name
+                    'fr': fr.blacklist.default.suggest.user.name,
+                    'de': de.blacklist.default.suggest.user.name,
+                    'es-ES': sp.blacklist.default.suggest.user.name,
+                    'nl': nl.blacklist.default.suggest.user.name
                 })
                 .setDescription(en.blacklist.default.suggest.user.description)
                 .setDescriptionLocalizations({
-                    "fr": fr.blacklist.default.suggest.user.description,
-                    "de": de.blacklist.default.suggest.user.description,
-                    "es-ES": sp.blacklist.default.suggest.user.description,
-                    "nl": nl.blacklist.default.suggest.user.description
+                    'fr': fr.blacklist.default.suggest.user.description,
+                    'de': de.blacklist.default.suggest.user.description,
+                    'es-ES': sp.blacklist.default.suggest.user.description,
+                    'nl': nl.blacklist.default.suggest.user.description
                 })
                 .setRequired(true))
             .addStringOption(option => option
                 .setName(en.blacklist.default.suggest.reason.name)
                 .setNameLocalizations({
-                    "fr": fr.blacklist.default.suggest.reason.name,
-                    "de": de.blacklist.default.suggest.reason.name,
-                    "es-ES": sp.blacklist.default.suggest.reason.name,
-                    "nl": nl.blacklist.default.suggest.reason.name
+                    'fr': fr.blacklist.default.suggest.reason.name,
+                    'de': de.blacklist.default.suggest.reason.name,
+                    'es-ES': sp.blacklist.default.suggest.reason.name,
+                    'nl': nl.blacklist.default.suggest.reason.name
                 })
                 .setDescription(en.blacklist.default.suggest.reason.description)
                 .setDescriptionLocalizations({
-                    "fr": fr.blacklist.default.suggest.reason.description,
-                    "de": de.blacklist.default.suggest.reason.description,
-                    "es-ES": sp.blacklist.default.suggest.reason.description,
-                    "nl": nl.blacklist.default.suggest.reason.description
+                    'fr': fr.blacklist.default.suggest.reason.description,
+                    'de': de.blacklist.default.suggest.reason.description,
+                    'es-ES': sp.blacklist.default.suggest.reason.description,
+                    'nl': nl.blacklist.default.suggest.reason.description
                 })
                 .setRequired(true))
             .addAttachmentOption(option => option
                 .setName(en.blacklist.default.suggest.evidence.name)
                 .setNameLocalizations({
-                    "fr": fr.blacklist.default.suggest.evidence.name,
-                    "de": de.blacklist.default.suggest.evidence.name,
-                    "es-ES": sp.blacklist.default.suggest.evidence.name,
-                    "nl": nl.blacklist.default.suggest.evidence.name
+                    'fr': fr.blacklist.default.suggest.evidence.name,
+                    'de': de.blacklist.default.suggest.evidence.name,
+                    'es-ES': sp.blacklist.default.suggest.evidence.name,
+                    'nl': nl.blacklist.default.suggest.evidence.name
                 })
                 .setDescription(en.blacklist.default.suggest.evidence.description)
                 .setDescriptionLocalizations({
-                    "fr": fr.blacklist.default.suggest.evidence.description,
-                    "de": de.blacklist.default.suggest.evidence.description,
-                    "es-ES": sp.blacklist.default.suggest.evidence.description,
-                    "nl": nl.blacklist.default.suggest.evidence.description
+                    'fr': fr.blacklist.default.suggest.evidence.description,
+                    'de': de.blacklist.default.suggest.evidence.description,
+                    'es-ES': sp.blacklist.default.suggest.evidence.description,
+                    'nl': nl.blacklist.default.suggest.evidence.description
                 })
                 .setRequired(true))),
     execute: async (interaction, bot, sequelize, Sequelize) => {
-        const Logging = sequelize.define("Logging", {
+        const Logging = sequelize.define('Logging', {
             guildId: {
                 type: Sequelize.STRING,
             },
@@ -262,19 +262,19 @@ module.exports = {
         let loggingData = await Logging.findOne({ where: { guildId: interaction.guild.id } });
 
         switch (loggingData.language) {
-            case ("en"):
+            case ('en'):
                 languageSet = en;
                 break;
-            case ("fr"):
+            case ('fr'):
                 languageSet = fr;
                 break;
-            case ("de"):
+            case ('de'):
                 languageSet = de;
                 break;
-            case ("sp"):
+            case ('sp'):
                 languageSet = sp;
                 break;
-            case ("nl"):
+            case ('nl'):
                 languageSet = nl;
                 break;
             default:
@@ -283,7 +283,7 @@ module.exports = {
         };
 
         try {
-            const Blacklist = sequelize.define("Blacklist", {
+            const Blacklist = sequelize.define('Blacklist', {
                 userId: {
                     type: Sequelize.STRING,
                     unique: true,
@@ -323,7 +323,7 @@ module.exports = {
                     allowNull: false,
                 },
             });
-            const Permission = sequelize.define("Permission", {
+            const Permission = sequelize.define('Permission', {
                 guildId: {
                     type: Sequelize.STRING,
                     unique: false,
@@ -363,27 +363,25 @@ module.exports = {
                 reply = lgBlacklist.youreNotBlacklisted;
             };
 
-            let permissionUserData = await Permission.findOne({ where: { userId: user.id } });
-            let permissionGuildData = await Permission.findOne({ where: { guildId: interaction.guild.id } });
-            let blacklistData = await Blacklist.findOne({ where: { userId: userCheck.id } });
+            let permission_user_data = await Permission.findOne({ where: { userId: user.id } });
+            let permission_guild_data = await Permission.findOne({ where: { guildId: interaction.guild.id } });
+            let blacklist_data = await Blacklist.findOne({ where: { userId: userCheck.id } });
 
-            if (permissionUserData) {
+            if (options !== 'check' & permission_user_data) {
                 return interaction.reply({
                     content: languageSet.blacklist.message.onWho.isStaff,
                     ephemeral: true,
                 });
-            };
-
-            if (options !== "check" & permissionUserData) {
+            } else if (options !== 'check' & permission_user_data) {
                 return interaction.reply({
                     content: languageSet.default.staffOnly,
                 });
-            } else if (options === "add" || options === "suggest" && blacklistData) {
+            } else if (options !== 'check' & blacklist_data) {
                 return interaction.reply({
                     content: languageSet.blacklist.message.onWho.isBlacklisted,
                     ephemeral: true,
                 });
-            } else if (options !== "suggest" & permissionGuildData) {
+            } else if (options !== 'suggest' & permission_guild_data) {
                 return interaction.reply({
                     content: languageSet.blacklist.permission.server,
                     ephemeral: true,
@@ -396,12 +394,12 @@ module.exports = {
                         content: languageSet.default.unknownUser,
                         ephemeral: true,
                     });
-                case (interaction.user.id & options !== "check"):
+                case (interaction.user.id & options !== 'check'):
                     return interaction.reply({
                         content: languageSet.blacklist.message.onWho.isThemself,
                         ephemeral: true,
                     });
-                case (bot.user.id & options !== "check"):
+                case (bot.user.id & options !== 'check'):
                     return interaction.reply({
                         content: languageSet.blacklist.message.onWho.isBot,
                         ephemeral: true,
@@ -412,39 +410,39 @@ module.exports = {
                     let blacklistEmbed = new EmbedBuilder()
 
                     let optionsList = [
-                        "add",
-                        "remove",
-                        "suggest"
+                        'add',
+                        'remove',
+                        'suggest'
                     ];
 
                     if (optionsList.includes(options)) {
                         switch (risk) {
-                            case ("Low"):
-                                blacklistEmbed.setColor("57F287");
+                            case ('Low'):
+                                blacklistEmbed.setColor('57F287');
                                 break;
-                            case ("Medium"):
-                                blacklistEmbed.setColor("FEE75C");
+                            case ('Medium'):
+                                blacklistEmbed.setColor('FEE75C');
                                 break;
-                            case ("High"):
-                                blacklistEmbed.setColor("ED4245");
+                            case ('High'):
+                                blacklistEmbed.setColor('ED4245');
                                 break;
                             default:
-                                blacklistEmbed.setColor("FFFFFF");
+                                blacklistEmbed.setColor('FFFFFF');
                                 break;
                         };
                     };
 
                     blacklistEmbed.addFields(
-                        { name: lgBlacklist.default.userTag, value: "`" + userCheck.tag + "`", inline: true },
-                        { name: lgBlacklist.default.userId, value: "`" + userCheck.id + "`", inline: true },
+                        { name: lgBlacklist.default.userTag, value: '`' + userCheck.tag + '`', inline: true },
+                        { name: lgBlacklist.default.userId, value: '`' + userCheck.id + '`', inline: true },
                     );
 
                     switch (options) {
-                        case ("add"):
+                        case ('add'):
                             // Checking if the user is already blacklisted
-                            if (blacklistData) {
+                            if (blacklist_data) {
                                 blacklistEmbed.setDescription(`:white_check_mark: ${messagePreset.blacklist.isBlacklisted}`)
-                                blacklistEmbed.setColor("Green")
+                                blacklistEmbed.setColor('Green')
 
                                 return interaction.reply({
                                     embeds: [blacklistEmbed],
@@ -457,9 +455,9 @@ module.exports = {
                                 ephemeral: true,
                             }).then(async () => {
                                 blacklistEmbed.addFields(
-                                    { name: lgBlacklist.default.reason, value: "`" + reason + "`", inline: true },
-                                    { name: lgBlacklist.default.staffTag, value: "`" + interaction.user.tag + "`", inline: true },
-                                    { name: lgBlacklist.default.staffId, value: "`" + interaction.user.id + "`", inline: true },
+                                    { name: lgBlacklist.default.reason, value: '`' + reason + '`', inline: true },
+                                    { name: lgBlacklist.default.staffTag, value: '`' + interaction.user.tag + '`', inline: true },
+                                    { name: lgBlacklist.default.staffId, value: '`' + interaction.user.id + '`', inline: true },
                                     { name: lgBlacklist.default.evidence, value: isEvidence, inline: true }
                                 );
 
@@ -477,11 +475,11 @@ module.exports = {
                                     risk: risk,
                                 });
                             });
-                        case ("remove"):
+                        case ('remove'):
                             // Checking if the user is already blacklisted
-                            if (!blacklistData) {
+                            if (!blacklist_data) {
                                 blacklistEmbed.setDescription(`:white_check_mark: ${messagePreset.blacklist.isntBlacklisted}`)
-                                blacklistEmbed.setColor("Green")
+                                blacklistEmbed.setColor('Green')
 
                                 return interaction.reply({
                                     embeds: [blacklistEmbed],
@@ -494,10 +492,10 @@ module.exports = {
                                 ephemeral: true,
                             }).then(async () => {
                                 blacklistEmbed.addFields(
-                                    { name: lgBlacklist.default.reason, value: "`" + blacklistData.reason + "`", inline: true },
-                                    { name: lgBlacklist.default.staffTag, value: "`" + blacklistData.userTag + "`", inline: true },
-                                    { name: lgBlacklist.default.staffId, value: "`" + blacklistData.staffId + "`", inline: true },
-                                    { name: lgBlacklist.default.evidence, value: blacklistData.evidence, inline: true }
+                                    { name: lgBlacklist.default.reason, value: '`' + blacklist_data.reason + '`', inline: true },
+                                    { name: lgBlacklist.default.staffTag, value: '`' + blacklist_data.userTag + '`', inline: true },
+                                    { name: lgBlacklist.default.staffId, value: '`' + blacklist_data.staffId + '`', inline: true },
+                                    { name: lgBlacklist.default.evidence, value: blacklist_data.evidence, inline: true }
                                 );
 
                                 await blacklistChannel.send({
@@ -507,13 +505,13 @@ module.exports = {
 
                                 return Blacklist.destroy({ where: { userId: userCheck } });
                             });
-                        case ("suggest"):
+                        case ('suggest'):
                             evidenceImage ? isEvidence = evidenceImage : isEvidence = null;
 
                             // Checking if the user is already blacklisted
-                            if (blacklistData) {
+                            if (blacklist_data) {
                                 blacklistEmbed.setDescription(`:white_check_mark: ${messagePreset.blacklist.isBlacklisted}`)
-                                blacklistEmbed.setColor("Green")
+                                blacklistEmbed.setColor('Green')
 
                                 return interaction.reply({
                                     embeds: [blacklistEmbed],
@@ -526,9 +524,9 @@ module.exports = {
                                 ephemeral: true,
                             }).then(() => {
                                 blacklistEmbed.addFields(
-                                    { name: lgBlacklist.default.reason, value: "`" + reason + "`", inline: true },
-                                    { name: lgBlacklist.default.staffTag, value: "`" + interaction.user.tag + "`", inline: true },
-                                    { name: lgBlacklist.default.staffId, value: "`" + interaction.user.id + "`", inline: true },
+                                    { name: lgBlacklist.default.reason, value: '`' + reason + '`', inline: true },
+                                    { name: lgBlacklist.default.staffTag, value: '`' + interaction.user.tag + '`', inline: true },
+                                    { name: lgBlacklist.default.staffId, value: '`' + interaction.user.id + '`', inline: true },
                                 );
                                 blacklistEmbed.setImage(evidenceImage.url);
 
@@ -537,12 +535,12 @@ module.exports = {
                                     ephemeral: true,
                                 });
                             });
-                        case ("check"):
+                        case ('check'):
 
                             // Checking if the user is blacklisted
-                            if (!blacklistData) {
+                            if (!blacklist_data) {
                                 blacklistEmbed.setDescription(`:white_check_mark: ${messagePreset.blacklist.isntBlacklisted}`)
-                                blacklistEmbed.setColor("Green")
+                                blacklistEmbed.setColor('Green')
 
                                 return interaction.reply({
                                     embeds: [blacklistEmbed],
@@ -551,24 +549,24 @@ module.exports = {
                             };
 
                             blacklistEmbed.addFields(
-                                { name: lgBlacklist.default.reason, value: "`" + blacklistData.reason + "`", inline: true },
-                                { name: lgBlacklist.default.staffTag, value: "`" + blacklistData.staffTag + "`", inline: true },
-                                { name: lgBlacklist.default.staffId, value: "`" + blacklistData.staffId + "`", inline: true },
-                                { name: lgBlacklist.default.evidence, value: blacklistData.evidence, inline: true }
+                                { name: lgBlacklist.default.reason, value: '`' + blacklist_data.reason + '`', inline: true },
+                                { name: lgBlacklist.default.staffTag, value: '`' + blacklist_data.staffTag + '`', inline: true },
+                                { name: lgBlacklist.default.staffId, value: '`' + blacklist_data.staffId + '`', inline: true },
+                                { name: lgBlacklist.default.evidence, value: blacklist_data.evidence, inline: true }
                             );
 
-                            switch (blacklistData.risk) {
-                                case ("Low"):
-                                    blacklistEmbed.setColor("57F287");
+                            switch (blacklist_data.risk) {
+                                case ('Low'):
+                                    blacklistEmbed.setColor('57F287');
                                     break;
-                                case ("Medium"):
-                                    blacklistEmbed.setColor("FEE75C");
+                                case ('Medium'):
+                                    blacklistEmbed.setColor('FEE75C');
                                     break;
-                                case ("High"):
-                                    blacklistEmbed.setColor("ED4245");
+                                case ('High'):
+                                    blacklistEmbed.setColor('ED4245');
                                     break;
                                 default:
-                                    blacklistEmbed.setColor("FFFFFF");
+                                    blacklistEmbed.setColor('FFFFFF');
                                     break;
                             };
 
@@ -589,7 +587,7 @@ module.exports = {
                 ephemeral: true,
             });
 
-            return crashchannelId.send({ content: "**Error in the '" + en.blacklist.default.name + "' event:** \n\n```javascript\n" + error + "```" });
+            return crashchannelId.send({ content: '**Error in the ' + en.blacklist.default.name + ' event:** \n\n```javascript\n' + error + '```' });
         };
     }
 };
