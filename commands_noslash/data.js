@@ -57,6 +57,8 @@ module.exports = {
                         });
                     };
 
+                    await message.delete()
+
                     if (actionImageData) {
                         await message.reply({
                             content: "Image removed",
