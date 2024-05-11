@@ -9,7 +9,9 @@
         "messagePrefix": "c.",
         "interactionPrefix": "/",
         "supportServerId": "1030517199951110224",
-        "ownerId": "291262778730217472"
+        "ownerId": "291262778730217472",
+        "version": "1.0.7 beta",
+        "github": "https://github.com/BadDwagon/cheryl/tree/stable"
     },
     "channelsId": {
         "botAdded": "1042982333831188500",
