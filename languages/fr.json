@@ -23,6 +23,16 @@
             "discord": "Serveur d'assistance"
         }
     },
+    "bump": {
+        "message": {
+            "thanks_first": "Merci d'avoir bump le serveur! Je rappellerai",
+            "thanks_second": "dans 2 heures pour le bump à nouveau.",
+            "embed": {
+                "title": "Bump Time",
+                "description": "Cela fait déjà 2 heures et il est désormais temps de bump le serveur !\n* Utilisez la commande `/bump` de Disboard."
+            }
+        }
+    },
     "help": {
         "default": {
             "name": "aide",

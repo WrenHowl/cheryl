@@ -29,7 +29,7 @@
             "thanks_second": "in 2 hours to bump it again.",
             "embed": {
                 "title": "Bump Time",
-                "description": "It's been 2 hours already and it's now time to bump the server!\n'* Use the command `/bump` from Disboard."
+                "description": "It's been 2 hours already and it's now time to bump the server!\n* Use the command `/bump` from Disboard."
             }
         }
     },
