@@ -121,6 +121,7 @@
     },
     "welcomeMessage": {
         "message": {
+            "default": "joined the server.",
             "blacklist": {
                 "autoBan": "Blacklist | Auto-Ban"
             }
@@ -267,6 +268,7 @@
         },
         "message": {
             "success": "has been banned",
+            "failed": "An error occured. I can't ban this user.",
             "embed": {
                 "log": {
                     "title": "New Ban",

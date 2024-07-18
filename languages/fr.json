@@ -121,6 +121,7 @@
     },
     "welcomeMessage": {
         "message": {
+            "default": "joined the server.",
             "blacklist": {
                 "autoBan": "Liste noire | Bannissement automatique"
             }

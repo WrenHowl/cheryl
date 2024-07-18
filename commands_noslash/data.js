@@ -4,7 +4,7 @@ const en = require("../languages/en.json");
 
 module.exports = {
     name: en.data.default.name,
-    execute: async (bot, message, args, sequelize, Sequelize) => {
+    execute: async (bot, message, sequelize, Sequelize) => {
         const CommandFunction = sequelize.define("CommandFunction", {
             name: {
                 type: Sequelize.STRING,

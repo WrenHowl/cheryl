@@ -1,14 +1,13 @@
-const { TextInputStyle, ActionRowBuilder, ButtonStyle, ButtonBuilder, Partials, ActivityType, Client, GatewayIntentBits, EmbedBuilder, Collection, ModalBuilder, TextInputBuilder } = require('discord.js');
+const { ActionRowBuilder, ButtonStyle, ButtonBuilder, Partials, Client, GatewayIntentBits, EmbedBuilder, Collection } = require('discord.js');
+const { fr, en, de, sp, nl } = require('./preset/language')
+const { logging } = require('./preset/db')
 const fs = require('node:fs');
 const path = require('node:path');
-const Sequelize = require('sequelize');
-const moment = require('moment');
-const bot = new Client({
+var bot = new Client({
   allowedMentions: { parse: ['users', 'roles'], repliedUser: true },
   intents: [
     GatewayIntentBits.GuildModeration,
     GatewayIntentBits.GuildVoiceStates,
-    GatewayIntentBits.GuildPresences,
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.GuildMembers,
@@ -21,1112 +20,91 @@ const bot = new Client({
 });
 
 const configPreset = require('./config/main.json');
-const message_preset = require('./config/message.json');
-
-const fr = require('./languages/fr.json');
-const en = require('./languages/en.json');
-const de = require('./languages/de.json');
-const sp = require('./languages/sp.json');
-const nl = require('./languages/nl.json');
+const messagePreset = require('./config/message.json');
 
 bot.commands = new Collection();
 
-const sequelize = new Sequelize('database', 'user', 'password', {
-  host: 'localhost',
-  dialect: 'sqlite',
-  logging: false,
-  storage: 'database.sqlite',
-});
-
 let date = new Date();
 
-const Verification_Count = sequelize.define('Verification_Count', {
-  guildId: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  staffId: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  staffTag: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  verificationCount: {
-    type: Sequelize.INTEGER,
-    defaultValue: 1,
-    allowNull: false,
-  },
-});
-const Verifier = sequelize.define('Verifier', {
-  guildId: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  userId: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  userTag: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  staffId: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  staffTag: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-});
-const Verification = sequelize.define('Verification', {
-  guildId: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  messageId: {
-    type: Sequelize.STRING,
-    unique: true,
-  },
-  userId: {
-    type: Sequelize.STRING,
-    unique: true
-  },
-  userTag: {
-    type: Sequelize.STRING,
-    unique: true
-  },
-  firstOption: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  secondOption: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  thirdOption: {
-    type: Sequelize.STRING,
-    unique: false
-  },
-  fourthOption: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  fifthOption: {
-    type: Sequelize.STRING,
-    unique: false
-  },
-});
-const Blacklist = sequelize.define('Blacklist', {
-  userId: {
-    type: Sequelize.STRING,
-    unique: true,
-  },
-  userTag: {
-    type: Sequelize.STRING,
-    unique: true,
-  },
-  staffId: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  staffTag: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  reason: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  evidence: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  risk: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  joinedServer: {
-    type: Sequelize.INTEGER,
-    defaultValue: 1,
-    allowNull: false,
-  },
-  joinedServerBan: {
-    type: Sequelize.INTEGER,
-    defaultValue: 1,
-    allowNull: false,
-  },
-});
-const ActionImage = sequelize.define('ActionImage', {
-  id: {
-    type: Sequelize.INTEGER,
-    unique: true,
-    primaryKey: true,
-  },
-  imageUrl: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  category: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  messageId: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  userId: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  userTag: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-});
-const Logging = sequelize.define('Logging', {
-  guildId: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  channelId_Report: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  channelId_Ban: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  channelId_Verify: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  channelId_AfterVerify: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  channelId_Welcome: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  roleAutoRoleId_Welcome: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  staffRoleId_Report: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  staffRoleId_Verify: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  roleAddId_Verify: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  roleRemoveId_Verify: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  roleAddId_AgeVerified: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  status_Blacklist: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  channelId_Blacklist: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  channelId_Warn: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  channelId_Unban: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  channelId_Kick: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  channelId_ReceiveVerification: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  status_BlacklistAutoban: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  status_canActionMessage: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  status_canActionImage: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  channelId_Leaving: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  channelId_TicketParent: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  channelId_TicketReceive: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-});
-const Permission = sequelize.define('Permission', {
-  userId: {
-    type: Sequelize.STRING,
-  }
-});
-const Ticket = sequelize.define('Ticket', {
-  guildId: {
-    type: Sequelize.STRING,
-    unique: true,
-  },
-  reason: {
-    type: Sequelize.STRING,
-  },
-  messageId: {
-    type: Sequelize.STRING,
-    unique: true,
-  },
-  channelId: {
-    type: Sequelize.STRING,
-    unique: true,
-  },
-  userId: {
-    type: Sequelize.STRING,
-    unique: true,
-  },
-  userTag: {
-    type: Sequelize.STRING,
-  },
-  claimedBy: {
-    type: Sequelize.STRING,
-    unique: true,
-  },
-  ticketCount: {
-    type: Sequelize.STRING,
-    unique: true,
-  }
-})
-const TicketCount = sequelize.define('TicketCount', {
-  guildId: {
-    type: Sequelize.STRING,
-  },
-  count: {
-    type: Sequelize.INTEGER,
-    defaultValue: 1,
-  },
-});
-const Warns = sequelize.define('Warns')
-const Profile = sequelize.define('Profile', {
-  userId: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  userTag: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  age: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  pronouns: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  gender: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-  verified18: {
-    type: Sequelize.STRING,
-    unique: false,
-  },
-});
-const CommandFunction = sequelize.define('CommandFunction', {
-  name: {
-    type: Sequelize.STRING,
-  },
-  value: {
-    type: Sequelize.STRING,
-  },
-});
+module.exports = { bot, date }
 
-let reply_user = false;
+bot.on('messageCreate', async (message) => {
+  eventName = 'messageCreate';
 
-async function errorToChannel() {
-  // Send to the user
-  if (reply_user === false) {
-    console.log(`${intOrMsg_console.id} -> ${intOrMsg_console.username}`);
+  let logging_data = await logging.findOne({ where: { guildId: message.guild.id } });
 
-    await intOrMsg_message({
-      content: en.default.errorOccured,
-      ephemeral: true,
-    });
+  switch (logging_data.language) {
+    case ('en'):
+      languageSet = en;
+      break;
+    case ('fr'):
+      languageSet = fr;
+      break;
+    case ('de'):
+      languageSet = de;
+      break;
+    case ('sp'):
+      languageSet = sp;
+      break;
+    case ('nl'):
+      languageSet = nl;
+      break;
+    default:
+      languageSet = en;
+      break;
   };
 
-  // Send it to console
-  console.log(error);
+  try {
+    let member = message.interaction.user.toString();
 
-  // Send it in the server
-  return bot.users.cache.get(configPreset.botInfo.ownerId).send({
-    content: '**Error in the ' + eventName + ' event:** \n\n```javascript\n' + error + '```'
-  });
+    if (message.embeds[0].description.startsWith('Bump')) {
+      await message.channel.send({
+        content: `${languageSet.bump.message.thanks_first} ${member} ${languageSet.bump.message.thanks_second}`
+      });
+
+      return setTimeout(async () => {
+        let bumpTimeEmbed = new EmbedBuilder()
+          .setTitle(languageSet.bump.message.embed.title)
+          .setURL(`https://disboard.org/server/${message.guild.id}`)
+          .setDescription(languageSet.bump.message.embed.description)
+          .setColor('Blue');
+
+        return message.channel.send({
+          content: `${member}`,
+          embeds: [bumpTimeEmbed]
+        });
+      }, 7200000);
+    };
+  } catch (err) { return }
+});
+
+// File Path for commands
+let commandsPath = path.join(__dirname, 'commands');
+let commandsFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+
+for (let file of commandsFiles) {
+  let filesPath = path.join(commandsPath, file);
+  let command = require(filesPath);
+  if ('data' in command && 'execute' in command) {
+    bot.commands.set(command.data.name, command);
+  } else {
+    console.log(`[WARNING] The command at ${filesPath} is missing a required "data" or "execute" property.`);
+  }
 };
 
-bot.once('ready', async () => {
-  eventName = 'ready';
-
-  bot.user.setStatus('dnd');
-
-  let counter = 0;
-
-  setInterval(async function () {
-    let blacklisted = await Blacklist.findAll({ attributes: ['userId'] })
-      .catch((err) => {
-        error = err;
-        errorToChannel();
-      });
-
-    let Status = [
-      `${bot.guilds.cache.reduce((a, g) => a + g.memberCount, 0)} Members!`,
-      `${bot.guilds.cache.size} Servers!`,
-      `${blacklisted.length} Blacklisted Users!`,
-      `Version ${configPreset.botInfo.version}`,
-    ];
-
-    if (counter === Status.length) counter = 0;
-
-    bot.user.setActivity(Status[counter], { type: ActivityType.Watching });
-
-    counter++;
-  }, 5000)
-
-  await Verification_Count.sync();
-  await Verifier.sync();
-  await Verification.sync();
-  await Blacklist.sync();
-  await Warns.sync();
-  await Logging.sync();
-  await ActionImage.sync();
-  await Permission.sync();
-  await Profile.sync();
-  await CommandFunction.sync();
-  await Ticket.sync();
-  await TicketCount.sync();
-
-  bot.guilds.cache.forEach(async (guild) => {
-    let logging_data = await Logging.findOne({ where: { guildId: guild.id } }).catch((err) => {
-      error = err;
-      errorToChannel();
-    });
-    let ticket_data = await Ticket.findOne({ where: { guildId: guild.id } }).catch((err) => {
-      error = err;
-      errorToChannel();
-    });
-
-    if (!logging_data) {
-      await Logging.create({
-        guildId: guild.id,
-      });
-    } else if (!ticket_data) {
-      await Ticket.create({
-        guildId: guild.id,
-      });
-    };
-  });
-
-  return console.log(`${date.toLocaleString()} -> The bot is ready!`);
-});
-
-bot.on('guildMemberAdd', async (newMember) => {
-  eventName = 'guildMemberAdd';
-
-  let guild = bot.guilds.cache.get(newMember.guild.id);
-  let logging_data = await Logging.findOne({ where: { guildId: guild.id } })
-    .catch((err) => {
-      error = err;
-      errorToChannel();
-    });
-
-  switch (logging_data.language) {
-    case ('en'):
-      languageSet = en;
-      break;
-    case ('fr'):
-      languageSet = fr;
-      break;
-    case ('de'):
-      languageSet = de;
-      break;
-    case ('sp'):
-      languageSet = sp;
-      break;
-    case ('nl'):
-      languageSet = nl;
-      break;
-    default:
-      languageSet = en;
-      break;
-  };
-
-  let verifier_data = await Verifier.findOne({ where: { userId: newMember.user.id } })
-    .catch((err) => {
-      error = err;
-      errorToChannel();
-    });
-  let blacklist_data = await Blacklist.findOne({ where: { userId: newMember.user.id } })
-    .catch((err) => {
-      error = err;
-      errorToChannel();
-    });
-
-  ///////////////////////////////////
-  //  Checking for welcome config  //
-  ///////////////////////////////////
-
-
-  if (logging_data.channelId_Welcome) {
-    // Check if the channel still exist
-    let welcomeChannel = newMember.guild.channels.cache.get(logging_data.channelId_Welcome);
-    if (!welcomeChannel) {
-      return Logging.update({
-        channelId_Welcome: null
-      }, {
-        where: {
-          guildId: guild.id
-        }
-      }).catch(() => { return });
-    };
-
-    // Checking if the bot can send message in the channel
-    if (!newMember.guild.members.me.permissionsIn(logging_data.channelId_Welcome).has(['SendMessages', 'ViewChannel']) | newMember.user.bot) return;
-
-    // Sending the message
-    await welcomeChannel.send({
-      content: [`${newMember.user.toString()} ${en.welcomeMessage.message.default}!`],
-    }).catch(() => { return });
-  };
-
-  if (logging_data.roleAutoRoleId_Welcome) {
-    let botPermissionRole = newMember.guild.members.me.permissions.has('ManageRoles');
-    let botPostion = newMember.roles.highest.position >= (await newMember.guild.members.fetch(configPreset.botPrivateInfo.botId)).roles.highest.position;
-
-    if (botPermissionRole & botPostion) {
-      return newMember.roles.add(logging_data.roleAutoRoleId_Welcome);
-    };
-  };
-
-  ////////////////////////////////////////
-  //  Checking for verification config  //
-  ////////////////////////////////////////
-
-  if (verifier_data) {
-    if (logging_data.roleAddId_Verify | logging_data.roleRemoveId_Verify) {
-      await newMember.roles.add(logging_data.roleAddId_Verify).catch((err) => { });
-      return newMember.roles.remove(logging_data.roleRemoveId_Verify).catch((err) => { });
-    };
-  };
-
-  /////////////////////////////////////
-  //  Checking for blacklist config  //
-  /////////////////////////////////////
-
-  if (blacklist_data) {
-    if (logging_data.status_Blacklist === 'Enabled' & logging_data.channelId_Blacklist) {
-      // Check if the channel still exist
-      let blacklistChannel = newMember.guild.channels.cache.get(logging_data.channelId_Blacklist);
-      if (!blacklistChannel) {
-        return Logging.update({
-          channelId_Blacklist: null
-        }, {
-          where: {
-            guildId: guild.id
-          }
-        }).catch((err) => { });
-      };
-
-      // Checking if the bot can send message in the channel
-      let botPermission = newMember.guild.members.me.permissionsIn(logging_data.channelId_Blacklist).has(['SendMessages', 'ViewChannel']);
-      if (botPermission) return;
-
-      let blacklistEmbed = new EmbedBuilder()
-
-      // Changing embed color in terms of the risk
-      switch (blacklist_data.risk) {
-        case ('Low'):
-          blacklistEmbed.setColor('57F287');
-          break;
-        case ('Medium'):
-          blacklistEmbed.setColor('FEE75C');
-          break;
-        case ('High'):
-          blacklistEmbed.setColor('ED4245');
-          break;
-        default:
-          blacklistEmbed.setColor('FFFFFF');
-          break;
-      };
-
-      // Creating the embed and sending the message
-      blacklistEmbed.setTitle('<:BanHammer:997932635454197790> New Alert');
-      blacklistEmbed.addFields(
-        { name: 'User', value: newMember.user.toString(), inline: true },
-        { name: 'reason', value: blacklist_data.reason, inline: true },
-        { name: 'Evidence', value: blacklist_data.evidence, inline: true }
-      );
-      blacklistEmbed.setFooter({
-        text: 'ID: ' + newMember.user.id
-      });
-      blacklistEmbed.setTimestamp();
-
-      await blacklistChannel.send({
-        embeds: [blacklistEmbed],
-      })
-        .catch((err) => {
-          error = err;
-          errorToChannel();
-        });
-
-      // Incrementing the join count in the database
-      await blacklist_data.increment('joinedServer', { by: 1 })
-        .catch((err) => {
-          error = err;
-          errorToChannel();
-        });
-
-      // Check if the auto ban is on
-      let autoBanResponse = languageSet.welcomeMessage.message.blacklist.autoBan;
-
-      let riskLevel = [
-        'Low',
-        'Medium',
-        'High'
-      ];
-
-      switch (logging_data.status_BlacklistAutoban) {
-        case ('Low+'):
-          if (riskLevel.includes(blacklist_data.risk)) {
-            // Incrementing the ban count in the database
-            await blacklist_data.increment('joinedServerBan');
-
-            // Ban the member
-            return newMember.guild.members.ban(blacklist_data.userId, { reason: [blacklist_data.reason + ' | ' + autoBanResponse] });
-          };
-
-          break;
-        case ('Medium+'):
-          if (blacklist_data.risk === 'Medium' | blacklist_data.risk === 'High') {
-            // Incrementing the ban count in the database
-            await blacklist_data.increment('joinedServerBan');
-
-            // Ban the member
-            return newMember.guild.members.ban(blacklist_data.userId, { reason: [blacklist_data.reason + ' | ' + autoBanResponse] });
-          };
-
-          break;
-        case ('High+'):
-          if (blacklist_data.risk === 'High') {
-            // Incrementing the ban count in the database
-            await blacklist_data.increment('joinedServerBan');
-
-            // Ban the member
-            return newMember.guild.members.ban(blacklist_data.userId, { reason: [blacklist_data.reason + ' | ' + autoBanResponse] });
-          };
-
-          break;
-        default:
-          return; // Return nothing if it's not on
-      };
-    };
-  };
-});
-
-bot.on('guildMemberRemove', async (leavingMember) => {
-  eventName = 'guildMemberRemove';
-
-  let guild = bot.guilds.cache.get(leavingMember.guild.id);
-  let logging_data = await Logging.findOne({ where: { guildId: guild.id } })
-    .catch((err) => {
-      error = err;
-      errorToChannel();
-    });
-
-  switch (logging_data.language) {
-    case ('en'):
-      languageSet = en;
-      break;
-    case ('fr'):
-      languageSet = fr;
-      break;
-    case ('de'):
-      languageSet = de;
-      break;
-    case ('sp'):
-      languageSet = sp;
-      break;
-    case ('nl'):
-      languageSet = nl;
-      break;
-    default:
-      languageSet = en;
-      break;
-  };
-
-  let ticket_data = await Ticket.findOne({ where: { guildId: guild.id, userId: leavingMember.user.id } })
-    .catch((err) => {
-      error = err;
-      errorToChannel();
-    });
-  let ticket_count_data = await TicketCount.findOne({ where: { guildId: guild.id } })
-    .catch((err) => {
-      error = err;
-      errorToChannel();
-    });
-
-  let lgLeaving = languageSet.leavingMessage.message.embed.logs;
-
-  // Checking if they left the support discord and had permission
-  if (guild.id === configPreset.botInfo.supportServerId) {
-    return Permission.destroy({ where: { userId: leavingMember.user.id } });
-  };
-
-  if (logging_data.channelId_Leaving) {
-    // Check if channel still exist
-    let leavingChannel = leavingMember.guild.channels.cache.get(logging_data.channelId_Leaving);
-    if (!leavingChannel) {
-      return Logging.update({ channelId_Leaving: null }, { where: { guildId: guild.id } });
-    };
-
-    // Checking if the bot can send message in the channel
-    let botPermission = leavingMember.guild.members.me.permissionsIn(logging_data.channelId_Leaving).has(['SendMessages', 'ViewChannel']);
-    if (!botPermission | leavingMember.user.bot) return;
-
-    // Get the member count of the server
-    let memberCount = guild.members.cache.filter(leavingMember => !leavingMember.user.bot).size;
-
-    // Creation of the message to send
-    let leavingMemberEmbed = new EmbedBuilder()
-      .setDescription(`${lgLeaving.description} ${leavingMember.toString()}!`)
-      .addFields(
-        { name: lgLeaving.fields.createdAt, value: moment(leavingMember.user.createdAt).format('Do MMMM YYYY hh:ss:mm A') },
-        { name: lgLeaving.fields.joinedAt, value: moment(leavingMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') },
-        { name: lgLeaving.fields.memberCount, value: memberCount }
-      )
-      .setColor('Green')
-      .setFooter({
-        text: leavingMember.user.id
-      })
-      .setThumbnail(leavingMember.user.displayAvatarURL());
-
-    // Check if the verification is enable
-    let verifier_data = await Verifier.findOne({ where: { guildId: guild.id, userId: leavingMember.user.id } });
-    verifier_data ? statusVerification = en.leavingMessage.verificationEnable.isVerified : statusVerification = en.leavingMessage.verificationEnable.isVerified;
-
-    if (logging_data.channelId_Verify) {
-      leavingMemberEmbed.addFields(
-        { name: lgLeaving.fields.statusVerification, value: statusVerification }
-      );
-    };
-
-    return Channelguild.send({
-      embeds: [leavingMemberEmbed]
-    });
-  };
-
-  if (ticket_data) {
-    // Check if the ticket channel still exist
-    let ticket_channel = leavingMember.guild.channels.cache.get(ticket_data.channelId);
-    if (ticket_channel & ticket_channel !== logging_data.channelId_TicketReceive) {
-      await ticket_channel.delete('Ticket Canceled: Member left the server')
-        .catch((err) => {
-          error = err;
-          errorToChannel();
-        });
-    };
-
-    // Delete ticket message
-    await bot.guilds.cache.get(leavingMember.guild.id).channels.cache.get(logging_data.channelId_TicketReceive).messages.fetch(ticket_data.messageId).then((message) => {
-      message.delete();
-    }).catch((err) => { });
-
-    try {
-      // Delete the data in the database
-      await Ticket.destroy({ where: { guildId: guild.id, userId: leavingMember.user.id } });
-
-      // Decrement the ticket counter
-      return ticket_count_data.decrement('count', { by: 1 });
-    } catch (err) {
-      error = err;
-      errorToChannel();
-    };
-  };
-});
-
-bot.on('guildBanAdd', async (bannedUser) => {
-  eventName = 'guildBanAdd';
-
-  let blacklist_data = await Blacklist.findOne({ where: { userId: bannedUser.user.id } })
-    .catch((err) => {
-      error = err;
-      errorToChannel();
-    });
-
-  if (blacklist_data) {
-    blacklist_data.increment('joinedServerBan', { by: 1 })
-      .catch((err) => {
-        error = err;
-        errorToChannel();
-      });
-  };
-});
-
-bot.on('userUpdate', async (oldUpdate, newUpdate) => {
-  eventName = 'userUpdate';
-
-  // Check if user changed is userTag or discriminator
-  let changeOfUserTag = newUpdate.username !== oldUpdate.username;
-  let changeOfDiscriminator = newUpdate.discriminator !== oldUpdate.discriminator;
-
-  // Update if it has been changed
-  if (changeOfUserTag | changeOfDiscriminator) {
-    await Verifier.update({ staffTag: newUpdate.tag }, { where: { staffId: oldUpdate.id } })
-      .catch((err) => {
-        error = err;
-        errorToChannel();
-      });
-    return Blacklist.update({ staffTag: newUpdate.tag }, { where: { staffId: oldUpdate.id } })
-      .catch((err) => {
-        error = err;
-        errorToChannel();
-      });
-  };
-});
-
-bot.on('guildCreate', async (guild) => {
-  eventName = 'guildCreate';
-
-  let logging_data = await Logging.findOne({ where: { guildId: guild.id } })
-    .catch((err) => {
-      error = err;
-      errorToChannel();
-    });
-  let ticket_data = await Ticket.findOne({ where: { guildId: guild.id } })
-    .catch((err) => {
-      error = err;
-      errorToChannel();
-    });
-
-  // Checking if the logging data or/and ticket data are missing
-  if (!logging_data) {
-    await Logging.create({
-      guildId: guild.id,
-    });
-  } else if (!ticket_data) {
-    await Ticket.create({
-      guildId: guild.id,
-    });
-  };
-
-  let fetchguild = guild.client.guilds.cache.get(configPreset.botInfo.supportServerId);
-  let new_guild_channel = fetchguild.channels.cache.get(configPreset.channelsId.botAdded);
-  if (!new_guild_channel) return;
-
-  let owner = await guild.fetchOwner();
-  let blacklist_data = await Blacklist.findOne({ where: { userId: owner.user.id } })
-    .catch((err) => {
-      error = err;
-      errorToChannel();
-    });
-
-  // Checking if the owner is blacklisted
-  blacklist_data ? isBlacklisted = 'Yes' : isBlacklisted = 'No';
-
-  // Making the embed and sending it
-  let newguildEmbed = new EmbedBuilder()
-    .setTitle('Bot Added')
-    .addFields(
-      { name: 'Server Name', value: guild.name.toString(), inline: true },
-      { name: 'Server ID', value: guild.id.toString(), inline: true },
-      { name: 'Member Count', value: guild.memberCount.toString(), inline: false },
-      { name: 'Owner Name', value: owner.user.tag.toString(), inline: true },
-      { name: 'Owner ID', value: owner.user.id.toString(), inline: true },
-      { name: 'Owner Blacklisted', value: isBlacklisted, inline: false },
-    )
-    .setColor('Green');
-
-  return new_guild_channel.send({
-    embeds: [newguildEmbed]
-  });
-});
-
-bot.on('guildDelete', async (guild) => {
-  eventName = 'guildDelete';
-
-  let owner = await guild.fetchOwner();
-  let blacklist_data = await Blacklist.findOne({ where: { userId: owner.user.id } })
-    .catch((err) => {
-      error = err;
-      errorToChannel();
-    });
-
-  let fetchguild = guild.client.guilds.cache.get(configPreset.botInfo.supportServerId);
-  let remove_guild_channel = fetchguild.channels.cache.get(configPreset.channelsId.botRemoved);
-  if (!remove_guild_channel) return;
-
-  // Checking if the owner is blacklisted
-  blacklist_data ? isBlacklisted = 'Yes' : isBlacklisted = 'No';
-
-  // Making the embed and sending it
-  let removeguildEmbed = new EmbedBuilder()
-    .setTitle('Bot Removed')
-    .addFields(
-      { name: 'Server Name', value: guild.name.toString(), inline: true },
-      { name: 'Server ID', value: guild.id.toString(), inline: true },
-      { name: 'Member Count', value: guild.memberCount.toString(), inline: true },
-      { name: 'Owner Name', value: owner.user.tag.toString(), inline: true },
-      { name: 'Owner ID', value: owner.user.id.toString(), inline: true },
-      { name: 'Owner Blacklisted', value: isBlacklisted, inline: true },
-    )
-    .setColor('Red');
-
-  return remove_guild_channel.send({
-    embeds: [removeguildEmbed]
-  });
-});
-
-bot.on('messageCreate', async (message) => {
-  eventName = 'messageCreate';
-
-  let logging_data = await Logging.findOne({ where: { guildId: message.guild.id } })
-    .catch((err) => {
-      error = err;
-      errorToChannel();
-    });
-
-  switch (logging_data.language) {
-    case ('en'):
-      languageSet = en;
-      break;
-    case ('fr'):
-      languageSet = fr;
-      break;
-    case ('de'):
-      languageSet = de;
-      break;
-    case ('sp'):
-      languageSet = sp;
-      break;
-    case ('nl'):
-      languageSet = nl;
-      break;
-    default:
-      languageSet = en;
-      break;
-  };
-
-  // File Path
-  let commandsPath = path.join(__dirname, 'commands_noslash');
-  let commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
-
-  for (let file of commandFiles) {
-    let filePath = path.join(commandsPath, file);
-    let command = require(filePath);
-    bot.commands.set(command.name, command);
-  };
-
-  // Prefix setup
-  logging_data.prefix ? prefixSet = logging_data.prefix : prefixSet = configPreset.botInfo.messagePrefix;
-
-  // Not answering the message if it's a bot or not using the prefix
-  if (message.author.bot || message.content.indexOf(prefixSet) !== 0) return;
-
-  // Setting up the command
-  let args = message.content.slice(prefixSet.length).trim().split(/ +/);
-  let command = args.shift().toLowerCase();
-  let statusCommand = await CommandFunction.findOne({ where: { name: command } })
-    .catch((err) => {
-      error = err;
-      errorToChannel();
-    });
-
-  if (!statusCommand) {
-    await CommandFunction.create({
-      name: command,
-      value: true,
-    });
+// File Path for events
+let eventsPath = path.join(__dirname, 'events');
+let eventsFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
+
+for (let file of eventsFiles) {
+  let filesPath = path.join(eventsPath, file);
+  let event = require(filesPath);
+  if (event.once) {
+    bot.once(event.name, (...args) => event.execute(...args));
   } else {
-    if (statusCommand.value === false | !message.guild) {
-      !message.guild ?
-        refusingAction = languageSet.default.serverOnly :
-        refusingAction = languageSet.default.commandDisabledGlobally;
-
-      return interaction.reply({
-        content: refusingAction,
-        ephemeral: true,
-      });
-    };
-  };
-
-  switch (command) {
-    case (en.cmd.default.name):
-      return bot.commands.get(en.cmd.default.name).execute(bot, message, args, sequelize, Sequelize);
-    case (en.language.default.name):
-      return bot.commands.get(en.language.default.name).execute(bot, message, args, sequelize, Sequelize);
-    case (en.data.default.name):
-      return bot.commands.get(en.data.default.name).execute(bot, message, args, sequelize, Sequelize);
-    case (en.ban.default.name):
-      return bot.commands.get(en.ban.default.name).execute(bot, message, args, EmbedBuilder, sequelize, Sequelize);
-    case (en.unban.default.name):
-      return bot.commands.get(en.unban.default.name).execute(bot, message, args, EmbedBuilder, sequelize, Sequelize);
-    case (en.ticket.default.name):
-      return bot.commands.get(en.ticket.default.name).execute(bot, message, args, EmbedBuilder, sequelize, Sequelize);
-  };
-});
-
-bot.on('messageCreate', async (message) => {
-  eventName = 'messageCreate';
-
-  let logging_data = await Logging.findOne({ where: { guildId: message.guild.id } })
-    .catch((err) => {
-      error = err;
-      errorToChannel();
-    });
-
-  switch (logging_data.language) {
-    case ('en'):
-      languageSet = en;
-      break;
-    case ('fr'):
-      languageSet = fr;
-      break;
-    case ('de'):
-      languageSet = de;
-      break;
-    case ('sp'):
-      languageSet = sp;
-      break;
-    case ('nl'):
-      languageSet = nl;
-      break;
-    default:
-      languageSet = en;
-      break;
-  };
-
-  let member = message.author.id;
-
-  if (member === '302050872383242240' & message.embeds[0].description.startsWith('Bump')) {
-    await message.channel.send({
-      content: `${languageSet.bump.message.thanks_first} <@${member}> ${languageSet.bump.message.thanks_second}`
-    });
-
-    return setTimeout(async () => {
-      let bumpTimeEmbed = new EmbedBuilder()
-        .setTitle(languageSet.bump.message.embed.title)
-        .setURL(`https://disboard.org/server/${message.guild.id}`)
-        .setDescription(languageSet.bump.message.embed.description)
-        .setColor('Blue');
-
-      return message.channel.send({
-        content: `<@${member}>`,
-        embeds: [bumpTimeEmbed]
-      });
-    }, 7200000);
-  };
-});
-
-bot.on('interactionCreate', async (interaction) => {
-  eventName = 'interactionCreate';
-
-  let logging_data = await Logging.findOne({ where: { guildId: interaction.guild.id } })
-    .catch((err) => {
-      error = err;
-      errorToChannel();
-    });
-
-  switch (logging_data.language) {
-    case ('en'):
-      languageSet = en;
-      break;
-    case ('fr'):
-      languageSet = fr;
-      break;
-    case ('de'):
-      languageSet = de;
-      break;
-    case ('sp'):
-      languageSet = sp;
-      break;
-    case ('nl'):
-      languageSet = nl;
-      break;
-    default:
-      languageSet = en;
-      break;
-  };
-
-  // File Path
-  let commandsPath = path.join(__dirname, 'commands');
-  let commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
-
-  for (let file of commandFiles) {
-    let filePath = path.join(commandsPath, file);
-    let command = require(filePath);
-    bot.commands.set(command.data.name, command);
-  };
-
-  // Checking if it's an existing interaction command
-  if (!interaction.isCommand()) return;
-
-  let command = bot.commands.get(interaction.commandName);
-  let statusCommand = await CommandFunction.findOne({ where: { name: interaction.commandName } })
-    .catch((err) => {
-      error = err;
-      errorToChannel();
-    });
-
-  if (!statusCommand) {
-    await CommandFunction.create({
-      name: interaction.commandName,
-      value: true,
-    });
-  } else {
-    if (statusCommand.value === false | !interaction.guild) {
-      refusingAction = languageSet.default.commandDisabledGlobally;
-      !interaction.guild ? refusingAction = languageSet.default.serverOnly : false;
-
-      return interaction.reply({
-        content: refusingAction,
-        ephemeral: true,
-      });
-    };
-  };
-
-  // Execute the command
-  return command.execute(interaction, bot, sequelize, Sequelize)
-    .catch((err) => {
-      reply_user = true;
-      intOrMsg_console = interaction.user;
-      intOrMsg_message = interaction.reply;
-      error = err;
-      errorToChannel();
-    });
-});
+    bot.on(event.name, (...args) => event.execute(...args));
+  }
+};
 
 bot.on('interactionCreate', async (interaction) => {
   if (!interaction.guild) return;
@@ -1134,13 +112,7 @@ bot.on('interactionCreate', async (interaction) => {
   eventName = 'interactionCreate';
 
   let guild = bot.guilds.cache.get(interaction.guild.id);
-  let logging_data = await Logging.findOne({ where: { guildId: guild.id } })
-    .catch((err) => {
-      intOrMsg_console = interaction.user;
-      intOrMsg_message = interaction.reply;
-      error = err;
-      errorToChannel();
-    });
+  let logging_data = await logging.findOne({ where: { guildId: guild.id } });
 
   switch (logging_data.language) {
     case ('en'):
@@ -1299,7 +271,7 @@ bot.on('interactionCreate', async (interaction) => {
 
           // Check if the channel still exist
           if (!newMember.guild.channels.cache.get(logging_data.channelId_Verify)) {
-            return Logging.update({ channelId_Verify: null }, { where: { guildId: guild.id } });
+            return logging.update({ channelId_Verify: null }, { where: { guildId: guild.id } });
           };
 
           // Editing message
@@ -1460,7 +432,7 @@ bot.on('interactionCreate', async (interaction) => {
         intOrMsg_console = interaction.user;
         intOrMsg_message = interaction.reply;
         error = err;
-        errorToChannel();
+        errorToDm();
       });
     if (!actionImageData) return;
 
@@ -1518,7 +490,7 @@ bot.on('interactionCreate', async (interaction) => {
         intOrMsg_console = interaction.user;
         intOrMsg_message = interaction.reply;
         error = err;
-        errorToChannel();
+        errorToDm();
       });
   };
 
@@ -1546,7 +518,7 @@ bot.on('interactionCreate', async (interaction) => {
         intOrMsg_console = interaction.user;
         intOrMsg_message = interaction.reply;
         error = err;
-        errorToChannel();
+        errorToDm();
       });
     let ticket_message_data = await Ticket.findOne({ where: { guildId: interaction.guild.id, messageId: interaction.message.id } })
       .catch((err) => {
@@ -1554,7 +526,7 @@ bot.on('interactionCreate', async (interaction) => {
         intOrMsg_console = interaction.user;
         intOrMsg_message = interaction.reply;
         error = err;
-        errorToChannel();
+        errorToDm();
       });
     let ticket_channel_data = await Ticket.findOne({ where: { guildId: interaction.guild.id, channelId: interaction.channel.id } })
       .catch((err) => {
@@ -1562,7 +534,7 @@ bot.on('interactionCreate', async (interaction) => {
         intOrMsg_console = interaction.user;
         intOrMsg_message = interaction.reply;
         error = err;
-        errorToChannel();
+        errorToDm();
       });
     let ticket_count_data = await TicketCount.findOne({ where: { guildId: interaction.guild.id } })
       .catch((err) => {
@@ -1570,7 +542,7 @@ bot.on('interactionCreate', async (interaction) => {
         intOrMsg_console = interaction.user;
         intOrMsg_message = interaction.reply;
         error = err;
-        errorToChannel();
+        errorToDm();
       });
 
     // Permission Check
@@ -1585,17 +557,24 @@ bot.on('interactionCreate', async (interaction) => {
 
     // Errors
     !ticket_message_data ?
-      return_error = message_preset.ticket.unknownMessage :
-      return_error = message_preset.ticket.error; // Check if the message data exist in db
+      return_error = messagePreset.ticket.unknownMessage :
+      return_error = messagePreset.ticket.error; // Check if the message data exist in db
     !permission_manage_channels ?
-      return_error = message_preset.ticket.cantManageChannels :
-      return_error = message_preset.ticket.error; // Check if he has permission to manage channels
-    !staff_role ?
-      return_error = message_preset.ticket.isNotStaff :
-      return_error = message_preset.ticket.error; // Check if the person claiming the ticket is a staff
-    verified_role | staff_role | partner_role ?
-      messageRefusingTicket = message_preset.ticket.refusingToCreateVerified :
-      messageRefusingTicket = message_preset.ticket.error; // Check if the member is already verified
+      return_error = messagePreset.ticket.cantManageChannels :
+      return_error = messagePreset.ticket.error; // Check if he has permission to manage channels
+    if (!staff_role) {
+      return_error = messagePreset.ticket.isNotStaff;
+      messageRefusingTicket = messagePreset.ticket.refusingToCreateStaff;
+    } else {
+      return_error = messagePreset.ticket.error;
+      messageRefusingTicket = messagePreset.ticket.error;
+    }
+    verified_role ?
+      messageRefusingTicket = messagePreset.ticket.refusingToCreate :
+      messageRefusingTicket = messagePreset.ticket.error; // Check if the member is already verified
+    partner_role ?
+      messageRefusingTicket = messagePreset.ticket.refusingToCreatePartner :
+      messageRefusingTicket = messagePreset.ticket.error; // Check if the member is already verified
 
     function error_func() {
       interaction.reply({
@@ -1659,7 +638,7 @@ bot.on('interactionCreate', async (interaction) => {
       if (ticket_data) {
         if (ticket_data.reason === interaction.customId) {
           return interaction.reply({
-            content: message_preset.ticket.waiting,
+            content: messagePreset.ticket.waiting,
             ephemeral: true,
           });
         };
@@ -1681,7 +660,7 @@ bot.on('interactionCreate', async (interaction) => {
 
       // Send the message to the member that the ticket has been created/waiting to be claimed
       await interaction.reply({
-        content: message_preset.ticket.created,
+        content: messagePreset.ticket.created,
         ephemeral: true,
       });
 
@@ -1706,7 +685,7 @@ bot.on('interactionCreate', async (interaction) => {
         .addFields(
           { name: 'Member', value: interaction.user.toString(), inline: true },
           { name: 'Reason', value: reasonTicketChange, inline: true },
-          { name: 'Status', value: message_preset.ticket.unclaim, inline: true },
+          { name: 'Status', value: messagePreset.ticket.unclaim, inline: true },
         )
         .setColor('Yellow');
 
@@ -1795,7 +774,7 @@ bot.on('interactionCreate', async (interaction) => {
         case ('age_verification'):
           if (!admin_role & !executive_role) {
             return interaction.reply({
-              content: message_preset.ticket.cantAgeVerify,
+              content: messagePreset.ticket.cantAgeVerify,
               ephemeral: true,
             });
           };
@@ -1804,7 +783,7 @@ bot.on('interactionCreate', async (interaction) => {
         case ('partnership'):
           if (!executive_role) {
             return interaction.reply({
-              content: message_preset.ticket.cantPartnership,
+              content: messagePreset.ticket.cantPartnership,
               ephemeral: true,
             });
           };
@@ -1817,7 +796,7 @@ bot.on('interactionCreate', async (interaction) => {
           // Checking for possible error or missing permission
           if (ticket_message_data.userId === interaction.user.id) {
             return interaction.reply({
-              content: message_preset.ticket.own,
+              content: messagePreset.ticket.own,
               ephemeral: true,
             });
           };
@@ -1837,7 +816,7 @@ bot.on('interactionCreate', async (interaction) => {
               .addFields(
                 { name: 'Member', value: `<@${ticket_message_data.userId}>`, inline: true },
                 { name: 'Reason', value: message.embeds[0].fields[1].value, inline: true },
-                { name: 'Status', value: message_preset.ticket.claim, inline: true },
+                { name: 'Status', value: messagePreset.ticket.claim, inline: true },
                 { name: 'Claimed by', value: interaction.user.toString() }
               )
               .setColor('Blue');
@@ -1990,7 +969,7 @@ bot.on('interactionCreate', async (interaction) => {
           // Checking for possible error or missing permission
           if (ticket_message_data.claimedBy !== interaction.user.id) {
             return interaction.reply({
-              content: message_preset.ticket.own,
+              content: messagePreset.ticket.own,
               ephemeral: true,
             });
           }
@@ -2010,7 +989,7 @@ bot.on('interactionCreate', async (interaction) => {
               .addFields(
                 { name: 'Member', value: `<@${ticket_message_data.userId}>`, inline: true },
                 { name: 'Reason', value: message.embeds[0].fields[1].value, inline: true },
-                { name: 'Status', value: message_preset.ticket.unclaim, inline: true },
+                { name: 'Status', value: messagePreset.ticket.unclaim, inline: true },
               )
               .setColor('Yellow');
 
@@ -2071,7 +1050,7 @@ bot.on('interactionCreate', async (interaction) => {
               intOrMsg_console = interaction.user;
               intOrMsg_message = interaction.reply;
               error = err;
-              errorToChannel();
+              errorToDm();
             });
 
           // Giving/removing roles
@@ -2124,7 +1103,7 @@ bot.on('interactionCreate', async (interaction) => {
               .addFields(
                 { name: 'Member:', value: `<@${ticket_channel_data.userId}>`, inline: true },
                 { name: 'Reason:', value: message.embeds[0].fields[1].value, inline: true },
-                { name: 'Status:', value: message_preset.ticket.done, inline: true },
+                { name: 'Status:', value: messagePreset.ticket.done, inline: true },
                 { name: 'Claimed by:', value: interaction.user.toString() }
               )
               .setColor('Green');
@@ -2140,7 +1119,7 @@ bot.on('interactionCreate', async (interaction) => {
 
           // Alerting of the deletion of the channel
           await interaction.reply({
-            content: message_preset.ticket.delete,
+            content: messagePreset.ticket.delete,
           });
 
           // Destroy the channel after x seconds
@@ -2158,6 +1137,26 @@ bot.on('interactionCreate', async (interaction) => {
       };
     };
   };
+});
+
+bot.on('error', async (error) => {
+  // Send to the user
+  try {
+    console.log(`${interaction.user.id} -> ${interaction.user.username}`);
+
+    await interaction.reply({
+      content: en.default.errorOccured,
+      ephemeral: true,
+    });
+  } catch (error) { }
+
+  // Send it to console
+  console.log(error.stack);
+
+  // Send it to my DM
+  return bot.users.cache.get(configPreset.botInfo.ownerId).send({
+    content: '**Error in the ' + eventName + ' event:** \n\n```javascript\n' + error.stack + '```'
+  });
 });
 
 bot.login(configPreset.botPrivateInfo.token);

@@ -188,7 +188,7 @@ module.exports = {
                 };
 
                 let profileTargetData = await Profile.findOne({ where: { userId: userData } });
-                const verifierData = await Verifier.findOne({ where: { userId: memberData.id, guildId: interaction.guild.id } });
+                let verifierData = await Verifier.findOne({ where: { userId: memberData.id, guildId: interaction.guild.id } });
                 let member = interaction.guild.members.cache.get(memberData.id) || await interaction.guild.members.fetch(memberData.id).catch(error => { });
 
                 const infoEmbed = new EmbedBuilder()
