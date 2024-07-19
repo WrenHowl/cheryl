@@ -49,7 +49,7 @@ module.exports = {
             default:
                 languageSet = en;
                 break;
-        }
+        };
 
         try {
             if (!interaction.guild.id === "1082103667181764659") return;
@@ -76,12 +76,12 @@ module.exports = {
             let profileCheck = await Profile.findOne({ where: { userId: interaction.targetId } });
             let member = interaction.guild.members.cache.get(interaction.targetId);
 
-            if (!interaction.member.roles.cache.some(role => role.name === "Staff")) {
+            if (!interaction.member.roles.cache.some(role => role.id === "1191482864156557332")) {
                 return interaction.reply({
                     content: "You do not have the permission to do that.",
                     ephemeral: true,
                 });
-            } else if (interaction.targetMember.roles.cache.some(role => role.name === "Verified 18+")) {
+            } else if (interaction.targetMember.roles.cache.some(role => role.id === "1084970943820075050")) {
                 return interaction.reply({
                     content: "This member is already verified.",
                     ephemeral: true,
@@ -93,8 +93,9 @@ module.exports = {
                 ephemeral: true,
             });
 
-            // Giving role
+            // Giving/removing roles
             await member.roles.add("1084970943820075050", "Age Verification: Verified by " + interaction.user.tag).catch(() => { return });
+            await member.roles.remove("1233066501825892383", "Age verification process");
 
             // Upadting profile
             profileCheck ? await Profile.update({ verified18: true }, { where: { userId: interaction.targetId } }) :
@@ -120,9 +121,9 @@ module.exports = {
                 embeds: [verifiedEmbed],
             });
         } catch (error) {
-            let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
+            let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.supportServerId);
             let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
-            console.log(`${interaction.user.id} -> ${interaction.user.tag}`);
+            console.log(`${interaction.user.id} -> ${interaction.user.username}`);
             console.log(error);
 
             await interaction.reply({

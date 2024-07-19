@@ -4,7 +4,7 @@ const en = require("../languages/en.json");
 
 module.exports = {
     name: en.data.default.name,
-    execute: async (bot, message, args, sequelize, Sequelize) => {
+    execute: async (bot, message, sequelize, Sequelize) => {
         const CommandFunction = sequelize.define("CommandFunction", {
             name: {
                 type: Sequelize.STRING,
@@ -56,6 +56,8 @@ module.exports = {
                             content: "Please send an image link to remove",
                         });
                     };
+
+                    await message.delete()
 
                     if (actionImageData) {
                         await message.reply({

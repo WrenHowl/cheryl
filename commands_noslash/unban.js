@@ -8,7 +8,7 @@ const nl = require("../languages/nl.json");
 
 module.exports = {
     name: en.unban.default.name,
-    execute: async (bot, message, args, EmbedBuilder, sequelize, Sequelize) => {
+    execute: async (bot, message, EmbedBuilder, sequelize, Sequelize) => {
         const CommandFunction = sequelize.define("CommandFunction", {
             name: {
                 type: Sequelize.STRING,

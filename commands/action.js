@@ -1,546 +1,465 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { bot } = require('../server');
+const { fr, en, de, sp, nl } = require('../preset/language')
+const { sequelize, logging, actionImage, profile } = require('../preset/db')
 
-const configPreset = require("../config/main.json");
-const profileInfo = require("../config/profile.json");
-
-const fr = require("../languages/fr.json");
-const en = require("../languages/en.json");
-const de = require("../languages/de.json");
-const sp = require("../languages/sp.json");
-const nl = require("../languages/nl.json");
+const configPreset = require('../config/main.json');
+const profileInfo = require('../config/profile.json');
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName(en.action.default.name)
         .setNameLocalizations({
-            "fr": fr.action.default.name,
-            "de": de.action.default.name,
-            "es-ES": sp.action.default.name,
-            "nl": nl.action.default.name
+            'fr': fr.action.default.name,
+            'de': de.action.default.name,
+            'es-ES': sp.action.default.name,
+            'nl': nl.action.default.name
         })
         .setDescription(en.action.default.description)
         .setDescriptionLocalizations({
-            "fr": fr.action.default.description,
-            "de": de.action.default.description,
-            "es-ES": sp.action.default.description,
-            "nl": nl.action.default.description
+            'fr': fr.action.default.description,
+            'de': de.action.default.description,
+            'es-ES': sp.action.default.description,
+            'nl': nl.action.default.description
         })
         .addStringOption(option => option
             .setName(en.action.default.choice.name)
             .setNameLocalizations({
-                "fr": fr.action.default.choice.name,
-                "de": de.action.default.choice.name,
-                "es-ES": sp.action.default.choice.name,
-                "nl": nl.action.default.choice.name
+                'fr': fr.action.default.choice.name,
+                'de': de.action.default.choice.name,
+                'es-ES': sp.action.default.choice.name,
+                'nl': nl.action.default.choice.name
             })
             .setDescription(en.action.default.choice.description)
             .setDescriptionLocalizations({
-                "fr": fr.action.default.choice.description,
-                "de": de.action.default.choice.description,
-                "es-ES": sp.action.default.choice.description,
-                "nl": nl.action.default.choice.description
+                'fr': fr.action.default.choice.description,
+                'de': de.action.default.choice.description,
+                'es-ES': sp.action.default.choice.description,
+                'nl': nl.action.default.choice.description
             })
             .setRequired(true)
             .addChoices(
-                { name: "Hug", value: "hug" },
-                { name: "Kiss", value: "kiss" },
-                { name: "Boop", value: "boop" },
-                { name: "Lick", value: "lick" },
-                { name: "Cuddle", value: "cuddle" },
-                { name: "Yeet", value: "yeet" },
-                { name: "Pat", value: "pat" },
-                { name: "Bite", value: "bite" },
-                { name: "Bonk", value: "bonk" },
-                { name: "Fuck → male/female", value: "fuckstraight" },
-                { name: "Suck → male/female", value: "suckstraight" },
-                { name: "Ride → male/female", value: "ridestraight" },
-                { name: "Fill → male/female", value: "fillstraight" },
-                { name: "Eat → male/female", value: "eatstraight" },
-                { name: "Fuck → male/male", value: "fuckgay" },
-                { name: "Suck → male/male", value: "suckgay" },
-                { name: "Ride → male/male", value: "ridegay" },
-                { name: "Fill → male/male", value: "fillgay" },
-                { name: "Eat → male/male", value: "eatgay" },
+                { name: 'Hug', value: 'hug' },
+                { name: 'Kiss', value: 'kiss' },
+                { name: 'Boop', value: 'boop' },
+                { name: 'Lick', value: 'lick' },
+                { name: 'Cuddle', value: 'cuddle' },
+                { name: 'Yeet', value: 'yeet' },
+                { name: 'Pat', value: 'pat' },
+                { name: 'Bite', value: 'bite' },
+                { name: 'Bonk', value: 'bonk' },
+                { name: 'Fuck → male/female', value: 'fuckstraight' },
+                { name: 'Suck → male/female', value: 'suckstraight' },
+                { name: 'Ride → male/female', value: 'ridestraight' },
+                { name: 'Fill → male/female', value: 'fillstraight' },
+                { name: 'Eat → male/female', value: 'eatstraight' },
+                { name: 'Fuck → male/male', value: 'fuckgay' },
+                { name: 'Suck → male/male', value: 'suckgay' },
+                { name: 'Ride → male/male', value: 'ridegay' },
+                { name: 'Fill → male/male', value: 'fillgay' },
+                { name: 'Eat → male/male', value: 'eatgay' },
             ))
         .addStringOption(option => option
             .setName(en.action.default.suggest.name)
             .setNameLocalizations({
-                "fr": fr.action.default.suggest.name,
-                "de": de.action.default.suggest.name,
-                "es-ES": sp.action.default.suggest.name,
-                "nl": nl.action.default.suggest.name
+                'fr': fr.action.default.suggest.name,
+                'de': de.action.default.suggest.name,
+                'es-ES': sp.action.default.suggest.name,
+                'nl': nl.action.default.suggest.name
             })
             .setDescription(en.action.default.suggest.description)
             .setDescriptionLocalizations({
-                "fr": fr.action.default.suggest.description,
-                "de": de.action.default.suggest.description,
-                "es-ES": sp.action.default.suggest.description,
-                "nl": nl.action.default.suggest.description
+                'fr': fr.action.default.suggest.description,
+                'de': de.action.default.suggest.description,
+                'es-ES': sp.action.default.suggest.description,
+                'nl': nl.action.default.suggest.description
             })
             .setRequired(false))
         .addUserOption(option => option
             .setName(en.action.default.member.name)
             .setNameLocalizations({
-                "fr": fr.action.default.member.name,
-                "de": de.action.default.member.name,
-                "es-ES": sp.action.default.member.name,
-                "nl": nl.action.default.member.name
+                'fr': fr.action.default.member.name,
+                'de': de.action.default.member.name,
+                'es-ES': sp.action.default.member.name,
+                'nl': nl.action.default.member.name
             })
             .setDescription(en.action.default.member.description)
             .setDescriptionLocalizations({
-                "fr": fr.action.default.member.description,
-                "de": de.action.default.member.description,
-                "es-ES": sp.action.default.member.description,
-                "nl": nl.action.default.member.description
+                'fr': fr.action.default.member.description,
+                'de': de.action.default.member.description,
+                'es-ES': sp.action.default.member.description,
+                'nl': nl.action.default.member.description
             })
             .setRequired(false)),
-    execute: async (interaction, bot, sequelize, Sequelize) => {
-        const Logging = sequelize.define("Logging", {
-            guildId: {
-                type: Sequelize.STRING,
-            },
-            language: {
-                type: Sequelize.STRING,
-            },
-            status_canActionMessage: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            status_canActionImage: {
-                type: Sequelize.STRING,
-                unique: false,
-            }
-        });
-
-        let loggingData = await Logging.findOne({ where: { guildId: interaction.guild.id } });
+    execute: async (interaction) => {
+        let loggingData = await logging.findOne({ where: { guildId: interaction.guild.id } });
 
         switch (loggingData.language) {
-            case ("en"):
+            case ('en'):
                 languageSet = en;
                 break;
-            case ("fr"):
+            case ('fr'):
                 languageSet = fr;
                 break;
-            case ("de"):
+            case ('de'):
                 languageSet = de;
                 break;
-            case ("sp"):
+            case ('sp'):
                 languageSet = sp;
                 break;
-            case ("nl"):
+            case ('nl'):
                 languageSet = nl;
                 break;
             default:
                 languageSet = en;
                 break;
-        }
+        };
 
-        try {
-            const ActionImage = sequelize.define("ActionImage", {
-                imageUrl: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                category: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                messageId: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                userTag: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                userId: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-            });
-            const Profile = sequelize.define("Profile", {
-                userTag: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                userId: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-                pronouns: {
-                    type: Sequelize.STRING,
-                    unique: false,
-                },
-            });
+        // Offered options
+        let optionChoice = interaction.options.getString(en.action.default.choice.name);
+        let optionUser = interaction.options.getUser(en.action.default.member.name);
+        let optionSuggest = interaction.options.getString(en.action.default.suggest.name);
 
-            let choice = interaction.options.getString(en.action.default.choice.name);
-            let suggestImage = interaction.options.getString(en.action.default.suggest.name);
-            let user = interaction.options.getUser(en.action.default.member.name);
+        let nsfwChoice = [
+            'fuckstraight',
+            'fuckgay',
+            'suckstraight',
+            'suckgay',
+            'ridestraight',
+            'ridegay',
+            'fillstraight',
+            'fillgay',
+            'eatstraight',
+            'eatgay'
+        ];
 
-            let actionImageData = await ActionImage.findAll({ where: { category: choice }, order: sequelize.random(), limit: 1 });
+        if (optionSuggest) {
+            // Check if the suggestion is an URL
+            try {
+                new URL(optionSuggest);
+            } catch (error) {
+                return interaction.reply({
+                    content: languageSet.action.message.error.wrongURL,
+                    ephemeral: true,
+                });
+            };
 
-            let nsfwChoice = [
-                "fuckstraight",
-                "fuckgay",
-                "suckstraight",
-                "suckgay",
-                "ridestraight",
-                "ridegay",
-                "fillstraight",
-                "fillgay",
-                "eatstraight",
-                "eatgay"
-            ];
+            // Check if the suggestion string is a valid format URL
+            if (!['jpg', 'png', 'gif'].some(sm => optionSuggest.endsWith(sm))) {
+                return interaction.reply({
+                    content: languageSet.action.message.error.wrongFormat,
+                    ephemeral: true,
+                });
+            };
 
-            if (suggestImage) {
-                let fetchGuild = interaction.client.guilds.cache.get(configPreset.botInfo.guildId);
+            // Check if image has already been suggested/added
+            let actionImageData = await actionImage.findOne({ where: { imageUrl: optionSuggest } });
+            if (actionImageData) {
+                return interaction.reply({
+                    content: languageSet.action.message.error.alreadyExist,
+                    ephemeral: true,
+                });
+            };
 
-                // Check if the suggestion string is a URL
-                try {
-                    new URL(suggestImage);
-                    !suggestImage.endsWith("gif")
-                } catch (error) {
-                    return interaction.reply({
-                        content: languageSet.action.message.error.wrongUrl,
-                        ephemeral: true,
-                    });
-                }
+            // Notify that the suggestion has been received
+            await interaction.reply({
+                content: `${languageSet.action.message.success.suggested} *${bot.user.username}*`,
+                ephemeral: true
+            })
 
-                // Check if image has already been suggested/added
-                let imageData = await ActionImage.findOne({ where: { imageUrl: suggestImage } });
+            // Change the channel ID in function of the choice (sfw or nsfw)
+            !optionChoice === !nsfwChoice.includes(optionChoice) ? channelSuggestId = configPreset.channelsId.nsfwSuggestion : channelSuggestId = configPreset.channelsId.sfwSuggestion;
+            let channelSuggest = interaction.client.guilds.cache.get(configPreset.botInfo.supportServerId).channels.cache.get(channelSuggestId);
 
-                if (imageData) {
-                    return interaction.reply({
-                        content: languageSet.action.message.error.alreadyExist,
-                        ephemeral: true,
-                    });
-                };
+            // Creating the embed and button
+            let buttonSuggestion = new ActionRowBuilder()
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('acceptSuggestionAction')
+                        .setLabel('Accept')
+                        .setStyle(ButtonStyle.Success),
+                )
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('denySuggestionAction')
+                        .setLabel('Deny')
+                        .setStyle(ButtonStyle.Danger),
+                );
 
-                // Notify that the suggestion has been received
-                await interaction.reply({
-                    content: `${languageSet.action.message.success.suggested} *${bot.user.username}*`,
-                    ephemeral: true
-                })
+            let imageEmbed = new EmbedBuilder()
+                .addFields(
+                    { name: 'Name', value: interaction.user.username, inline: true },
+                    { name: 'ID', value: interaction.user.id, inline: true },
+                    { name: '\u200b', value: '\u200b', inline: true },
+                    { name: 'Category', value: optionChoice, inline: true },
+                    { name: 'Image URL', value: `[Source](${optionSuggest})`, inline: true },
+                    { name: '\u200b', value: '\u200b', inline: true },
 
-                // Creating the embed and button
-                let buttonSuggestion = new ActionRowBuilder()
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setCustomId('acceptSuggestionAction')
-                            .setLabel("Accept")
-                            .setStyle(ButtonStyle.Success),
-                    )
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setCustomId('denySuggestionAction')
-                            .setLabel("Deny")
-                            .setStyle(ButtonStyle.Danger),
-                    );
+                )
+                .setImage(optionSuggest)
+                .setColor('Yellow');
 
-                let imageEmbed = new EmbedBuilder()
-                    .addFields(
-                        { name: "Category:", value: choice, inline: true },
-                        { name: "Author:", value: interaction.user.tag + " *(" + interaction.user.id + ")*", inline: true }
-                    )
-                    .setImage(suggestImage)
-                    .setColor("Yellow");
+            async function suggestionData(msg) {
+                await actionImage.create({
+                    messageId: msg.id,
+                    category: optionChoice,
+                    imageUrl: optionSuggest,
+                    userTag: interaction.user.username,
+                    userId: interaction.user.id,
+                });
+            };
 
-                // Change the channel ID in function of the choice (sfw or nsfw)
-                !choice === !nsfwChoice.includes(choice) ? channelSuggestionId = configPreset.channelsId.nsfwSuggestion : channelSuggestionId = configPreset.channelsId.sfwSuggestion;
-                let suggestChannel = fetchGuild.channels.cache.get(channelSuggestionId);
+            if (interaction.user.id === configPreset.botInfo.ownerId) {
+                imageEmbed.setColor('Green');
 
-                if (interaction.user.id === configPreset.botInfo.ownerId) {
-                    imageEmbed.setColor("Green");
-                    imageEmbed.addFields(
-                        { name: "Status:", value: "Accepted" }
-                    );
-
-                    return suggestChannel.send({
-                        embeds: [imageEmbed],
-                    }).then(async (sent) => {
-                        await ActionImage.create({
-                            messageId: sent.id,
-                            category: choice,
-                            imageUrl: suggestImage,
-                            userTag: interaction.user.tag,
-                            userId: interaction.user.id,
-                        });
-                    });
-                };
-
-                return suggestChannel.send({
+                return channelSuggest.send({
                     embeds: [imageEmbed],
-                    components: [buttonSuggestion]
-                }).then(async (sent) => {
-
-                    // Adding the image to the database
-                    await ActionImage.create({
-                        messageId: sent.id,
-                        category: choice,
-                        imageUrl: suggestImage,
-                        userTag: interaction.user.tag,
-                        userId: interaction.user.id,
-                    });
+                }).then(async (msg) => {
+                    return suggestionData(msg)
                 });
             } else {
-                let userOne = interaction.user.toString();
-                let userTwo = user ? user.toString() : bot.user.toString();
-                let userThree = user ? user.id : bot.user.id;
+                return channelSuggest.send({
+                    embeds: [imageEmbed],
+                    components: [buttonSuggestion]
+                }).then(async (msg) => {
+                    return suggestionData(msg)
+                });
+            };
+        } else {
+            let actionImageAllData = await actionImage.findAll({ where: { category: optionChoice }, order: sequelize.random(), limit: 1 });
 
-                let profileInteractionData = await Profile.findOne({ where: { userId: interaction.user.id } });
-                let profileTargetData = await Profile.findOne({ where: { userId: userThree } });
+            if (!actionImageAllData) {
+                const noImage = `There is no image in the database for the following: ${optionChoice}`
+                await interaction.reply({
+                    content: `${noImage}\n\nThe developers have been alerted!`,
+                    ephemeral: true,
+                })
+                return console.log(noImage)
+            };
 
-                if (loggingData.status_canActionImage === "Disabled" && loggingData.status_canActionMessage === "Disabled") {
+            let userInteracter = interaction.user.toString();
+            let userTarget = optionUser ? optionUser : bot.user;
+
+            let profileMemberData = await profile.findOne({ where: { userId: interaction.user.id } });
+            let profileTargetData = await profile.findOne({ where: { userId: userTarget.id } });
+
+            userTarget = userTarget.toString();
+
+            if (loggingData.status_canActionImage === 'Disabled' && loggingData.status_canActionMessage === 'Disabled') {
+                return interaction.reply({
+                    content: languageSet.action.message.error.disable,
+                    ephemeral: true,
+                });
+            } else if (!optionChoice === !nsfwChoice.includes(optionChoice)) {
+                if (!interaction.channel.nsfw) {
                     return interaction.reply({
-                        content: languageSet.action.message.error.disable,
+                        content: languageSet.action.message.error.notNsfw,
                         ephemeral: true,
                     });
-                } else if (!choice === !nsfwChoice.includes(choice)) {
-                    if (!interaction.channel.nsfw) {
-                        return interaction.reply({
-                            content: languageSet.action.message.error.notNsfw,
-                            ephemeral: true,
-                        });
-                    };
                 };
-
-                let pronouns = languageSet.profile.default.choice.pronouns.list;
-
-                if (profileInteractionData) {
-                    switch (profileInteractionData.pronouns) {
-                        case (profileInfo.pronouns.th):
-                            pronounsOne = pronouns.them;
-                            pronounsTwo = pronouns.their;
-                            break;
-                        case (profileInfo.pronouns.he):
-                            pronounsOne = pronouns.him;
-                            pronounsTwo = pronouns.his;
-                            break;
-                        case (profileInfo.pronouns.sh):
-                            pronounsOne = pronouns.she;
-                            pronounsTwo = pronouns.her;
-                            break;
-                        default:
-                            pronounsOne = pronouns.them;
-                            pronounsTwo = pronouns.their;
-                            break;
-                    }
-                } else {
-                    pronounsOne = pronouns.them;
-                    pronounsTwo = pronouns.their;
-                };
-
-                if (profileTargetData) {
-                    switch (profileTargetData.pronouns) {
-                        case (profileInfo.pronouns.th):
-                            pronounsThree = pronouns.them;
-                            pronounsFour = pronouns.their;
-                            break;
-                        case (profileInfo.pronouns.he):
-                            pronounsThree = pronouns.him;
-                            pronounsFour = pronouns.his;
-                            break;
-                        case (profileInfo.pronouns.sh):
-                            pronounsThree = pronouns.her;
-                            pronounsFour = pronouns.her;
-                            break;
-                        default:
-                            pronounsThree = pronouns.them;
-                            pronounsFour = pronouns.their;
-                            break;
-                    }
-                } else {
-                    pronounsThree = pronouns.them;
-                    pronounsFour = pronouns.their;
-                };
-
-                switch (choice) {
-                    case ("hug"):
-                        const hugSentence = [
-                            userOne + " approaches " + userTwo + " gently and hugs " + pronounsThree + " from behind!~",
-                            userOne + " wraps " + pronounsTwo + " arms around " + userTwo + ", taking " + pronounsThree + " into " + pronounsTwo + " warm embrace!~",
-                            userOne + " jump on " + userTwo + "'s back and hug " + pronounsThree + " tightly!~"
-                        ];
-                        sentence = hugSentence;
-                        break;
-                    case ("kiss"):
-                        const kissSentence = [
-                            userOne + " approches slowly " + userTwo + "'s face and gently kiss " + pronounsThree + "!~",
-                            userOne + " gets close to " + userTwo + " and kiss " + pronounsThree + "!~"
-                        ];
-                        sentence = kissSentence;
-                        break;
-                    case ("boop"):
-                        const boopSentence = [
-                            userOne + " raises " + pronounsTwo + " paw and places it apon " + userTwo + "'s snoot!~",
-                        ];
-                        sentence = boopSentence;
-                        break;
-                    case ("lick"):
-                        const lickSentence = [
-                            userOne + " gets really close to " + userTwo + " face and lick " + pronounsThree + "!~",
-                        ];
-                        sentence = lickSentence;
-                        break;
-                    case ("cuddle"):
-                        const cuddleSentence = [
-                            userOne + " approches " + userTwo + " and pounces, cuddling the suprised floofer!~",
-                            userOne + " join " + userTwo + " and cuddle " + pronounsThree + "!~",
-                        ];
-                        sentence = cuddleSentence;
-                        break;
-                    case ("yeet"):
-                        const yeetSentence = [
-                            userOne + " yeeted " + userTwo + " into the stratosphere!~",
-                            userOne + " grabbed " + userTwo + " and yeeted " + pronounsThree + " 10 miles into the sky!",
-                            userOne + " grabs " + userTwo + " and throws " + pronounsThree + " to Ohio!"
-                        ];
-                        sentence = yeetSentence;
-                        break;
-                    case ("pat"):
-                        const patSentence = [
-                            userOne + " rub " + userTwo + " on the head!~",
-                            userOne + " mess " + userTwo + " hair!~",
-                            userOne + " strokes " + userTwo + " head, messing with " + pronounsFour + " hair!~"
-                        ];
-                        sentence = patSentence;
-                        break;
-                    case ("bite"):
-                        const biteSentence = [
-                            userOne + " decided to bite " + userTwo + " a little!~",
-                            userOne + " bite " + userTwo + " to taste " + pronounsThree + "!~",
-                        ];
-                        sentence = biteSentence;
-                        break;
-                    case ("bonk"):
-                        const bonkSentence = [
-                            userOne + " swing a baseball bat on " + userTwo + "'s head. Bonking " + pronounsThree + "!~"
-                        ];
-                        sentence = bonkSentence;
-                        break;
-                    case ("fuckstraight"):
-                        const fuckStraightSentence = [
-                            userOne + " fuck " + userTwo + " pussy really hard~",
-                            userOne + " thrust into " + userTwo + " back and forth into " + pronounsFour + " pussy making " + pronounsThree + " all wet~",
-                        ];
-                        sentence = fuckStraightSentence;
-                        break;
-                    case ("fuckgay"):
-                        const fuckGaySentence = [
-                            userOne + " fuck " + userTwo + " really hard into " + pronounsFour + " ass~",
-                            userOne + " thrust into " + userTwo + " back and forth into " + pronounsFour + " ass~",
-                        ];
-                        sentence = fuckGaySentence;
-                        break;
-                    case ("suckstraight"):
-                        const suckStraightSentence = [
-                            userOne + " suck " + userTwo + "'s dick~",
-                            userOne + " enjoys " + userTwo + "'s dick while sucking it~",
-                        ];
-                        sentence = suckStraightSentence;
-                        break;
-                    case ("eatstraight"):
-                        const eatStraightSentence = [
-                            userOne + " eat " + userTwo + "'s ass~",
-                        ];
-                        sentence = eatStraightSentence;
-                        break;
-                    case ("suckgay"):
-                        const suckGaySentence = [
-                            userOne + " suck " + userTwo + "'s dick~",
-                            userOne + " enjoys " + userTwo + "'s dick while sucking it~",
-                        ];
-                        sentence = suckGaySentence;
-                        break;
-                    case ("ridestraight"):
-                        const rideStraightSentence = [
-                            userOne + " ride " + userTwo + "'s dick~",
-                            userOne + " enjoys " + userTwo + "'s dick while riding it~",
-                        ];
-                        sentence = rideStraightSentence;
-                        break;
-                    case ("ridegay"):
-                        const rideGaySentence = [
-                            userOne + " ride " + userTwo + "'s dick~",
-                            userOne + " enjoys " + userTwo + "'s dick while riding it~",
-                        ];
-                        sentence = rideGaySentence;
-                        break;
-                    case ("fillstraight"):
-                        const fillStraightSentence = [
-                            userOne + " fills up " + userTwo + "'s ass with " + pronounsTwo + " seed~",
-                            userOne + " pushes " + pronounsFour + " dick deep inside " + userTwo + "'s ass, filling it up with " + pronounsTwo + " juicy cum~",
-                        ];
-                        sentence = fillStraightSentence;
-                        break;
-                    case ("fillgay"):
-                        const fillGaySentence = [
-                            userOne + " fills up " + userTwo + "'s ass with " + pronounsTwo + " seed~",
-                            userOne + " pushes " + pronounsFour + " dick deep inside " + userTwo + "'s ass, filling it up with " + pronounsTwo + " juicy cum~",
-                        ];
-                        sentence = fillGaySentence;
-                        break;
-                    case ("eatgay"):
-                        const eatGaySentence = [
-                            userOne + " eat " + userTwo + "'s ass~",
-                        ];
-                        sentence = eatGaySentence;
-                        break;
-                }
-
-                let randomAnswer = await sentence[Math.floor(Math.random() * sentence.length)];
-                let randomImage = await actionImageData[Math.floor(Math.random() * actionImageData.length)];
-
-                /*const supportDiscord = new ActionRowBuilder()
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setLabel(languageSet.action.button.source)
-                            .setURL(randomImage.imageUrl)
-                            .setStyle(ButtonStyle.Link),
-                    )
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setLabel(languageSet.default.button.discord)
-                            .setURL(configPreset.other.discordLink)
-                            .setStyle(ButtonStyle.Link),
-                    );
-
-                const imageEmbed = new EmbedBuilder()
-                    .setColor("Blue")
-                    .setImage(randomImage.imageUrl)*/
-
-                if (loggingData.status_canActionImage === "Disabled") {
-                    return interaction.reply({
-                        content: randomAnswer + "\n\n" + randomImage.imageUrl,
-                        //components: [supportDiscord],
-                    });
-                } else if (loggingData.status_canActionMessage === "Disabled") {
-                    return interaction.reply({
-                        content: randomImage.imageUrl,
-                        //embeds: [imageEmbed],
-                        //components: [supportDiscord],
-                    });
-                } else {
-                    return interaction.reply({
-                        content: randomAnswer + "\n\n" + randomImage.imageUrl,
-                        //embeds: [imageEmbed],
-                        //components: [supportDiscord],
-                    });
-                }
             };
-        } catch (error) {
-            let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
-            let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
-            console.log(`${interaction.user.id} -> ${interaction.user.tag}`);
-            console.log(error);
 
-            await interaction.reply({
-                content: languageSet.default.errorOccured,
-                ephemeral: true,
-            });
+            let pronouns = languageSet.profile.default.choice.pronouns.list;
 
-            return crashchannelId.send({ content: "**Error in the '" + en.action.default.name + "' event:** \n\n```javascript\n" + error + "```" });
+            if (profileMemberData) {
+                switch (profileMemberData.pronouns) {
+                    case (profileInfo.pronouns.th):
+                        noun_interaction = pronouns.them;
+                        adj_interaction = pronouns.their;
+                        break;
+                    case (profileInfo.pronouns.he):
+                        noun_interaction = pronouns.him;
+                        adj_interaction = pronouns.his;
+                        break;
+                    case (profileInfo.pronouns.sh):
+                        noun_interaction = pronouns.she;
+                        adj_interaction = pronouns.her;
+                        break;
+                    default:
+                        noun_interaction = pronouns.them;
+                        adj_interaction = pronouns.their;
+                        break;
+                };
+            } else {
+                noun_interaction = pronouns.them;
+                adj_interaction = pronouns.their;
+            };
+
+            if (profileTargetData) {
+                switch (profileTargetData.pronouns) {
+                    case (profileInfo.pronouns.th):
+                        noun_target = pronouns.them;
+                        adj_target = pronouns.their;
+                        break;
+                    case (profileInfo.pronouns.he):
+                        noun_target = pronouns.him;
+                        adj_target = pronouns.his;
+                        break;
+                    case (profileInfo.pronouns.sh):
+                        noun_target = pronouns.her;
+                        adj_target = pronouns.her;
+                        break;
+                    default:
+                        noun_target = pronouns.them;
+                        adj_target = pronouns.their;
+                        break;
+                }
+            } else {
+                noun_target = pronouns.them;
+                adj_target = pronouns.their;
+            };
+
+            switch (optionChoice) {
+                case ('hug'):
+                    const hugmsgence = [
+                        `${userInteracter} approaches ${userTarget} gently and hugs ${noun_target} from behind!~`,
+                        `${userInteracter} wraps ${adj_interaction} arms around ${userTarget} taking ${noun_target} into ${adj_interaction} warm embrace!~`,
+                        `${userInteracter} jump on ${userTarget}'s back and hug ${noun_target} tightly!~`
+                    ];
+                    msgence = hugmsgence;
+                    break;
+                case ('kiss'):
+                    const kissmsgence = [
+                        `${userInteracter} approches slowly ${userTarget}'s face and gently kiss ${noun_target}!~`,
+                        `${userInteracter} gets close to ${userTarget} and kiss ${noun_target}!~'`
+                    ];
+                    msgence = kissmsgence;
+                    break;
+                case ('boop'):
+                    const boopmsgence = [
+                        `${userInteracter} raises ${adj_interaction} paw and places it apon ${userTarget}'s snoot!~`,
+                    ];
+                    msgence = boopmsgence;
+                    break;
+                case ('lick'):
+                    const lickmsgence = [
+                        `${userInteracter} gets really close to ${userTarget} face and lick ${noun_target}!~`,
+                    ];
+                    msgence = lickmsgence;
+                    break;
+                case ('cuddle'):
+                    const cuddlemsgence = [
+                        `${userInteracter} approches ${userTarget} and pounces, cuddling the suprised floofer!~`,
+                        `${userInteracter} join ${userTarget} and cuddle ${noun_target}!~`,
+                    ];
+                    msgence = cuddlemsgence;
+                    break;
+                case ('yeet'):
+                    const yeetmsgence = [
+                        `${userInteracter} yeeted ${userTarget} into the stratosphere!`,
+                        `${userInteracter} grabbed ${userTarget} and yeeted ${noun_target} 10 miles into the sky!`,
+                        `${userInteracter} grabs ${userTarget} and throws ${noun_target} to Ohio!`
+                    ];
+                    msgence = yeetmsgence;
+                    break;
+                case ('pat'):
+                    const patmsgence = [
+                        `${userInteracter} rub ${userTarget} on the head!~`,
+                        `${userInteracter} mess ${userTarget} hair!~`,
+                        `${userInteracter} strokes ${userTarget} head, messing with ${adj_target} hair!~`
+                    ];
+                    msgence = patmsgence;
+                    break;
+                case ('bite'):
+                    const bitemsgence = [
+                        `${userInteracter} decided to bite ${userTarget} a little!~`,
+                        `${userInteracter} bite ${userTarget} to taste ${noun_target}!~`,
+                    ];
+                    msgence = bitemsgence;
+                    break;
+                case ('bonk'):
+                    const bonkmsgence = [
+                        `${userInteracter} swing a baseball bat on ${userTarget}'s head.Bonking ${noun_target}!~`
+                    ];
+                    msgence = bonkmsgence;
+                    break;
+                case ('fuckstraight'):
+                    const fuckStraightmsgence = [
+                        `${userInteracter} fuck ${userTarget} pussy really hard~`,
+                        `${userInteracter} thrust into ${userTarget} back and forth into ${adj_target} pussy making ${noun_target} all wet~`,
+                    ];
+                    msgence = fuckStraightmsgence;
+                    break;
+                case ('fuckgay'):
+                    const fuckGaymsgence = [
+                        `${userInteracter} fuck ${userTarget} really hard into ${adj_target} ass~`,
+                        `${userInteracter} thrust into ${userTarget} back and forth into ${adj_target} ass~`,
+                    ];
+                    msgence = fuckGaymsgence;
+                    break;
+                case ('suckstraight'):
+                    const suckStraightmsgence = [
+                        `${userInteracter} sucked ${userTarget}'s dick~`,
+                        `${userInteracter} enjoys ${userTarget}'s dick while sucking it~`,
+                    ];
+                    msgence = suckStraightmsgence;
+                    break;
+                case ('eatstraight'):
+                    const eatStraightmsgence = [
+                        `${userInteracter} eat ${userTarget}'s ass~'`,
+                    ];
+                    msgence = eatStraightmsgence;
+                    break;
+                case ('suckgay'):
+                    const suckGaymsgence = [
+                        `${userInteracter} sucked ${userTarget}'s dick~`,
+                        `${userInteracter} enjoys ${userTarget}'s dick while sucking it~`,
+                    ];
+                    msgence = suckGaymsgence;
+                    break;
+                case ('ridestraight'):
+                    const rideStraightmsgence = [
+                        `${userInteracter} ride ${userTarget}'s dick~'`,
+                        `${userInteracter} enjoys ${userTarget}'s dick while riding it~`,
+                    ];
+                    msgence = rideStraightmsgence;
+                    break;
+                case ('ridegay'):
+                    const rideGaymsgence = [
+                        `${userInteracter} ride ${userTarget}'s dick~'`,
+                        `${userInteracter} enjoys ${userTarget}'s dick while riding it~`,
+                    ];
+                    msgence = rideGaymsgence;
+                    break;
+                case ('fillstraight'):
+                    const fillStraightmsgence = [
+                        `${userInteracter} fills up ${userTarget}'s ass with ${adj_interaction} seed~`,
+                        `${userInteracter} pushes ${adj_target} dick deep inside ${userTarget}'s ass, filling it up with ${adj_interaction} juicy cum~`,
+                    ];
+                    msgence = fillStraightmsgence;
+                    break;
+                case ('fillgay'):
+                    const fillGaymsgence = [
+                        `${userInteracter} fills up ${userTarget}'s ass with ${adj_interaction} seed~`,
+                        `${userInteracter} pushes ${adj_target} dick deep inside ${userTarget}'s ass, filling it up with ${adj_interaction} juicy cum~`,
+                    ];
+                    msgence = fillGaymsgence;
+                    break;
+                case ('eatgay'):
+                    const eatGaymsgence = [
+                        `${userInteracter} eat ${userTarget}'s ass~`,
+                    ];
+                    msgence = eatGaymsgence;
+                    break;
+            };
+
+            let randomAnswer = await msgence[Math.floor(Math.random() * msgence.length)];
+            let randomImage = await actionImageAllData[Math.floor(Math.random() * actionImageAllData.length)];
+
+            if (loggingData.status_canActionImage === 'Disabled') {
+                return interaction.reply({
+                    content: randomAnswer,
+                });
+            } else if (loggingData.status_canActionMessage === 'Disabled') {
+                return interaction.reply({
+                    content: `[Source](${randomImage.imageUrl})`,
+                });
+            } else {
+                return interaction.reply({
+                    content: `${randomAnswer}\n\n[Source](${randomImage.imageUrl})`,
+                });
+            };
         };
     }
 };

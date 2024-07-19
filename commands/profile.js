@@ -188,7 +188,7 @@ module.exports = {
                 };
 
                 let profileTargetData = await Profile.findOne({ where: { userId: userData } });
-                const verifierData = await Verifier.findOne({ where: { userId: memberData.id, guildId: interaction.guild.id } });
+                let verifierData = await Verifier.findOne({ where: { userId: memberData.id, guildId: interaction.guild.id } });
                 let member = interaction.guild.members.cache.get(memberData.id) || await interaction.guild.members.fetch(memberData.id).catch(error => { });
 
                 const infoEmbed = new EmbedBuilder()
@@ -234,9 +234,9 @@ module.exports = {
                 });
             };
         } catch (error) {
-            let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
+            let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.supportServerId);
             let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
-            console.log(`${interaction.user.id} -> ${interaction.user.tag}`);
+            console.log(`${interaction.user.id} -> ${interaction.user.username}`);
             console.log(error);
 
             await interaction.reply({

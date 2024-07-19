@@ -27,9 +27,9 @@
         "unclaimingOwn": "Only the staff who claim the ticket can unclaim it.",
         "refusingToCreateStaff": "Invalid Reason: You're a staff! You can only make a ticket for a Partnership",
         "refusingToCreateVerified": "Invalid Reason: You've already verified your age",
-        "isNotStaff": "Missing Role: Staff",
-        "isntAdmin": "Missing Role: Admin",
-        "isntOwner": "Missing Role: Owner, Co-Owner",
+        "isNotStaff": "You're missing a role: <@&1083475130241523852>",
+        "cantPartnership": "You're missing a role: <@&1191482864156557332>",
+        "cantAgeVerify": "You're missing a role: <@&1082104096959504404> or <@&1191482864156557332>",
         "cantManageChannels": "You're missing this permission: Manage Channels",
         "unknownMessage": "An error occured. The message couldn't be found",
         "error": "An error occured. Please contact @baddwagon"

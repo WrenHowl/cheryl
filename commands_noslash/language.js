@@ -8,7 +8,7 @@ const nl = require("../languages/nl.json");
 
 module.exports = {
     name: en.language.default.Name,
-    execute: async (bot, message, args, sequelize, Sequelize) => {
+    execute: async (bot, message, sequelize, Sequelize) => {
         const CommandFunction = sequelize.define("CommandFunction", {
             name: {
                 type: Sequelize.STRING,
