@@ -1,6 +1,6 @@
 const { Events, ActivityType } = require('discord.js');
 const { date } = require('../server');
-const { blacklist } = require('../preset/db')
+const { blacklist } = require('../preset/db');
 
 const configPreset = require('../config/main.json');
 

@@ -1,6 +1,6 @@
 const { ActionRowBuilder, ButtonStyle, ButtonBuilder, Partials, Client, GatewayIntentBits, EmbedBuilder, Collection } = require('discord.js');
 const { fr, en, de, sp, nl } = require('./preset/language')
-const { logging } = require('./preset/db')
+const { logging, ticket, ticketCount } = require('./preset/db')
 const fs = require('node:fs');
 const path = require('node:path');
 var bot = new Client({
@@ -495,7 +495,7 @@ bot.on('interactionCreate', async (interaction) => {
   };
 
   /////////////////////
-  //  Ticket System  //
+  //  ticket System  //
   /////////////////////
 
   let ticket_id = [
@@ -507,43 +507,15 @@ bot.on('interactionCreate', async (interaction) => {
     'unclaim_ticket',
     'cancel_ticket',
     'buttonToAdd',
-    'buttonDeleteTicket',
+    'buttonDeleteticket',
   ];
 
   if (interaction.isButton() && ticket_id.includes(interaction.customId)) {
     // Database Find
-    let ticket_data = await Ticket.findOne({ where: { guildId: interaction.guild.id, userId: interaction.user.id } })
-      .catch((err) => {
-        reply_user = true;
-        intOrMsg_console = interaction.user;
-        intOrMsg_message = interaction.reply;
-        error = err;
-        errorToDm();
-      });
-    let ticket_message_data = await Ticket.findOne({ where: { guildId: interaction.guild.id, messageId: interaction.message.id } })
-      .catch((err) => {
-        reply_user = true;
-        intOrMsg_console = interaction.user;
-        intOrMsg_message = interaction.reply;
-        error = err;
-        errorToDm();
-      });
-    let ticket_channel_data = await Ticket.findOne({ where: { guildId: interaction.guild.id, channelId: interaction.channel.id } })
-      .catch((err) => {
-        reply_user = true;
-        intOrMsg_console = interaction.user;
-        intOrMsg_message = interaction.reply;
-        error = err;
-        errorToDm();
-      });
-    let ticket_count_data = await TicketCount.findOne({ where: { guildId: interaction.guild.id } })
-      .catch((err) => {
-        reply_user = true;
-        intOrMsg_console = interaction.user;
-        intOrMsg_message = interaction.reply;
-        error = err;
-        errorToDm();
-      });
+    let ticket_data = await ticket.findOne({ where: { guildId: interaction.guild.id, userId: interaction.user.id } });
+    let ticketMessageData = await ticket.findOne({ where: { guildId: interaction.guild.id, messageId: interaction.message.id } });
+    let ticket_channel_data = await ticket.findOne({ where: { guildId: interaction.guild.id, channelId: interaction.channel.id } });
+    let ticketCountData = await ticketCount.findOne({ where: { guildId: interaction.guild.id } });
 
     // Permission Check
     let permission_manage_channels = interaction.guild.members.me.permissions.has('ManageChannels');
@@ -556,29 +528,25 @@ bot.on('interactionCreate', async (interaction) => {
     let partner_role = interaction.member.roles.cache.some(role => role.id === '1088952912610328616');
 
     // Errors
-    !ticket_message_data ?
-      return_error = messagePreset.ticket.unknownMessage :
-      return_error = messagePreset.ticket.error; // Check if the message data exist in db
-    !permission_manage_channels ?
-      return_error = messagePreset.ticket.cantManageChannels :
-      return_error = messagePreset.ticket.error; // Check if he has permission to manage channels
+    !ticketMessageData ? errorReturn = messagePreset.ticket.unknownMessage : errorReturn = messagePreset.ticket.error; // Check if the message data exist in db
+
+    !permission_manage_channels ? errorReturn = messagePreset.ticket.cantManageChannels : errorReturn = messagePreset.ticket.error; // Check if he has permission to manage channels
+
     if (!staff_role) {
-      return_error = messagePreset.ticket.isNotStaff;
-      messageRefusingTicket = messagePreset.ticket.refusingToCreateStaff;
+      errorReturn = messagePreset.ticket.isNotStaff;
+      messageRefusingticket = messagePreset.ticket.refusingToCreateStaff;
     } else {
-      return_error = messagePreset.ticket.error;
-      messageRefusingTicket = messagePreset.ticket.error;
-    }
-    verified_role ?
-      messageRefusingTicket = messagePreset.ticket.refusingToCreate :
-      messageRefusingTicket = messagePreset.ticket.error; // Check if the member is already verified
-    partner_role ?
-      messageRefusingTicket = messagePreset.ticket.refusingToCreatePartner :
-      messageRefusingTicket = messagePreset.ticket.error; // Check if the member is already verified
+      errorReturn = messagePreset.ticket.error;
+      messageRefusingticket = messagePreset.ticket.error;
+    };
+
+    verified_role ? messageRefusingticket = messagePreset.ticket.refusingToCreate : messageRefusingticket = messagePreset.ticket.error; // Check if the member is already verified
+
+    partner_role ? messageRefusingticket = messagePreset.ticket.refusingToCreatePartner : messageRefusingticket = messagePreset.ticket.error; // Check if the member is already verified
 
     function error_func() {
       interaction.reply({
-        content: messageRefusingTicket,
+        content: messageRefusingticket,
         ephemeral: true,
       });
     };
@@ -589,7 +557,7 @@ bot.on('interactionCreate', async (interaction) => {
           return error_func();
         };
 
-        reasonTicketChange = 'Age Verification';
+        reasonticketChange = 'Age Verification';
         ping = '<@&1105937890011250872> & <@&1191482864156557332>';
         break;
       case ('report'):
@@ -597,7 +565,7 @@ bot.on('interactionCreate', async (interaction) => {
           return error_func();
         };
 
-        reasonTicketChange = 'Report';
+        reasonticketChange = 'Report';
         ping = '<@&1083475130241523852>';
         break;
       case ('support'):
@@ -605,7 +573,7 @@ bot.on('interactionCreate', async (interaction) => {
           error_func();
         };
 
-        reasonTicketChange = 'Support';
+        reasonticketChange = 'Support';
         ping = '<@&1083475130241523852>';
         break;
       case ('partnership'):
@@ -613,26 +581,26 @@ bot.on('interactionCreate', async (interaction) => {
           return error_func();
         };
 
-        reasonTicketChange = 'Partnership';
+        reasonticketChange = 'Partnership';
         ping = '<@&1191482864156557332>';
         break;
     };
 
     //////////////////////////////////////////
-    //   Ticket System - Button for Reason  //
+    //   ticket System - Button for Reason  //
     //////////////////////////////////////////
 
-    let buttonReasonTicket = [
+    let buttonReasonticket = [
       'age_verification',
       'report',
       'support',
       'partnership',
     ];
 
-    if (buttonReasonTicket.includes(interaction.customId)) {
-      let channelToReceiveTicket = interaction.guild.channels.cache.get(logging_data.channelId_TicketReceive);
+    if (buttonReasonticket.includes(interaction.customId)) {
+      let channelToReceiveticket = interaction.guild.channels.cache.get(logging_data.channelId_ticketReceive);
 
-      if (!channelToReceiveTicket) return;
+      if (!channelToReceiveticket) return;
 
       // Check if there's not an existing ticket
       if (ticket_data) {
@@ -645,15 +613,15 @@ bot.on('interactionCreate', async (interaction) => {
       };
 
       // Increase the ticket counter or create a ticket counter for the server
-      !ticket_count_data ?
-        await TicketCount.create({ guildId: interaction.guild.id }) :
-        await ticket_count_data.increment('count');
+      !ticketCountData ?
+        await ticketCount.create({ guildId: interaction.guild.id }) :
+        await ticketCountData.increment('count');
 
       // Creation of the ticket
-      await Ticket.create({
+      await ticket.create({
         guildId: interaction.guild.id,
         reason: interaction.customId,
-        ticketCount: ticket_count_data.count,
+        ticketCount: ticketCountData.count,
         userId: interaction.user.id,
         userTag: interaction.user.tag,
       });
@@ -680,22 +648,22 @@ bot.on('interactionCreate', async (interaction) => {
         );
 
       // Creation of the ticket embed
-      let claimingTicket = new EmbedBuilder()
-        .setTitle(`Ticket #${ticket_count_data.count}`)
+      let claimingticket = new EmbedBuilder()
+        .setTitle(`Ticket #${ticketCountData.count}`)
         .addFields(
           { name: 'Member', value: interaction.user.toString(), inline: true },
-          { name: 'Reason', value: reasonTicketChange, inline: true },
+          { name: 'Reason', value: reasonticketChange, inline: true },
           { name: 'Status', value: messagePreset.ticket.unclaim, inline: true },
         )
         .setColor('Yellow');
 
       // Sending ticket message in channel
-      return channelToReceiveTicket.send({
-        embeds: [claimingTicket],
+      return channelToReceiveticket.send({
+        embeds: [claimingticket],
         content: ping,
         components: [buttonClaim],
       }).then(async (message) => {
-        await Ticket.update({
+        await ticket.update({
           messageId: message.id
         }, {
           where: {
@@ -708,7 +676,7 @@ bot.on('interactionCreate', async (interaction) => {
     };
 
     ////////////////////////////////////////////////////////
-    //  Ticket System - Button Claim, Unclaim and Cancel  //
+    //  ticket System - Button Claim, Unclaim and Cancel  //
     ////////////////////////////////////////////////////////
 
     let button_claim_ticket = [
@@ -719,25 +687,25 @@ bot.on('interactionCreate', async (interaction) => {
 
     let created_ticket = [
       'buttonToAdd',
-      'buttonDeleteTicket'
+      'buttonDeleteticket'
     ];
 
     let user_id = interaction.message.embeds[0].fields[0].value.replace('>', '').replace('<@', '');
     let member_in_guild = guild.members.cache.find(member => member.id === user_id);
 
-    async function cancel_func() {
+    async function cancelTicket() {
       if (created_ticket.includes(interaction.customId)) {
         // Check if member is still in guild
         if (member_in_guild & ticket_data) {
           // Delete ticket message
-          await bot.guilds.cache.get(interaction.guild.id).channels.cache.get(logging_data.channelId_TicketReceive).messages.fetch(ticket_channel_data.messageId).then((message) => {
+          await bot.guilds.cache.get(interaction.guild.id).channels.cache.get(logging_data.channelId_ticketReceive).messages.fetch(ticket_channel_data.messageId).then((message) => {
             message.delete();
           }).catch(() => { return });
         };
       };
 
       // Decrement the ticket counter
-      await ticket_count_data.decrement('count', { by: 1 });
+      await ticketCountData.decrement('count', { by: 1 });
 
       // Delete the ticket channel if there is one created
       let ticket_channel = interaction.guild.channels.cache.get(interaction.channel.id);
@@ -746,7 +714,7 @@ bot.on('interactionCreate', async (interaction) => {
       };
 
       // Delete the data in the database
-      return Ticket.destroy({
+      return ticket.destroy({
         where: {
           guildId: guild.id,
           userId: user_id,
@@ -756,21 +724,21 @@ bot.on('interactionCreate', async (interaction) => {
 
     if (button_claim_ticket.includes(interaction.customId)) {
       // Checking if the member is still in the guild
-      if (!member_in_guild) return cancel_func();
+      if (!member_in_guild) return cancelTicket();
 
-      let findingMember = guild.members.cache.get(ticket_message_data.userId);
-      let memberInServer = bot.users.cache.get(ticket_message_data.userId);
+      let findingMember = guild.members.cache.get(ticketMessageData.userId);
+      let memberInServer = bot.users.cache.get(ticketMessageData.userId);
 
       // Checking for missing permission
-      if (!staff_role | !permission_manage_channels | !ticket_message_data) {
+      if (!staff_role | !permission_manage_channels | !ticketMessageData) {
         return interaction.reply({
-          content: return_error,
+          content: errorReturn,
           ephemeral: true,
         });
       }
 
       // Checking ticket reason and permission of staff
-      switch (ticket_message_data.reason) {
+      switch (ticketMessageData.reason) {
         case ('age_verification'):
           if (!admin_role & !executive_role) {
             return interaction.reply({
@@ -794,7 +762,7 @@ bot.on('interactionCreate', async (interaction) => {
       switch (interaction.customId) {
         case ('claim_ticket'):
           // Checking for possible error or missing permission
-          if (ticket_message_data.userId === interaction.user.id) {
+          if (ticketMessageData.userId === interaction.user.id) {
             return interaction.reply({
               content: messagePreset.ticket.own,
               ephemeral: true,
@@ -812,9 +780,9 @@ bot.on('interactionCreate', async (interaction) => {
               );
 
             let ticketEmbed = new EmbedBuilder()
-              .setTitle('Ticket #' + ticket_message_data.ticketCount)
+              .setTitle('Ticket #' + ticketMessageData.ticketCount)
               .addFields(
-                { name: 'Member', value: `<@${ticket_message_data.userId}>`, inline: true },
+                { name: 'Member', value: `<@${ticketMessageData.userId}>`, inline: true },
                 { name: 'Reason', value: message.embeds[0].fields[1].value, inline: true },
                 { name: 'Status', value: messagePreset.ticket.claim, inline: true },
                 { name: 'Claimed by', value: interaction.user.toString() }
@@ -828,7 +796,7 @@ bot.on('interactionCreate', async (interaction) => {
           }).catch(() => { return });
 
           // Updating database
-          await Ticket.update({
+          await ticket.update({
             claimedBy: interaction.user.id,
           }, {
             where: {
@@ -839,9 +807,9 @@ bot.on('interactionCreate', async (interaction) => {
 
           // Creating the ticket channel
           return interaction.guild.channels.create({
-            name: ticket_message_data.reason + '-' + ticket_message_data.ticketCount,
+            name: ticketMessageData.reason + '-' + ticketMessageData.ticketCount,
             type: 0,
-            parent: logging_data.channelId_TicketParent,
+            parent: logging_data.channelId_ticketParent,
             nsfw: true,
             permissionOverwrites: [{
               id: interaction.guild.roles.everyone,
@@ -852,7 +820,7 @@ bot.on('interactionCreate', async (interaction) => {
               allow: ['ViewChannel', 'SendMessages', 'AttachFiles']
             },
             {
-              id: ticket_message_data.userId,
+              id: ticketMessageData.userId,
               allow: ['ViewChannel', 'SendMessages', 'AttachFiles']
             },
             {
@@ -860,21 +828,21 @@ bot.on('interactionCreate', async (interaction) => {
               allow: ['ViewChannel', 'SendMessages', 'AttachFiles']
             }]
           }).then(async (channel) => {
-            if (channel.id === logging_data.channelId_TicketReceive) {
+            if (channel.id === logging_data.channelId_ticketReceive) {
               channel_newId = null;
             } else {
               channel_newId = channel.id;
             };
 
             // Update database
-            await Ticket.update({
+            await ticket.update({
               channelId: channel_newId
             }, {
               where: {
                 guildId: interaction.guild.id,
-                messageId: ticket_message_data.messageId,
+                messageId: ticketMessageData.messageId,
                 claimedBy: interaction.user.id,
-                userId: ticket_message_data.userId
+                userId: ticketMessageData.userId
               }
             });
 
@@ -884,33 +852,33 @@ bot.on('interactionCreate', async (interaction) => {
             // Default ticket message
             let ticketMessagEmbed = new EmbedBuilder()
               .addFields(
-                { name: 'Member', value: `<@${ticket_message_data.userId}>`, inline: true },
+                { name: 'Member', value: `<@${ticketMessageData.userId}>`, inline: true },
                 { name: 'Staff', value: interaction.user.toString(), inline: true }
               )
               .setColor('Blue');
 
-            let buttonTicket = new ActionRowBuilder()
+            let buttonticket = new ActionRowBuilder()
               .addComponents(
                 new ButtonBuilder()
-                  .setCustomId('buttonDeleteTicket')
+                  .setCustomId('buttonDeleteticket')
                   .setLabel('Delete')
                   .setStyle(ButtonStyle.Danger)
               );
 
             // Adding new field in function of ticket reason
-            switch (ticket_message_data.reason) {
+            switch (ticketMessageData.reason) {
               case ('age_verification'):
-                ticketMessagEmbed.setTitle('Age Verification - Ticket')
+                ticketMessagEmbed.setTitle('Age Verification - ticket')
                 ticketMessagEmbed.addFields({
                   name: 'Instruction',
                   value:
-                    '1. Write on a piece of paper the server name (`' + interaction.guild.name + '`) and your username underneath it (`' + ticket_message_data.userTag + '`)\n' +
+                    '1. Write on a piece of paper the server name (`' + interaction.guild.name + '`) and your username underneath it (`' + ticketMessageData.userTag + '`)\n' +
                     '* Place the ID **on** the piece of paper and take a photo\n' +
                     '* Send the picture in this channel\n\n' +
                     '*You can blur everything on your ID of choice, but we must see the border of the card/piece of paper, the DOB and expiry date must be seen clearly*'
                 });
 
-                buttonTicket.addComponents(
+                buttonticket.addComponents(
                   new ButtonBuilder()
                     .setCustomId('buttonToAdd')
                     .setLabel('Verify')
@@ -919,7 +887,7 @@ bot.on('interactionCreate', async (interaction) => {
 
                 break;
               case ('report'):
-                ticketMessagEmbed.setTitle('Report - Ticket')
+                ticketMessagEmbed.setTitle('Report - ticket')
                 ticketMessagEmbed.addFields({
                   name: 'Instruction',
                   value:
@@ -929,7 +897,7 @@ bot.on('interactionCreate', async (interaction) => {
                 });
                 break;
               case ('support'):
-                ticketMessagEmbed.setTitle('Support - Ticket')
+                ticketMessagEmbed.setTitle('Support - ticket')
                 ticketMessagEmbed.addFields({
                   name: 'Instruction',
                   value:
@@ -937,7 +905,7 @@ bot.on('interactionCreate', async (interaction) => {
                 });
                 break;
               case ('partnership'):
-                ticketMessagEmbed.setTitle('Partnership - Ticket')
+                ticketMessagEmbed.setTitle('Partnership - ticket')
                 ticketMessagEmbed.addFields({
                   name: 'Instruction',
                   value:
@@ -951,13 +919,13 @@ bot.on('interactionCreate', async (interaction) => {
             // Sending messsage in the ticket
             return channel.send({
               embeds: [ticketMessagEmbed],
-              components: [buttonTicket],
+              components: [buttonticket],
             }).then(async (message) => {
               message.pin();
 
               // Mention the staff and ticket userId
               return channel.send({
-                content: `<@${ticket_message_data.userId}> ${interaction.user.toString()}`,
+                content: `<@${ticketMessageData.userId}> ${interaction.user.toString()}`,
               }).then(async (response) => {
                 return setTimeout(() => {
                   response.delete()
@@ -967,7 +935,7 @@ bot.on('interactionCreate', async (interaction) => {
           }).catch(() => { return });
         case ('unclaim_ticket'):
           // Checking for possible error or missing permission
-          if (ticket_message_data.claimedBy !== interaction.user.id) {
+          if (ticketMessageData.claimedBy !== interaction.user.id) {
             return interaction.reply({
               content: messagePreset.ticket.own,
               ephemeral: true,
@@ -985,9 +953,9 @@ bot.on('interactionCreate', async (interaction) => {
               );
 
             let ticketEmbed = new EmbedBuilder()
-              .setTitle('Ticket #' + ticket_message_data.ticketCount)
+              .setTitle('Ticket #' + ticketMessageData.ticketCount)
               .addFields(
-                { name: 'Member', value: `<@${ticket_message_data.userId}>`, inline: true },
+                { name: 'Member', value: `<@${ticketMessageData.userId}>`, inline: true },
                 { name: 'Reason', value: message.embeds[0].fields[1].value, inline: true },
                 { name: 'Status', value: messagePreset.ticket.unclaim, inline: true },
               )
@@ -1000,19 +968,19 @@ bot.on('interactionCreate', async (interaction) => {
           }).catch((error) => { return console.log(error) });
 
           // Messaging the owner of the ticket
-          findingMember ? memberInServer.send(`Your ticket(<#${ticket_message_data.channelId}>) have been unclaimed by: ${interaction.user.toString()}`).catch(() => { return }) : false;
+          findingMember ? memberInServer.send(`Your ticket(<#${ticketMessageData.channelId}>) have been unclaimed by: ${interaction.user.toString()}`).catch(() => { return }) : false;
 
           // Deleting the ticket channel
-          await guild.channels.cache.get(ticket_message_data.channelId).delete(`${ticket_message_data.userTag}'s ticket has been unclaimed by ${interaction.user.tag}`)
+          await guild.channels.cache.get(ticketMessageData.channelId).delete(`${ticketMessageData.userTag}'s ticket has been unclaimed by ${interaction.user.tag}`)
 
           // Updating database
-          return await Ticket.update({
+          return await ticket.update({
             channelId: null,
             claimedBy: null,
           }, { where: { messageId: interaction.message.id } });
         case ('cancel_ticket'):
           // Destroy data in database
-          await ticket_message_data.destroy({ where: { guildId: interaction.guild.id, messageId: interaction.message.id } });
+          await ticketMessageData.destroy({ where: { guildId: interaction.guild.id, messageId: interaction.message.id } });
 
           // Delete ticket message
           interaction.channel.messages.fetch(interaction.message.id).then(async (message) => {
@@ -1020,24 +988,24 @@ bot.on('interactionCreate', async (interaction) => {
           }).catch(() => { return });
 
           // Decrement the ticket counter
-          return ticket_count_data.decrement('Count', { by: 1 });
+          return ticketCountData.decrement('Count', { by: 1 });
       };
     };
 
     ////////////////////////////////////////////////
-    //  Ticket System - Button Verify and Delete  //
+    //  ticket System - Button Verify and Delete  //
     ////////////////////////////////////////////////
 
     if (created_ticket.includes(interaction.customId)) {
       // Checking if the member is still in the guild
-      if (!member_in_guild | !ticket_channel_data) return cancel_func();
+      if (!member_in_guild | !ticket_channel_data) return cancelTicket();
 
       let member = interaction.guild.members.cache.get(ticket_channel_data.userId);
 
       // Checking for missing permission
       if (!staff_role | !permission_manage_channels | !ticket_channel_data) {
         return interaction.reply({
-          content: return_error,
+          content: errorReturn,
           ephemeral: true,
         });
       };
@@ -1096,10 +1064,10 @@ bot.on('interactionCreate', async (interaction) => {
               embeds: [verifiedEmbed],
             });
           });
-        case ('buttonDeleteTicket'):
-          bot.channels.cache.get(logging_data.channelId_TicketReceive).messages.fetch(ticket_channel_data.messageId).then(async (message) => {
+        case ('buttonDeleteticket'):
+          bot.channels.cache.get(logging_data.channelId_ticketReceive).messages.fetch(ticket_channel_data.messageId).then(async (message) => {
             let ticketEmbed = new EmbedBuilder()
-              .setTitle(`Ticket #${ticket_channel_data.ticketCount}`)
+              .setTitle(`ticket #${ticket_channel_data.ticketCount}`)
               .addFields(
                 { name: 'Member:', value: `<@${ticket_channel_data.userId}>`, inline: true },
                 { name: 'Reason:', value: message.embeds[0].fields[1].value, inline: true },
@@ -1131,7 +1099,7 @@ bot.on('interactionCreate', async (interaction) => {
               }
             });
 
-            if (interaction.channel.id === logging_data.channelId_TicketReceive) return;
+            if (interaction.channel.id === logging_data.channelId_ticketReceive) return;
             return interaction.channel.delete();
           }, 3000);
       };
