@@ -1,16 +1,14 @@
 {
     "botPrivateInfo": {
         "token": "",
-        "testToken": "",
         "botId": "940369423125061633",
-        "testBotId": "824638145902936064"
     },
     "botInfo": {
         "messagePrefix": "c.",
         "interactionPrefix": "/",
         "supportServerId": "1030517199951110224",
         "ownerId": "291262778730217472",
-        "version": "1.0.7 beta",
+        "version": "1.1.0 beta",
         "github": "https://github.com/BadDwagon/cheryl/tree/stable"
     },
     "channelsId": {
