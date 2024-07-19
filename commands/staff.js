@@ -1,13 +1,9 @@
 const { EmbedBuilder } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { fr, en, de, sp, nl } = require('../preset/language')
+const { logging, verifier, profile } = require('../preset/db')
 
 const configPreset = require("../config/main.json");
-
-const fr = require("../languages/fr.json");
-const en = require("../languages/en.json");
-const de = require("../languages/de.json");
-const sp = require("../languages/sp.json");
-const nl = require("../languages/nl.json");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -41,17 +37,8 @@ module.exports = {
                 "nl": nl.staff.default.user.description
             })
             .setRequired(false)),
-    execute: async (interaction, bot, sequelize, Sequelize) => {
-        const Logging = sequelize.define("Logging", {
-            guildId: {
-                type: Sequelize.STRING,
-            },
-            language: {
-                type: Sequelize.STRING,
-            },
-        });
-
-        let loggingData = await Logging.findOne({ where: { guildId: interaction.guild.id } });
+    execute: async (interaction) => {
+        let loggingData = await logging.findOne({ where: { guildId: interaction.guild.id } });
 
         switch (loggingData.language) {
             case ("en"):
@@ -72,61 +59,47 @@ module.exports = {
             default:
                 languageSet = en;
                 break;
-        }
+        };
 
-        try {
-            let user = interaction.options.getUser(en.staff.default.user.name);
-            let userCheck = user ? user : interaction.user;
-            let fetchGuild = interaction.client.guilds.cache.get(configPreset.botInfo.supportServerId);
-            await fetchGuild.members.fetch();
+        let user = interaction.options.getUser(en.staff.default.user.name);
+        let userCheck = user ? user : interaction.user;
+        let fetchGuild = interaction.client.guilds.cache.get(configPreset.botInfo.supportServerId);
+        await fetchGuild.members.fetch();
 
-            let staffGet = fetchGuild.members.cache.get(userCheck.id);
-            let staffRole = staffGet ? staffGet.roles.cache.some(
-                role => role.id === configPreset.staffRoleId.leadDeveloper)
-                | staffGet.roles.cache.some(
-                    role => role.id === configPreset.staffRoleId.developer)
-                | staffGet.roles.cache.some(
-                    role => role.id === configPreset.staffRoleId.staff) :
-                false;
+        let staffGet = fetchGuild.members.cache.get(userCheck.id);
+        let staffRole = staffGet ? staffGet.roles.cache.some(
+            role => role.id === configPreset.staffRoleId.leadDeveloper)
+            | staffGet.roles.cache.some(
+                role => role.id === configPreset.staffRoleId.developer)
+            | staffGet.roles.cache.some(
+                role => role.id === configPreset.staffRoleId.staff) :
+            false;
 
-            const staffEmbed = new EmbedBuilder()
+        const staffEmbed = new EmbedBuilder()
 
-            if (staffRole) {
-                staffEmbed.setThumbnail(configPreset.other.isStaff);
-                isStaff = "is";
-                staffEmbed.setColor("Green");
+        if (staffRole) {
+            staffEmbed.setThumbnail(configPreset.other.isStaff);
+            isStaff = "is";
+            staffEmbed.setColor("Green");
 
-                if (staffGet.roles.cache.some(role => role.id === configPreset.staffRoleId.leadDeveloper)) {
-                    staffRank = "LEAD DEVELOPER";
-                } else if (staffGet.roles.cache.some(role => role.id === configPreset.staffRoleId.developer)) {
-                    staffRank = "DEVELOPER";
-                } else {
-                    staffRank = "STAFF";
-                };
+            if (staffGet.roles.cache.some(role => role.id === configPreset.staffRoleId.leadDeveloper)) {
+                staffRank = "LEAD DEVELOPER";
+            } else if (staffGet.roles.cache.some(role => role.id === configPreset.staffRoleId.developer)) {
+                staffRank = "DEVELOPER";
             } else {
-                staffEmbed.setThumbnail(configPreset.other.isNotStaff);
-                isStaff = "isn't";
-                staffEmbed.setColor("Red");
                 staffRank = "STAFF";
             };
-
-            staffEmbed.setDescription(`${userCheck.toString()} ${isStaff} a **${staffRank}** of **${bot.user.username}**`);
-
-            return interaction.reply({
-                embeds: [staffEmbed],
-            });
-        } catch (error) {
-            let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.supportServerId);
-            let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
-            console.log(`${interaction.user.id} -> ${interaction.user.username}`);
-            console.log(error)
-
-            await interaction.reply({
-                content: languageSet.default.errorOccured,
-                ephemeral: true,
-            });
-
-            return crashchannelId.send({ content: "**Error in the '" + en.staff.default.name + "' event:** \n\n```javascript\n" + error + "```" });
+        } else {
+            staffEmbed.setThumbnail(configPreset.other.isNotStaff);
+            isStaff = "isn't";
+            staffEmbed.setColor("Red");
+            staffRank = "STAFF";
         };
+
+        staffEmbed.setDescription(`${userCheck.toString()} ${isStaff} a **${staffRank}** of **${bot.user.username}**`);
+
+        return interaction.reply({
+            embeds: [staffEmbed],
+        });
     }
 };

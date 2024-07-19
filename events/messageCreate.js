@@ -51,8 +51,8 @@ module.exports = {
         if (message.author.bot || message.content.indexOf(prefixSet) !== 0) return;
 
         // Setting up the command
-        let args = message.content.slice(prefixSet.length).trim().split(/ +/);
-        let command = args.shift().toLowerCase();
+        let argsSlice = message.content.slice(prefixSet.length).trim().split(/ +/);
+        let command = argsSlice.shift().toLowerCase();
         let statusCommand = await commandFunction.findOne({ where: { name: command } });
 
         if (!statusCommand) {
@@ -73,19 +73,19 @@ module.exports = {
             };
         };
 
+        let args = message.content.split(' ');
+
         switch (command) {
-            case (en.cmd.default.name):
-                return bot.commands.get(en.cmd.default.name).execute(bot, message, sequelize, Sequelize);
-            case (en.language.default.name):
-                return bot.commands.get(en.language.default.name).execute(bot, message, sequelize, Sequelize);
-            case (en.data.default.name):
-                return bot.commands.get(en.data.default.name).execute(bot, message, sequelize, Sequelize);
             case (en.ban.default.name):
-                return bot.commands.get(en.ban.default.name).execute(bot, message, EmbedBuilder, sequelize, Sequelize);
+                return bot.commands.get(en.ban.default.name).execute(message, EmbedBuilder, args);
+            case (en.cmd.default.name):
+                return bot.commands.get(en.cmd.default.name).execute(message, EmbedBuilder, args);
+            case (en.data.default.name):
+                return bot.commands.get(en.data.default.name).execute(message, EmbedBuilder, args);
+            case (en.language.default.name):
+                return bot.commands.get(en.language.default.name).execute(message, EmbedBuilder, args);
             case (en.unban.default.name):
-                return bot.commands.get(en.unban.default.name).execute(bot, message, EmbedBuilder, sequelize, Sequelize);
-            case (en.ticket.default.name):
-                return bot.commands.get(en.ticket.default.name).execute(bot, message, EmbedBuilder, sequelize, Sequelize);
+                return bot.commands.get(en.unban.default.name).execute(message, EmbedBuilder, args);
         };
     }
 };

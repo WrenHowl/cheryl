@@ -1,13 +1,15 @@
 const { Events } = require('discord.js');
 const { bot } = require('../server');
 const { fr, en, de, sp, nl } = require('../preset/language')
-const { logging, verifier, permission } = require('../preset/db')
+const { logging, verifier, permission, ticket } = require('../preset/db')
+
+const configPreset = require('../config/main.json');
 
 module.exports = {
     name: Events.GuildMemberRemove,
     once: false,
     execute: async (leavingMember) => {
-        let logging_data = await logging.findOne({ where: { guildId: guild.id } });
+        let logging_data = await logging.findOne({ where: { guildId: leavingMember.guild.id } });
 
         switch (logging_data.language) {
             case ('en'):
@@ -35,8 +37,6 @@ module.exports = {
             return permission.destroy({ where: { userId: leavingMember.user.id } });
         };
 
-        let lgLeaving = languageSet.leavingMessage.message.embed.logs;
-
         if (logging_data.channelId_Leaving) {
             // Check if channel still exist
             let leavingChannel = leavingMember.guild.channels.cache.get(logging_data.channelId_Leaving);
@@ -48,24 +48,7 @@ module.exports = {
             let botPermission = leavingMember.guild.members.me.permissionsIn(logging_data.channelId_Leaving).has(['SendMessages', 'ViewChannel']);
             if (!botPermission | leavingMember.user.bot) return;
 
-            // Get the member count of the server
-            let memberCount = leavingMember.guild.members.cache.filter(leavingMember => !leavingMember.user.bot).size;
-
-            // Creation of the message to send
-            let leavingMemberEmbed = new EmbedBuilder()
-                .setDescription(`${lgLeaving.description} ${leavingMember.toString()}!`)
-                .addFields(
-                    { name: lgLeaving.fields.createdAt, value: moment(leavingMember.user.createdAt).format('Do MMMM YYYY hh:ss:mm A') },
-                    { name: lgLeaving.fields.joinedAt, value: moment(leavingMember.joinedAt).format('Do MMMM YYYY hh:ss:mm A') },
-                    { name: lgLeaving.fields.memberCount, value: memberCount }
-                )
-                .setColor('Green')
-                .setFooter({
-                    text: leavingMember.user.id
-                })
-                .setThumbnail(leavingMember.user.displayAvatarURL());
-
-            // Check if the verification is enable
+            /*// Check if the verification is enable
             let verifierData = await verifier.findOne({ where: { guildId: leavingMember.guild.id, userId: leavingMember.user.id } });
             verifierData ? statusVerification = en.leavingMessage.verificationEnable.isVerified : statusVerification = en.leavingMessage.verificationEnable.isVerified;
 
@@ -73,10 +56,10 @@ module.exports = {
                 leavingMemberEmbed.addFields(
                     { name: lgLeaving.fields.statusVerification, value: statusVerification }
                 );
-            };
+            };*/
 
-            return Channelguild.send({
-                embeds: [leavingMemberEmbed]
+            return leavingChannel.send({
+                content: [`${leavingMember.user.toString()} left the server.`]
             });
         };
 
@@ -88,7 +71,7 @@ module.exports = {
             // Check if the ticket channel still exist
             let ticket_channel = leavingMember.guild.channels.cache.get(ticketData.channelId);
             if (ticket_channel & ticket_channel !== logging_data.channelId_ticketReceive) {
-                await ticket_channel.delete('ticket Canceled: Member left the server');
+                await ticket_channel.delete('Ticket Canceled: Member left the server');
             };
 
             // Delete ticket message

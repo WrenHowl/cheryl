@@ -1,29 +1,13 @@
-const configPreset = require("../config/main.json");
+const { bot } = require('../server');
+const { fr, en, de, sp, nl } = require('../preset/language')
+const { logging } = require('../preset/db')
 
-const fr = require("../languages/fr.json");
-const en = require("../languages/en.json");
-const de = require("../languages/de.json");
-const sp = require("../languages/sp.json");
-const nl = require("../languages/nl.json");
+const configPreset = require("../config/main.json");
 
 module.exports = {
     name: en.ban.default.name,
-    execute: async (bot, message, EmbedBuilder, sequelize, Sequelize) => {
-        eventName = "ban";
-
-        const Logging = sequelize.define("Logging", {
-            guildId: {
-                type: Sequelize.STRING,
-            },
-            language: {
-                type: Sequelize.STRING,
-            },
-            channelId_Ban: {
-                type: Sequelize.STRING,
-            },
-        });
-
-        let loggingData = await Logging.findOne({ where: { guildId: message.guild.id } });
+    execute: async (message, EmbedBuilder, args) => {
+        let loggingData = await logging.findOne({ where: { guildId: message.guild.id } });
 
         switch (loggingData.language) {
             case ("en"):
@@ -64,8 +48,6 @@ module.exports = {
             return refusedError();
         };
 
-        let guild = await bot.guilds.cache.get(message.guild.id);
-
         const embed = new EmbedBuilder()
 
         function syntaxError() {
@@ -78,7 +60,6 @@ module.exports = {
             });
         };
 
-        let args = message.content.split(' ');
         let user = args[1];
 
         // Check for user and reason mentionned, if not return error
@@ -111,7 +92,7 @@ module.exports = {
             return message.reply({
                 content: languageSet.ban.message.onWho.isPunishable,
             });
-        } else if (guild.members.cache.find(m => m.id === user)?.id) {
+        } else if (message.guild.members.cache.find(m => m.id === user)?.id) {
             if (member.roles.highest.position >= message.member.roles.highest.position) {
                 return message.reply({
                     content: languagePreset.ban.default.role,

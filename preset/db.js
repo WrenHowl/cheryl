@@ -189,8 +189,41 @@ var profile = sequelize.define('Profile', {
         type: Sequelize.STRING,
     },
 });
-var blacklist = sequelize.define('Blacklist');
-var commandFunction = sequelize.define('CommandFunction', {
+var blacklist = sequelize.define('Blacklist', {
+    userId: {
+        type: Sequelize.STRING,
+        unique: true,
+    },
+    userTag: {
+        type: Sequelize.STRING,
+        unique: true,
+    },
+    staffId: {
+        type: Sequelize.STRING,
+    },
+    staffTag: {
+        type: Sequelize.STRING,
+    },
+    reason: {
+        type: Sequelize.STRING,
+    },
+    evidence: {
+        type: Sequelize.STRING,
+    },
+    risk: {
+        type: Sequelize.STRING,
+    },
+    joinedServer: {
+        type: Sequelize.INTEGER,
+        defaultValue: 1,
+        allowNull: false,
+    },
+    joinedServerBan: {
+        type: Sequelize.INTEGER,
+        defaultValue: 1,
+        allowNull: false,
+    },
+}); var commandFunction = sequelize.define('CommandFunction', {
     name: {
         type: Sequelize.STRING,
     },

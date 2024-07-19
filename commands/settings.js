@@ -1,14 +1,10 @@
-const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { fr, en, de, sp, nl } = require('../preset/language')
+const { logging } = require('../preset/db')
 
 const loggingPreset = require("../config/logging.json");
 const configPreset = require("../config/main.json");
-
-const fr = require("../languages/fr.json");
-const en = require("../languages/en.json");
-const de = require("../languages/de.json");
-const sp = require("../languages/sp.json");
-const nl = require("../languages/nl.json");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -28,7 +24,6 @@ module.exports = {
         })
 
         // Setup Group
-
         .addSubcommandGroup(group => group
             .setName(en.settings.default.setup.name)
             .setNameLocalizations({
@@ -46,7 +41,6 @@ module.exports = {
             })
 
             // Report System
-
             .addSubcommand(subcommand => subcommand
                 .setName(en.settings.default.setup.report_system.name)
                 .setNameLocalizations({
@@ -471,7 +465,7 @@ module.exports = {
                     })
                     .setRequired(false))))
 
-        // Logging System
+        // logging System
 
         .addSubcommand(subcommand => subcommand
             .setName(en.settings.default.setup.logging_system.name)
@@ -528,583 +522,407 @@ module.exports = {
                     "nl": nl.settings.default.setup.logging_system.channel.description
                 })
                 .setRequired(false))),
-    execute: async (interaction, bot, sequelize, Sequelize) => {
-        const Logging = sequelize.define("Logging", {
-            guildId: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            channelId_Report: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            channelId_Ban: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            channelId_AfterVerify: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            channelId_AfterVerify: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            channelId_Welcome: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            roleAutoRoleId_Welcome: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            staffRoleId_Report: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            staffRoleId_Verify: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            roleAddId_Verify: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            roleRemoveId_Verify: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            status_Blacklist: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            status_BlacklistAutoban: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            channelId_Blacklist: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            channelId_Warn: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            channelId_Unban: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            channelId_Kick: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            channelId_ReceiveVerification: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            status_BlacklistAutoban: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            status_canActionMessage: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            status_canActionImage: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            channelId_Leaving: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            channelId_TicketParent: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            channelId_TicketReceive: {
-                type: Sequelize.STRING,
-                unique: false,
-            },
-            language: {
-                type: Sequelize.STRING,
-            },
-        });
-
-        let loggingData = await Logging.findOne({ where: { guildId: interaction.guild.id } });
+    execute: async (interaction) => {
+        let loggingData = await logging.findOne({ where: { guildId: interaction.guild.id } });
 
         switch (loggingData.language) {
             case ("en"):
                 languageSet = en;
-
                 break;
             case ("fr"):
                 languageSet = fr;
-
                 break;
             case ("de"):
                 languageSet = de;
-
                 break;
             case ("sp"):
                 languageSet = sp;
-
                 break;
             case ("nl"):
                 languageSet = nl;
-
                 break;
             default:
                 languageSet = en;
-
                 break;
         }
 
-        try {
-            if (!interaction.member.permissions.has("ADMINISTRATOR") | !interaction.member.permissions.has("MANAGE_GUILD") | interaction.user.id !== configPreset.botInfo.ownerId) {
-                return interaction.reply({
-                    content: "You cannot execute that command! You need the following permission: ``ADMINISTRATOR`` or ``MANAGE_GUILD``.",
-                    ephemeral: true,
-                });
-            };
-
-            // Setup
-
-            let options = interaction.options.getSubcommand();
-
-            // Role 
-
-            let roleAutoRole = interaction.options.getRole(en.settings.default);
-            let addRoleOption = interaction.options.getRole(en.settings.default.setup.verification_system.menu.addRole.name);
-            let removeRoleOption = interaction.options.getRole(en.settings.default.setup.verification_system.menu.removeRole.name);
-            let staffRoleOption = interaction.options.getRole(en.settings.default.setup.verification_system.menu.staffRole.name);
-
-            // Channel 
-
-            let channelOption = interaction.options.getChannel(en.settings.default.setup.report_system.channel.name);
-            let welcomeChannelOption = interaction.options.getChannel(en.settings.default.setup.verification_system.menu.channel.name);
-            let receiveChannelOption = interaction.options.getChannel(en.settings.default.setup.verification_system.menu.receiveChannel.name);
-
-            removeRoleOption ? removeRole = removeRoleOption.name : removeRole = removeRoleOption;
-
-            // Blacklist System
-
-            let status_Bool = interaction.options.getString(en.settings.default.setup.blacklist_system.status.name);
-            let status_AutoBan = interaction.options.getString(en.settings.default.setup.blacklist_system.autoban.name);
-
-            // Logging System
-
-            let optionsLogging = interaction.options.getString(en.settings.default.setup.logging_system.options.name);
-
-            /*let ChannelName = "**Channel**";
-
-            let settingsButton = new ActionRowBuilder()
-                .addComponents(
-                    new ButtonBuilder()
-                        .setCustomId('adminButton')
-                        .setLabel('⚒️')
-                        .setStyle(ButtonStyle.Success),
-                )
-                .addComponents(
-                    new ButtonBuilder()
-                        .setCustomId('modButton')
-                        .setLabel('🛡️')
-                        .setStyle(ButtonStyle.Success),
-                )
-                .addComponents(
-                    new ButtonBuilder()
-                        .setCustomId('utilitiesButton')
-                        .setLabel('🔧')
-                        .setStyle(ButtonStyle.Success),
-                )
-                .addComponents(
-                    new ButtonBuilder()
-                        .setCustomId('funButton')
-                        .setLabel('🎲')
-                        .setStyle(ButtonStyle.Success),
-                ).addComponents(
-                    new ButtonBuilder()
-                        .setLabel('Support Server')
-                        .setURL(Config.SupportDiscord)
-                        .setStyle(ButtonStyle.Link),
-                );
-
-            let settingsMainMenu = new EmbedBuilder()
-                .setTitle("⚙️ Settings")
-                .setDescription("Click on the reaction according to what you want.")
-                .addFields(
-                    { name: "⚒️ Administration", value: "View the page of the admin command/function." },
-                    { name: "🛡️ Moderation", value: "View the page of the moderation command/function." },
-                    { name: "🔧 Utilities", value: "View the page of the utilities command/function." },
-                    { name: "🎲 Fun", value: "View the page of the fun command/function." }
-                )
-                .setColor(Color.Blue)
-
+        if (!interaction.member.permissions.has("ADMINISTRATOR") | !interaction.member.permissions.has("MANAGE_GUILD") | interaction.user.id !== configPreset.botInfo.ownerId) {
             return interaction.reply({
-                embeds: [settingsMainMenu],
-                components: [settingsButton]
-            });*/
-
-            const settingsEmbed = new EmbedBuilder()
-
-            switch (options) {
-                case (en.settings.default.setup.report_system.name):
-                    staffRoleOption ? staffRoleOption = staffRoleOption.name : staffRoleOption = staffRoleOption;
-
-                    switch (staffRoleOption) {
-                        case ("@everyone"):
-                            settingsEmbed.setDescription(loggingPreset.SettingsError)
-                            settingsEmbed.addFields(
-                                { name: "**Role provided**", value: "The role (@everyone) cannot be used!", inline: true },
-                            );
-
-                            return interaction.reply({
-                                embeds: [settingsEmbed],
-                                ephemeral: true,
-                            });
-                        default:
-                            settingsEmbed.setDescription(loggingPreset.SettingsUpdated)
-                            settingsEmbed.addFields(
-                                { name: ChannelName, value: channelOption.toLocaleString(), inline: true },
-                            );
-
-                            if (staffRoleOption) {
-                                await Logging.update({
-                                    channelId_Report: channelOption.id,
-                                    staffRoleId_Report: staffRoleOption.id
-                                }, { where: { guildId: interaction.guild.id } });
-
-                                settingsEmbed.addFields(
-                                    { name: "**Role to Ping:**", value: staffRoleOption.toLocaleString(), inline: true }
-                                );
-
-                                break;
-                            };
-
-                            await Logging.update({
-                                channelId_Report: channelOption.id,
-                            }, { where: { guildId: interaction.guild.id } });
-
-                            break;
-                    };
-
-                    return interaction.reply({
-                        embeds: [settingsEmbed],
-                        ephemeral: true,
-                    });
-                case (en.settings.default.setup.action_system.name):
-                    status_Bool === "true" ? status_Bool = "Enabled" : status_Bool = "Disabled";
-
-                    settingsEmbed.setDescription(loggingPreset.SettingsUpdated)
-
-                    switch (optionsLogging) {
-                        case ("image"):
-                            await Logging.update({
-                                status_canActionMessage: status_Bool,
-                            }, { where: { guildId: interaction.guild.id } })
-
-                            settingsEmbed.addFields(
-                                { name: "**Action Message**", value: status_Bool, inline: true }
-                            );
-
-                            break;
-                        case ("message"):
-                            await Logging.update({
-                                status_canActionImage: status_Bool,
-                            }, { where: { guildId: interaction.guild.id } })
-
-                            settingsEmbed.addFields(
-                                { name: "**Action Image**", value: status_Bool, inline: true }
-                            );
-
-                            break;
-                    };
-
-                    return interaction.reply({
-                        embeds: [settingsEmbed],
-                        ephemeral: true,
-                    });
-                case (en.settings.default.setup.welcome_system.name):
-                    if (!roleAutoRole) {
-                        await Logging.update({
-                            channelId_Welcome: channelOption.id
-                        }, { where: { guildId: interaction.guild.id } })
-
-                        settingsEmbed.setDescription(loggingPreset.SettingsUpdated)
-                        settingsEmbed.addFields(
-                            { name: "**Welcome Channel**", value: channelOption.toLocaleString(), inline: true },
-                        )
-                    } else if (!channelOption) {
-                        await Logging.update({
-                            roleAutoRoleId_Welcome: roleAutoRole.id
-                        }, { where: { guildId: interaction.guild.id } })
-
-                        settingsEmbed.setDescription(loggingPreset.SettingsUpdated)
-                        settingsEmbed.addFields(
-                            { name: "**Auto-Role**", value: roleAutoRole.toLocaleString(), inline: true },
-                        )
-                    };
-
-                    return interaction.reply({
-                        embeds: [settingsEmbed],
-                        ephemeral: true,
-                    });
-                case (en.settings.default.setup.blacklist_system.name):
-                    if (status_Bool) {
-                        status_Bool === "true" ? status_Bool = "Enabled" : status_Bool = "Disabled";
-
-                        switch (status_AutoBan) {
-                            case ("low"):
-                                status_AutoBan = "Low+";
-                                break;
-                            case ("medium"):
-                                status_AutoBan = "Medium+";
-                                break;
-                            case ("high"):
-                                status_AutoBan = "High+";
-                                break;
-                            case ("disable"):
-                                status_AutoBan = "Disabled";
-                                break;
-                        };
-
-                        settingsEmbed.setDescription(loggingPreset.SettingsUpdated);
-                        settingsEmbed.addFields(
-                            { name: "**Status**", value: status_Bool, inline: true },
-                        );
-
-                        if (!channelOption) {
-                            await Logging.update({
-                                status_Blacklist: status_Bool,
-                                status_BlacklistAutoban: status_AutoBan
-                            }, { where: { guildId: interaction.guild.id } });
-
-                            settingsEmbed.addFields(
-                                { name: "**Auto-ban**", value: status_AutoBan, inline: true }
-                            );
-                        } else if (!status_AutoBan) {
-                            await Logging.update({
-                                status_Blacklist: status_Bool,
-                                channelId_Blacklist: channelOption.id,
-                            }, { where: { guildId: interaction.guild.id } });
-
-                            settingsEmbed.addFields(
-                                { name: "**Channel**", value: channelOption.toLocaleString(), inline: true }
-                            );
-                        } else if (channelOption && status_AutoBan) {
-                            await Logging.update({
-                                status_Blacklist: status_Bool,
-                                status_BlacklistAutoban: status_AutoBan,
-                                channelId_Blacklist: channelOption.id,
-                            }, { where: { guildId: interaction.guild.id } });
-
-                            settingsEmbed.addFields(
-                                { name: "**Channel**", value: channelOption.toLocaleString(), inline: true },
-                                { name: "**Auto-ban**", value: status_AutoBan, inline: true }
-                            );
-                        };
-
-                        return interaction.reply({
-                            embeds: [settingsEmbed],
-                            ephemeral: true,
-                        });
-                    };
-                case (en.settings.default.setup.logging_system.name):
-                    settingsEmbed.setDescription(loggingPreset.SettingsUpdated)
-
-                    switch (optionsLogging) {
-                        case ("all"):
-                            if (channelOption) {
-                                await Logging.update({
-                                    channelId_Ban: channelOption.id,
-                                    channelId_Unban: channelOption.id,
-                                    channelId_Kick: channelOption.id,
-                                    channelId_Warn: channelOption.id,
-                                }, { where: { guildId: interaction.guild.id } });
-
-                                return LoggingEmbed.addFields(
-                                    { name: "**Channel**", value: channelOption.toLocaleString(), inline: true },
-                                );
-                            } else {
-                                return interaction.reply({
-                                    content: [loggingPreset.ChannelNeeded]
-                                });
-                            };
-                        case ("ban"):
-                            if (channelOption) {
-                                await Logging.update({
-                                    channelId_Ban: channelOption.id,
-                                }, { where: { guildId: interaction.guild.id } });
-
-                                return LoggingEmbed.addFields(
-                                    { name: "**Channel**", value: channelOption.toLocaleString(), inline: true },
-                                );
-                            } else {
-                                return interaction.reply({
-                                    content: [loggingPreset.ChannelNeeded]
-                                });
-                            };
-                        case ("kick"):
-                            if (channelOption) {
-                                await Logging.update({
-                                    channelId_Kick: channelOption.id,
-                                }, { where: { guildId: interaction.guild.id } });
-
-                                return LoggingEmbed.addFields(
-                                    { name: "**Channel**", value: channelOption.toLocaleString(), inline: true },
-                                );
-                            } else {
-                                return interaction.reply({
-                                    content: [loggingPreset.ChannelNeeded]
-                                });
-                            };
-                        case ("warn"):
-                            if (channelOption) {
-                                await Logging.update({
-                                    channelId_Warn: channelOption.id,
-                                }, { where: { guildId: interaction.guild.id } });
-
-                                return LoggingEmbed.addFields(
-                                    { name: "**Channel**", value: channelOption.toLocaleString(), inline: true },
-                                );
-                            } else {
-                                return interaction.reply({
-                                    content: [loggingPreset.ChannelNeeded]
-                                });
-                            };
-                        case ("unban"):
-                            if (channelOption) {
-                                await Logging.update({
-                                    channelId_Unban: channelOption.id,
-                                }, { where: { guildId: interaction.guild.id } });
-
-                                return LoggingEmbed.addFields(
-                                    { name: "**Channel**", value: channelOption.toLocaleString(), inline: true },
-                                );
-                            } else {
-                                return interaction.reply({
-                                    content: [loggingPreset.ChannelNeeded]
-                                });
-                            };
-                        case ("disable"):
-                            await Logging.update({
-                                channelId_Ban: null,
-                                channelId_Unban: null,
-                                channelId_Kick: null,
-                                channelId_Warn: null,
-                            }, { where: { guildId: interaction.guild.id } });
-
-                            return LoggingEmbed.addFields(
-                                { name: "**Channel**", value: "Disabled", inline: true },
-                            );
-                    };
-
-                    return interaction.reply({
-                        embeds: [settingsEmbed],
-                        ephemeral: true,
-                    });
-                case (en.settings.default.setup.verification_system.command.name):
-                    if (staffRoleOption.name === "@everyone" | addRoleOption.name === "@everyone" | removeRole === "@everyone") {
-                        settingsEmbed.setDescription(loggingPreset.SettingsError);
-                        settingsEmbed.addFields(
-                            { name: "**Role provided**", value: "The roleOptions (@everyone) cannot be used!", inline: true },
-                        );
-
-                        return interaction.reply({
-                            embeds: [settingsEmbed],
-                            ephemeral: true,
-                        });
-                    };
-
-                    settingsEmbed.setDescription("Settings Changed");
-                    settingsEmbed.addFields(
-                        { name: "**Welcome Channel:**", value: welcomeChannelOption.toLocaleString(), inline: true },
-                        { name: "**Staff Role:**", value: staffRoleOption.toLocaleString(), inline: true },
-                        { name: "**Role to Add:**", value: addRoleOption.toLocaleString(), inline: true },
-                    );
-
-                    if (!removeRoleOption) {
-                        await Logging.update({
-                            channelId_AfterVerify: welcomeChannelOption.id,
-                            staffRoleId_Verify: staffRoleOption.id,
-                            roleAddId_Verify: addRoleOption.id
-                        }, { where: { guildId: interaction.guild.id } });
-                    } else {
-                        await Logging.update({
-                            channelId_AfterVerify: welcomeChannelOption.id,
-                            staffRoleId_Verify: staffRoleOption.id,
-                            roleAddId_Verify: addRoleOption.id,
-                            roleRemoveId_Verify: removeRoleOption.id
-                        }, { where: { guildId: interaction.guild.id } });
-
-                        settingsEmbed.addFields(
-                            { name: "**Role to Remove:**", value: removeRoleOption.toLocaleString(), inline: true },
-                        );
-                    };
-
-                    return interaction.reply({
-                        embeds: [settingsEmbed],
-                        ephemeral: true,
-                    });
-                case (en.settings.default.setup.verification_system.menu.name):
-                    if (staffRoleOption.name === "@everyone" | addRoleOption.name === "@everyone" | removeRole === "@everyone") {
-                        settingsEmbed.setDescription(loggingPreset.SettingsError)
-                        settingsEmbed.addFields(
-                            { name: "**Role provided**", value: "The roleOptions (@everyone) cannot be used!", inline: true },
-                        );
-
-                        return interaction.reply({
-                            embeds: [settingsEmbed],
-                            ephemeral: true,
-                        });
-                    };
-
-                    settingsEmbed.setDescription(loggingPreset.SettingsUpdated)
-                    settingsEmbed.addFields(
-                        { name: "**Welcome Channel:**", value: welcomeChannelOption.toLocaleString(), inline: true },
-                        { name: "**Receive Channel**", value: receiveChannelOption.toLocaleString(), inline: true },
-                        { name: "**Staff Role:**", value: staffRoleOption.toLocaleString(), inline: true },
-                        { name: "**Role to Add:**", value: addRoleOption.toLocaleString(), inline: true },
-                    );
-
-                    if (!removeRoleOption) {
-                        await Logging.update({
-                            channelId_AfterVerify: welcomeChannelOption.id,
-                            channelId_ReceiveVerification: receiveChannelOption.id,
-                            staffRoleId_Verify: staffRoleOption.id,
-                            roleAddId_Verify: addRoleOption.id
-                        }, { where: { guildId: interaction.guild.id } });
-                    } else {
-                        await Logging.update({
-                            channelId_AfterVerify: welcomeChannelOption.id,
-                            channelId_ReceiveVerification: receiveChannelOption.id,
-                            staffRoleId_Verify: staffRoleOption.id,
-                            roleAddId_Verify: addRoleOption.id,
-                            roleRemoveId_Verify: removeRoleOption.id
-                        }, { where: { guildId: interaction.guild.id } });
-
-                        settingsEmbed.addFields(
-                            { name: "**Role to Remove:**", value: removeRoleOption.toLocaleString(), inline: true },
-                        );
-                    };
-
-                    return interaction.reply({
-                        embeds: [settingsEmbed],
-                        ephemeral: true,
-                    });
-            };
-        } catch (error) {
-            let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.supportServerId);
-            let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
-            console.log(`${interaction.user.id} -> ${interaction.user.username}`);
-            console.log(error);
-
-            await interaction.reply({
-                content: languageSet.default.errorOccured,
+                content: "You cannot execute that command! You need the following permission: ``ADMINISTRATOR`` or ``MANAGE_GUILD``.",
                 ephemeral: true,
             });
+        };
 
-            return crashchannelId.send({ content: "**Error in the '" + en.settings.default.name + "' event:** \n\n```javascript\n" + error + "```" });
+        // Setup
+        let options = interaction.options.getSubcommand();
+
+        // Role 
+        let roleAutoRole = interaction.options.getRole(en.settings.default);
+        let addRoleOption = interaction.options.getRole(en.settings.default.setup.verification_system.menu.addRole.name);
+        let removeRoleOption = interaction.options.getRole(en.settings.default.setup.verification_system.menu.removeRole.name);
+        let staffRoleOption = interaction.options.getRole(en.settings.default.setup.verification_system.menu.staffRole.name);
+
+        // Channel 
+        let channelOption = interaction.options.getChannel(en.settings.default.setup.report_system.channel.name);
+        let welcomeChannelOption = interaction.options.getChannel(en.settings.default.setup.verification_system.menu.channel.name);
+        let receiveChannelOption = interaction.options.getChannel(en.settings.default.setup.verification_system.menu.receiveChannel.name);
+
+        removeRoleOption ? removeRole = removeRoleOption.name : removeRole = removeRoleOption;
+
+        // Blacklist System
+        let status_Bool = interaction.options.getString(en.settings.default.setup.blacklist_system.status.name);
+        let status_AutoBan = interaction.options.getString(en.settings.default.setup.blacklist_system.autoban.name);
+
+        // logging System
+        let optionslogging = interaction.options.getString(en.settings.default.setup.logging_system.options.name);
+
+        const settingsEmbed = new EmbedBuilder()
+
+        switch (options) {
+            case (en.settings.default.setup.report_system.name):
+                staffRoleOption ? staffRoleOption = staffRoleOption.name : staffRoleOption = staffRoleOption;
+
+                switch (staffRoleOption) {
+                    case ("@everyone"):
+                        settingsEmbed.setDescription(loggingPreset.SettingsError)
+                        settingsEmbed.addFields(
+                            { name: "**Role provided**", value: "The role (@everyone) cannot be used!", inline: true },
+                        );
+
+                        return interaction.reply({
+                            embeds: [settingsEmbed],
+                            ephemeral: true,
+                        });
+                    default:
+                        settingsEmbed.setDescription(loggingPreset.SettingsUpdated)
+                        settingsEmbed.addFields(
+                            { name: ChannelName, value: channelOption.toLocaleString(), inline: true },
+                        );
+
+                        if (staffRoleOption) {
+                            await logging.update({
+                                channelId_Report: channelOption.id,
+                                staffRoleId_Report: staffRoleOption.id
+                            }, { where: { guildId: interaction.guild.id } });
+
+                            settingsEmbed.addFields(
+                                { name: "**Role to Ping:**", value: staffRoleOption.toLocaleString(), inline: true }
+                            );
+
+                            break;
+                        };
+
+                        await logging.update({
+                            channelId_Report: channelOption.id,
+                        }, { where: { guildId: interaction.guild.id } });
+
+                        break;
+                };
+
+                return interaction.reply({
+                    embeds: [settingsEmbed],
+                    ephemeral: true,
+                });
+            case (en.settings.default.setup.action_system.name):
+                status_Bool === "true" ? status_Bool = "Enabled" : status_Bool = "Disabled";
+
+                settingsEmbed.setDescription(loggingPreset.SettingsUpdated)
+
+                switch (optionslogging) {
+                    case ("image"):
+                        await logging.update({
+                            status_canActionMessage: status_Bool,
+                        }, { where: { guildId: interaction.guild.id } })
+
+                        settingsEmbed.addFields(
+                            { name: "**Action Message**", value: status_Bool, inline: true }
+                        );
+
+                        break;
+                    case ("message"):
+                        await logging.update({
+                            status_canActionImage: status_Bool,
+                        }, { where: { guildId: interaction.guild.id } })
+
+                        settingsEmbed.addFields(
+                            { name: "**Action Image**", value: status_Bool, inline: true }
+                        );
+
+                        break;
+                };
+
+                return interaction.reply({
+                    embeds: [settingsEmbed],
+                    ephemeral: true,
+                });
+            case (en.settings.default.setup.welcome_system.name):
+                if (!roleAutoRole) {
+                    await logging.update({
+                        channelId_Welcome: channelOption.id
+                    }, { where: { guildId: interaction.guild.id } })
+
+                    settingsEmbed.setDescription(loggingPreset.SettingsUpdated)
+                    settingsEmbed.addFields(
+                        { name: "**Welcome Channel**", value: channelOption.toLocaleString(), inline: true },
+                    )
+                } else if (!channelOption) {
+                    await logging.update({
+                        roleAutoRoleId_Welcome: roleAutoRole.id
+                    }, { where: { guildId: interaction.guild.id } })
+
+                    settingsEmbed.setDescription(loggingPreset.SettingsUpdated)
+                    settingsEmbed.addFields(
+                        { name: "**Auto-Role**", value: roleAutoRole.toLocaleString(), inline: true },
+                    )
+                };
+
+                return interaction.reply({
+                    embeds: [settingsEmbed],
+                    ephemeral: true,
+                });
+            case (en.settings.default.setup.blacklist_system.name):
+                if (status_Bool) {
+                    status_Bool === "true" ? status_Bool = "Enabled" : status_Bool = "Disabled";
+
+                    switch (status_AutoBan) {
+                        case ("low"):
+                            status_AutoBan = "Low+";
+                            break;
+                        case ("medium"):
+                            status_AutoBan = "Medium+";
+                            break;
+                        case ("high"):
+                            status_AutoBan = "High+";
+                            break;
+                        case ("disable"):
+                            status_AutoBan = "Disabled";
+                            break;
+                    };
+
+                    settingsEmbed.setDescription(loggingPreset.SettingsUpdated);
+                    settingsEmbed.addFields(
+                        { name: "**Status**", value: status_Bool, inline: true },
+                    );
+
+                    if (!channelOption) {
+                        await logging.update({
+                            status_Blacklist: status_Bool,
+                            status_BlacklistAutoban: status_AutoBan
+                        }, { where: { guildId: interaction.guild.id } });
+
+                        settingsEmbed.addFields(
+                            { name: "**Auto-ban**", value: status_AutoBan, inline: true }
+                        );
+                    } else if (!status_AutoBan) {
+                        await logging.update({
+                            status_Blacklist: status_Bool,
+                            channelId_Blacklist: channelOption.id,
+                        }, { where: { guildId: interaction.guild.id } });
+
+                        settingsEmbed.addFields(
+                            { name: "**Channel**", value: channelOption.toLocaleString(), inline: true }
+                        );
+                    } else if (channelOption && status_AutoBan) {
+                        await logging.update({
+                            status_Blacklist: status_Bool,
+                            status_BlacklistAutoban: status_AutoBan,
+                            channelId_Blacklist: channelOption.id,
+                        }, { where: { guildId: interaction.guild.id } });
+
+                        settingsEmbed.addFields(
+                            { name: "**Channel**", value: channelOption.toLocaleString(), inline: true },
+                            { name: "**Auto-ban**", value: status_AutoBan, inline: true }
+                        );
+                    };
+
+                    return interaction.reply({
+                        embeds: [settingsEmbed],
+                        ephemeral: true,
+                    });
+                };
+            case (en.settings.default.setup.logging_system.name):
+                settingsEmbed.setDescription(loggingPreset.SettingsUpdated)
+
+                switch (optionslogging) {
+                    case ("all"):
+                        if (channelOption) {
+                            await logging.update({
+                                channelId_Ban: channelOption.id,
+                                channelId_Unban: channelOption.id,
+                                channelId_Kick: channelOption.id,
+                                channelId_Warn: channelOption.id,
+                            }, { where: { guildId: interaction.guild.id } });
+
+                            return loggingEmbed.addFields(
+                                { name: "**Channel**", value: channelOption.toLocaleString(), inline: true },
+                            );
+                        } else {
+                            return interaction.reply({
+                                content: [loggingPreset.ChannelNeeded]
+                            });
+                        };
+                    case ("ban"):
+                        if (channelOption) {
+                            await logging.update({
+                                channelId_Ban: channelOption.id,
+                            }, { where: { guildId: interaction.guild.id } });
+
+                            return loggingEmbed.addFields(
+                                { name: "**Channel**", value: channelOption.toLocaleString(), inline: true },
+                            );
+                        } else {
+                            return interaction.reply({
+                                content: [loggingPreset.ChannelNeeded]
+                            });
+                        };
+                    case ("kick"):
+                        if (channelOption) {
+                            await logging.update({
+                                channelId_Kick: channelOption.id,
+                            }, { where: { guildId: interaction.guild.id } });
+
+                            return loggingEmbed.addFields(
+                                { name: "**Channel**", value: channelOption.toLocaleString(), inline: true },
+                            );
+                        } else {
+                            return interaction.reply({
+                                content: [loggingPreset.ChannelNeeded]
+                            });
+                        };
+                    case ("warn"):
+                        if (channelOption) {
+                            await logging.update({
+                                channelId_Warn: channelOption.id,
+                            }, { where: { guildId: interaction.guild.id } });
+
+                            return loggingEmbed.addFields(
+                                { name: "**Channel**", value: channelOption.toLocaleString(), inline: true },
+                            );
+                        } else {
+                            return interaction.reply({
+                                content: [loggingPreset.ChannelNeeded]
+                            });
+                        };
+                    case ("unban"):
+                        if (channelOption) {
+                            await logging.update({
+                                channelId_Unban: channelOption.id,
+                            }, { where: { guildId: interaction.guild.id } });
+
+                            return loggingEmbed.addFields(
+                                { name: "**Channel**", value: channelOption.toLocaleString(), inline: true },
+                            );
+                        } else {
+                            return interaction.reply({
+                                content: [loggingPreset.ChannelNeeded]
+                            });
+                        };
+                    case ("disable"):
+                        await logging.update({
+                            channelId_Ban: null,
+                            channelId_Unban: null,
+                            channelId_Kick: null,
+                            channelId_Warn: null,
+                        }, { where: { guildId: interaction.guild.id } });
+
+                        return loggingEmbed.addFields(
+                            { name: "**Channel**", value: "Disabled", inline: true },
+                        );
+                };
+
+                return interaction.reply({
+                    embeds: [settingsEmbed],
+                    ephemeral: true,
+                });
+            case (en.settings.default.setup.verification_system.command.name):
+                if (staffRoleOption.name === "@everyone" | addRoleOption.name === "@everyone" | removeRole === "@everyone") {
+                    settingsEmbed.setDescription(loggingPreset.SettingsError);
+                    settingsEmbed.addFields(
+                        { name: "**Role provided**", value: "The roleOptions (@everyone) cannot be used!", inline: true },
+                    );
+
+                    return interaction.reply({
+                        embeds: [settingsEmbed],
+                        ephemeral: true,
+                    });
+                };
+
+                settingsEmbed.setDescription("Settings Changed");
+                settingsEmbed.addFields(
+                    { name: "**Welcome Channel:**", value: welcomeChannelOption.toLocaleString(), inline: true },
+                    { name: "**Staff Role:**", value: staffRoleOption.toLocaleString(), inline: true },
+                    { name: "**Role to Add:**", value: addRoleOption.toLocaleString(), inline: true },
+                );
+
+                if (!removeRoleOption) {
+                    await logging.update({
+                        channelId_AfterVerify: welcomeChannelOption.id,
+                        staffRoleId_Verify: staffRoleOption.id,
+                        roleAddId_Verify: addRoleOption.id
+                    }, { where: { guildId: interaction.guild.id } });
+                } else {
+                    await logging.update({
+                        channelId_AfterVerify: welcomeChannelOption.id,
+                        staffRoleId_Verify: staffRoleOption.id,
+                        roleAddId_Verify: addRoleOption.id,
+                        roleRemoveId_Verify: removeRoleOption.id
+                    }, { where: { guildId: interaction.guild.id } });
+
+                    settingsEmbed.addFields(
+                        { name: "**Role to Remove:**", value: removeRoleOption.toLocaleString(), inline: true },
+                    );
+                };
+
+                return interaction.reply({
+                    embeds: [settingsEmbed],
+                    ephemeral: true,
+                });
+            case (en.settings.default.setup.verification_system.menu.name):
+                if (staffRoleOption.name === "@everyone" | addRoleOption.name === "@everyone" | removeRole === "@everyone") {
+                    settingsEmbed.setDescription(loggingPreset.SettingsError)
+                    settingsEmbed.addFields(
+                        { name: "**Role provided**", value: "The roleOptions (@everyone) cannot be used!", inline: true },
+                    );
+
+                    return interaction.reply({
+                        embeds: [settingsEmbed],
+                        ephemeral: true,
+                    });
+                };
+
+                settingsEmbed.setDescription(loggingPreset.SettingsUpdated)
+                settingsEmbed.addFields(
+                    { name: "**Welcome Channel:**", value: welcomeChannelOption.toLocaleString(), inline: true },
+                    { name: "**Receive Channel**", value: receiveChannelOption.toLocaleString(), inline: true },
+                    { name: "**Staff Role:**", value: staffRoleOption.toLocaleString(), inline: true },
+                    { name: "**Role to Add:**", value: addRoleOption.toLocaleString(), inline: true },
+                );
+
+                if (!removeRoleOption) {
+                    await logging.update({
+                        channelId_AfterVerify: welcomeChannelOption.id,
+                        channelId_ReceiveVerification: receiveChannelOption.id,
+                        staffRoleId_Verify: staffRoleOption.id,
+                        roleAddId_Verify: addRoleOption.id
+                    }, { where: { guildId: interaction.guild.id } });
+                } else {
+                    await logging.update({
+                        channelId_AfterVerify: welcomeChannelOption.id,
+                        channelId_ReceiveVerification: receiveChannelOption.id,
+                        staffRoleId_Verify: staffRoleOption.id,
+                        roleAddId_Verify: addRoleOption.id,
+                        roleRemoveId_Verify: removeRoleOption.id
+                    }, { where: { guildId: interaction.guild.id } });
+
+                    settingsEmbed.addFields(
+                        { name: "**Role to Remove:**", value: removeRoleOption.toLocaleString(), inline: true },
+                    );
+                };
+
+                return interaction.reply({
+                    embeds: [settingsEmbed],
+                    ephemeral: true,
+                });
         };
     }
 };

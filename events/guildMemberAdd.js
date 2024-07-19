@@ -1,18 +1,17 @@
 const { Events } = require('discord.js');
-const { bot } = require('../server');
 const { fr, en, de, sp, nl } = require('../preset/language')
 const { logging, verifier, blacklist } = require('../preset/db')
+
+const configPreset = require('../config/main.json');
 
 module.exports = {
     name: Events.GuildMemberAdd,
     once: false,
     execute: async (newMember) => {
-        let guild = bot.guilds.cache.get(newMember.guild.id);
-
-        let verifierData = await verifier.findOne({ where: { userId: newMember.user.id } });
+        //let verifierData = await verifier.findOne({ where: { userId: newMember.user.id } });
         let blacklistData = await blacklist.findOne({ where: { userId: newMember.user.id } });
 
-        let loggingData = await logging.findOne({ where: { guildId: guild.id } });
+        let loggingData = await logging.findOne({ where: { guildId: newMember.guild.id } });
         switch (loggingData.language) {
             case ('en'):
                 languageSet = en;
@@ -46,7 +45,7 @@ module.exports = {
                     channelId_Welcome: null
                 }, {
                     where: {
-                        guildId: guild.id
+                        guildId: newMember.guild.id
                     }
                 }).catch(() => { return });
             };
@@ -56,8 +55,8 @@ module.exports = {
 
             // Sending the message
             await welcomeChannel.send({
-                content: [`${newMember.user.toString()} ${en.welcomeMessage.message.default}!`],
-            }).catch(() => { return });
+                content: [`${leavingMember.user.toString()} joined the server.`]
+            });
         };
 
         if (loggingData.roleAutoRoleId_Welcome) {
@@ -73,12 +72,12 @@ module.exports = {
         //  Checking for verification config  //
         ////////////////////////////////////////
 
-        if (verifierData) {
+        /*if (verifierData) {
             if (loggingData.roleAddId_Verify | loggingData.roleRemoveId_Verify) {
                 await newMember.roles.add(loggingData.roleAddId_Verify);
                 return newMember.roles.remove(loggingData.roleRemoveId_Verify);
             };
-        };
+        };*/
 
         /////////////////////////////////////
         //  Checking for blacklist config  //
@@ -93,7 +92,7 @@ module.exports = {
                         channelId_Blacklist: null
                     }, {
                         where: {
-                            guildId: guild.id
+                            guildId: newMember.guild.id
                         }
                     }).catch(() => { });
                 };

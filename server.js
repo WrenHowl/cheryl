@@ -1124,7 +1124,7 @@ bot.on('error', async (error) => {
   // Send it to my DM
   return bot.users.cache.get(configPreset.botInfo.ownerId).send({
     content: '**Error in the ' + eventName + ' event:** \n\n```javascript\n' + error.stack + '```'
-  });
+  }).catch((error) => { })
 });
 
 bot.login(configPreset.botPrivateInfo.token);
