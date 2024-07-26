@@ -8,7 +8,7 @@ module.exports = {
         let owner = await guild.fetchOwner();
         let blacklistData = await blacklist.findOne({ where: { userId: owner.user.id } });
 
-        let removeGuildChannel = fetchgguild.client.guilds.cache.get(configPreset.botInfo.supportServerId).guild.channels.cache.get(configPreset.channelsId.botRemoved);
+        let removeGuildChannel = fetchguild.client.guilds.cache.get(configPreset.botInfo.supportServerId).guild.channels.cache.get(configPreset.channelsId.botRemoved);
         if (!removeGuildChannel) return;
 
         // Checking if the owner is blacklisted

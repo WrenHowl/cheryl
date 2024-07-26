@@ -1,7 +1,7 @@
 const { Events } = require('discord.js');
 const { bot } = require('../server');
 const { fr, en, de, sp, nl } = require('../preset/language')
-const { logging, verifier, permission, ticket } = require('../preset/db')
+const { logging, verifier, permission, ticket, ticketCount } = require('../preset/db')
 
 const configPreset = require('../config/main.json');
 

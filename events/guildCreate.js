@@ -34,12 +34,12 @@ module.exports = {
         let newguildEmbed = new EmbedBuilder()
             .setTitle('Bot Added')
             .addFields(
-                { name: 'Server Name', value: '`' + guild.name.toString() + '`', inline: true },
-                { name: 'Server ID', value: '`' + guild.id.toString() + '`', inline: true },
-                { name: 'Members', value: '`' + guild.memberCount.toString() + '`', inline: false },
-                { name: 'Owner Name', value: '`' + owner.user.tag.toString() + '`', inline: true },
-                { name: 'Owner ID', value: '`' + owner.user.id.toString() + '`', inline: true },
-                { name: 'blacklisted?', value: '`' + isBlacklisted + '`', inline: false },
+                { name: 'Server Name', value: guild.name.toString(), inline: true },
+                { name: 'Server ID', value: guild.id.toString(), inline: true },
+                { name: 'Members', value: guild.memberCount.toString(), inline: false },
+                { name: 'Owner Name', value: owner.user.tag.toString(), inline: true },
+                { name: 'Owner ID', value: owner.user.id.toString(), inline: true },
+                { name: 'blacklisted?', value: `${isBlacklisted}`, inline: false },
             )
             .setColor('Green');
 
