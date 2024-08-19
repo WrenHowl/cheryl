@@ -1,23 +1,23 @@
 {
     "default": {
-        "errorOccured": "An error occured. Please contact @baddwagon or he will contact you soon if it's relevant.",
-        "unknownUser": "An error occured. I can't find this user.",
-        "commandDisabledGlobally": "An error occured. This command is disabled globally by the developers.",
-        "serverOnly": "An error occured. You can only use this command in a server.",
-        "staffOnly": "An error occured. This command is only available to the staff of Cheryl.",
+        "errorOccured": "Ein Fehler ist aufgetreten, schreibe bitte @baddwagon an.",
+        "unknownUser": "Fehler, nutzer wurde nicht gefunden.",
+        "commandDisabledGlobally": "Fehler, dieser Befehl wurde von den Entwicklern deaktiviert.",
+        "serverOnly": "Ein Fehler ist aufgetreten, dieser Befehl ist nur auf Servern nutzbar.",
+        "staffOnly": "Fehler, dieser Befehl ist nur für das Team von Cheryl verfügbar..",
         "userPermission": {
-            "ban": "You're missing this permission: Ban Members.",
-            "kick": "You're missing this permission: Kick Members.",
-            "manageRoles": "You're missing this permission: Manage Roles.",
-            "manageMessages": "You're missing this permission: Manage Messages.",
-            "manageChannels": "You're missing this permission: Manage Channels."
+            "ban": "Dir fehlt die nötige Berechtigung: Nutzer bannen",
+            "kick": "Dir fehlt die nötige Berechtigung: Nutzer kicken",
+            "manageRoles": "Dir fehlt die nötige Berechtigung: Rollen verwalten",
+            "manageMessages": "Dir fehlt die nötige Berechtigung: Nachichten verwalten",
+            "manageChannels": "Dir fehlt die nötige Berechtigung: Kanäle bearbeiten"
         },
         "botPermission": {
-            "ban": "I'm missing this permission: Ban Members.",
-            "kick": "I'm missing this permission: Kick Members.",
-            "manageRoles": "I'm missing this permission: Manage Roles.",
-            "manageMessages": "I'm missing this permission: Manage Messages.",
-            "manageChannels": "I'm missing this permission: Manage Channels."
+            "ban": "Mir fehlt folgende Berechtigung: Nutzer bannen",
+            "kick": "Mir fehlt folgende Berechtigung: Nutzer kicken",
+            "manageRoles": "Mir fehlt folgende Berechtigung: Rollen verwalten",
+            "manageMessages": "Mir fehlt folgende Berechtigung: Nachichten verwalten",
+            "manageChannels": "Mir fehlt folgende Berechtigung: Kanäle bearbeiten"
         },
         "button": {
             "discord": "Support Server"
@@ -36,29 +36,29 @@
     "help": {
         "default": {
             "name": "help",
-            "description": "Display the commands available (or information about a certain command).",
+            "description": "Zeigt die verfügbaren Befehle an (oder Informationen zu einem bestimmtem Befehl)",
             "info": {
                 "name": "info",
-                "description": "Display information about certain commands/functionalities."
+                "description": "Zeigt Informationen über bestimmte Befehle/Funktionen an"
             }
         }
     },
     "language": {
         "default": {
             "name": "language",
-            "description": "Change the language of the bot in the server."
+            "description": "Ändert die Sprache von Cheryl auf dem Server"
         }
     },
     "serverinfo": {
         "default": {
             "name": "serverinfo",
-            "description": "Show information about the server."
+            "description": "Zeigt informationen zum Server an"
         }
     },
     "profile": {
         "default": {
             "name": "profile",
-            "description": "Get information about a user.",
+            "description": "Zeigt informationen zum Benutzer an",
             "user": {
                 "name": "user",
                 "description": "User from whom to obtain information."
@@ -66,15 +66,15 @@
             "choice": {
                 "age": {
                     "name": "age",
-                    "description": "Change your age.",
+                    "description": "Ändere dein Alter",
                     "list": {
-                        "minor": "Minor",
-                        "adult": "Adult"
+                        "minor": "Jugendlich",
+                        "adult": "Volljährig"
                     }
                 },
                 "pronouns": {
                     "name": "pronoun",
-                    "description": "Change your pronoun.",
+                    "description": "Ändere deine Pronomen",
                     "list": {
                         "they": "they",
                         "them": "them",
@@ -88,21 +88,21 @@
                 },
                 "gender": {
                     "name": "gender",
-                    "description": "Change your gender."
+                    "description": "Ändere dein Geschlecht"
                 },
                 "message": {
                     "option": {
                         "embed": {
-                            "description": "Profile updated",
+                            "description": "Profil bearbeitet.",
                             "name": "Name",
                             "id": "ID",
-                            "age": "Age",
-                            "verified18": "Verified 18+",
-                            "verifier": "Verifier",
-                            "createdAt": "Account created on",
-                            "joinedAt": "Joined Discord on",
-                            "roles": "Roles",
-                            "noDataFound": "No data found"
+                            "age": "Alter",
+                            "verified18": "Verifiziert: 18+",
+                            "verifier": "Verifizierer",
+                            "createdAt": "Erstellt am",
+                            "joinedAt": "Beigetreten am",
+                            "roles": "Rollen",
+                            "noDataFound": "Keine Daten gefunden"
                         }
                     }
                 }
@@ -112,7 +112,7 @@
     "staff": {
         "default": {
             "name": "staff",
-            "description": "Verify if a user is part of the staff of the bot.",
+            "description": "Verifiziert ob der Nutzer teil des Cheryl Teams ist",
             "user": {
                 "name": "user",
                 "description": "User to check."
@@ -121,7 +121,15 @@
     },
     "welcomeMessage": {
         "message": {
-            "default": "joined the server.",
+            "embed": {
+                "logs": {
+                    "description": "Willkommen",
+                    "fields": {
+                        "createdAt": "Erstellt am",
+                        "memberCount": "Mitglieder Anzahl"
+                    }
+                }
+            },
             "blacklist": {
                 "autoBan": "Blacklist | Auto-Ban"
             }
@@ -139,86 +147,84 @@
                 "logs": {
                     "description": "Bye",
                     "fields": {
-                        "createdAt": "Account created on",
-                        "joinedAt": "Joined Discord on",
-                        "memberCount": "Member count",
-                        "statusVerification": "Status verification"
+                        "createdAt": "Erstellt am",
+                        "joinedAt": "Beigetreten am",
+                        "memberCount": "Mitglieder Anzahl",
+                        "statusVerification": "Status Verifikation"
                     },
                     "verificationEnable": {
-                        "isVerified": "Was verified",
-                        "isNotVerified": "Wasn't verified"
+                        "isVerified": "War verifiziert",
+                        "isNotVerified": "War nicht verifiziert"
                     }
                 }
             }
         }
     },
     "verification": {
-        "default": {
-            "button": {
-                "verification": {
-                    "alreadyVerified": "An error occured. You're already verified.",
-                    "waiting": "You've already sent a verification on this server. You will receive a dm/mention about the status of your verification shortly.",
-                    "received": "You've successfully sent your verification. You will receive a dm/mention about the status of your verification shortly.",
-                    "accept": "Accept",
-                    "deny": "Deny",
-                    "modal": {
-                        "title": "Verification",
-                        "firstOption": {
-                            "label": "What is your age?",
-                            "placeholder": "Write your age.."
-                        },
-                        "secondOption": {
-                            "label": "How did you find our server?",
-                            "placeholder": "Write the website/friend name where you got the server.."
-                        },
-                        "thirdOption": {
-                            "label": "Why are you joining us?",
-                            "placeholder": "Write the reason of you joining the server.."
-                        },
-                        "fourthOption": {
-                            "label": "What do you think about the furry fandom?",
-                            "placeholder": "Write your opinion about the furry fandom in a short paragraph.."
-                        },
-                        "fifthOption": {
-                            "label": "Do you have a sona?",
-                            "placeholder": "Write a short but detailed description of your sona.."
-                        }
-                    }
+        "reply": {
+            "default": "Verifiziert von",
+            "cancelled": "abgebrochen",
+            "accepted": "akzeptiert von",
+            "denied": "abgelehnt von"
+        },
+        "buttonToVerify": {
+            "alreadyVerified": "Ein Fehler ist aufgetreten: Du bist schon verifiziert.",
+            "modal": {
+                "title": "Verification",
+                "firstOption": {
+                    "label": "Alter",
+                    "placeholder": "Nenne dein Alter.."
                 },
-                "waiting": {
-                    "default": "Verification from",
-                    "cancelled": "cancelled",
-                    "accepted": "accepted by",
-                    "denied": "denied by"
+                "secondOption": {
+                    "label": "Wie hast du Unseren Server gefunden?",
+                    "placeholder": "Nenne die Website/den Namen des Freundes der dich angeworben hat.."
                 },
-                "accept": {
-                    "roleAdd": "Verification System: Verified by",
-                    "welcomeMessage": "Welcome",
-                    "guildWelcomeMessage": "to"
+                "thirdOption": {
+                    "label": "Warum möchtest du beitreten?",
+                    "placeholder": "Nenne den Grund für deinen beitritt.."
                 },
-                "deny": {
-                    "reason": "Your verification has been denied.\n\nReason:"
+                "fourthOption": {
+                    "label": "Was denkst du über das Furry Fandom?",
+                    "placeholder": "Schreibe deine Meinung zum Fandom in einem kurzem Text.."
+                },
+                "fifthOption": {
+                    "label": "Hast du eine Sona?",
+                    "placeholder": "Schreibe eine kurze aber detailierte Beschreibung zu deiner Sona.."
                 }
             }
+        },
+        "buttonToAcceptVerify": {
+            "roleAdd": "Verifikationssystem: verifiziert von",
+            "welcomeMessage": "Willkommen",
+            "guildWelcomeMessage": "bei"
+        },
+        "buttonToDenyVerify": {
+            "reason": "Deine verifikation wurde abgelehnt.\n\nGrund:"
+        },
+        "modalSubmit": {
+            "waiting": "Du hast bereits deine Verifikation abgeschickt. Du bekommt in kürze eine Pn/Erwähnung über den Status deiner Verifikation.",
+            "received": "Du hast deine Verifikation erfolgreich abgeschickt. Du bekommt in kürze eine Pn/Erwähnung über den Status deiner Verifikation.",
+            "accept": "Akzeptiert",
+            "deny": "Abgelehnt"
         }
     },
     "verify": {
         "default": {
             "name": "Verify",
-            "description": "Manually verify a member."
+            "description": "Manuelles verifizieren eines Nutzers"
         }
     },
     "action": {
         "default": {
             "name": "action",
-            "description": "Do an action (or suggest an image for an action) on a member.",
+            "description": "Führe eine Aktion (oder schlage ein Bild für eine Aktion vor) mit einem Nutzer durch",
             "choice": {
                 "name": "choice",
-                "description": "What action would you like to do?"
+                "description": "Welche Aktion möchtest du ausführen?"
             },
             "suggest": {
                 "name": "suggest",
-                "description": "Suggest an image to be added to the selected choice."
+                "description": "Sende einen Link direkt zu einem Bild, nicht zu einer Website"
             },
             "member": {
                 "name": "member",
@@ -227,15 +233,18 @@
         },
         "message": {
             "error": {
-                "wrongUrl": "Invalid URL. You must provide a valid URL.",
-                "wrongFormat": "You must send a valid format. The URL must end with `.jpg`, `.gif` or `.png`.",
-                "alreadyExist": "This image has already been suggested/added.",
-                "disable": "This command has been disabled in this server.",
-                "notNsfw": "You cannot use NSFW command into this channel. This channel must be age-restricted to use this command."
+                "wrongUrl": "Du musst eine gültige URL schicken",
+                "wrongFormat": "Wir akzeptieren nur Gifs für diese Aktion",
+                "alreadyExist": "Dieses Bild/Gif wurde bereits hinzugefügt oder vorgeschlagen",
+                "disable": "Dieser Befehl wurde auf dem Server deaktiviert",
+                "notNsfw": "Du kannst keinen NSFW Befehl in diesem Channel nutzen. Der Channel muss dazu mit Altersbegrenzung eingestellt sein."
             },
             "success": {
-                "suggested": "Your image has been successfully sent to the staff of"
+                "suggested": "Dein Bild wurde erfolgreich an das Team von  geleitet."
             }
+        },
+        "button": {
+            "source": "Quelle"
         }
     },
     "avatar": {
@@ -249,65 +258,65 @@
         },
         "message": {
             "embed": {
-                "title": "Avatar of"
+                "title": "Avatar von"
             }
         }
     },
     "ban": {
         "default": {
             "name": "ban",
-            "description": "Ban a user.",
+            "description": "Bannt einen Nutzer",
             "user": {
                 "name": "user",
                 "description": "User to ban."
             },
             "reason": {
                 "name": "reason",
-                "description": "Reason for the ban."
+                "description": "Grund für den Bann"
             }
         },
         "message": {
-            "success": "has been banned",
+            "success": "wurde gebannt",
             "embed": {
                 "log": {
-                    "title": "New Ban",
+                    "title": "Neuer Bann",
                     "fields": {
-                        "member": "Member",
-                        "reason": "Reason",
+                        "member": "Nutzer",
+                        "reason": "Grund",
                         "mod": "Moderator"
                     }
                 }
             },
             "dm": {
-                "you": "You have been banned on",
-                "for": "for",
-                "by": "by"
+                "you": "Du wurdest gebannt auf",
+                "for": "für",
+                "by": "von"
             },
             "onWho": {
-                "isThemself": "An error occured. You can't ban yourself.",
-                "isBot": "An error occured. You can't ban me.",
-                "isOwner": "An error occured. You can't ban the owner.",
-                "isPunishable": "An error occured. I can't ban this user.",
-                "isHigher": "An error occured. You can't ban this user, because they're higher than you.",
-                "isAlready": "An error occured. You can't ban this user, since they are already banned."
+                "isThemself": "Ein Fehler ist aufgetreten. Du kannst dich nicht selbst bannen.",
+                "isBot": "Ein Fehler ist aufgetreten. Du kannst mich nicht bannen.",
+                "isOwner": "Ein Fehler ist aufgetreten. Du kannst den Owner nicht bannen.",
+                "isPunishable": "Ein Fehler ist aufgetreten. Ich kann diesen Nutzer nicht bannen.",
+                "isHigher": "Ein Fehler ist aufgetreten. Du kannst den Nutzer nicht bannen, da er über mehr Rechte verfügt.",
+                "isAlready": "Ein Fehler ist aufgetreten. Du kannst den Nutzer nicht bannen, da dieser schon gebannt ist."
             }
         }
     },
     "unban": {
         "default": {
-            "name": "unban",
-            "description": "Unban a user",
+            "name": "entbannen",
+            "description": "Entbannt den Nutzer",
             "user": {
                 "name": "user",
                 "description": "User to unban"
             }
         },
         "message": {
-            "success": "has been unban from the server",
+            "success": "wurde vom Server entbannt",
             "embed": {
                 "log": {
-                    "new": "New Unban",
-                    "user": "User",
+                    "new": "neuer entbann",
+                    "user": "Nutzer",
                     "mod": "Moderator"
                 }
             }
@@ -316,30 +325,30 @@
     "kick": {
         "default": {
             "name": "kick",
-            "description": "Kick a user",
+            "description": "Kickt einen Nutzer",
             "user": {
                 "name": "user",
                 "description": "User to kick"
             },
             "reason": {
                 "name": "reason",
-                "description": "Reason of the kick"
+                "description": "Grund für den Kick"
             }
         },
         "message": {
-            "success": "has been kicked from the server for",
+            "success": "wurde von dem Server gekickt. Grund:",
             "embed": {
                 "log": {
-                    "new": "New Kick",
-                    "user": "User",
-                    "reason": "Reason",
+                    "new": "Neuer Kick",
+                    "user": "Nutzer",
+                    "reason": "Grund",
                     "mod": "Moderator"
                 }
             },
             "dm": {
-                "you": "You have been kicked on",
-                "for": "for",
-                "by": "by"
+                "you": "Du wurdest gekickt von",
+                "for": "Grund",
+                "by": "von"
             },
             "onWho": {
                 "myself": "An error occured. You can't kick yourself",
