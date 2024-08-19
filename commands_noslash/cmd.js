@@ -1,109 +1,81 @@
-const configPreset = require("../config/main.json");
+const { en } = require('../preset/language')
+const { commandFunction } = require('../preset/db')
 
-const en = require("../languages/en.json");
+const configPreset = require("../config/main.json");
 
 module.exports = {
     name: en.cmd.default.name,
-    execute: async (bot, message, args, sequelize, Sequelize) => {
-        const CommandFunction = sequelize.define("CommandFunction", {
-            name: {
-                type: Sequelize.STRING,
-            },
-            value: {
-                type: Sequelize.STRING,
-            },
-        });
+    execute: async (message, EmbedBuilder, args) => {
+        if (message.guild.members.me.permissionsIn(message.channelId).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
 
-        let statusCommand = await CommandFunction.findOne({ where: { name: en.dataRemove.default.name } });
+            if (message.author.id === configPreset.botInfo.ownerId) {
+                let commandList = [
+                    "blacklist",
+                    "settings",
+                    "ban",
+                    "kick",
+                    "lock",
+                    "unlock",
+                    "verify",
+                    "help",
+                    "profile",
+                    "staff",
+                    "avatar",
+                    "action",
+                    "language"
+                ];
+                let status = [
+                    true,
+                    false
+                ];
 
-        if (!statusCommand) {
-            return CommandFunction.create({
-                name: en.dataRemove.default.name,
-                value: "Enable",
-            });
-        };
+                setTimeout(() => message.delete(), 1500)
 
-        try {
-            if (message.guild.members.me.permissionsIn(message.channelId).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
-
-                if (message.author.id === configPreset.botInfo.ownerId) {
-                    let deleteReply = setTimeout(() => reply.delete(), 2500);
-                    let statusSelection = args[1];
-
-                    let arrayCmd = [
-                        "blacklist",
-                        "permission",
-                        "settings",
-                        "welcomemenu",
-                        "ban",
-                        "kick",
-                        "warn",
-                        "warns",
-                        "lock",
-                        "unlock",
-                        "verify",
-                        "help",
-                        "ping",
-                        "profile",
-                        "serverinfo",
-                        "staff",
-                        "ticket",
-                        "report",
-                        "avatar",
-                        "action",
-                        "language"
-                    ];
-                    let status = [
-                        "Enable",
-                        "Disable"
-                    ];
-
-                    setTimeout(() => message.delete(), 1500)
-
-                    if (!args[0]) {
-                        return message.reply("You need to select a command to disable globally").then((reply) => {
-                            deleteReply;
-                        });
-                    };
-
-                    if (!arrayCmd.includes(args[0])) {
-                        return message.reply("This command doesn't exist.").then((reply) => {
-                            deleteReply;
-                        });
-                    };
-
-                    if (status.includes(statusSelection)) {
-                        return message.reply("Please choose if you want to enable/disable the command.").then((reply) => {
-                            deleteReply;
-                        });
-                    };
-
-                    switch (statusSelection) {
-                        case ("Enable"):
-                            await CommandFunction.update({ value: statusSelection }, { where: { name: args[0] } });
-
-                            return message.reply("This command has been successfully enabled.").then((reply) => {
-                                deleteReply;
-                            });
-                        case ("Disable"):
-                            await CommandFunction.update({ value: statusSelection }, { where: { name: args[0] } });
-
-                            return message.reply("This command has been successfully disabled.").then((reply) => {
-                                deleteReply;
-                            });
-                        default:
-                            return message.reply("Please choose between ``Enable`` OR ``Disable``.").then((reply) => {
-                                deleteReply;
-                            });
-                    }
+                function deleteReply(reply) {
+                    setTimeout(() => reply.delete(), 2500);
                 };
-            };
-        } catch (error) {
-            let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
-            let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
-            console.log(error);
 
-            return crashchannelId.send({ content: "**Error in the '" + en.cmd.default.name + "' event:** \n\n```javascript\n" + error + "```" });
+                console.log(args)
+
+                if (!args[0]) {
+                    return message.reply("You need to select a command to disable globally").then((reply) => {
+                        deleteReply(reply);
+                    });
+                };
+
+                if (!commandList.includes(args[1])) {
+                    return message.reply("This command doesn't exist.").then((reply) => {
+                        deleteReply(reply);
+                    });
+                };
+
+                if (status.includes(args[2])) {
+                    return message.reply("Please choose if you want to enable/disable the command.").then((reply) => {
+                        deleteReply(reply);
+                    });
+                };
+
+                bool = parseInt(args[2])
+
+                switch (bool) {
+                    case (1):
+                        await commandFunction.update({ value: bool }, { where: { name: args[0] } });
+
+                        return message.reply("This command has been successfully enabled.").then((reply) => {
+                            deleteReply(reply);
+                        });
+                    case (0):
+                        await commandFunction.update({ value: bool }, { where: { name: args[0] } });
+
+                        return message.reply("This command has been successfully disabled.").then((reply) => {
+                            deleteReply(reply);
+                        });
+                    default:
+                        return message.reply('Please choose between `' + true + '` OR `' + false + '`.').then((reply) => {
+                            deleteReply(reply);
+                        });
+                }
+            };
         };
     }
 };

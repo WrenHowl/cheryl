@@ -23,6 +23,16 @@
             "discord": "Support Server"
         }
     },
+    "bump": {
+        "message": {
+            "thanks_first": "Thank you for bumping the server! I will remind",
+            "thanks_second": "in 2 hours to bump it again.",
+            "embed": {
+                "title": "Bump Time",
+                "description": "It's been 2 hours already and it's now time to bump the server!\n* Use the command `/bump` from Disboard."
+            }
+        }
+    },
     "help": {
         "default": {
             "name": "help",
@@ -51,7 +61,7 @@
             "description": "Zeigt informationen zum Benutzer an",
             "user": {
                 "name": "user",
-                "description": "User to obtain the information"
+                "description": "User from whom to obtain information."
             },
             "choice": {
                 "age": {
@@ -105,7 +115,7 @@
             "description": "Verifiziert ob der Nutzer teil des Cheryl Teams ist",
             "user": {
                 "name": "user",
-                "description": "User to verify staff"
+                "description": "User to check."
             }
         }
     },
@@ -127,8 +137,8 @@
     },
     "welcomeMenu": {
         "default": {
-            "name": "welcomemenu",
-            "description": "Send the verification embed in the channel"
+            "name": "verification",
+            "description": "Send verification message in the channel."
         }
     },
     "leavingMessage": {
@@ -218,7 +228,7 @@
             },
             "member": {
                 "name": "member",
-                "description": "Member to target"
+                "description": "Member to target."
             }
         },
         "message": {
@@ -240,10 +250,10 @@
     "avatar": {
         "default": {
             "name": "avatar",
-            "description": "Get the avatar of a user",
+            "description": "Get the avatar of a user.",
             "user": {
                 "name": "user",
-                "description": "User to get the avatar"
+                "description": "User to get the avatar."
             }
         },
         "message": {
@@ -258,7 +268,7 @@
             "description": "Bannt einen Nutzer",
             "user": {
                 "name": "user",
-                "description": "User to ban"
+                "description": "User to ban."
             },
             "reason": {
                 "name": "reason",
@@ -400,7 +410,7 @@
                     "list": {
                         "account-self-bot": "Account - Self-bot",
                         "scam-selling-art": "Scamming - Selling art",
-                        "scam-sugar": "Scamming - Sugar Daddy/Babby/Mommy",
+                        "scam-sugar": "Scamming - Sugar daddy, babby, mommy, etc.",
                         "lawbreaking-soliciting-underage": "Law Breaking - Soliciting underage user to participate to sexual activities",
                         "lawbreaking-partipating-underage": "Law Breaking - Participating to sexual activities while being underage",
                         "content-sharing-gore": "Content - Sharing hardcore gore, excessive violence or/and animal harm",

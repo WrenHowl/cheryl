@@ -1,94 +1,53 @@
-const configPreset = require("../config/main.json");
-
-const fr = require("../languages/fr.json");
-const en = require("../languages/en.json");
-const de = require("../languages/de.json");
-const sp = require("../languages/sp.json");
-const nl = require("../languages/nl.json");
+const { en } = require('../preset/language')
+const { logging } = require('../preset/db')
 
 module.exports = {
-    name: en.language.default.Name,
-    execute: async (bot, message, args, sequelize, Sequelize) => {
-        const CommandFunction = sequelize.define("CommandFunction", {
-            name: {
-                type: Sequelize.STRING,
-            },
-            value: {
-                type: Sequelize.STRING,
-            },
-        });
+    name: en.language.default.name,
+    execute: async (message, EmbedBuilder, args) => {
 
-        let statusCommand = await CommandFunction.findOne({ where: { name: en.dataRemove.default.name } });
 
-        if (!statusCommand) {
-            return CommandFunction.create({
-                name: en.dataRemove.default.name,
-                value: "Enable",
-            });
-        };
+        if (message.guild.members.me.permissionsIn(message.channelId).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
+            const loggingData = await logging.findOne({ where: { guildId: message.guild.id } });
 
-        try {
-            if (message.guild.members.me.permissionsIn(message.channelId).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) {
-
-                const Logging = sequelize.define("Logging", {
-                    GuildID: {
-                        type: Sequelize.STRING,
-                        unique: false,
-                    },
-                    Language: {
-                        type: Sequelize.STRING,
-                        unique: false,
-                    },
+            if (message.member.permissions.has("MANAGE_GUILD")) {
+                return message.reply({
+                    content: "You cannot execute this command! You need the following permission ``MANAGE_GUILD``.",
                 });
-
-                const LoggingData = await Logging.findOne({ where: { GuildID: message.guild.id } });
-
-                if (message.member.permissions.has("MANAGE_GUILD")) {
-                    let LanguageList = [
-                        "en",
-                        "fr",
-                        "nl",
-                        "de",
-                        "sp",
-                    ];
-
-                    if (!LoggingData) {
-                        await LoggingData.create({
-                            GuildID: message.guild.id,
-                        });
-                    };
-
-                    if (args[0] || args.length < 1) {
-                        if (LanguageList.includes(args[0])) {
-                            await LoggingData.update({
-                                Language: args[0],
-                            }, { where: { GuildID: message.guild.id } });
-
-                            return message.reply({
-                                content: "The language of the server has been succesfuly changed for ``" + args[0] + "``.",
-                            });
-                        } else {
-                            return message.reply({
-                                content: "I cannot find this language, are you sure you picked one of the available language?",
-                            });
-                        };
-                    } else {
-                        return message.reply({
-                            content: "Here is the available languages:\n\n``en``, ``fr``, ``nl``, ``de``, ``sp``",
-                        });
-                    };
-                } else {
-                    return message.reply({
-                        content: "You cannot execute this command! You need the following permission ``MANAGE_GUILD``.",
-                    });
-                };
             };
-        } catch (error) {
-            let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
-            let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
-            console.log(error);
 
-            return crashchannelId.send({ content: "**Error in the '" + en.language.default.name + "' event:** \n\n```javascript\n" + error + "```" });
+            let language = [
+                "en",
+                "fr",
+                "nl",
+                "de",
+                "sp",
+            ];
+
+            if (!loggingData) {
+                await logging.create({
+                    guildId: message.guild.id,
+                });
+            };
+
+            if (!args[0] || !args.length < 1) {
+                return message.reply({
+                    content: "Here is the available languages:\n\n``en``, ``fr``, ``nl``, ``de``, ``sp``",
+                });
+            };
+
+            if (!language.includes(args[0])) {
+                return message.reply({
+                    content: "I cannot find this language, are you sure you picked one of the available language?",
+                });
+            }
+
+            await logging.update({
+                language: args[0],
+            }, { where: { guildId: message.guild.id } });
+
+            return message.reply({
+                content: "The language of the server has been succesfuly changed for ``" + args[0] + "``.",
+            });
         };
     }
 }

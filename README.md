@@ -1,13 +1,12 @@
 
 <h3><p align="center">
-Presentation
-</p></h3>
+Cheryl - Discord Bot
+</h3>
+
+![X (formerly Twitter) Follow](https://img.shields.io/twitter/follow/realbaddwagon)
 
 ----
-
-Are you looking for a bot to manage and moderate your server with a tons of customization?
-
-Cheryl offers all of the above, 80% of our bot is customizable and is entirely coded in JavaScript and JSON. Using SQLite for the database.
+Cheryl is a discord bot that offers a lot of customization and will make you server easier to manage and moderate it with a blacklist system and ticket system free to use. The bot is entirely coded in Javascript and uses Local SQLite Database.
 
 <br>
 
@@ -48,3 +47,10 @@ CURRENTLY NON-FUNCTIONAL, IT HAS BEEN REPLACED WITH A TICKET SYSTEM
 <hr>
 
 If you wish to test the bot or just can't afford to host it yourself, you can invite it to your server : https://top.gg/bot/940369423125061633
+
+<hr>
+
+To do list
+
+- [ ] New setting menu
+- [ ] 

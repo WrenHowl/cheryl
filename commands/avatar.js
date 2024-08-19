@@ -1,13 +1,7 @@
 const { EmbedBuilder } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-
-const configPreset = require("../config/main.json");
-
-const fr = require("../languages/fr.json");
-const en = require("../languages/en.json");
-const de = require("../languages/de.json");
-const sp = require("../languages/sp.json");
-const nl = require("../languages/nl.json");
+const { fr, en, de, sp, nl } = require('../preset/language')
+const { logging } = require('../preset/db')
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -41,17 +35,8 @@ module.exports = {
                 "nl": nl.avatar.default.user.description
             })
             .setRequired(false)),
-    execute: async (interaction, bot, sequelize, Sequelize) => {
-        const Logging = sequelize.define("Logging", {
-            guildId: {
-                type: Sequelize.STRING,
-            },
-            language: {
-                type: Sequelize.STRING,
-            },
-        });
-
-        let loggingData = await Logging.findOne({ where: { guildId: interaction.guild.id } });
+    execute: async (interaction) => {
+        let loggingData = await logging.findOne({ where: { guildId: interaction.guild.id } });
 
         switch (loggingData.language) {
             case ("en"):
@@ -74,30 +59,16 @@ module.exports = {
                 break;
         };
 
-        try {
-            let userOption = interaction.options.getUser(en.avatar.default.user.name);
-            let member = userOption ? userOption : interaction.user;
+        let userOption = interaction.options.getUser(en.avatar.default.user.name);
+        let member = userOption ? userOption : interaction.user;
 
-            let avatarEmbed = new EmbedBuilder()
-                .setTitle(`${en.avatar.message.embed.title} ${member.tag}`)
-                .setImage(member.displayAvatarURL({ dynamic: true, size: 512 }))
-                .setColor("Blue")
+        let avatarEmbed = new EmbedBuilder()
+            .setTitle(`${languageSet.avatar.message.embed.title} ${member.username}`)
+            .setImage(member.displayAvatarURL({ dynamic: true, size: 512 }))
+            .setColor('Blue')
 
-            return interaction.reply({
-                embeds: [avatarEmbed]
-            });
-        } catch (error) {
-            let fetchguildId = bot.guilds.cache.get(configPreset.botInfo.guildId);
-            let crashchannelId = fetchguildId.channels.cache.get(configPreset.channelsId.crash);
-            console.log(`${interaction.user.id} -> ${interaction.user.tag}`);
-            console.log(error);
-
-            await interaction.reply({
-                content: languageSet.default.errorOccured,
-                ephemeral: true,
-            });
-
-            return crashchannelId.send({ content: "**Error in the '" + en.avatar.default.name + "' event:** \n\n```javascript\n" + error + "```" });
-        };
+        return interaction.reply({
+            embeds: [avatarEmbed]
+        });
     }
 };
