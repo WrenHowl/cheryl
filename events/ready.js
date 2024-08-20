@@ -28,8 +28,6 @@ module.exports = {
             counter++;
         }, 5000)
 
-
-
         return console.log(`${date.toLocaleString()} -> The bot is ready!`);
     },
 };
