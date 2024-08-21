@@ -1,0 +1,20 @@
+{
+    "age": {
+        "mn": "Minor",
+        "ad": "Adult"
+    },
+    "pronouns": {
+        "th": "They/Them",
+        "he": "He/Him",
+        "sh": "She/Her"
+    },
+    "gender": {
+        "ml": "Male",
+        "fl": "Female",
+        "gf": "Gender Fluid",
+        "tm": "Trans Male",
+        "tf": "Trans Female",
+        "ag": "Agender",
+        "nb": "Non-Binary"
+    }
+}
