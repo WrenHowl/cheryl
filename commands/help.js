@@ -1,8 +1,9 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { fr, en, de, sp, nl } = require('../preset/language')
-
 const configPreset = require("../config/main.json");
+
+// Display a list of command that the bot as.
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -107,7 +108,6 @@ module.exports = {
           "action",
         ].join("``, ``");
 
-        helpEmbed.setDescription("*My prefix in this server is `%`*");
         helpEmbed.addFields(
           { name: "Staff Cheryl", value: "``" + staffCommand + "``" },
           { name: "Administration", value: "``" + adminCommand + "``" },

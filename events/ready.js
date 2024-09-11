@@ -1,49 +1,62 @@
 const { Events, ActivityType } = require('discord.js');
-const { db, date, bot } = require('../server');
+const { db, localDate, bot } = require('../server');
 const configPreset = require('../config/main.json');
 
 module.exports = {
     name: Events.ClientReady,
     once: true,
-    execute: async () => {
+    async execute() {
+        db.getConnection();
+
         bot.user.setStatus('dnd');
 
         let counter = 0;
 
-        setInterval(async function () {
-            db.query(`SELECT userId, userTag FROM blacklists`, (error, statement) => {
-                const stringCounter = JSON.stringify(statement);
-                const jsonCounter = JSON.parse(stringCounter);
+        setInterval(async () => {
+            await db.query(`SELECT userId, userTag FROM blacklists`)
+                .then((response) => {
+                    response = response[0];
 
-                let status = [
-                    `${bot.guilds.cache.reduce((a, g) => a + g.memberCount, 0)} Members!`,
-                    `${bot.guilds.cache.size} Servers!`,
-                    `${jsonCounter.length.toString()} Blacklisted Users!`,
-                    `Version ${configPreset.botInfo.version}`,
-                ];
+                    let status = [
+                        `${bot.guilds.cache.reduce((a, g) => a + g.memberCount, 0)} Members!`,
+                        `${bot.guilds.cache.size} Servers!`,
+                        `${response.length.toString()} Blacklisted Users!`,
+                        `Version ${configPreset.botInfo.version}`,
+                    ];
 
-                if (counter === status.length) counter = 0;
-                bot.user.setActivity(status[counter], { type: ActivityType.Watching });
+                    if (counter == status.length) counter = 0;
+                    bot.user.setActivity(status[counter], { type: ActivityType.Watching });
 
-                counter++;
-            });
+                    counter++;
+                });
         }, 10000);
 
-        function updateGuildDB(guild, botIn) {
-            db.query(`SELECT guildId FROM guilds WHERE guildId=?`,
-                [guild.id],
-                (error, statement) => {
-                    if (!statement) {
-                        db.query(
-                            `INSERT INTO guilds (guildId, guildName, guildIcon, botIn) VALUES (?, ?, ?, ?)`,
-                            [guild.id, guild.name, guild.icon, 1]
+        async function updateGuildDB(guild, botIn) {
+            await db.query(`SELECT guildId FROM guilds WHERE guildId=?`,
+                [guild.id])
+                .then(async (response) => {
+                    if (response[0][0] == undefined) {
+                        await db.query(
+                            `INSERT INTO guilds (guildName, guildId, guildIcon, botIn) VALUES (?, ?, ?, ?)`,
+                            [guild.name, guild.id, guild.icon, botIn]
                         )
                     } else {
-                        db.query(
+                        await db.query(
                             `UPDATE guilds SET guildName=?, guildIcon=?, botIn=? WHERE guildId=?`,
                             [guild.name, guild.icon, botIn, guild.id]
                         )
-                    };
+                    }
+                });
+
+            await db.query(`SELECT guildId FROM loggings WHERE guildId=?`,
+                [guild.id])
+                .then(async (response) => {
+                    if (response[0][0] == undefined) {
+                        await db.query(
+                            `INSERT INTO loggings (guildId) VALUES (?)`,
+                            [guild.id]
+                        )
+                    }
                 });
         };
 
@@ -51,8 +64,10 @@ module.exports = {
             updateGuildDB(guild, 1);
         });
 
-        module.exports = { updateGuildDB };
+        console.log(`${localDate} The bot is ready!`);
 
-        return console.log(`${date.toLocaleString()} -> The bot is ready!`);
+        db.releaseConnection();
+
+        return module.exports = { updateGuildDB };
     },
 };

@@ -1,8 +1,10 @@
 const { EmbedBuilder } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { fr, en, de, sp, nl } = require('../preset/language')
-
+const { bot } = require('../server');
 const configPreset = require("../config/main.json");
+
+// Display information about a user to know if they are a member of the staff of Cheryl or not.
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -37,64 +39,45 @@ module.exports = {
             })
             .setRequired(false)),
     execute: async (interaction) => {
-        let loggingData = await logging.findOne({ where: { guildId: interaction.guild.id } });
-
-        switch (loggingData.language) {
-            case ("en"):
-                languageSet = en;
-                break;
-            case ("fr"):
-                languageSet = fr;
-                break;
-            case ("de"):
-                languageSet = de;
-                break;
-            case ("sp"):
-                languageSet = sp;
-                break;
-            case ("nl"):
-                languageSet = nl;
-                break;
-            default:
-                languageSet = en;
-                break;
-        };
-
         let user = interaction.options.getUser(en.staff.default.user.name);
-        let userCheck = user ? user : interaction.user;
+        let userCheck = user ?
+            user :
+            interaction.user;
         let fetchGuild = interaction.client.guilds.cache.get(configPreset.botInfo.supportServerId);
         await fetchGuild.members.fetch();
 
         let staffGet = fetchGuild.members.cache.get(userCheck.id);
-        let staffRole = staffGet ? staffGet.roles.cache.some(
-            role => role.id === configPreset.staffRoleId.leadDeveloper)
-            | staffGet.roles.cache.some(
-                role => role.id === configPreset.staffRoleId.developer)
-            | staffGet.roles.cache.some(
-                role => role.id === configPreset.staffRoleId.staff) :
+        let staffRole = staffGet ?
+            staffGet.roles.cache.some(role => role.id === configPreset.staffRoleId.leadDeveloper) |
+            staffGet.roles.cache.some(role => role.id === configPreset.staffRoleId.developer) |
+            staffGet.roles.cache.some(role => role.id === configPreset.staffRoleId.staff) :
             false;
 
         const staffEmbed = new EmbedBuilder()
 
-        if (staffRole) {
-            staffEmbed.setThumbnail(configPreset.other.isStaff);
-            isStaff = "is";
-            staffEmbed.setColor("Green");
+        // Set the variable to it's default value which is 'STAFF'.
+        let staffRank = "STAFF";
 
+        // Check if the user mentionned is a staff.
+        if (staffRole) {
+            thumbnailStaff = configPreset.other.isStaff;
+            isStaff = "is";
+            color = 'Green';
+
+            // Check for what rank as a staff member he is.
             if (staffGet.roles.cache.some(role => role.id === configPreset.staffRoleId.leadDeveloper)) {
                 staffRank = "LEAD DEVELOPER";
             } else if (staffGet.roles.cache.some(role => role.id === configPreset.staffRoleId.developer)) {
                 staffRank = "DEVELOPER";
-            } else {
-                staffRank = "STAFF";
-            };
+            }
         } else {
-            staffEmbed.setThumbnail(configPreset.other.isNotStaff);
+            thumbnailStaff = configPreset.other.isNotStaff;
             isStaff = "isn't";
-            staffEmbed.setColor("Red");
-            staffRank = "STAFF";
+            color = 'Red';
         };
 
+        staffEmbed.setColor(color);
+        staffEmbed.setThumbnail(thumbnailStaff);
         staffEmbed.setDescription(`${userCheck.toString()} ${isStaff} a **${staffRank}** of **${bot.user.username}**`);
 
         return interaction.reply({

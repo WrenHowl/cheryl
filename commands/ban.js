@@ -51,32 +51,8 @@ module.exports = {
                 "es-ES": sp.ban.default.reason.description,
                 "nl": nl.ban.default.reason.description
             })
-            .setRequired(true)
-        ),
+            .setRequired(true)),
     execute: async (interaction) => {
-        let loggingData = await logging.findOne({ where: { guildId: interaction.guild.id } });
-
-        switch (loggingData.language) {
-            case ("en"):
-                languageSet = en;
-                break;
-            case ("fr"):
-                languageSet = fr;
-                break;
-            case ("de"):
-                languageSet = de;
-                break;
-            case ("sp"):
-                languageSet = sp;
-                break;
-            case ("nl"):
-                languageSet = nl;
-                break;
-            default:
-                languageSet = en;
-                break;
-        };
-
         // Check for permission of the member and the bot
         let botCanBan = interaction.guild.members.me.permissions.has("BanMembers");
         let memberCanBan = interaction.guild.members.me.permissions.has("BanMembers");
@@ -144,7 +120,7 @@ module.exports = {
                 await interaction.guild.members.ban(user.id, { reason: [reason + " | " + interaction.user.tag] });
 
                 await interaction.reply({
-                    content: "*" + user.tag + "* " + languageSet.ban.message.success,
+                    content: `*${user.tag}* ${languageSet.ban.message.success}`,
                 });
 
                 if (loggingData.channelId_Ban & interaction.guild.members.me.permissionsIn(loggingData.channelId_Ban).has(['SendMessages', 'ViewChannel'])) {

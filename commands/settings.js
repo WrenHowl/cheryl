@@ -1,7 +1,6 @@
 const { EmbedBuilder } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { fr, en, de, sp, nl } = require('../preset/language')
-
 const loggingPreset = require("../config/logging.json");
 const configPreset = require("../config/main.json");
 

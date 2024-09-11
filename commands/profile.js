@@ -1,6 +1,9 @@
 const { EmbedBuilder } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { fr, en, de, sp, nl } = require('../preset/language')
+const { db } = require('../server');
+
+// Display information about a user.
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -55,108 +58,81 @@ module.exports = {
             )
             .setRequired(false)),
     execute: async (interaction) => {
-        let loggingData = await logging.findOne({ where: { guildId: interaction.guild.id } });
-
-        switch (loggingData.language) {
-            case ("en"):
-                languageSet = en;
-                break;
-            case ("fr"):
-                languageSet = fr;
-                break;
-            case ("de"):
-                languageSet = de;
-                break;
-            case ("sp"):
-                languageSet = sp;
-                break;
-            case ("nl"):
-                languageSet = nl;
-                break;
-            default:
-                languageSet = en;
-                break;
-        }
-
         const ageOptions = interaction.options.getString(en.profile.default.choice.age.name);
-        const profileData = await profile.findOne({ where: { userId: interaction.user.id } });
-
+        const user = interaction.options.getUser(en.profile.default.user.name);
         const profileEmbed = new EmbedBuilder()
 
-        if (ageOptions) {
-            if (!profileData) {
-                await profile.create({
-                    userTag: interaction.user.tag,
-                    userId: interaction.user.id,
-                });
-            };
+        // Change the variable user if it was mentionned or not, if not mentionned the target will be themselves.
+        user ?
+            userTarget = user :
+            userTarget = interaction.user;
 
-            profileEmbed.setDescription(languageSet.profile.default.choice.message.option.embed.description);
+        const profileData = await db.query(`SELECT * FROM profiles WHERE userId=?`,
+            [userTarget.id]);
+
+        if (profileData[0] == undefined) {
+            await db.query(`INSERT INTO profiles (userName, userId) VALUES (?, ?)`,
+                [userTarget.username, userTarget.id]);
+        };
+
+        if (ageOptions) {
+            profileEmbed.setDescription(en.profile.default.choice.message.option.embed.description);
             profileEmbed.addFields(
                 { name: en.profile.default.choice.age, value: ageOptions, inline: true },
             );
 
-            await profile.update({
-                age: ageOptions
-            }, { where: { userId: interaction.user.id } });
+            await db.query(`UPDATE profiles SET (age=?) WHERE (?)`,
+                [ageOptions, interaction.user.id]);
 
             return interaction.reply({
                 embeds: [optionEmbed],
                 ephemeral: true
             });
-        };
-
-        let user = interaction.options.getUser(en.profile.default.user.name);
-
-        // If no user mentionned return self
-        if (user) {
-            memberData = user;
-            userData = user.id;
         } else {
-            memberData = interaction.member;
-            userData = interaction.user.id;
-        };
+            // If no user mentionned return self
+            if (user) {
+                memberData = user;
+                userData = user.id;
+            } else {
+                memberData = interaction.member;
+                userData = interaction.user.id;
+            };
 
-        let profileTargetData = await profile.findOne({ where: { userId: userData } });
-        let verifierData = await verifier.findOne({ where: { userId: memberData.id, guildId: interaction.guild.id } });
-        let member = interaction.guild.members.cache.get(memberData.id) || await interaction.guild.members.fetch(memberData.id).catch(error => { });
+            const member = interaction.guild.members.cache.get(memberData.id) || await interaction.guild.members.fetch(memberData.id).catch(error => { });
 
-        profileEmbed.addFields(
-            { name: languageSet.profile.default.choice.message.option.embed.name, value: memberData.toString(), inline: true },
-            { name: languageSet.profile.default.choice.message.option.embed.id, value: "`" + memberData.id + "`", inline: true },
-            { name: '\u200b', value: '\u200b', inline: true },
-        )
-        profileEmbed.setThumbnail(memberData.displayAvatarURL())
-        profileEmbed.setColor("Blue");
+            // This code is very laggy, will need to be optimized
 
-        if (profileTargetData) {
-            profileTargetData.verified18 === 1 ? isVerified18 = "Yes" : isVerified18 = "No";
             profileEmbed.addFields(
-                { name: languageSet.profile.default.choice.message.option.embed.age, value: "`" + profileTargetData.age + "`", inline: true },
-                { name: languageSet.profile.default.choice.message.option.embed.verified18, value: "`" + isVerified18 + "`", inline: true },
+                { name: en.profile.default.choice.message.option.embed.name, value: memberData.toString(), inline: true },
+                { name: en.profile.default.choice.message.option.embed.id, value: "`" + memberData.id + "`", inline: true },
                 { name: '\u200b', value: '\u200b', inline: true },
-            );
-        };
+            )
+            profileEmbed.setThumbnail(memberData.displayAvatarURL())
+            profileEmbed.setColor("Blue");
 
-        if (loggingData.channelId_Verify) {
+            profileData[0][0]['verified18'] === 1 ?
+                isVerified18 = "Yes" :
+                isVerified18 = "No";
             profileEmbed.addFields(
-                { name: languageSet.profile.default.choice.message.option.embed.verifier, value: verifierData.staffName, inline: true },
+                { name: en.profile.default.choice.message.option.embed.age, value: "`" + profileData[0][0]['age'] + "`", inline: true },
+                { name: en.profile.default.choice.message.option.embed.verified18, value: "`" + isVerified18 + "`", inline: true },
+                { name: '\u200b', value: '\u200b', inline: true }
             );
-        };
 
-        if (interaction.guild.members.cache.get(memberData.id)) {
-            roleMap = member.roles.cache
-                .filter((roles) => roles.id !== interaction.guild.id)
-                .sort((a, b) => b.position - a.position)
-                .map((role) => role.toLocaleString())
-                .join(", ");
-            profileEmbed.addFields(
-                { name: languageSet.profile.default.choice.message.option.embed.roles, value: roleMap },
-            );
-        };
+            if (interaction.guild.members.cache.get(memberData.id)) {
+                roleMap = member.roles.cache
+                    .filter((roles) => roles.id !== interaction.guild.id)
+                    .sort((a, b) => b.position - a.position)
+                    .map((role) => role.toLocaleString())
+                    .join(", ");
+                profileEmbed.addFields(
+                    { name: en.profile.default.choice.message.option.embed.roles, value: roleMap },
+                );
+            };
 
-        return interaction.reply({
-            embeds: [profileEmbed],
-        });
+            return interaction.reply({
+                embeds: [profileEmbed],
+            });
+        }
     }
 };

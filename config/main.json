@@ -1,13 +1,12 @@
 {
     "botPrivateInfo": {
-        "token": "OTQwMzY5NDIzMTI1MDYxNjMz.GGOZEo.fG3EgivSNSKl2ScAru0BvIUb5Bu-K-ZgiaOVkw",
+        "token": "OTQwMzY5NDIzMTI1MDYxNjMz.Gx5z_D.0lYAFrrn4CYsBitOgD5fyeNDyZWQJ7N_Af6DS8",
         "botId": "940369423125061633",
-        "testBotId": "824638145902936064",
         "database": {
             "host": "webserver4.pebblehost.com",
             "port": "3306",
-            "username": "cherylbo_admin",
-            "password": "yE9cfeSWtwzK95m"
+            "username": "cherylbo_bot",
+            "password": "mhNPb5dpXVfhR@p"
         }
     },
     "botInfo": {

@@ -1,32 +1,29 @@
 const { Events } = require('discord.js');
-const { fr, en, de, sp, nl } = require('../preset/language')
+const { en } = require('../preset/language')
 const { bot, db } = require('../server');
-
-const languageSet = en;
 
 module.exports = {
     name: Events.InteractionCreate,
     once: false,
-    execute: async (interaction) => {
+    async execute(interaction) {
         if (!interaction.isCommand()) return;
 
-        let command = bot.commands.get(interaction.commandName);
-        db.query(`SELECT name, isOn FROM commandfunctions WHERE name=?`,
-            [interaction.commandName],
-            async (error, statement) => {
-                const statString = JSON.stringify(statement);
-                const value = JSON.parse(statString);
+        const command = bot.commands.get(interaction.commandName);
 
-                const commandState = value[0]['value'];
-                if (!statement) {
-                    db.query(
-                        `INSERT INTO commandfunctions (name, value) VALUES (?, ?)`,
+        await db.query(`SELECT name, isOn FROM commandfunctions WHERE name=?`,
+            [interaction.commandName])
+            .then(async (response) => {
+                if (response[0][0] == undefined) {
+                    await db.query(
+                        `INSERT INTO commandfunctions (name, isOn) VALUES (?, ?)`,
                         [interaction.commandName, 1]
                     );
-                };
+                }
 
-                if (commandState === 0 || !interaction.guild) {
-                    !interaction.guild ? refusingAction = languageSet.default.serverOnly : refusingAction = languageSet.default.commandDisabledGlobally;
+                response = response[0];
+
+                if (response['isOn'] == 0 || !interaction.guild) {
+                    !interaction.guild ? refusingAction = en.default.serverOnly : refusingAction = en.default.commandDisabledGlobally;
 
                     return interaction.reply({
                         content: refusingAction,
@@ -36,6 +33,6 @@ module.exports = {
 
                 // Execute the command
                 return command.execute(interaction);
-            });
+            })
     },
 };

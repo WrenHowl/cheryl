@@ -1,32 +1,36 @@
 const { Events } = require('discord.js');
-const { bot } = require('../server');
-const { language } = require('../preset/language')
-
-const configPreset = require('../config/main.json');
+const { db } = require('../server');
 
 module.exports = {
     name: Events.GuildMemberRemove,
     once: false,
     execute: async (leavingMember) => {
-        db.query(`SELECT channelId_Leaving FROM blacklists WHERE guildId=?`, [leavingMember.guild.id], async (error, statement) => {
-            language(newMember, languageSet);
+        db.query(`SELECT channelId_Leaving FROM blacklists WHERE guildId=?`,
+            [leavingMember.guild.id]
+        )
+            .then(async (response) => {
+                response = response[0];
 
-            const statString = JSON.stringify(statement);
-            const value = JSON.parse(statString);
+                if (!response[0] == undefined) {
 
-            const channelId_Leaving = value[0]['channelId_Leaving'];
-            if (channelId_Leaving) {
-                let leavingChannel = leavingMember.guild.channels.cache.get(channelId_Leaving);
-                if (!leavingChannel) {
-                    return await db.query(`UPDATE loggings SET channelId_Leaving=?`, [null])
-                };
+                    const channelId_Leaving = response['channelId_Leaving'];
+                    if (channelId_Leaving === null) return;
 
-                if (!leavingMember.guild.members.me.permissionsIn(channelId_Leaving).has(['SendMessages', 'ViewChannel']) | leavingMember.user.bot) return;
+                    const leavingChannel = leavingMember.guild.channels.cache.get(channelId_Leaving);
 
-                return leavingChannel.send({
-                    content: [`${leavingMember.user.toString()} left the server.`]
-                });
-            };
-        });
+                    if (!leavingChannel) {
+                        return db.query(`UPDATE loggings SET channelId_Leaving=?`,
+                            [null]
+                        )
+                    } else {
+                        if (!leavingMember.guild.members.me.permissionsIn(channelId_Leaving).has(['SendMessages', 'ViewChannel']) | leavingMember.user.bot) return;
+
+                        return leavingChannel.send({
+                            content: [`${leavingMember.user.toString()} left the server.`]
+                        });
+                    }
+
+                }
+            });
     }
 };

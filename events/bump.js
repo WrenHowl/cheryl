@@ -1,24 +1,23 @@
 const { Events, EmbedBuilder } = require('discord.js');
-const { language } = require('../preset/language');
+const { en } = require('../preset/language');
 
 module.exports = {
     name: Events.MessageCreate,
     once: false,
     execute: async (message) => {
-        language(message, languageSet);
-
-        let member = message.interaction.user.toString();
         try {
+            let member = message.interaction.user.toString();
+
             if (message.embeds[0].description.startsWith('Bump')) {
                 await message.channel.send({
-                    content: `${languageSet.bump.message.thanks_first} ${member} ${languageSet.bump.message.thanks_second}`
+                    content: `${en.bump.message.thanks_first} ${member} ${en.bump.message.thanks_second}`
                 });
 
                 return setTimeout(async () => {
                     let bumpTimeEmbed = new EmbedBuilder()
-                        .setTitle(languageSet.bump.message.embed.title)
+                        .setTitle(en.bump.message.embed.title)
                         .setURL(`https://disboard.org/server/${message.guild.id}`)
-                        .setDescription(languageSet.bump.message.embed.description)
+                        .setDescription(en.bump.message.embed.description)
                         .setColor('Blue');
 
                     return message.channel.send({
