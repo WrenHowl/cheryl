@@ -1,5 +1,6 @@
 const { Events } = require('discord.js');
-const { logging, blacklist, ticket } = require('../preset/db');
+const { db } = require('../server');
+const { updateGuildDB } = require('./ready');
 
 const configPreset = require('../config/main.json');
 
@@ -7,30 +8,29 @@ module.exports = {
     name: Events.GuildCreate,
     once: false,
     execute: async (guild) => {
-        let loggingData = await logging.findOne({ where: { guildId: guild.id } });
-        let ticketData = await ticket.findOne({ where: { guildId: guild.id } });
+        updateGuildDB(guild, 1);
 
-        // Checking if the logging data or/and ticket data are missing
-        if (!loggingData) {
-            await logging.create({
-                guildId: guild.id,
-            });
-        } else if (!ticketData) {
-            await ticket.create({
-                guildId: guild.id,
-            });
-        };
+        db.query(`SELECT guildId FROM loggings WHERE guildId=?`, [guild.id], (error, statement) => {
+            if (!statement) {
+                db.query(`INSERT INTO loggings (guildId) VALUES (?)`, [guild.id]);
+            };
+        });
+
+        db.query(`SELECT guildId FROM tickets WHERE guildId=?`, [guild.id], (error, statement) => {
+            if (!statement) {
+                db.query(`INSERT INTO tickets (guildId) VALUES (?)`, [guild.id]);
+            };
+        });
 
         let guildCreateChannel = guild.client.guilds.cache.get(configPreset.botInfo.supportServerId).channels.cache.get(configPreset.channelsId.botAdded);
         if (!guildCreateChannel) return;
 
         let owner = await guild.fetchOwner();
-        let blacklistData = await blacklist.findOne({ where: { userId: owner.user.id } });
 
-        // Checking if the owner is blacklisted
-        blacklistData ? isBlacklisted = 'Yes' : isBlacklisted = 'No';
+        db.query(`SELECT userId FROM blacklists WHERE userId=?`, [owner.user.id], (error, statement) => {
+            statement ? isBlacklisted = 'Yes' : isBlacklisted = 'No';
+        });
 
-        // Making the embed and sending it
         let newguildEmbed = new EmbedBuilder()
             .setTitle('Bot Added')
             .addFields(
@@ -39,7 +39,7 @@ module.exports = {
                 { name: 'Members', value: guild.memberCount.toString(), inline: false },
                 { name: 'Owner Name', value: owner.user.tag.toString(), inline: true },
                 { name: 'Owner ID', value: owner.user.id.toString(), inline: true },
-                { name: 'blacklisted?', value: `${isBlacklisted}`, inline: false },
+                { name: 'blacklisted?', value: isBlacklisted.toString(), inline: false },
             )
             .setColor('Green');
 

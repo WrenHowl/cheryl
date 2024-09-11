@@ -1,16 +1,15 @@
 const { Events } = require('discord.js');
-const { verifier, blacklist } = require('../preset/db')
+const { db } = require('../server');
 
 module.exports = {
     name: Events.UserUpdate,
     once: false,
     execute: async (oldUpdate, newUpdate) => {
-        // Check if the user has changed his username
         if (newUpdate.username !== oldUpdate.username) {
-            await verifier.update({ userTag: newUpdate.username }, { where: { userId: oldUpdate.id } });
-            await verifier.update({ staffTag: newUpdate.username }, { where: { staffId: oldUpdate.id } });
-            await blacklist.update({ userTag: newUpdate.username }, { where: { userId: oldUpdate.id } });
-            return blacklist.update({ staffTag: newUpdate.username }, { where: { staffId: oldUpdate.id } });
+            await db.query(`UPDATE blacklists SET userTag=? WHERE userId=?`,
+                [newUpdate.username, oldUpdate.id]);
+            return db.query(`UPDATE blacklists SET staffTag=? WHERE staffId=? IN (staffId)`,
+                [newUpdate.username, oldUpdate.id]);
         };
     }
 };

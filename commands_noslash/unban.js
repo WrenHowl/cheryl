@@ -1,6 +1,4 @@
 const { en } = require('../preset/language')
-const { actionImage } = require('../preset/db')
-
 const configPreset = require("../config/main.json");
 
 module.exports = {

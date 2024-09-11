@@ -1,6 +1,4 @@
-const { en } = require('../preset/language')
-const { commandFunction } = require('../preset/db')
-
+const { en } = require('../preset/language');
 const configPreset = require("../config/main.json");
 
 module.exports = {

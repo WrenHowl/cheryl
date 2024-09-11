@@ -1,34 +1,11 @@
 const { bot } = require('../server');
-const { fr, en, de, sp, nl } = require('../preset/language')
-const { logging } = require('../preset/db')
-
+const { en, language } = require('../preset/language');
 const configPreset = require("../config/main.json");
 
 module.exports = {
     name: en.ban.default.name,
     execute: async (message, EmbedBuilder, args) => {
-        let loggingData = await logging.findOne({ where: { guildId: message.guild.id } });
-
-        switch (loggingData.language) {
-            case ("en"):
-                languagePreset = en;
-                break;
-            case ("fr"):
-                languagePreset = fr;
-                break;
-            case ("de"):
-                languagePreset = de;
-                break;
-            case ("sp"):
-                languagePreset = sp;
-                break;
-            case ("nl"):
-                languagePreset = nl;
-                break;
-            default:
-                languagePreset = en;
-                break;
-        };
+        language(newMember, languageSet);
 
         if (!message.guild.members.me.permissionsIn(message.channelId).has(['SEND_MESSAGES', 'VIEW_CHANNEL'])) return;
 
@@ -42,8 +19,8 @@ module.exports = {
         };
 
         if (!botCanBan | !memberCanBan) {
-            !botCanBan ? refusingAction = languageSet.ban.permission.bot : refusingAction = languageSet.default.errorOccured;
-            !memberCanBan ? refusingAction = languageSet.ban.permission.bot : refusingAction = languageSet.default.errorOccured;
+            !botCanBan ? refusingAction = languageSet.default.botPermission.ban : null;
+            !memberCanBan ? refusingAction = languageSet.default.userPermission.ban : null;
 
             return refusedError();
         };
@@ -95,12 +72,12 @@ module.exports = {
         } else if (message.guild.members.cache.find(m => m.id === user)?.id) {
             if (member.roles.highest.position >= message.member.roles.highest.position) {
                 return message.reply({
-                    content: languagePreset.ban.default.role,
+                    content: languageSet.ban.default.role,
                 });
             };
         } else if (bannedUser) {
             return message.reply({
-                content: languagePreset.ban.default.punished,
+                content: languageSet.ban.default.punished,
             });
         };
 
@@ -116,11 +93,11 @@ module.exports = {
             const logChannel = message.guild.channels.cache.get(loggingData.channeldId_Ban);
 
             const logMessage = new EmbedBuilder()
-                .setTitle(languagePreset.ban.server.New)
+                .setTitle(languageSet.ban.server.New)
                 .addFields(
-                    { name: languagePreset.ban.server.user, value: "``" + user.tag + "``" },
-                    { name: languagePreset.ban.server.reason, value: "``" + reason + "``" },
-                    { name: languagePreset.ban.server.mod, value: "``" + mod + "``" },
+                    { name: languageSet.ban.server.user, value: "``" + user.tag + "``" },
+                    { name: languageSet.ban.server.reason, value: "``" + reason + "``" },
+                    { name: languageSet.ban.server.mod, value: "``" + mod + "``" },
                 )
                 .setFooter({
                     text: "ID: " + user.id
@@ -140,11 +117,11 @@ module.exports = {
         })
 
         await user.send({
-            content: `${languagePreset.ban.dm.you} *${message.guild.name}* ${languagePreset.ban.dm.for} *${reason}* ${languagePreset.ban.dm.by} *${mod}*`,
+            content: `${languageSet.ban.dm.you} *${message.guild.name}* ${languageSet.ban.dm.for} *${reason}* ${languageSet.ban.dm.by} *${mod}*`,
         }).catch(() => { return });
 
         return message.reply({
-            content: `*<@${user}>* ${languagePreset.ban.server.message}`
+            content: `*<@${user}>* ${languageSet.ban.server.message}`
         });
     }
 };

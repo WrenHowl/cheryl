@@ -1,9 +1,9 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { fr, en, de, sp, nl } = require('../preset/language')
-const { logging } = require('../preset/db')
-
 const configPreset = require("../config/main.json");
+
+// Display a list of command that the bot as.
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -41,33 +41,10 @@ module.exports = {
         { name: "verification", value: "verification-help" },
       )),
   execute: async (interaction) => {
-    let loggingData = await logging.findOne({ where: { guildId: interaction.guild.id } });
-
-    switch (loggingData.language) {
-      case ("en"):
-        languageSet = en;
-        break;
-      case ("fr"):
-        languageSet = fr;
-        break;
-      case ("de"):
-        languageSet = de;
-        break;
-      case ("sp"):
-        languageSet = sp;
-        break;
-      case ("nl"):
-        languageSet = nl;
-        break;
-      default:
-        languageSet = en;
-        break;
-    }
-
     const helpButton = new ActionRowBuilder()
       .addComponents(
         new ButtonBuilder()
-          .setLabel(languageSet.default.button.discord)
+          .setLabel(en.default.button.discord)
           .setURL(configPreset.other.discordLink)
           .setStyle(ButtonStyle.Link),
       );
@@ -131,7 +108,6 @@ module.exports = {
           "action",
         ].join("``, ``");
 
-        helpEmbed.setDescription("*My prefix in this server is `%`*");
         helpEmbed.addFields(
           { name: "Staff Cheryl", value: "``" + staffCommand + "``" },
           { name: "Administration", value: "``" + adminCommand + "``" },

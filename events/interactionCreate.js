@@ -1,58 +1,38 @@
 const { Events } = require('discord.js');
-const { bot } = require('../server');
-const { fr, en, de, sp, nl } = require('../preset/language')
-const { logging, commandFunction } = require('../preset/db')
+const { en } = require('../preset/language')
+const { bot, db } = require('../server');
 
 module.exports = {
     name: Events.InteractionCreate,
     once: false,
-    execute: async (interaction) => {
-        let loggingData = await logging.findOne({ where: { guildId: interaction.guild.id } });
-        switch (loggingData.language) {
-            case ('en'):
-                languageSet = en;
-                break;
-            case ('fr'):
-                languageSet = fr;
-                break;
-            case ('de'):
-                languageSet = de;
-                break;
-            case ('sp'):
-                languageSet = sp;
-                break;
-            case ('nl'):
-                languageSet = nl;
-                break;
-            default:
-                languageSet = en;
-                break;
-        };
-
-        // Checking if it's an existing interaction command
+    async execute(interaction) {
         if (!interaction.isCommand()) return;
 
-        let command = bot.commands.get(interaction.commandName);
-        let statusCommand = await commandFunction.findOne({ where: { name: interaction.commandName } });
+        const command = bot.commands.get(interaction.commandName);
 
-        if (!statusCommand) {
-            await commandFunction.create({
-                name: interaction.commandName,
-                value: true,
-            });
-        } else {
-            if (statusCommand.value === false | !interaction.guild) {
-                refusingAction = languageSet.default.commandDisabledGlobally;
-                !interaction.guild ? refusingAction = languageSet.default.serverOnly : false;
+        await db.query(`SELECT name, isOn FROM commandfunctions WHERE name=?`,
+            [interaction.commandName])
+            .then(async (response) => {
+                if (response[0][0] == undefined) {
+                    await db.query(
+                        `INSERT INTO commandfunctions (name, isOn) VALUES (?, ?)`,
+                        [interaction.commandName, 1]
+                    );
+                }
 
-                return interaction.reply({
-                    content: refusingAction,
-                    ephemeral: true,
-                });
-            };
-        };
+                response = response[0];
 
-        // Execute the command
-        return command.execute(interaction);
+                if (response['isOn'] == 0 || !interaction.guild) {
+                    !interaction.guild ? refusingAction = en.default.serverOnly : refusingAction = en.default.commandDisabledGlobally;
+
+                    return interaction.reply({
+                        content: refusingAction,
+                        ephemeral: true,
+                    });
+                };
+
+                // Execute the command
+                return command.execute(interaction);
+            })
     },
 };

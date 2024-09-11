@@ -1,5 +1,4 @@
 const { en } = require('../preset/language')
-const { logging } = require('../preset/db')
 
 module.exports = {
     name: en.language.default.name,
