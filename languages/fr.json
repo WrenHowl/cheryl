@@ -507,56 +507,6 @@
             "description": "Report a member to the staff of the server"
         }
     },
-    "permission": {
-        "default": {
-            "name": "permission",
-            "description": "Give permission to a user/server",
-            "user": {
-                "name": "user",
-                "description": "Give permission to a user [Developper Only]",
-                "user": {
-                    "name": "user",
-                    "description": "User to add/remove permission"
-                },
-                "options": {
-                    "name": "options",
-                    "description": "Add/Remove"
-                },
-                "permission": {
-                    "name": "permission",
-                    "description": "Permission to add/remove"
-                }
-            },
-            "server": {
-                "name": "server",
-                "description": "Give permission to a server [Developper Only]",
-                "server": {
-                    "name": "server",
-                    "description": "Server to add/remove permission"
-                },
-                "options": {
-                    "name": "options",
-                    "description": "Add/Remove"
-                },
-                "permission": {
-                    "name": "permission",
-                    "description": "Permission to add/remove"
-                }
-            }
-        }
-    },
-    "cmd": {
-        "default": {
-            "name": "cmd",
-            "description": "Disable certain command [Developper Only]"
-        }
-    },
-    "data": {
-        "default": {
-            "name": "data",
-            "description": "Remove an image in the database [Developper Only]"
-        }
-    },
     "settings": {
         "default": {
             "name": "settings",
@@ -666,17 +616,30 @@
                 },
                 "logging_system": {
                     "name": "logging",
-                    "description": "Change the settings of the Logging System",
+                    "description": "Modifier les paramètres du système de journalisation",
                     "options": {
                         "name": "options",
-                        "description": "Change the log channel of a certain event"
+                        "description": "Changer le canal de journal d'un certain événement."
                     },
                     "channel": {
-                        "name": "channel",
-                        "description": "What channel should I send the log to?"
+                        "name": "canal",
+                        "description": "Vers quel canal dois-je envoyer le journal?"
                     }
                 }
             }
+        }
+    },
+    "repeat": {
+        "default": {
+            "name": "repeter",
+            "description": "Répétez le message souhaité dans le VC dans lequel vous vous trouvez.",
+            "string": {
+                "name": "texte",
+                "description": "Le texte que vous souhaitez que le bot répète pour vous."
+            }
+        },
+        "error": {
+            "wrongGuild": "Vous devez exécuter la commande sur le serveur dans laquelle vous êtes en VC."
         }
     }
 }

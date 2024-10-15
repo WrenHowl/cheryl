@@ -16,6 +16,7 @@ module.exports = {
         .setType(ApplicationCommandType.User),
     execute: async (interaction) => {
         if (!interaction.guild.id === "1082103667181764659") return;
+        db.getConnection();
 
         let member = interaction.guild.members.cache.get(interaction.targetId);
 
@@ -66,9 +67,11 @@ module.exports = {
             )
             .setColor("Red")
 
-        channel18.send({
+        await channel18.send({
             content: "Please <@&1181362122945462323> " + member.toString() + " to the cum zone!",
             embeds: [verifiedEmbed],
         });
+
+        return db.releaseConnection();
     }
 };

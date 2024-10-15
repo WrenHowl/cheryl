@@ -98,6 +98,8 @@ module.exports = {
         let optionUser = interaction.options.getUser(en.action.default.member.name);
         let optionSuggest = interaction.options.getString(en.action.default.suggest.name);
 
+        db.getConnection();
+
         let nsfwChoice = [
             'fuckstraight',
             'fuckgay',
@@ -428,18 +430,18 @@ module.exports = {
             const randomAnswer = sentence[Math.floor(Math.random() * sentence.length)];
 
             // Check what action have been removed image or message
-            await db.query('SELECT status_Action FROM loggings WHERE guildId=?',
+            await db.query('SELECT action_status FROM loggings WHERE guildId=?',
                 [interaction.guild.id])
                 .then((response) => {
                     if (response[0][0] == undefined) return;
 
-                    const status_Action = response[0][0]['status_Action'];
-                    const e = false;
+                    const actionType = response[0][0]['action_status'];
+                    let isEphemeral = false;
 
-                    switch (status_Action) {
+                    switch (actionType) {
                         case 0:
                             reply = en.action.message.error.disable;
-                            e = true;
+                            isEphemeral = true;
                             break;
                         case 1:
                             reply = randomAnswer;
@@ -456,9 +458,11 @@ module.exports = {
 
                     return interaction.reply({
                         content: reply,
-                        ephemeral: e,
+                        ephemeral: isEphemeral,
                     });
                 });
+
+            return db.releaseConnection();
         };
     }
 };

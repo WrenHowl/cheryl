@@ -1,38 +1,52 @@
 const { Events } = require('discord.js');
 const { en } = require('../preset/language')
-const { bot, db } = require('../server');
+const { db } = require('../server');
 
 module.exports = {
     name: Events.InteractionCreate,
     once: false,
     async execute(interaction) {
+        db.getConnection();
+
         if (!interaction.isCommand()) return;
 
-        const command = bot.commands.get(interaction.commandName);
+        const command = interaction.client.commands.get(interaction.commandName);
+        if (!command) {
+            return console.error(`No command matching ${interaction.commandName} was found.`);
+        }
 
-        await db.query(`SELECT name, isOn FROM commandfunctions WHERE name=?`,
-            [interaction.commandName])
-            .then(async (response) => {
-                if (response[0][0] == undefined) {
-                    await db.query(
-                        `INSERT INTO commandfunctions (name, isOn) VALUES (?, ?)`,
-                        [interaction.commandName, 1]
-                    );
-                }
+        const commandFind = await db.query(`SELECT name, isOn FROM commandfunctions WHERE name=?`,
+            [interaction.commandName]
+        )
 
-                response = response[0];
+        if (commandFind[0][0] == undefined) {
+            await db.query(
+                `INSERT INTO commandfunctions (name, isOn) VALUES (?, ?)`,
+                [interaction.commandName, 1]
+            )
+        }
 
-                if (response['isOn'] == 0 || !interaction.guild) {
-                    !interaction.guild ? refusingAction = en.default.serverOnly : refusingAction = en.default.commandDisabledGlobally;
+        if (commandFind[0]['isOn'] == 0 || !interaction.guild) {
+            !interaction.guild ? refusingAction = en.default.serverOnly : refusingAction = en.default.commandDisabledGlobally;
 
-                    return interaction.reply({
-                        content: refusingAction,
-                        ephemeral: true,
-                    });
-                };
+            return interaction.reply({
+                content: refusingAction,
+                ephemeral: true,
+            });
+        };
 
-                // Execute the command
-                return command.execute(interaction);
-            })
+        // Execute the command
+        try {
+            await command.execute(interaction);
+        } catch (error) {
+            console.error(`${interaction.user.tag} (${interaction.user.id}) executed ${interaction.commandName}`, error)
+            if (interaction.replied || interaction.deferred) {
+                await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
+            } else {
+                await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+            }
+        }
+
+        db.releaseConnection();
     },
 };

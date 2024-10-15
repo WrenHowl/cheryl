@@ -10,7 +10,7 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName(en.staff.default.name)
         .setNameLocalizations({
-            "fr": en.staff.default.name,
+            "fr": fr.staff.default.name,
             "de": de.staff.default.name,
             "es-ES": sp.staff.default.name,
             "nl": nl.staff.default.name

@@ -508,56 +508,6 @@
             "description": "Report a member to the staff of the server"
         }
     },
-    "permission": {
-        "default": {
-            "name": "permission",
-            "description": "Give permission to a user/server",
-            "user": {
-                "name": "user",
-                "description": "Give permission to a user [Developper Only]",
-                "user": {
-                    "name": "user",
-                    "description": "User to add/remove permission"
-                },
-                "options": {
-                    "name": "options",
-                    "description": "Add/Remove"
-                },
-                "permission": {
-                    "name": "permission",
-                    "description": "Permission to add/remove"
-                }
-            },
-            "server": {
-                "name": "server",
-                "description": "Give permission to a server [Developper Only]",
-                "server": {
-                    "name": "server",
-                    "description": "Server to add/remove permission"
-                },
-                "options": {
-                    "name": "options",
-                    "description": "Add/Remove"
-                },
-                "permission": {
-                    "name": "permission",
-                    "description": "Permission to add/remove"
-                }
-            }
-        }
-    },
-    "cmd": {
-        "default": {
-            "name": "cmd",
-            "description": "Disable certain command [Developper Only]"
-        }
-    },
-    "data": {
-        "default": {
-            "name": "data",
-            "description": "Remove an image in the database [Developper Only]"
-        }
-    },
     "settings": {
         "default": {
             "name": "settings",
@@ -678,6 +628,19 @@
                     }
                 }
             }
+        }
+    },
+    "repeat": {
+        "default": {
+            "name": "repeat",
+            "description": "Repeat the message you wish in the VC you are in.",
+            "string": {
+                "name": "text",
+                "description": "The text you wish the bot to repeat for you."
+            }
+        },
+        "error": {
+            "wrongGuild": "You must run the command on the guild you are a VC in."
         }
     }
 }

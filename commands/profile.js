@@ -62,6 +62,8 @@ module.exports = {
         const user = interaction.options.getUser(en.profile.default.user.name);
         const profileEmbed = new EmbedBuilder()
 
+        db.getConnection();
+
         // Change the variable user if it was mentionned or not, if not mentionned the target will be themselves.
         user ?
             userTarget = user :
@@ -130,9 +132,11 @@ module.exports = {
                 );
             };
 
-            return interaction.reply({
+            await interaction.reply({
                 embeds: [profileEmbed],
             });
         }
+
+        return db.releaseConnection();
     }
 };

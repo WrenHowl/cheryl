@@ -1,4 +1,4 @@
-const { ActionRowBuilder, ButtonStyle, ButtonBuilder, Partials, Client, GatewayIntentBits, EmbedBuilder, Collection } = require('discord.js');
+const { Partials, Client, GatewayIntentBits, EmbedBuilder, Collection } = require('discord.js');
 const fs = require('node:fs');
 const path = require('node:path');
 const mysql = require('mysql2/promise');
@@ -7,6 +7,7 @@ const { botPrivateInfo } = require('./config/main.json');
 const bot = new Client({
   allowedMentions: { parse: ['users', 'roles'], repliedUser: true },
   intents: [
+    GatewayIntentBits.MessageContent,
     GatewayIntentBits.GuildModeration,
     GatewayIntentBits.GuildVoiceStates,
     GatewayIntentBits.Guilds,
@@ -15,7 +16,6 @@ const bot = new Client({
     GatewayIntentBits.GuildInvites,
     GatewayIntentBits.GuildModeration,
     GatewayIntentBits.GuildMessageReactions,
-    GatewayIntentBits.MessageContent,
   ],
   partials: [Partials.Message, Partials.Channel, Partials.Reaction]
 });
@@ -23,32 +23,33 @@ const date = new Date();
 
 const localDate = `${date.toLocaleString()} ->`;
 
-function dbSend() {
-  const db = mysql.createPool({
-    connectionLimit: 10,
-    host: botPrivateInfo.database.host,
-    port: botPrivateInfo.database.port,
-    user: botPrivateInfo.database.username,
-    password: botPrivateInfo.database.password,
-    database: "cherylbo_servers",
-  });
+let db = mysql.createPool({
+  host: botPrivateInfo.database.host,
+  port: botPrivateInfo.database.port,
+  user: botPrivateInfo.database.username,
+  password: botPrivateInfo.database.password,
+  database: "cherylbo_servers",
+  waitForConnections: true,
+});
 
-  return db;
-}
+db.on('connection', () => {
+  console.log(`${localDate} MySQL connection success`);
+})
 
-db = dbSend();
+db.on('error', (error) => {
+  console.error(`${localDate} MySQL error`, error);
+})
 
-setInterval(() => {
-  dbSend();
-}, 30000);
+db.on('close', (error) => {
+  console.error(`${localDate} MySQL close`, error);
+})
 
-module.exports = { bot, date, localDate, db, dbSend };
+module.exports = { bot, date, localDate, db };
 
 function loadIntCommand() {
   let commandsPath = path.join(__dirname, 'commands');
   let commandsFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
-
-  for (let file of commandsFiles) {
+  for (const file of commandsFiles) {
     let filesPath = path.join(commandsPath, file);
     let command = require(filesPath);
     bot.commands.set(command.data.name, command);
@@ -74,24 +75,10 @@ function loadEvent() {
   console.log(`${localDate} All events loaded.`)
 };
 
-function loadMsgCommand() {
-  let msgCommandsPath = path.join(__dirname, 'commands_noslash');
-  let msgCommandFiles = fs.readdirSync(msgCommandsPath).filter(file => file.endsWith('.js'));
-
-  for (let file of msgCommandFiles) {
-    let msgFilesPath = path.join(msgCommandsPath, file);
-    let msgCommand = require(msgFilesPath);
-    if ('data' in msgCommand && 'execute' in msgCommand) {
-      bot.commands.set(command.name, msgCommand);
-    }
-  };
-};
-
 bot.commands = new Collection();
 
 loadIntCommand();
 loadEvent();
-//loadMsgCommand();
 
 bot.on('interactionCreate', async (interaction) => {
   if (!interaction.guild) return;
@@ -106,7 +93,7 @@ bot.on('interactionCreate', async (interaction) => {
   ];
 
   if (interaction.isButton() & action_id.includes(interaction.customId)) {
-    db.query(`SELECT * FROM actionimages WHERE messageId=?`,
+    await db.query(`SELECT * FROM actionimages WHERE messageId=?`,
       [interaction.message.id]
     )
       .then((response) => {
@@ -167,24 +154,6 @@ bot.on('interactionCreate', async (interaction) => {
       });
     })
   };
-
-  /////////////////////
-  //  Ticket System  //
-  /////////////////////
-
-  let ticket_id = [
-    'age_verification',
-    'report',
-    'support',
-    'partnership',
-    'claim_ticket',
-    'unclaim_ticket',
-    'cancel_ticket',
-    'buttonToAdd',
-    'buttonDeleteticket',
-  ];
-
-
 });
 
 bot.login(botPrivateInfo.token);
