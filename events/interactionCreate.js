@@ -6,8 +6,6 @@ module.exports = {
     name: Events.InteractionCreate,
     once: false,
     async execute(interaction) {
-        db.getConnection();
-
         if (!interaction.isCommand()) return;
 
         const command = interaction.client.commands.get(interaction.commandName);
@@ -15,13 +13,16 @@ module.exports = {
             return console.error(`No command matching ${interaction.commandName} was found.`);
         }
 
-        const commandFind = await db.query(`SELECT name, isOn FROM commandfunctions WHERE name=?`,
+        const request = await db.getConnection();
+
+        const commandFind = await request.query(
+            `SELECT * FROM command_functions WHERE name=?`,
             [interaction.commandName]
         )
 
         if (commandFind[0][0] == undefined) {
-            await db.query(
-                `INSERT INTO commandfunctions (name, isOn) VALUES (?, ?)`,
+            await request.query(
+                `INSERT INTO command_functions (name, isOn) VALUES (?, ?)`,
                 [interaction.commandName, 1]
             )
         }
@@ -39,14 +40,12 @@ module.exports = {
         try {
             await command.execute(interaction);
         } catch (error) {
-            console.error(`${interaction.user.tag} (${interaction.user.id}) executed ${interaction.commandName}`, error)
-            if (interaction.replied || interaction.deferred) {
-                await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
-            } else {
-                await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
-            }
+            console.error(
+                `${interaction.user.tag} (${interaction.user.id}) executed ${interaction.commandName}`,
+                error
+            )
         }
 
-        db.releaseConnection();
+        return db.releaseConnection(request);
     },
 };

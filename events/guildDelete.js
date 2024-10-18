@@ -6,34 +6,34 @@ module.exports = {
     name: Events.GuildDelete,
     once: false,
     execute: async (guild) => {
-        db.getConnection()
+        const request = await db.getConnection();
 
         // Update the guild database so the website knows the bot is in the server.
-        const guildUpdate = await db.query(
+        const guildUpdate = await request.query(
             `SELECT * FROM guilds WHERE guildId=?`,
             [guild.id]
         )
 
         if (guildUpdate[0][0] == undefined) {
-            await db.query(
+            await request.query(
                 `INSERT INTO guilds (guildName, guildId, guildIcon, botIn) VALUES (?, ?, ?, ?)`,
                 [guild.name, guild.id, guild.icon, 0]
             )
         } else {
-            await db.query(
+            await request.query(
                 `UPDATE guilds SET guildName=?, guildIcon=?, botIn=? WHERE guildId=?`,
                 [guild.name, guild.icon, 0, guild.id]
             )
         }
 
         // Find a logging row for the server in the database
-        const loggingFind = await db.query(
+        const loggingFind = await request.query(
             `SELECT * FROM loggings WHERE guildId=?`,
             [guild.id]
         )
 
         if (loggingFind[0][0] == undefined) {
-            await db.query(
+            await request.query(
                 `INSERT INTO loggings (guildId) VALUES (?)`,
                 [guild.id]
             )
@@ -42,7 +42,7 @@ module.exports = {
         let owner = await guild.fetchOwner();
 
         // Lookup if the owner of the server is blacklisted
-        const blacklistFind = await db.query(
+        const blacklistFind = await request.query(
             `SELECT * FROM blacklists WHERE userId=?`,
             [owner.user.id]
         )
@@ -69,6 +69,6 @@ module.exports = {
             embeds: [removeGuildEmbed]
         });
 
-        db.releaseConnection();
+        return db.releaseConnection(request);
     }
 };

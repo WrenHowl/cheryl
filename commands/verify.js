@@ -16,62 +16,75 @@ module.exports = {
         .setType(ApplicationCommandType.User),
     execute: async (interaction) => {
         if (!interaction.guild.id === "1082103667181764659") return;
-        db.getConnection();
 
-        let member = interaction.guild.members.cache.get(interaction.targetId);
+        const request = await db.getConnection();
 
-        if (!interaction.member.roles.cache.some(role => role.id === "1191482864156557332")) {
+        // Check for the permission of the user executing the command.
+        if (!interaction.member.roles.cache.some(role => role.id === '1191482864156557332')) {
             return interaction.reply({
                 content: "You do not have the permission to do that.",
                 ephemeral: true,
             });
-        } else if (interaction.targetMember.roles.cache.some(role => role.id === "1084970943820075050")) {
+        }
+
+        // Check for the roles that the member has.
+        let reason = `User verified by ${interaction.user.tag}.`;
+
+        if (interaction.targetMember.roles.cache.some(role => role.id === '1084970943820075050')) {
             return interaction.reply({
-                content: "This member is already verified.",
+                content: `${interaction.targetUser.toString()} is already verified.`,
                 ephemeral: true,
             });
-        };
+        } else if (!interaction.targetMember.roles.cache.some(role => role.id === '1084970943820075050')) {
+            await member.roles.add(
+                '1084970943820075050',
+                reason
+            )
+        } else if (!interaction.targetMember.roles.cache.some(role => role.id === '1233066501825892383')) {
+            await member.roles.remove(
+                '1233066501825892383',
+                reason
+            )
+        }
 
+        // Replying to the user.
         await interaction.reply({
-            content: "Success.",
+            content: `Currently trying to verify ${member.toString()}.`,
             ephemeral: true,
         });
 
-        // Giving/removing roles
-        await member.roles.add("1084970943820075050", "Age Verification: Verified by " + interaction.user.tag).catch(() => { return });
-        await member.roles.remove("1233066501825892383", "Age verification process");
-
-        // Updating profile
-        await db.query('SELECT userId FROM profiles WHERE userId=?',
+        // Updating the profile.
+        const profileFind = await request.query(
+            'SELECT userId FROM profiles WHERE userId=?',
             [interaction.targetId]
         )
-            .then(async (response) => {
-                if (response[0][0] == undefined) {
-                    await db.query('INSERT INTO profiles (userId, userName, age, verified18) VALUES (?, ?, ?, ?) WHERE userId=?',
-                        [interaction.targetId, interaction.targetUser.username, "Adult", true]
-                    )
-                } else {
-                    await db.query('UPDATE profiles SET verified18=? FROM profiles WHERE userId=?',
-                        [true, interaction.targetId]
-                    )
-                }
-            });
 
-        // Sending message in channel
-        let channel18 = interaction.guild.channels.cache.get("1091220263569461349")
+        if (profileFind[0][0] == undefined) {
+            await request.query(
+                'INSERT INTO profiles (userId, userName, age, verified18) VALUES (?, ?, ?, ?)',
+                [interaction.targetId, interaction.targetUser.username, "Adult", true]
+            )
+        } else {
+            await request.query(
+                'UPDATE profiles SET verified18=? FROM profiles WHERE userId=?',
+                [true, interaction.targetId]
+            )
+        }
 
+        // Sending message in channel.
         const verifiedEmbed = new EmbedBuilder()
             .setDescription(
-                "NSFW channels access -> <#1082135024264032297>",
-                "Informative roles -> <#1082135082246078464>",
+                'NSFW channels access -> <#1082135024264032297>',
+                'Informative roles -> <#1082135082246078464>',
             )
-            .setColor("Red")
+            .setColor('Red')
 
+        const channel18 = interaction.guild.channels.cache.get('1091220263569461349')
         await channel18.send({
-            content: "Please <@&1181362122945462323> " + member.toString() + " to the cum zone!",
+            content: `${member.toString()} just got verified! Please make him feel welcomed~`,
             embeds: [verifiedEmbed],
         });
 
-        return db.releaseConnection();
+        return db.releaseConnection(request);
     }
 };

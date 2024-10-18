@@ -5,7 +5,6 @@ const configPreset = require('../config/main.json');
 module.exports = {
     name: Events.Error,
     async execute(error) {
-
         // Send it to console
         console.error(error.stack);
 

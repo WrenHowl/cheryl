@@ -30,11 +30,8 @@ let db = mysql.createPool({
   password: botPrivateInfo.database.password,
   database: "cherylbo_servers",
   waitForConnections: true,
+  connectionLimit: 100,
 });
-
-db.on('connection', () => {
-  console.log(`${localDate} MySQL connection success`);
-})
 
 db.on('error', (error) => {
   console.error(`${localDate} MySQL error`, error);
@@ -83,28 +80,21 @@ loadEvent();
 bot.on('interactionCreate', async (interaction) => {
   if (!interaction.guild) return;
 
-  /////////////////////
-  //  Action System  //
-  /////////////////////
+  const request = await db.getConnection();
 
-  let action_id = [
-    'acceptSuggestionAction',
-    'denySuggestionAction'
-  ];
-
-  if (interaction.isButton() & action_id.includes(interaction.customId)) {
-    await db.query(`SELECT * FROM actionimages WHERE messageId=?`,
+  // Action button
+  async function actionButton() {
+    const actionFind = await request.query(
+      `SELECT * FROM actionimages WHERE messageId=?`,
       [interaction.message.id]
     )
-      .then((response) => {
-        response = response[0];
-        if (response == undefined) return;
 
-        userId = response['userId'];
-        url = response['url'];
-        category = response['category'];
-        createdAt = response['createdAt'];
-      });
+    if (actionFind[0][0] == undefined) return;
+
+    userId = actionFind[0][0]['userId'];
+    url = actionFind[0][0]['url'];
+    category = actionFind[0][0]['category'];
+    createdAt = actionFind[0][0]['createdAt'];
 
     let suggestionEmbed = new EmbedBuilder()
       .addFields(
@@ -119,7 +109,8 @@ bot.on('interactionCreate', async (interaction) => {
       // Checking for the interaction name and sending the appropriate response
       switch (interaction.customId) {
         case ('acceptSuggestionAction'):
-          await db.query(`UPDATE actionimages SET url=? WHERE messageId=?`,
+          await request.query(
+            `UPDATE actionimages SET url=? WHERE messageId=?`,
             [interaction.message.embeds[0].image.url, interaction.message.id]
           );
 
@@ -138,7 +129,8 @@ bot.on('interactionCreate', async (interaction) => {
 
           response = `The image (${actionImageData.id}) you suggested has been denied.`;
 
-          db.query(`DELETE FROM actionimages WHERE messageId=?`,
+          request.query(
+            `DELETE FROM actionimages WHERE messageId=?`,
             [interaction.message.id]
           );
           break;
@@ -152,8 +144,20 @@ bot.on('interactionCreate', async (interaction) => {
         embeds: [suggestionEmbed],
         components: []
       });
+
     })
-  };
+  }
+
+  switch (interaction.customId) {
+    case 'acceptSuggestionAction':
+      actionButton();
+      break;
+    case 'denySuggestionAction':
+      actionButton();
+      break;
+  }
+
+  db.releaseConnection(request);
 });
 
 bot.login(botPrivateInfo.token);

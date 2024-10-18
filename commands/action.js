@@ -179,7 +179,8 @@ module.exports = {
                         .setColor('Yellow');
 
                     async function suggestionData(msg) {
-                        await db.query('INSERT INTO actionimages (userId, messageId, category, url) VALUES (?, ?, ?, ?)',
+                        await db.query(
+                            'INSERT INTO actionimages (userId, messageId, category, url) VALUES (?, ?, ?, ?)',
                             [interaction.user.id, msg.id, optionChoice, optionSuggest]
                         );
                     };

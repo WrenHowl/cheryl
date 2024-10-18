@@ -6,33 +6,34 @@ module.exports = {
     name: Events.GuildCreate,
     once: false,
     execute: async (guild) => {
+        const request = await db.getConnection()
 
         // Find the guild data in the database
-        const guildFind = await db.query(
+        const guildFind = await request.query(
             `SELECT * FROM guilds WHERE guildId=?`,
             [guild.id]
         )
 
         if (guildFind[0][0] == undefined) {
-            await db.query(
+            await request.query(
                 `INSERT INTO guilds (guildName, guildId, guildIcon, botIn) VALUES (?, ?, ?, ?)`,
                 [guild.name, guild.id, guild.icon, 1]
             )
         } else {
-            await db.query(
+            await request.query(
                 `UPDATE guilds SET guildName=?, guildIcon=?, botIn=? WHERE guildId=?`,
                 [guild.name, guild.icon, 1, guild.id]
             )
         }
 
         // Find logging data in database
-        const loggingFind = await db.query(
+        const loggingFind = await request.query(
             `SELECT * FROM loggings WHERE guildId=?`,
             [guild.id]
         )
 
         if (loggingFind[0][0] == undefined) {
-            await db.query(
+            await request.query(
                 `INSERT INTO loggings (guildId) VALUES (?)`,
                 [guild.id]
             )
@@ -41,7 +42,7 @@ module.exports = {
         let owner = await guild.fetchOwner();
 
         // Lookup if the owner of the server is blacklisted
-        const blacklistFind = await db.query(
+        const blacklistFind = await request.query(
             `SELECT userId FROM blacklists WHERE userId=?`,
             [owner.user.id]
         )
@@ -64,8 +65,10 @@ module.exports = {
             .setColor('Green');
 
         const guildCreateChannel = guild.client.guilds.cache.get(botInfo.supportServerId).channels.cache.get(channelsId.botAdded)
-        return guildCreateChannel.send({
+        await guildCreateChannel.send({
             embeds: [newGuildEmbed]
         });
+
+        return db.releaseConnection(request);
     }
 };
