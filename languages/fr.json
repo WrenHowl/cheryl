@@ -641,5 +641,11 @@
         "error": {
             "wrongGuild": "Vous devez exécuter la commande sur le serveur dans laquelle vous êtes en VC."
         }
+    },
+    "level": {
+        "default": {
+            "name": "level",
+            "description": "Show your current progress and level."
+        }
     }
 }

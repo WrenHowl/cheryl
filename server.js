@@ -77,6 +77,10 @@ bot.commands = new Collection();
 loadIntCommand();
 loadEvent();
 
+/*bot.on('messageCreate', async (message) => {
+  message.author.displayAvatarURL({ extension: 'png' })
+})*/
+
 bot.on('interactionCreate', async (interaction) => {
   if (!interaction.guild) return;
 

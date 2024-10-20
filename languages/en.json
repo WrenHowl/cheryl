@@ -642,5 +642,11 @@
         "error": {
             "wrongGuild": "You must run the command on the guild you are a VC in."
         }
+    },
+    "level": {
+        "default": {
+            "name": "level",
+            "description": "Show your current progress and level."
+        }
     }
 }
