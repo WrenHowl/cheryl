@@ -3,7 +3,7 @@
 Cheryl - Discord Bot
 </h3>
 
-![X (formerly Twitter) Follow](https://img.shields.io/twitter/follow/realbaddwagon)
+![X (formerly Twitter) Follow](https://img.shields.io/twitter/follow/wrenhowl)
 
 ----
 Cheryl is a discord bot that offers a lot of customization and will make you server easier to manage and moderate it with a blacklist system and ticket system free to use. The bot is entirely coded in Javascript and uses Local SQLite Database.
@@ -21,14 +21,6 @@ Functionality
 #### ╭ Moderation (ban, kick, etc.)
 
 <sub>Pretty much all the basic stuff with a bit of Cheryl Style.</sub>
-
-<br>
-
-#### ├ Verification System
-
-CURRENTLY NON-FUNCTIONAL, IT HAS BEEN REPLACED WITH A TICKET SYSTEM
-
-<sub>This system will give you more security to your server, our verification system use the new features, button and modal. This will open a menu asking for questions for the user to answer, they will not be asked in DMs for these questions. Everything is server sided.</sub>
 
 <br>
 
