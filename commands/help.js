@@ -27,7 +27,7 @@ module.exports = {
         "The list of command is available on https://cheryl-bot.ca/commands.\n\n" +
         "There will also be a dashboard there in the future where users may adjust and personalize the bot."
       )
-      .setColor("Green")
+      .setColor("Blue")
 
     const helpButton = new ActionRowBuilder()
       .addComponents(

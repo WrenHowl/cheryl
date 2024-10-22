@@ -12,7 +12,7 @@ module.exports = {
         const request = await db.getConnection()
 
         const levelFind = await request.query(
-            'SELECT xp, xpNext, level FROM level WHERE userId=? AND guildId=?',
+            'SELECT * FROM level WHERE userId=? AND guildId=?',
             [message.author.id, message.guild.id]
         )
 
@@ -29,13 +29,21 @@ module.exports = {
                 [xpIncrease, message.guild.id, message.author.id]
             )
 
+            // Level up
             if (xpIncrease >= levelFind[0][0]['xpNext']) {
-                const xpCurrent = levelFind[0][0]['xp'];
-                const newXpNext = Math.floor(
-                    xpCurrent + (xpCurrent * 0.5)
-                );
                 const levelCurrent = levelFind[0][0]['level'] + 1;
+                let xpCurrent = levelFind[0][0]['xp'];
+                let increaseValue = 250;
 
+                if (levelCurrent >= 9) {
+                    increaseValue = increaseValue + (100 * levelCurrent.toString().slice(1));
+                } else if (levelCurrent >= 100) {
+                    increaseValue = increaseValue + (100 * levelCurrent.toString().slice(2));
+                }
+
+                const xpNext = xpCurrent + increaseValue;
+
+                // Create the levelup picture
                 const canvas = Canvas.createCanvas(700, 250);
                 const context = canvas.getContext('2d');
 
@@ -60,7 +68,7 @@ module.exports = {
 
                 await db.query(
                     'UPDATE level SET `xpNext`=?, `level`=? WHERE guildId=? AND userId=?',
-                    [newXpNext, levelCurrent, message.guild.id, message.author.id]
+                    [xpNext, levelCurrent, message.guild.id, message.author.id]
                 )
 
                 const perksFind = await db.query(
@@ -74,10 +82,12 @@ module.exports = {
                     }
                 }
 
-                message.channel.send({
-                    content: `Congrats ${message.author.toString()}, you leveled up! :partying_face:`,
-                    files: [attachment]
-                })
+                if (levelFind[0][0]['messageAnnounce'] == 1) {
+                    message.channel.send({
+                        content: `Congrats ${message.author.toString()}, you leveled up! :partying_face:`,
+                        files: [attachment]
+                    })
+                }
             }
         }
 

@@ -6,12 +6,7 @@ module.exports = {
     name: Events.InteractionCreate,
     once: false,
     async execute(interaction) {
-        if (!interaction.isCommand()) return;
-
-        const command = interaction.client.commands.get(interaction.commandName);
-        if (!command) {
-            return console.error(`No command matching ${interaction.commandName} was found.`);
-        }
+        if (!interaction.guild || !interaction.isCommand()) return;
 
         const request = await db.getConnection();
 
@@ -38,6 +33,7 @@ module.exports = {
 
         // Execute the command
         try {
+            const command = interaction.client.commands.get(interaction.commandName);
             await command.execute(interaction);
         } catch (error) {
             console.error(

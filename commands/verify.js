@@ -32,24 +32,24 @@ module.exports = {
 
         if (interaction.targetMember.roles.cache.some(role => role.id === '1084970943820075050')) {
             return interaction.reply({
-                content: `${interaction.targetUser.toString()} is already verified.`,
+                content: `${interaction.targetMember.toString()} is already verified.`,
                 ephemeral: true,
             });
         } else if (!interaction.targetMember.roles.cache.some(role => role.id === '1084970943820075050')) {
-            await member.roles.add(
+            await interaction.targetMember.roles.add(
                 '1084970943820075050',
                 reason
             )
         } else if (!interaction.targetMember.roles.cache.some(role => role.id === '1233066501825892383')) {
-            await member.roles.remove(
+            await interaction.targetMember.roles.remove(
                 '1233066501825892383',
                 reason
             )
         }
 
         // Replying to the user.
-        await interaction.reply({
-            content: `Currently trying to verify ${member.toString()}.`,
+        interaction.reply({
+            content: `Currently trying to verify ${interaction.targetMember.toString()}.`,
             ephemeral: true,
         });
 
@@ -61,27 +61,34 @@ module.exports = {
 
         if (profileFind[0][0] == undefined) {
             await request.query(
-                'INSERT INTO profiles (userId, userName, age, verified18) VALUES (?, ?, ?, ?)',
-                [interaction.targetId, interaction.targetUser.username, "Adult", true]
+                'INSERT INTO profiles (userId, userName, verified18) VALUES (?, ?, ?)',
+                [interaction.targetId, interaction.targetMember.username, 1]
             )
         } else {
             await request.query(
-                'UPDATE profiles SET verified18=? FROM profiles WHERE userId=?',
-                [true, interaction.targetId]
+                'UPDATE profiles SET verified18=? WHERE userId=?',
+                [1, interaction.targetId]
             )
         }
 
         // Sending message in channel.
         const verifiedEmbed = new EmbedBuilder()
-            .setDescription(
-                'NSFW channels access -> <#1082135024264032297>',
-                'Informative roles -> <#1082135082246078464>',
+            .addFields(
+                {
+                    name: 'Auto-Role',
+                    value:
+                        'There is multiple roles you can grab, some are just for fun and some that gives you access to channels :\n' +
+                        '* <#1082135082246078464>\n' +
+                        '  * This channel will give you access to fun roles that will only be there for yourself. You do not get access to more channels with these roles\n' +
+                        '* <#1082135024264032297>\n' +
+                        '  * This channel will give you access to NSFW categories. Including yiff and nudes.'
+                }
             )
-            .setColor('Red')
+            .setColor('Blue')
 
         const channel18 = interaction.guild.channels.cache.get('1091220263569461349')
         await channel18.send({
-            content: `${member.toString()} just got verified! Please make him feel welcomed~`,
+            content: `${interaction.targetMember.toString()} just got verified! Please make him feel welcomed~`,
             embeds: [verifiedEmbed],
         });
 
