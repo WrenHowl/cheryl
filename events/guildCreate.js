@@ -8,6 +8,7 @@ module.exports = {
     execute: async (guild) => {
         const request = await db.getConnection()
 
+        //
         // Find the guild data in the database
         const guildFind = await request.query(
             `SELECT * FROM guilds WHERE guildId=?`,
@@ -26,6 +27,7 @@ module.exports = {
             )
         }
 
+        //
         // Find logging data in database
         const loggingFind = await request.query(
             `SELECT * FROM logging WHERE guildId=?`,
