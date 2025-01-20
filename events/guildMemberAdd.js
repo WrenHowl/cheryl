@@ -9,7 +9,7 @@ module.exports = {
         const request = await db.getConnection();
 
         const loggingFind = await request.query(
-            `SELECT * FROM logging WHERE guildId=?`,
+            `SELECT * FROM guild_settings WHERE guildId=?`,
             [newMember.guild.id]
         )
 
@@ -21,7 +21,7 @@ module.exports = {
             const welcomeChannel = newMember.guild.channels.cache.get(welcome_channelDestination);
             if (!welcomeChannel) {
                 return request.query(
-                    `UPDATE logging SET welcome_channelDestination=?`,
+                    `UPDATE guild_settings SET welcome_channelDestination=?`,
                     [null]
                 )
             };

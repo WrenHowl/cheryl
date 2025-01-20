@@ -40,62 +40,55 @@ module.exports = {
     execute: async (interaction) => {
         const request = await db.getConnection();
 
-        const loggingsFind = await request.query(
-            `SELECT * FROM logging WHERE guildId=?`,
-            [interaction.guild.id]
+        //
+        // Change the variable user if it was mentionned or not, if not mentionned the target will be themselves.
+        const user = interaction.options.getUser(en.commands.profile.setup.user.name);
+        user ?
+            userTarget = user :
+            userTarget = interaction.user;
+        const member = interaction.guild.members.cache.get(userTarget.id) || await interaction.guild.members.fetch(userTarget.id).catch(error => { });
+
+        //
+        // Check if there is data from the users mentionned already in the users database.
+        const usersData = await request.query(
+            `SELECT * FROM users WHERE userId=?`,
+            [userTarget.id]
         );
 
-        if (loggingsFind[0][0] != undefined) {
-            //
-            // Change the variable user if it was mentionned or not, if not mentionned the target will be themselves.
-            const user = interaction.options.getUser(en.commands.profile.setup.user.name);
-            user ?
-                userTarget = user :
-                userTarget = interaction.user;
-            const member = interaction.guild.members.cache.get(userTarget.id) || await interaction.guild.members.fetch(userTarget.id).catch(error => { });
+        if (usersData[0][0] == undefined) {
+            await db.query(
+                `INSERT INTO users (userName, userId) VALUES (?, ?)`,
+                [userTarget.username, userTarget.id]
+            );
+        };
 
-            //
-            // Check if there is data from the users mentionned already in the users database.
-            const usersData = await request.query(
-                `SELECT * FROM users WHERE userId=?`,
-                [userTarget.id]
+        usersData[0][0]['ageVerified'] == 1 ?
+            isAgeVerified = "Yes" :
+            isAgeVerified = "No";
+
+        const embed = new EmbedBuilder()
+            .setThumbnail(userTarget.displayAvatarURL())
+            .setColor("Blue")
+            .addFields(
+                { name: en.commands.profile.response.fields.name, value: userTarget.toString(), inline: true },
+                { name: en.commands.profile.response.fields.id, value: "`" + userTarget.id + "`", inline: true },
+                { name: en.commands.profile.response.fields.ageVerified, value: "`" + isAgeVerified + "`", inline: true },
             );
 
-            if (usersData[0][0] == undefined) {
-                await db.query(
-                    `INSERT INTO users (userName, userId) VALUES (?, ?)`,
-                    [userTarget.username, userTarget.id]
-                );
-            };
-
-            usersData[0][0]['ageVerified'] == 1 ?
-                isAgeVerified = "Yes" :
-                isAgeVerified = "No";
-
-            const embed = new EmbedBuilder()
-                .setThumbnail(userTarget.displayAvatarURL())
-                .setColor("Blue")
-                .addFields(
-                    { name: en.commands.profile.response.fields.name, value: userTarget.toString(), inline: true },
-                    { name: en.commands.profile.response.fields.id, value: "`" + userTarget.id + "`", inline: true },
-                    { name: en.commands.profile.response.fields.ageVerified, value: "`" + isAgeVerified + "`", inline: true },
-                );
-
-            if (interaction.guild.members.cache.get(userTarget.id)) {
-                roleMap = member.roles.cache
-                    .filter((roles) => roles.id !== interaction.guild.id)
-                    .sort((a, b) => b.position - a.position)
-                    .map((role) => role.toLocaleString())
-                    .join(", ");
-                embed.addFields(
-                    { name: en.commands.profile.response.fields.roles, value: roleMap },
-                );
-            };
-
-            await interaction.reply({
-                embeds: [embed],
-            });
+        if (interaction.guild.members.cache.get(userTarget.id)) {
+            roleMap = member.roles.cache
+                .filter((roles) => roles.id !== interaction.guild.id)
+                .sort((a, b) => b.position - a.position)
+                .map((role) => role.toLocaleString())
+                .join(", ");
+            embed.addFields(
+                { name: en.commands.profile.response.fields.roles, value: roleMap },
+            );
         };
+
+        await interaction.reply({
+            embeds: [embed],
+        });
 
         return db.releaseConnection(request);
     }

@@ -34,8 +34,8 @@ module.exports = {
             db.releaseConnection(request);
         }, 10000);
 
+        //
         // Was used to get levels working in the database
-
         /*const a = await request.query(
             `SELECT * FROM level_xp ORDER BY level DESC`,
         )
@@ -69,9 +69,10 @@ module.exports = {
             });
 
             await request.query(
-                `INSERT INTO logging (guildId) VALUES (?)`,
+                `INSERT INTO guild_settings (guildId) VALUES (?)`,
                 [guild.id]
             ).catch((error) => { })
+            console.log(`Added ${guild.id}.`)
         });
 
         console.log(`${consoleDate} The bot is ready!`);

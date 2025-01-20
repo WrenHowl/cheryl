@@ -25,30 +25,22 @@ module.exports = {
   execute: async (interaction) => {
     const request = await db.getConnection();
 
-    const loggingsFind = await request.query(
-      `SELECT * FROM logging WHERE guildId=?`,
-      [interaction.guild.id]
-    );
+    const helpEmbed = new EmbedBuilder()
+      .setDescription(en.commands.help.response.description)
+      .setColor("Blue")
 
-    if (loggingsFind[0][0] != undefined) {
-      //const language = loggingsFind[0][0]['language'];
-      const helpEmbed = new EmbedBuilder()
-        .setDescription(en.commands.help.response.description)
-        .setColor("Blue")
+    const helpButton = new ActionRowBuilder()
+      .addComponents(
+        new ButtonBuilder()
+          .setLabel(en.global.button.discord)
+          .setURL(configPreset.other.discordLink)
+          .setStyle(ButtonStyle.Link),
+      );
 
-      const helpButton = new ActionRowBuilder()
-        .addComponents(
-          new ButtonBuilder()
-            .setLabel(en.global.button.discord)
-            .setURL(configPreset.other.discordLink)
-            .setStyle(ButtonStyle.Link),
-        );
-
-      await interaction.reply({
-        embeds: [helpEmbed],
-        components: [helpButton],
-      });
-    }
+    await interaction.reply({
+      embeds: [helpEmbed],
+      components: [helpButton],
+    });
 
     return db.releaseConnection(request);
   }
