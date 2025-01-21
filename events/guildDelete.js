@@ -22,9 +22,9 @@ module.exports = {
             [owner.user.id]
         )
 
-        blacklistFind[0][0] == undefined ?
-            isBlacklisted = 'No' :
-            isBlacklisted = 'Yes';
+        isBlacklisted = blacklistFind[0][0] == undefined ?
+            'No' :
+            'Yes';
 
         let removeGuildEmbed = new EmbedBuilder()
             .setTitle('Bot Removed')

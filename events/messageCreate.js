@@ -6,6 +6,8 @@ module.exports = {
     name: Events.MessageCreate,
     once: false,
     execute: async (message) => {
+        if (message.author.bot) return;
+
         const request = await db.getConnection()
 
         const userSettingFind = await request.query(
@@ -13,22 +15,14 @@ module.exports = {
             [message.author.id]
         );
 
-        // Look if the person refuses to get their data looked over.
-        if (userSettingFind[0][0] != undefined && userSettingFind[0][0]['data_messageContent'] == 0) return db.releaseConnection(request);
+        const guildSettingFind = await request.query(
+            `SELECT * FROM guild_settings WHERE guildId=?`,
+            [message.guild.id]
+        );
 
-        const levelFind = await request.query(
-            'SELECT * FROM level WHERE userId=? AND guildId=?',
-            [message.author.id, message.guild.id]
-        )
-
-        if (message.author.bot && levelFind[0][0] != undefined) {
-            await request.query(
-                'DELETE FROM level WHERE userId=?',
-                [message.author.id]
-            )
-
-            return db.releaseConnection(request);
-        } else if (message.author.bot) return db.releaseConnection(request);;
+        //
+        // Lookup if the person refuses to get their data looked over.
+        if ((userSettingFind[0][0] != undefined && userSettingFind[0][0]['data_messageContent'] === 0) || (guildSettingFind[0][0] != undefined && guildSettingFind[0][0]['level_status'] === 0)) return db.releaseConnection(request);
 
         const userFind = await request.query(
             'SELECT * FROM users WHERE userId=?',
@@ -47,11 +41,13 @@ module.exports = {
             );
         }
 
+        const levelFind = await request.query(
+            'SELECT * FROM level WHERE userId=? AND guildId=?',
+            [message.author.id, message.guild.id]
+        )
+
         const xpPerMessage = 5;
 
-        //
-        // Check if the user that sent the message got levels already in the guild
-        // If they do, do other stuff.
         if (levelFind[0][0] == undefined) {
             await request.query(
                 'INSERT INTO level (`guildId`, `userId`, `xp`) VALUES (?, ?, ?)',
@@ -79,7 +75,7 @@ module.exports = {
                     [levelCurrent, message.guild.id, message.author.id]
                 )
 
-                if (message.guild.id === '1082103667181764659') {
+                if (guildSettingFind[0][0]['level_rankup'] === 0) {
                     // Create the levelup picture
                     const canvas = Canvas.createCanvas(700, 250);
                     const context = canvas.getContext('2d');

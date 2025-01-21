@@ -72,7 +72,6 @@ module.exports = {
                 `INSERT INTO guild_settings (guildId) VALUES (?)`,
                 [guild.id]
             ).catch((error) => { })
-            console.log(`Added ${guild.id}.`)
         });
 
         console.log(`${consoleDate} The bot is ready!`);

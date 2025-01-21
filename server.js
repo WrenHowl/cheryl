@@ -396,24 +396,6 @@ bot.on('interactionCreate', async (interaction) => {
     switch (interaction.customId) {
       case 'ticket_accept':
         //
-        // Lookup for the server settings.
-        const ticketLogFind = await request.query(
-          `SELECT * FROM logging_ticket WHERE guildId=?`,
-          [interaction.guild.id, interaction.message.id]
-        )
-
-        //
-        // Check if the person clicking on the button is -> In the list.
-        if (!interaction.member.roles.cache.some(role => role.id === ticketLogFind[0][0]['roleId'])) {
-          await interaction.reply({
-            content: 'You cannot claim ticket.',
-            ephemeral: true,
-          });
-
-          break;
-        }
-
-        //
         // Check if there's a channel already in -> Ticket Database
         if (ticketFind[0][0]['channelId'] != undefined) break;
 
