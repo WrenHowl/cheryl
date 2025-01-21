@@ -12,15 +12,13 @@ module.exports = {
             [bannedUser.user.id]
         )
 
-        blacklistFind = blacklistFind[0];
-
-        if (blacklistFind[0] != undefined) {
+        if (blacklistFind[0][0] != undefined) {
             await db.query(
                 `UPDATE blacklists SET joinedServerBan=? WHERE userId=?`,
-                [blacklistFind[0]['joinedServerBan']++, bannedUser.user.id]
+                [blacklistFind[0]['joinedServerBan'] + 1, bannedUser.user.id]
             );
         }
 
-        db.releaseConnection(request);
+        return db.releaseConnection(request);
     }
 };

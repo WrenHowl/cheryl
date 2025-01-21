@@ -1,6 +1,7 @@
 const { EmbedBuilder } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { en, fr, de, sp, nl } = require('../../preset/language.js');
+const { db } = require('../../server.js');
 
 // Display the selected user avatar.
 
@@ -39,27 +40,19 @@ module.exports = {
     async execute(interaction) {
         const request = await db.getConnection();
 
-        const loggingsFind = await request.query(
-            `SELECT * FROM loggings WHERE guildId=?`,
-            [interaction.guild.id]
-        );
+        const userOption = interaction.options.getUser(en.commands.avatar.setup.user.name);
+        const member = userOption ?
+            userOption :
+            interaction.user;
 
-        if (loggingsFind[0][0] != undefined) {
-            //const language = loggingsFind[0][0]['language'];
-            const userOption = interaction.options.getUser(en.commands.avatar.setup.user.name);
-            const member = userOption ?
-                userOption :
-                interaction.user;
+        const avatarEmbed = new EmbedBuilder()
+            .setTitle(en.commands.avatar.response.title)
+            .setImage(member.displayAvatarURL({ dynamic: true, size: 512 }))
+            .setColor('Blue')
 
-            const avatarEmbed = new EmbedBuilder()
-                .setTitle(en.commands.avatar.response.title)
-                .setImage(member.displayAvatarURL({ dynamic: true, size: 512 }))
-                .setColor('Blue')
-
-            await interaction.reply({
-                embeds: [avatarEmbed]
-            });
-        }
+        await interaction.reply({
+            embeds: [avatarEmbed]
+        });
 
         return db.releaseConnection(request);
     }

@@ -172,7 +172,7 @@ bot.on('interactionCreate', async (interaction) => {
   // Generating ticket button.
   async function ticketButton() {
     const loggingFind = await request.query(
-      `SELECT * FROM loggings WHERE guildId=?`,
+      `SELECT * FROM guild_settings WHERE guildId=?`,
       [interaction.guild.id]
     )
 
@@ -285,8 +285,8 @@ bot.on('interactionCreate', async (interaction) => {
       components: [newTicketButton]
     }).then(async (msg) => {
       await request.query(
-        `INSERT INTO ticket (guildId, userId, ticketId, reason, messageId) VALUES (?, ?, ?, ?, ?)`,
-        [interaction.guild.id, interaction.user.id, ticketCount, reason, msg.id]
+        `INSERT INTO ticket (guildId, userName, userId, ticketId, reason, messageId) VALUES (?, ?, ?, ?, ?, ?)`,
+        [interaction.guild.id, interaction.user.username, interaction.user.id, ticketCount, reason, msg.id]
       )
     })
   }
@@ -295,7 +295,7 @@ bot.on('interactionCreate', async (interaction) => {
   // Function to edit the -> Ticket Database and Ticket Message
   async function editMessageTicket(ticket, status, color, replyStaff) {
     const loggingFind = await request.query(
-      `SELECT * FROM loggings WHERE guildId=?`,
+      `SELECT * FROM guild_settings WHERE guildId=?`,
       [interaction.guild.id]
     )
 
@@ -389,34 +389,12 @@ bot.on('interactionCreate', async (interaction) => {
     //
     // Get the -> Logging Database -> Ready
     let loggingFind = await request.query(
-      `SELECT * FROM loggings WHERE guildId=?`,
+      `SELECT * FROM guild_settings WHERE guildId=?`,
       [interaction.guild.id]
     );
 
     switch (interaction.customId) {
       case 'ticket_accept':
-        //
-        // Update the -> Ticket Database & Ticket Message.
-        editMessageTicket(ticketFind, 'Accepted', 'Yellow', 'You **accepted** this ticket, it is currently being created.');
-
-        //
-        // Lookup for the server settings.
-        const ticketLogFind = await request.query(
-          `SELECT * FROM logging_ticket WHERE guildId=?`,
-          [interaction.guild.id, interaction.message.id]
-        )
-
-        //
-        // Check if the person clicking on the button is -> In the list.
-        if (!interaction.member.roles.cache.some(role => role.id === ticketLogFind[0][0]['roleId'])) {
-          await interaction.reply({
-            content: 'You cannot claim ticket.',
-            ephemeral: true,
-          });
-
-          break;
-        }
-
         //
         // Check if there's a channel already in -> Ticket Database
         if (ticketFind[0][0]['channelId'] != undefined) break;
@@ -432,6 +410,10 @@ bot.on('interactionCreate', async (interaction) => {
         };
 
         //
+        // Update the -> Ticket Database & Ticket Message.
+        editMessageTicket(ticketFind, 'Accepted', 'Yellow', 'You **accepted** this ticket, it is currently being created.');
+
+        //
         // Creating the ticket channel.
         const createChannel = await interaction.guild.channels.create({
           name: `${ticketFind[0][0]['reason']}-${ticketFind[0][0]['ticketId']}`,
@@ -440,16 +422,25 @@ bot.on('interactionCreate', async (interaction) => {
           permissionOverwrites: [
             {
               id: interaction.guild.id,
-              deny: [PermissionsBitField.Flags.ViewChannel],
+              deny: [
+                PermissionsBitField.Flags.ViewChannel
+              ],
             },
             {
               id: interaction.user.id,
-              allow: [PermissionsBitField.Flags.ViewChannel],
+              allow: [
+                PermissionsBitField.Flags.ViewChannel,
+                PermissionsBitField.Flags.SendMessages
+              ],
             },
             {
               id: ticketFind[0][0]['userId'],
               type: 1,
-              allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.AttachFiles],
+              allow: [
+                PermissionsBitField.Flags.ViewChannel,
+                PermissionsBitField.Flags.AttachFiles,
+                PermissionsBitField.Flags.SendMessages
+              ],
             }
           ]
         });
@@ -501,11 +492,15 @@ bot.on('interactionCreate', async (interaction) => {
             inTicketEmbed.addFields(
               {
                 name: "Requirement",
-                value: "1. Be 18 years or older\n* A valid government ID or driving license"
+                value: "1. Be 18 years or older\n* A valid government ID or driving license OR a VRChat account with 18+ badge"
               },
               {
-                name: "Instructions",
-                value: "1. Write on a piece of paper your username\n* Place your prefered governmental identification on top of the piece of paper\n* Take a picture and share it to us in this channel"
+                name: "Instructions for ID Verfication",
+                value: "1. Write on a piece of paper your username (`" + ticketFind[0][0]['userName'] + "`)\n* Place your prefered governmental identification on top of the piece of paper\n* Take a picture and share it to us in this channel\n\nDo not hide your expiry date (EXP), date of birth (DOB) and the province, state or country on top of the ID."
+              },
+              {
+                name: "Instructions for VRChat account",
+                value: "1. Send a link of your profile\n* Wait for a moderator to send you a friend request\n* Accept the friend request of the moderator"
               },
             )
 
@@ -621,7 +616,12 @@ bot.on('interactionCreate', async (interaction) => {
 
     switch (interaction.customId) {
       case 'ticket_delete':
-        if (ticketFind[0][0] != undefined) await editMessageTicket(ticketFind, 'Completed', 'Green', 'You **completed** this ticket, it will be deleted in 3 seconds.')
+        if (ticketFind[0][0] != undefined) editMessageTicket(ticketFind, 'Completed', 'Green', false)
+
+        await interaction.reply({
+          content: 'You **completed** this ticket, it will be deleted in 3 seconds.',
+          ephemeral: true
+        });
 
         await request.query(
           `DELETE FROM ticket WHERE guildId=? AND channelId=?`,
@@ -634,6 +634,8 @@ bot.on('interactionCreate', async (interaction) => {
 
         break;
       case 'ticket_verify':
+        console.log(ticketFind[0][0])
+
         //
         // Replying to the staff.
         await interaction.reply({

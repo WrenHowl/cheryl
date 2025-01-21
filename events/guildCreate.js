@@ -8,6 +8,7 @@ module.exports = {
     execute: async (guild) => {
         const request = await db.getConnection()
 
+        //
         // Find the guild data in the database
         const guildFind = await request.query(
             `SELECT * FROM guilds WHERE guildId=?`,
@@ -26,15 +27,16 @@ module.exports = {
             )
         }
 
+        //
         // Find logging data in database
         const loggingFind = await request.query(
-            `SELECT * FROM loggings WHERE guildId=?`,
+            `SELECT * FROM guild_settings WHERE guildId=?`,
             [guild.id]
         )
 
         if (loggingFind[0][0] == undefined) {
             await request.query(
-                `INSERT INTO loggings (guildId) VALUES (?)`,
+                `INSERT INTO guild_settings (guildId) VALUES (?)`,
                 [guild.id]
             )
         }
@@ -47,9 +49,9 @@ module.exports = {
             [owner.user.id]
         )
 
-        blacklistFind[0][0] == undefined ?
-            isBlacklisted = 'No' :
-            isBlacklisted = 'Yes';
+        isBlacklisted = blacklistFind[0][0] == undefined ?
+            'No' :
+            'Yes';
 
         let newGuildEmbed = new EmbedBuilder()
             .setTitle('Bot Added')

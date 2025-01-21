@@ -57,7 +57,7 @@
                     "disable": "This command has been disabled in this server.",
                     "notNsfw": "You cannot use NSFW command into this channel. This channel must be age-restricted to use this command."
                 },
-                "noImageFound": "There is no image in the database for the following category: %Arg%\n\nThe developers have been alerted!"
+                "noImageFound": "There is no image in the database for the following category: `%Arg%`\n\nYou can start by suggesting an image yourself!"
             }
         },
         "profile": {
@@ -143,7 +143,7 @@
             },
             "response": {
                 "title": "Leaderboard of %Arg%",
-                "description": "The full leaderboard is available [here](https://cheryl-bot.ca/leaderboard/guild?id=%Arg%)",
+                "description": "The full leaderboard is available [here](https://cheryl-bot.ca/leaderboard/guild/%Arg%)",
                 "noLevel": "There is currently nobody with level."
             }
         },

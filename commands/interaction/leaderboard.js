@@ -24,49 +24,42 @@ module.exports = {
     execute: async (interaction) => {
         const request = await db.getConnection();
 
-        const loggingsFind = await request.query(
-            `SELECT * FROM loggings WHERE guildId=?`,
+        const titleReplace = en.commands.leaderboard.response.title;
+        const descriptionReplace = en.commands.leaderboard.response.description;
+
+        const embed = new EmbedBuilder()
+            .setTitle(titleReplace.replace(/%Arg%/, interaction.guild.name))
+            .setDescription(descriptionReplace.replace(/%Arg%/, interaction.guild.id))
+            .setColor("Blue")
+
+        const levelFind = await request.query(
+            `SELECT * FROM level WHERE guildId=? ORDER BY level DESC`,
             [interaction.guild.id]
         );
 
-        if (loggingsFind[0][0] != undefined) {
-            //const language = loggingsFind[0][0]['language'];
-            const titleReplace = en.commands.leaderboard.response.title;
-            const descriptionReplace = en.commands.leaderboard.response.description;
-
-            const embed = new EmbedBuilder()
-                .setTitle(titleReplace.replace(/%Arg%/, interaction.guild.name))
-                .setDescription(descriptionReplace.replace(/%Arg%/, interaction.guild.id))
-                .setColor("Blue")
-
-            const levelFind = await request.query(
-                `SELECT * FROM level WHERE guildId=?`,
+        if (levelFind[0][0] != undefined && levelFind[0][0]['level'] > 1) {
+            const levelOrderFind = await request.query(
+                `SELECT * FROM level WHERE guildId=? ORDER BY xp DESC LIMIT 9 OFFSET 0`,
                 [interaction.guild.id]
-            );
+            )
 
-            if (levelFind[0][0] != undefined) {
-                const levelOrderFind = await request.query(
-                    `SELECT * FROM level ORDER BY xp DESC LIMIT 9 OFFSET 0`
-                )
+            let i = 1;
 
-                let i = 1;
-
-                for (leaderboard of levelOrderFind[0]) {
-                    embed.addFields(
-                        { name: `#${i}`, value: '<@' + leaderboard['userId'] + '> \n**Level** → `' + leaderboard['level'] + '` \n**XP** → `' + leaderboard['xp'] + '`', inline: true }
-                    );
-                    i++;
-                };
-
-                await interaction.reply({
-                    embeds: [embed]
-                });
-            } else {
-                await interaction.reply({
-                    content: en.commands.leaderboard.response.noLevel,
-                    ephemeral: true,
-                });
+            for (leaderboard of levelOrderFind[0]) {
+                embed.addFields(
+                    { name: `#${i}`, value: '<@' + leaderboard['userId'] + '> \n**Level** → `' + leaderboard['level'] + '` \n**XP** → `' + leaderboard['xp'] + '`', inline: true }
+                );
+                i++;
             };
+
+            await interaction.reply({
+                embeds: [embed]
+            });
+        } else {
+            await interaction.reply({
+                content: en.commands.leaderboard.response.noLevel,
+                ephemeral: true,
+            });
         };
 
         return db.releaseConnection(request);

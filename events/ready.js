@@ -25,7 +25,7 @@ module.exports = {
                 `Version ${configPreset.botInfo.version}`,
             ];
 
-            counter == status.length ?
+            counter == 3 ?
                 counter = 0 :
                 counter++;
 
@@ -33,6 +33,27 @@ module.exports = {
 
             db.releaseConnection(request);
         }, 10000);
+
+        //
+        // Was used to get levels working in the database
+        /*const a = await request.query(
+            `SELECT * FROM level_xp ORDER BY level DESC`,
+        )
+
+        let intIncrease = (a[0][0]['level'] * 100) + a[0][0]['xp'] + 250;
+
+        for (let i = 1; i < 251; i++) {
+            console.log(i + ' ... ' + intIncrease);
+
+            await request.query(
+                `INSERT INTO level_xp (xp) VALUES (?)`,
+                [intIncrease]
+            )
+
+            console.log('Completed.')
+
+            intIncrease = (i * 100) + intIncrease + 250
+        }*/
 
         bot.guilds.cache.forEach(async (guild) => {
             await request.query(
@@ -48,7 +69,7 @@ module.exports = {
             });
 
             await request.query(
-                `INSERT INTO loggings (guildId) VALUES (?)`,
+                `INSERT INTO guild_settings (guildId) VALUES (?)`,
                 [guild.id]
             ).catch((error) => { })
         });
