@@ -20,8 +20,7 @@ module.exports = {
             [message.guild.id]
         );
 
-        //
-        // Lookup if the person refuses to get their data looked over.
+        // Lookup for user and server settings.
         if ((userSettingFind[0][0] != undefined && userSettingFind[0][0]['data_messageContent'] === 0) || (guildSettingFind[0][0] != undefined && guildSettingFind[0][0]['level_status'] === 0)) return db.releaseConnection(request);
 
         const userFind = await request.query(
@@ -48,7 +47,7 @@ module.exports = {
 
         const xpPerMessage = 5;
 
-        if (levelFind[0][0] == undefined) {
+        if (levelFind[0][0] === undefined) {
             await request.query(
                 'INSERT INTO level (`guildId`, `userId`, `xp`) VALUES (?, ?, ?)',
                 [message.guild.id, message.author.id, xpPerMessage]
@@ -67,15 +66,25 @@ module.exports = {
                 [levelCurrent, xpIncrease]
             );
 
-            //
             // Level up
-            if (levelXpFind[0][0] != undefined) {
+            if (levelXpFind[0][0] !== undefined) {
                 await request.query(
                     'UPDATE level SET `level`=? WHERE guildId=? AND userId=?',
                     [levelCurrent, message.guild.id, message.author.id]
                 )
 
-                if (guildSettingFind[0][0]['level_rankup'] === 0) {
+                const perksFind = await request.query(
+                    'SELECT * FROM level_perks WHERE guildId=? AND level=?',
+                    [message.guild.id, levelCurrent]
+                )
+
+                if (perksFind[0][0] !== undefined) {
+                    if (!message.member.roles.cache.some(role => role.id === perksFind[0][0]['roleId'])) {
+                        await message.member.roles.add(perksFind[0][0]['roleId'])
+                    }
+                }
+
+                if ((guildSettingFind[0][0] === undefined && guildSettingFind[0][0]['level_rankup'] === 1) && (userSettingFind[0][0] === undefined || userSettingFind[0][0]['level_rankup'] === 1)) {
                     // Create the levelup picture
                     const canvas = Canvas.createCanvas(700, 250);
                     const context = canvas.getContext('2d');
@@ -99,23 +108,10 @@ module.exports = {
 
                     const attachment = new AttachmentBuilder(await canvas.encode('png'), { name: 'leveling.png' });
 
-                    const perksFind = await request.query(
-                        'SELECT * FROM level_perks WHERE guildId=? AND level=?',
-                        [message.guild.id, levelCurrent]
-                    )
-
-                    if (perksFind[0][0] != undefined) {
-                        if (!message.member.roles.cache.some(role => role.id === perksFind[0][0]['roleId'])) {
-                            await message.member.roles.add(perksFind[0][0]['roleId'])
-                        }
-                    }
-
-                    if (userSettingFind[0][0] == undefined || userSettingFind[0][0]['level_rankup'] == 0) {
-                        message.channel.send({
-                            content: `Congrats ${message.author.toString()}, you leveled up! :partying_face:\n\n-# You do not want to receive this message when you level up? You can disable it on the website : https://cheryl-bot.ca/settings`,
-                            files: [attachment]
-                        })
-                    }
+                    message.channel.send({
+                        content: `Congrats ${message.author.toString()}, you leveled up! :partying_face:\n\n-# You do not want to receive this message when you level up? You can disable it on the website : https://cheryl-bot.ca/settings`,
+                        files: [attachment]
+                    })
                 }
             }
         }
