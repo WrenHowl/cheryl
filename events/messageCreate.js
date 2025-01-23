@@ -11,12 +11,12 @@ module.exports = {
         const request = await db.getConnection()
 
         const userSettingFind = await request.query(
-            `SELECT * FROM user_settings WHERE userId=?`,
+            `SELECT * FROM user_settings WHERE user_id=?`,
             [message.author.id]
         );
 
         const guildSettingFind = await request.query(
-            `SELECT * FROM guild_settings WHERE guildId=?`,
+            `SELECT * FROM guild_settings WHERE guild_id=?`,
             [message.guild.id]
         );
 
@@ -24,24 +24,24 @@ module.exports = {
         if ((userSettingFind[0][0] != undefined && userSettingFind[0][0]['data_messageContent'] === 0) || (guildSettingFind[0][0] != undefined && guildSettingFind[0][0]['level_status'] === 0)) return db.releaseConnection(request);
 
         const userFind = await request.query(
-            'SELECT * FROM users WHERE userId=?',
+            'SELECT * FROM users WHERE id=?',
             [message.author.id]
         );
 
         if (userFind[0][0] == undefined) {
             await request.query(
-                'INSERT INTO users (`userId`, `userName`, `avatar`, `globalName`) VALUES (?, ?, ?, ?)',
+                'INSERT INTO users (`id`, `name`, `avatar`, `global_name`) VALUES (?, ?, ?, ?)',
                 [message.author.id, message.author.username, message.author.avatar, message.author.globalName]
             );
         } else {
             await request.query(
-                'UPDATE users SET `userName`=?, `globalName`=?, `avatar`=? WHERE userId=?',
+                'UPDATE users SET `name`=?, `global_name`=?, `avatar`=? WHERE id=?',
                 [message.author.username, message.author.globalName, message.author.avatar, message.author.id]
             );
         }
 
         const levelFind = await request.query(
-            'SELECT * FROM level WHERE userId=? AND guildId=?',
+            'SELECT * FROM levels WHERE user_id=? AND guild_id=?',
             [message.author.id, message.guild.id]
         )
 
@@ -49,7 +49,7 @@ module.exports = {
 
         if (levelFind[0][0] === undefined) {
             await request.query(
-                'INSERT INTO level (`guildId`, `userId`, `xp`) VALUES (?, ?, ?)',
+                'INSERT INTO levels (`guild_id`, `user_id`, `xp`) VALUES (?, ?, ?)',
                 [message.guild.id, message.author.id, xpPerMessage]
             )
         } else {
@@ -57,7 +57,7 @@ module.exports = {
             const levelCurrent = levelFind[0][0]['level'] + 1;
 
             await request.query(
-                'UPDATE level SET `xp`=? WHERE guildId=? AND userId=?',
+                'UPDATE levels SET `xp`=? WHERE guild_id=? AND user_id=?',
                 [xpIncrease, message.guild.id, message.author.id]
             )
 
@@ -69,12 +69,12 @@ module.exports = {
             // Level up
             if (levelXpFind[0][0] !== undefined) {
                 await request.query(
-                    'UPDATE level SET `level`=? WHERE guildId=? AND userId=?',
+                    'UPDATE levels SET `level`=? WHERE guild_id=? AND user_id=?',
                     [levelCurrent, message.guild.id, message.author.id]
                 )
 
                 const perksFind = await request.query(
-                    'SELECT * FROM level_perks WHERE guildId=? AND level=?',
+                    'SELECT * FROM level_perks WHERE guild_id=? AND level=?',
                     [message.guild.id, levelCurrent]
                 )
 

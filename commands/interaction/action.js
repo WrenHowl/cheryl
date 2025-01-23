@@ -115,7 +115,7 @@ module.exports = {
         const request = await db.getConnection();
 
         const userSettingsFind = await request.query(
-            `SELECT * FROM user_settings WHERE userId=?`,
+            `SELECT * FROM user_settings WHERE id=?`,
             [userTarget.id]
         );
         if (userSettingsFind[0][0] != undefined) {
@@ -137,7 +137,7 @@ module.exports = {
         }
 
         const guildSettingsFind = await request.query(
-            `SELECT * FROM guild_settings WHERE guildId=?`,
+            `SELECT * FROM guild_settings WHERE id=?`,
             [interaction.guild.id]
         );
         if (guildSettingsFind[0][0] != undefined) {
@@ -182,7 +182,7 @@ module.exports = {
             //
             // Check if image has already been suggested/added
             const actionImageFind = await request.query(
-                `SELECT url FROM actionimages WHERE url=?`,
+                `SELECT * FROM actions WHERE url=?`,
                 [optionSuggest]
             );
 
@@ -207,13 +207,13 @@ module.exports = {
             const buttonSuggestion = new ActionRowBuilder()
                 .addComponents(
                     new ButtonBuilder()
-                        .setCustomId('acceptSuggestionAction')
+                        .setCustomId('action_accept')
                         .setLabel('Accept')
                         .setStyle(ButtonStyle.Success),
                 )
                 .addComponents(
                     new ButtonBuilder()
-                        .setCustomId('denySuggestionAction')
+                        .setCustomId('action_deny')
                         .setLabel('Deny')
                         .setStyle(ButtonStyle.Danger),
                 );
@@ -233,9 +233,9 @@ module.exports = {
 
             //
             // Check if the user that suggested is the bot owner
-            !optionChoice === !nsfwChoice.includes(optionChoice) ?
-                channelSuggestId = configPreset.channelsId.nsfwSuggestion :
-                channelSuggestId = configPreset.channelsId.sfwSuggestion;
+            let channelSuggestId = !optionChoice === !nsfwChoice.includes(optionChoice) ?
+                configPreset.channelsId.nsfwSuggestion :
+                configPreset.channelsId.sfwSuggestion;
             const channelSuggest = interaction.client.guilds.cache.get(configPreset.botInfo.supportServerId).channels.cache.get(channelSuggestId);
 
 
@@ -245,17 +245,22 @@ module.exports = {
                 msg = await channelSuggest.send({
                     embeds: [imageEmbed],
                 });
+
+                await request.query(
+                    'INSERT INTO actions (category, url) VALUES (?, ?)',
+                    [optionChoice, optionSuggest]
+                );
             } else {
                 msg = await channelSuggest.send({
                     embeds: [imageEmbed],
                     components: [buttonSuggestion]
                 });
-            };
 
-            await request.query(
-                'INSERT INTO actionimages (userId, messageId, category, url) VALUES (?, ?, ?, ?)',
-                [interaction.user.id, msg.id, optionChoice, optionSuggest]
-            );
+                await request.query(
+                    'INSERT INTO action_suggest (id, message_id, category, url) VALUES (?, ?, ?, ?)',
+                    [interaction.user.id, msg.id, optionChoice, optionSuggest]
+                );
+            };
         } else {
             //
             // Check if the action is NSFW and if the channel is NSFW.
@@ -267,7 +272,7 @@ module.exports = {
             };
 
             const actionImageFind = await request.query(
-                `SELECT url FROM actionimages WHERE category=? ORDER BY RAND() LIMIT 1`,
+                `SELECT url FROM actions WHERE category=? ORDER BY RAND() LIMIT 1`,
                 [optionChoice]
             );
             if (actionImageFind[0][0] == undefined) {

@@ -65,18 +65,18 @@ module.exports = {
         //
         // Updating the profile.
         const userFind = await request.query(
-            'SELECT userId FROM users WHERE userId=?',
+            'SELECT * FROM users WHERE id=?',
             [interaction.targetId]
         )
 
         if (userFind[0][0] == undefined) {
             await request.query(
-                'INSERT INTO users (userId, userName, ageVerified) VALUES (?, ?, ?)',
+                'INSERT INTO users (id, name, age_verified) VALUES (?, ?, ?)',
                 [interaction.targetId, interaction.targetMember.username, 1]
             )
         } else {
             await request.query(
-                'UPDATE users SET ageVerified=? WHERE userId=?',
+                'UPDATE users SET age_verified=? WHERE id=?',
                 [1, interaction.targetId]
             )
         }

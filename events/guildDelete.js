@@ -18,7 +18,7 @@ module.exports = {
 
         // Lookup if the owner of the server is blacklisted
         const blacklistFind = await request.query(
-            `SELECT * FROM blacklists WHERE userId=?`,
+            `SELECT * FROM blacklists WHERE id=?`,
             [owner.user.id]
         )
 

@@ -10,13 +10,13 @@ module.exports = {
         //
         // Send a message in the leaving channel mentionned.
         const loggingFind = await request.query(
-            `SELECT * FROM guild_settings WHERE guildId=?`,
+            `SELECT * FROM guild_settings WHERE id=?`,
             [leavingMember.guild.id]
         )
 
-        if (loggingFind[0][0] != undefined) {
+        if (loggingFind[0][0] !== undefined) {
             const channelId_Leaving = loggingFind[0][0]['leaving_channelDestination'];
-            if (channelId_Leaving == null) return;
+            if (channelId_Leaving === null) return;
 
             const leavingChannel = leavingMember.guild.channels.cache.get(channelId_Leaving);
             if (!leavingChannel) {

@@ -15,23 +15,26 @@ module.exports = {
             [interaction.commandName]
         )
 
-        if (commandFind[0][0] == undefined) {
+        if (commandFind[0][0] === undefined) {
             await request.query(
-                `INSERT INTO command_functions (name, isOn) VALUES (?, ?)`,
+                `INSERT INTO command_functions (name, status) VALUES (?, ?)`,
                 [interaction.commandName, 1]
             )
         }
 
-        interaction.options._hoistedOptions[0] != undefined ?
-            option = interaction.options._hoistedOptions[0]['value'] :
-            option = null;
+        option = interaction.options._hoistedOptions[0] != undefined ?
+            interaction.options._hoistedOptions[0]['value'] :
+            null;
 
         const commandStatsFind = await request.query(
             `SELECT * FROM command_stats WHERE name=? AND special_option=?`,
             [interaction.commandName, option]
         )
 
-        if (commandStatsFind[0][0] == undefined) {
+        console.log(interaction.commandName);
+        console.log(option);
+
+        if (commandStatsFind[0][0] === undefined) {
             await request.query(
                 `INSERT INTO command_stats (name, special_option, usage_count) VALUES (?, ?, ?)`,
                 [interaction.commandName, option, 1]
@@ -43,7 +46,7 @@ module.exports = {
             )
         }
 
-        if (commandFind[0]['isOn'] == 0 || !interaction.guild) {
+        if (commandFind[0]['status'] === 0 || !interaction.guild) {
             !interaction.guild ?
                 refusingAction = en.global.serverOnly :
                 refusingAction = en.global.commandDisabledGlobally;

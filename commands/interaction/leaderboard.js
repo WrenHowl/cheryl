@@ -33,13 +33,13 @@ module.exports = {
             .setColor("Blue")
 
         const levelFind = await request.query(
-            `SELECT * FROM level WHERE guildId=? ORDER BY level DESC`,
+            `SELECT * FROM level WHERE guild_id=? ORDER BY level DESC`,
             [interaction.guild.id]
         );
 
         if (levelFind[0][0] != undefined && levelFind[0][0]['level'] > 1) {
             const levelOrderFind = await request.query(
-                `SELECT * FROM level WHERE guildId=? ORDER BY xp DESC LIMIT 9 OFFSET 0`,
+                `SELECT * FROM level WHERE guild_id=? ORDER BY xp DESC LIMIT 9 OFFSET 0`,
                 [interaction.guild.id]
             )
 
@@ -47,7 +47,7 @@ module.exports = {
 
             for (leaderboard of levelOrderFind[0]) {
                 embed.addFields(
-                    { name: `#${i}`, value: '<@' + leaderboard['userId'] + '> \n**Level** → `' + leaderboard['level'] + '` \n**XP** → `' + leaderboard['xp'] + '`', inline: true }
+                    { name: `#${i}`, value: '<@' + leaderboard['user_id'] + '> \n**Level** → `' + leaderboard['level'] + '` \n**XP** → `' + leaderboard['xp'] + '`', inline: true }
                 );
                 i++;
             };

@@ -11,18 +11,18 @@ module.exports = {
         //
         // Find the guild data in the database
         const guildFind = await request.query(
-            `SELECT * FROM guilds WHERE guildId=?`,
+            `SELECT * FROM guilds WHERE id=?`,
             [guild.id]
         )
 
         if (guildFind[0][0] == undefined) {
             await request.query(
-                `INSERT INTO guilds (guildName, guildId, guildIcon, botIn, memberCount) VALUES (?, ?, ?, ?, ?)`,
+                `INSERT INTO guilds (name, id, avatar, bot_in, members) VALUES (?, ?, ?, ?, ?)`,
                 [guild.name, guild.id, guild.icon, 1, guild.memberCount]
             )
         } else {
             await request.query(
-                `UPDATE guilds SET guildName=?, guildIcon=?, botIn=?, memberCount=? WHERE guildId=?`,
+                `UPDATE guilds SET name=?, avatar=?, bot_in=?, members=? WHERE id=?`,
                 [guild.name, guild.icon, 1, guild.memberCount, guild.id]
             )
         }
@@ -30,13 +30,13 @@ module.exports = {
         //
         // Find logging data in database
         const loggingFind = await request.query(
-            `SELECT * FROM guild_settings WHERE guildId=?`,
+            `SELECT * FROM guild_settings WHERE id=?`,
             [guild.id]
         )
 
         if (loggingFind[0][0] == undefined) {
             await request.query(
-                `INSERT INTO guild_settings (guildId) VALUES (?)`,
+                `INSERT INTO guild_settings (id) VALUES (?)`,
                 [guild.id]
             )
         }
@@ -45,7 +45,7 @@ module.exports = {
 
         // Lookup if the owner of the server is blacklisted
         const blacklistFind = await request.query(
-            `SELECT userId FROM blacklists WHERE userId=?`,
+            `SELECT * FROM blacklists WHERE id=?`,
             [owner.user.id]
         )
 

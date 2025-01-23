@@ -9,11 +9,11 @@ module.exports = {
 
         if (newUpdate.username !== oldUpdate.username) {
             await request.query(
-                `UPDATE blacklists SET userTag=? WHERE userId=?`,
+                `UPDATE blacklists SET name=? WHERE id=?`,
                 [newUpdate.username, oldUpdate.id]);
 
             await request.query(
-                `UPDATE blacklists SET staffTag=? WHERE staffId=? IN (staffId)`,
+                `UPDATE blacklists SET staff_name=? WHERE staff_id=?`,
                 [newUpdate.username, oldUpdate.id]);
         };
 

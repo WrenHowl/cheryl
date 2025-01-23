@@ -55,7 +55,7 @@ module.exports = {
         const context = canvas.getContext('2d');
 
         const levelFind = await request.query(
-            'SELECT * FROM level WHERE userId=? AND guildId=?',
+            'SELECT * FROM level WHERE user_id=? AND guild_id=?',
             [userCheck.id, interaction.guild.id]
         )
 
@@ -68,7 +68,7 @@ module.exports = {
         let xpCanvas = 0;
         let xpText = 0;
 
-        if (levelFind[0][0] != undefined) {
+        if (levelFind[0][0] !== undefined) {
             levelCurrent = levelFind[0][0]['level'];
             xpCanvas = Math.floor((levelFind[0][0]['xp'] * 300) / levelUpFind[0][0]['xp']);
             xpText = Math.floor((levelFind[0][0]['xp'] * 100) / levelUpFind[0][0]['xp']);

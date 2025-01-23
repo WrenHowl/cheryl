@@ -8,13 +8,13 @@ module.exports = {
         const request = await db.getConnection()
 
         let blacklistFind = await request.query(
-            'SELECT userId FROM blacklists WHERE userId=?',
+            'SELECT * FROM blacklists WHERE id=?',
             [bannedUser.user.id]
         )
 
         if (blacklistFind[0][0] != undefined) {
             await db.query(
-                `UPDATE blacklists SET joinedServerBan=? WHERE userId=?`,
+                `UPDATE blacklists SET server_ban=? WHERE id=?`,
                 [blacklistFind[0]['joinedServerBan'] + 1, bannedUser.user.id]
             );
         }

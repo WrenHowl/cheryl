@@ -62,9 +62,9 @@ module.exports = {
             );
         };
 
-        usersData[0][0]['ageVerified'] == 1 ?
-            isAgeVerified = "Yes" :
-            isAgeVerified = "No";
+        let isAgeVerified = usersData[0][0]['ageVerified'] == 1 ?
+            "Yes" :
+            "No";
 
         const embed = new EmbedBuilder()
             .setThumbnail(userTarget.displayAvatarURL())

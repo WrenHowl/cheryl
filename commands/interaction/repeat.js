@@ -39,9 +39,6 @@ module.exports = {
             })
             .setRequired(false)),
     execute: async (interaction) => {
-        const request = await db.getConnection();
-
-        const language = loggingsFind[0][0]['language'];
         const textOption = interaction.options.getString(en.commands.repeat.setup.string.name)
         // Find the voice channel in the server
         if (!interaction.guild.channels.cache.find(channel => channel.id === interaction.member.voice.channel.id)) {
@@ -78,7 +75,5 @@ module.exports = {
         })
 
         setTimeout(() => connection.destroy(), 15000);
-
-        return db.releaseConnection(request);
     }
 };

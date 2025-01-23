@@ -8,14 +8,14 @@ module.exports = {
     execute: async (newMember) => {
         const request = await db.getConnection();
 
-        const loggingFind = await request.query(
-            `SELECT * FROM guild_settings WHERE guildId=?`,
+        const guildSettingFind = await request.query(
+            `SELECT * FROM guild_settings WHERE guild_id=?`,
             [newMember.guild.id]
         )
 
-        if (loggingFind[0][0] == undefined) return;
+        if (guildSettingFind[0][0] == undefined) return;
 
-        const welcome_channelDestination = loggingFind[0][0]['welcome_channelDestination'];
+        const welcome_channelDestination = guildSettingFind[0][0]['welcome_channelDestination'];
         if (welcome_channelDestination) {
             // Check if the channel still exist
             const welcomeChannel = newMember.guild.channels.cache.get(welcome_channelDestination);
@@ -35,7 +35,8 @@ module.exports = {
             });
         };
 
-        const welcome_roleAdd = loggingFind[0][0]['welcome_roleAdd'];
+        // Disable since it isn't added in the website currently
+        /*const welcome_roleAdd = guildSettingFind[0][0]['welcome_roleAdd'];
         if (welcome_roleAdd) {
             const botPermissionRole = newMember.guild.members.me.permissions.has('ManageRoles');
             const botPostion = newMember.roles.highest.position >= (await newMember.guild.members.fetch(config.botPrivateInfo.botId)).roles.highest.position;
@@ -43,73 +44,72 @@ module.exports = {
             if (botPermissionRole & botPostion) {
                 return newMember.roles.add(welcome_roleAdd);
             };
-        };
+        };*/
 
-        const status_Blacklist = loggingFind[0][0]['blacklist_status'];
-        if (status_Blacklist == 1) {
-            const status_BlacklistAutoban = loggingFind[0][0]['blacklist_autoBan'];
-            const channelId_Blacklist = loggingFind[0][0]['blacklist_channelDestination'];
+        if (guildSettingFind[0][0]['blacklist_status'] >= 1) {
+            const blacklistData = await request.query(
+                `SELECT * FROM blacklists WHERE user_id=?`,
+                [newMember.user.id]
+            )
 
-            const blacklistData = await
-                request.query(`SELECT * FROM blacklists WHERE userId=?`,
-                    [newMember.user.id]
-                )
+            if (blacklistData[0][0] !== undefined) {
+                const autoban = guildSettingFind[0][0]['blacklist_autoBan'];
+                const channel = guildSettingFind[0][0]['blacklist_channelDestination'];
 
-            if (blacklistData[0][0] == undefined) return;
-            const userId = blacklistData[0][0]['userId'];
-            const blacklistEmbed = new EmbedBuilder()
-
-            // Check if the channel still exist
-            const blacklistChannel = newMember.guild.channels.cache.get(channelId_Blacklist);
-            if (!blacklistChannel) {
-                await request.query(
-                    `UPDATE loggings SET blacklist_channelDestination=?`,
-                    [null]
-                )
-            };
-
-            // Incrementing the join count in the database
-            await request.query(
-                `UPDATE blacklists SET joinedServer=? WHERE userId=?`,
-                [blacklistData[0][0]['joinedServer']++, userId]
-            );
-
-            if (status_BlacklistAutoban != 0 && blacklistData[0][0]['risk'] >= status_BlacklistAutoban) {
-                return newMember.guild.members.ban(userId, { reason: [`${blacklistData[0][0]['reason']} | Blacklist`] });
-            }
-
-            // Checking if the bot can send message in the channel
-            if (channelId_Blacklist) {
-                if (!newMember.guild.members.me.permissionsIn(channelId_Blacklist).has(['SendMessages', 'ViewChannel'])) return;
-
-                // Changing embed color in terms of the risk
-                switch (blacklistData[0]['risk']) {
-                    case 0:
-                        blacklistEmbed.setColor('57F287');
-                        break;
-                    case 1:
-                        blacklistEmbed.setColor('FEE75C');
-                        break;
-                    case 2:
-                        blacklistEmbed.setColor('ED4245');
-                        break;
+                // Check if the channel still exist
+                const blacklistChannel = newMember.guild.channels.cache.get(channel);
+                if (!blacklistChannel) {
+                    await request.query(
+                        `UPDATE guild_settings SET blacklist_channelDestination=?`,
+                        [null]
+                    )
                 };
 
-                // Creating the embed and sending the message
-                blacklistEmbed.setTitle('<:BanHammer:997932635454197790> New Alert');
-                blacklistEmbed.addFields(
-                    { name: 'User', value: newMember.user.toString(), inline: true },
-                    { name: 'Reason', value: blacklistData[0][0]['reason'], inline: true },
-                    { name: 'Evidence', value: blacklistData[0][0]['evidence'], inline: true }
+                // Incrementing the join count in the database
+                await request.query(
+                    `UPDATE blacklists SET server_join=? WHERE user_id=?`,
+                    [blacklistData[0][0]['server_join'] + 1, newMember.user.id]
                 );
-                blacklistEmbed.setFooter({
-                    text: 'Id: ' + userId
-                });
-                blacklistEmbed.setTimestamp();
 
-                await blacklistChannel.send({
-                    embeds: [blacklistEmbed],
-                });
+                // Checking if the bot can send message in the channel
+                if (channel) {
+                    if (!newMember.guild.members.me.permissionsIn(channel).has(['SendMessages', 'ViewChannel'])) return;
+
+                    // Changing embed color in terms of the risk
+                    switch (blacklistData[0][0]['risk']) {
+                        case 3:
+                            color = 'FEE75C'; // High
+                            break;
+                        case 2:
+                            color = 'ED4245'; // Medium
+                            break;
+                        default:
+                            color = 'ED4245'; // Low
+                            break;
+                    }
+
+                    // Creating the embed and sending the message
+                    const embed = new EmbedBuilder()
+                        .setTitle('Blacklist Alert')
+                        .addFields(
+                            { name: 'User Name', value: newMember.user.toString(), inline: true },
+                            { name: 'User ID', value: newMember.user.id, inline: true },
+                            { name: '\u200b', value: '\u200b', inline: true },
+                            { name: 'Reason', value: blacklistData[0][0]['reason'], inline: true },
+                            { name: 'Evidence', value: blacklistData[0][0]['evidence'], inline: true },
+                            { name: '\u200b', value: '\u200b', inline: true },
+                        )
+                        .setTimestamp()
+                        .setColor(color);
+
+                    blacklistChannel.send({
+                        embeds: [embed],
+                    });
+                }
+
+                if (autoban <= 1 && blacklistData[0][0]['risk'] >= autoban) {
+                    newMember.guild.members.ban(newMember.user.id, { reason: [`${blacklistData[0][0]['reason']} | Blacklist`] });
+                }
             }
         }
 
