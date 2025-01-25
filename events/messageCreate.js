@@ -16,7 +16,7 @@ module.exports = {
         );
 
         const guildSettingFind = await request.query(
-            `SELECT * FROM guild_settings WHERE guild_id=?`,
+            `SELECT * FROM guild_settings WHERE id=?`,
             [message.guild.id]
         );
 

@@ -9,7 +9,7 @@ module.exports = {
         const request = await db.getConnection();
 
         const guildSettingFind = await request.query(
-            `SELECT * FROM guild_settings WHERE guild_id=?`,
+            `SELECT * FROM guild_settings WHERE id=?`,
             [newMember.guild.id]
         )
 

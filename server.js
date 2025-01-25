@@ -162,7 +162,7 @@ bot.on('interactionCreate', async (interaction) => {
   // Generating ticket button.
   async function ticketButton() {
     const guildSettingFind = await request.query(
-      `SELECT * FROM guild_settings WHERE guild_id=?`,
+      `SELECT * FROM guild_settings WHERE id=?`,
       [interaction.guild.id]
     )
 
@@ -285,7 +285,7 @@ bot.on('interactionCreate', async (interaction) => {
   // Function to edit the -> Ticket Database and Ticket Message
   async function editMessageTicket(ticket, status, color, replyStaff) {
     const guildSettingFind = await request.query(
-      `SELECT * FROM guild_settings WHERE guild_id=?`,
+      `SELECT * FROM guild_settings WHERE id=?`,
       [interaction.guild.id]
     )
 
@@ -379,7 +379,7 @@ bot.on('interactionCreate', async (interaction) => {
     //
     // Get the -> Logging Database -> Ready
     let guildSettingFind = await request.query(
-      `SELECT * FROM guild_settings WHERE guild_id=?`,
+      `SELECT * FROM guild_settings WHERE id=?`,
       [interaction.guild.id]
     );
 
