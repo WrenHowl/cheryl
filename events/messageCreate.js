@@ -11,7 +11,7 @@ module.exports = {
         const request = await db.getConnection()
 
         const userSettingFind = await request.query(
-            `SELECT * FROM user_settings WHERE user_id=?`,
+            `SELECT * FROM user_settings WHERE id=?`,
             [message.author.id]
         );
 

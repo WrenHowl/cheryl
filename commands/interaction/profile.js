@@ -51,18 +51,21 @@ module.exports = {
         //
         // Check if there is data from the users mentionned already in the users database.
         const usersData = await request.query(
-            `SELECT * FROM users WHERE userId=?`,
+            `SELECT * FROM users WHERE id=?`,
             [userTarget.id]
         );
 
         if (usersData[0][0] == undefined) {
             await db.query(
-                `INSERT INTO users (userName, userId) VALUES (?, ?)`,
-                [userTarget.username, userTarget.id]
+                `INSERT INTO users (name, id) VALUES (?, ?)`,
+                [
+                    userTarget.username,
+                    userTarget.id
+                ]
             );
         };
 
-        let isAgeVerified = usersData[0][0]['ageVerified'] == 1 ?
+        let isAgeVerified = usersData[0][0]['age_verified'] == 1 ?
             "Yes" :
             "No";
 

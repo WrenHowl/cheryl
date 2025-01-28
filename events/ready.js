@@ -58,19 +58,33 @@ module.exports = {
         bot.guilds.cache.forEach(async (guild) => {
             await request.query(
                 `INSERT INTO guilds (name, id, avatar, bot_in, members) VALUES (?, ?, ?, ?, ?)`,
-                [guild.name, guild.id, guild.icon, 1, guild.memberCount]
+                [
+                    guild.name,
+                    guild.id,
+                    guild.icon,
+                    1,
+                    guild.memberCount
+                ]
             ).catch(async (error) => {
                 if (error.code === 'ER_DUP_ENTRY') {
                     await request.query(
                         `UPDATE guilds SET name=?, avatar=?, bot_in=?, members=? WHERE id=?`,
-                        [guild.name, guild.icon, 1, guild.memberCount, guild.id]
+                        [
+                            guild.name,
+                            guild.icon,
+                            1,
+                            guild.memberCount,
+                            guild.id
+                        ]
                     )
                 }
             });
 
             await request.query(
                 `INSERT INTO guild_settings (id) VALUES (?)`,
-                [guild.id]
+                [
+                    guild.id
+                ]
             ).catch((error) => { })
         });
 

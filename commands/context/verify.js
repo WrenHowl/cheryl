@@ -42,7 +42,7 @@ module.exports = {
         const reason = en.context.verify.response.reason;
         const alreadyVerified = en.context.verify.response.alreadyVerified;
         if (interaction.targetMember.roles.cache.some(role => role.id === '1084970943820075050')) {
-            return interaction.reply({
+            interaction.reply({
                 content: alreadyVerified.replace(/%Arg%/, interaction.targetMember.toString()),
                 ephemeral: true,
             });
@@ -51,58 +51,59 @@ module.exports = {
                 '1084970943820075050',
                 reason.replace(/%Arg%/, interaction.user.username)
             );
-        };
 
-        //
-        // Remove the un-verified role.
-        if (interaction.targetMember.roles.cache.some(role => role.id === '1233066501825892383')) {
-            await interaction.targetMember.roles.remove(
-                '1233066501825892383',
-                reason.replace(/%Arg%/, interaction.user.username)
-            );
-        };
+            //
+            // Remove the un-verified role.
+            if (interaction.targetMember.roles.cache.some(role => role.id === '1233066501825892383')) {
+                await interaction.targetMember.roles.remove(
+                    '1233066501825892383',
+                    reason.replace(/%Arg%/, interaction.user.username)
+                );
+            };
 
-        //
-        // Updating the profile.
-        const userFind = await request.query(
-            'SELECT * FROM users WHERE id=?',
-            [interaction.targetId]
-        )
-
-        if (userFind[0][0] == undefined) {
+            //
+            // Updating the profile.
             await request.query(
-                'INSERT INTO users (id, name, age_verified) VALUES (?, ?, ?)',
-                [interaction.targetId, interaction.targetMember.username, 1]
-            )
-        } else {
-            await request.query(
-                'UPDATE users SET age_verified=? WHERE id=?',
-                [1, interaction.targetId]
-            )
-        }
-
-        //
-        // Sending message in channel.
-        const verifiedEmbed = new EmbedBuilder()
-            .addFields(
-                {
-                    name: 'Reaction Role',
-                    value:
-                        'There is multiple roles you can grab, some are just for fun and some that gives you access to channels :\n' +
-                        '* <#1082135082246078464>\n' +
-                        '  * This channel will give you access to fun roles that will only be there for yourself. You do not get access to more channels with these roles\n' +
-                        '* <#1082135024264032297>\n' +
-                        '  * This channel will give you access to NSFW categories. Including yiff and nudes.'
+                'INSERT INTO users (id, age_verified) VALUES (?, ?)',
+                [
+                    ticketFind[0][0]['id'],
+                    true
+                ]
+            ).catch(async (error) => {
+                if (error.code === 'ER_DUP_ENTRY') {
+                    await request.query(
+                        'UPDATE users SET age_verified=? WHERE id=?',
+                        [
+                            true,
+                            ticketFind[0][0]['id']
+                        ]
+                    )
                 }
-            )
-            .setColor('Blue')
+            });
 
-        const channel18 = interaction.guild.channels.cache.get('1091220263569461349')
-        const newVerification = en.context.verify.response.newVerification;
-        await channel18.send({
-            content: newVerification.replace(/%Arg%/, interaction.targetMember.toString()),
-            embeds: [verifiedEmbed],
-        });
+            //
+            // Sending message in channel.
+            const embed = new EmbedBuilder()
+                .addFields(
+                    {
+                        name: 'Reaction Role',
+                        value:
+                            'There is multiple roles you can grab, some are just for fun and some that gives you access to channels :\n' +
+                            '* <#1082135082246078464>\n' +
+                            '  * This channel will give you access to fun roles that will only be there for yourself. You do not get access to more channels with these roles\n' +
+                            '* <#1082135024264032297>\n' +
+                            '  * This channel will give you access to NSFW categories. Including yiff and nudes.'
+                    }
+                )
+                .setColor('Blue')
+
+            const channel18 = interaction.guild.channels.cache.get('1091220263569461349')
+            const newVerification = en.context.verify.response.newVerification;
+            await channel18.send({
+                content: newVerification.replace(/%Arg%/, interaction.targetMember.toString()),
+                embeds: [embed],
+            });
+        };
 
         return db.releaseConnection(request);
     }

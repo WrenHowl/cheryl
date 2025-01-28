@@ -10,63 +10,69 @@ module.exports = {
 
         const request = await db.getConnection();
 
+        await request.query(
+            `INSERT INTO commands (name, status) VALUES (?, ?)`,
+            [
+                interaction.commandName,
+                1
+            ]
+        ).catch(() => { });
+
+
         const commandFind = await request.query(
-            `SELECT * FROM command_functions WHERE name=?`,
-            [interaction.commandName]
-        )
+            `SELECT * FROM commands WHERE name=?`,
+            [
+                interaction.commandName
+            ]
+        );
 
-        if (commandFind[0][0] === undefined) {
-            await request.query(
-                `INSERT INTO command_functions (name, status) VALUES (?, ?)`,
-                [interaction.commandName, 1]
-            )
+        let option = interaction.options._hoistedOptions[0] ?? 'None';
+        if (option !== 'None') {
+            option = /\d/.test(option['value']) ?
+                'None' :
+                option['value'];
         }
 
-        option = interaction.options._hoistedOptions[0] != undefined ?
-            interaction.options._hoistedOptions[0]['value'] :
-            null;
-
-        const commandStatsFind = await request.query(
-            `SELECT * FROM command_stats WHERE name=? AND special_option=?`,
-            [interaction.commandName, option]
-        )
-
-        console.log(interaction.commandName);
-        console.log(option);
-
-        if (commandStatsFind[0][0] === undefined) {
-            await request.query(
-                `INSERT INTO command_stats (name, special_option, usage_count) VALUES (?, ?, ?)`,
-                [interaction.commandName, option, 1]
-            )
-        } else {
-            await request.query(
-                `UPDATE command_stats SET usage_count=?, special_option=? WHERE name=?`,
-                [commandStatsFind[0][0]['usage_count'] + 1, option, interaction.commandName]
-            )
-        }
+        await request.query(
+            `INSERT INTO command_stats (name, extra_option, usage_count) VALUES (?, ?, ?)`,
+            [
+                interaction.commandName,
+                option,
+                1
+            ]
+        ).catch(async (error) => {
+            if (error.code === 'ER_DUP_ENTRY') {
+                await request.query(
+                    `UPDATE command_stats SET usage_count = usage_count + 1, extra_option=? WHERE name=?`,
+                    [
+                        option,
+                        interaction.commandName
+                    ]
+                );
+            };
+        });
 
         if (commandFind[0]['status'] === 0 || !interaction.guild) {
-            !interaction.guild ?
-                refusingAction = en.global.serverOnly :
-                refusingAction = en.global.commandDisabledGlobally;
+            let refusingAction = !interaction.guild ?
+                en.global.serverOnly :
+                en.global.commandDisabledGlobally;
 
-            return interaction.reply({
+            await interaction.reply({
                 content: refusingAction,
                 ephemeral: true,
             });
-        };
-
-        //
-        // Execute the command
-        try {
-            const command = interaction.client.commands.get(interaction.commandName);
-            await command.execute(interaction);
-        } catch (error) {
-            console.error(
-                `${consoleDate} ${interaction.user.tag} (${interaction.user.id}) executed ${interaction.commandName}\n\n`,
-                error
-            )
+        } else {
+            //
+            // Execute the command
+            try {
+                const command = interaction.client.commands.get(interaction.commandName);
+                await command.execute(interaction);
+            } catch (error) {
+                console.error(
+                    `${consoleDate} ${interaction.user.tag} (${interaction.user.id}) executed ${interaction.commandName}\n\n`,
+                    error
+                )
+            }
         }
 
         return db.releaseConnection(request);

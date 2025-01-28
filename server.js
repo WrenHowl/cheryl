@@ -362,7 +362,10 @@ bot.on('interactionCreate', async (interaction) => {
     // Get the -> Ticket Database -> ready
     let ticketFind = await request.query(
       `SELECT * FROM tickets WHERE guild_id=? AND message_id=?`,
-      [interaction.guild.id, interaction.message.id]
+      [
+        interaction.guild.id,
+        interaction.message.id
+      ]
     );
 
     if (ticketFind[0][0] == undefined) {
@@ -380,7 +383,9 @@ bot.on('interactionCreate', async (interaction) => {
     // Get the -> Logging Database -> Ready
     let guildSettingFind = await request.query(
       `SELECT * FROM guild_settings WHERE id=?`,
-      [interaction.guild.id]
+      [
+        interaction.guild.id
+      ]
     );
 
     switch (interaction.customId) {
@@ -590,12 +595,14 @@ bot.on('interactionCreate', async (interaction) => {
   else if (inTicket.includes(interaction.customId)) {
     const ticketFind = await request.query(
       `SELECT * FROM tickets WHERE channel_id=?`,
-      [interaction.channel.id]
+      [
+        interaction.channel.id
+      ]
     )
 
     //
     // Check who is the person clicking the button
-    if (ticketFind[0][0] != undefined && ticketFind[0][0]['claimed_by'] !== interaction.user.id || !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+    if ((ticketFind[0][0] !== undefined && ticketFind[0][0]['claimed_by'] !== interaction.user.id) || !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
       await interaction.reply({
         content: "You cannot delete this ticket. You didn't claim it.",
         ephemeral: true,
@@ -625,39 +632,69 @@ bot.on('interactionCreate', async (interaction) => {
         break;
       case 'ticket_verify':
         if (ticketFind[0][0] === undefined) break;
+        const user = interaction.guild.members.cache.get(ticketFind[0][0]['user_id']);
 
         //
         // Replying to the staff.
+        const processVerify = en.context.verify.response.processVerify;
         await interaction.reply({
-          content: `Currently trying to verify <@${ticketFind[0][0]['user_id']}>.`,
+          content: processVerify.replace(/%Arg%/, '<@' + ticketFind[0][0]['user_id'] + '>'),
           ephemeral: true,
         });
 
         //
-        // Updating the profile.
-        const userFind = await request.query(
-          'SELECT * FROM users WHERE user_id=?',
-          [ticketFind[0][0]['user_id']]
-        )
+        // Check if the user is already verified.
+        const reason = en.context.verify.response.reason;
+        const alreadyVerified = en.context.verify.response.alreadyVerified;
+        if (user.roles.cache.some(role => role.id === '1084970943820075050')) {
+          interaction.reply({
+            content: alreadyVerified.replace(/%Arg%/, '<@' + ticketFind[0][0]['user_id'] + '>'),
+            ephemeral: true,
+          });
 
-        if (userFind[0][0] == undefined) {
-          await request.query(
-            'INSERT INTO users (user_id, ageVerified) VALUES (?, ?)',
-            [ticketFind[0][0]['user_id'], 1]
-          )
+          break;
         } else {
-          await request.query(
-            'UPDATE users SET ageVerified=? WHERE user_id=?',
-            [1, ticketFind[0][0]['user_id']]
-          )
-        }
+          await user.roles.add(
+            '1084970943820075050',
+            reason.replace(/%Arg%/, interaction.user.username)
+          );
+        };
+
+        //
+        // Remove the un-verified role.
+        if (user.roles.cache.some(role => role.id === '1233066501825892383')) {
+          await user.roles.remove(
+            '1233066501825892383',
+            reason.replace(/%Arg%/, interaction.user.username)
+          );
+        };
+
+        //
+        // Updating the profile.
+        await request.query(
+          'INSERT INTO users (id, age_verified) VALUES (?, ?)',
+          [
+            ticketFind[0][0]['id'],
+            true
+          ]
+        ).catch(async (error) => {
+          if (error.code === 'ER_DUP_ENTRY') {
+            await request.query(
+              'UPDATE users SET age_verified=? WHERE id=?',
+              [
+                true,
+                ticketFind[0][0]['id']
+              ]
+            )
+          }
+        });
 
         //
         // Sending message in channel.
-        const verifiedEmbed = new EmbedBuilder()
+        const embed = new EmbedBuilder()
           .addFields(
             {
-              name: 'Auto-Role',
+              name: 'Reaction Role',
               value:
                 'There is multiple roles you can grab, some are just for fun and some that gives you access to channels :\n' +
                 '* <#1082135082246078464>\n' +
@@ -669,9 +706,10 @@ bot.on('interactionCreate', async (interaction) => {
           .setColor('Blue')
 
         const channel18 = interaction.guild.channels.cache.get('1091220263569461349')
+        const newVerification = en.context.verify.response.newVerification;
         await channel18.send({
-          content: `${ticketFind[0][0]['user_id']} just got verified! Please make him feel welcomed~`,
-          embeds: [verifiedEmbed],
+          content: newVerification.replace(/%Arg%/, '<@' + ticketFind[0][0]['user_id'] + '>'),
+          embeds: [embed],
         });
 
         //
