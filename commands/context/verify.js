@@ -22,9 +22,9 @@ module.exports = {
         //
         // Check for the permission of the user executing the command.
         const missingRoleReply = en.global.userMissingRole;
-        if (!interaction.member.roles.cache.some(role => role.id === '1191482864156557332')) {
+        if (!interaction.member.roles.cache.some(role => role.id === '1083475130241523852')) {
             return interaction.reply({
-                content: missingRoleReply.replace(/%Arg%/, '<@&1191482864156557332>'),
+                content: missingRoleReply.replace(/%Arg%/, '<@&1083475130241523852>'),
                 ephemeral: true,
             });
         };
@@ -42,7 +42,7 @@ module.exports = {
         const reason = en.context.verify.response.reason;
         const alreadyVerified = en.context.verify.response.alreadyVerified;
         if (interaction.targetMember.roles.cache.some(role => role.id === '1084970943820075050')) {
-            interaction.reply({
+            interaction.editReply({
                 content: alreadyVerified.replace(/%Arg%/, interaction.targetMember.toString()),
                 ephemeral: true,
             });
@@ -66,7 +66,7 @@ module.exports = {
             await request.query(
                 'INSERT INTO users (id, age_verified) VALUES (?, ?)',
                 [
-                    ticketFind[0][0]['id'],
+                    interaction.targetMember.id,
                     true
                 ]
             ).catch(async (error) => {
@@ -75,7 +75,7 @@ module.exports = {
                         'UPDATE users SET age_verified=? WHERE id=?',
                         [
                             true,
-                            ticketFind[0][0]['id']
+                            interaction.targetMember.id
                         ]
                     )
                 }

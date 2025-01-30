@@ -17,11 +17,17 @@ module.exports = {
             const blacklistFind = await request.query(
                 `SELECT COUNT(*) FROM blacklists`
             )
+                .then(() => {
+                    blacklistAmount = blacklistFind[0][0]['COUNT(*)'];
+                })
+                .catch((error) => {
+                    blacklistAmount = 0;
+                });
 
             const status = [
                 `${bot.guilds.cache.reduce((a, g) => a + g.memberCount, 0)} Members!`,
                 `${bot.guilds.cache.size} Servers!`,
-                `${blacklistFind[0][0]['COUNT(*)']} Blacklisted Users!`,
+                `${blacklistAmount} Blacklisted Users!`,
                 `Version ${configPreset.botInfo.version}`,
             ];
 
@@ -30,8 +36,7 @@ module.exports = {
                 counter++;
 
             bot.user.setActivity(status[counter], { type: ActivityType.Watching });
-
-            db.releaseConnection(request);
+            return db.releaseConnection(request);
         }, 10000);
 
         //

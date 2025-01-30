@@ -16,6 +16,7 @@ const {
 const fs = require('node:fs');
 const path = require('node:path');
 const mysql = require('mysql2/promise');
+const { en, fr, de, sp, nl } = require('./preset/language');
 
 const bot = new Client({
   allowedMentions: { parse: ['users', 'roles'], repliedUser: true },
@@ -326,10 +327,12 @@ bot.on('interactionCreate', async (interaction) => {
       })
       .catch(() => { });
 
-    await interaction.reply({
-      content: replyStaff,
-      ephemeral: true
-    });
+    if (replyStaff !== false) {
+      interaction.reply({
+        content: replyStaff,
+        ephemeral: true
+      });
+    }
   }
 
   const action = [
@@ -361,14 +364,13 @@ bot.on('interactionCreate', async (interaction) => {
     //
     // Get the -> Ticket Database -> ready
     let ticketFind = await request.query(
-      `SELECT * FROM tickets WHERE guild_id=? AND message_id=?`,
+      `SELECT * FROM tickets WHERE message_id=?`,
       [
-        interaction.guild.id,
         interaction.message.id
       ]
     );
 
-    if (ticketFind[0][0] == undefined) {
+    if (ticketFind[0][0] === undefined) {
       await interaction.message.delete();
 
       await interaction.reply({
@@ -392,12 +394,12 @@ bot.on('interactionCreate', async (interaction) => {
       case 'ticket_accept':
         //
         // Check if there's a channel already in -> Ticket Database
-        if (ticketFind[0][0]['channel_id'] != undefined) break;
+        if (ticketFind[0][0]['channel_id'] !== null) break;
 
         //
         // Check if the person clicking on the button is -> Themself.
         if (ticketFind[0][0]['user_id'] === interaction.user.id) {
-          await interaction.reply({
+          interaction.reply({
             content: "You cannot claim your own ticket."
           });
 
@@ -454,7 +456,11 @@ bot.on('interactionCreate', async (interaction) => {
         // Update the -> Ticket Database
         await request.query(
           `UPDATE tickets SET channel_id=?, claimed_by=? WHERE message_id=?`,
-          [createChannel.id, interaction.user.id, ticketFind[0][0]['user_id'], interaction.message.id]
+          [
+            createChannel.id,
+            interaction.user.id,
+            interaction.message.id
+          ]
         )
 
         //
@@ -602,8 +608,8 @@ bot.on('interactionCreate', async (interaction) => {
 
     //
     // Check who is the person clicking the button
-    if ((ticketFind[0][0] !== undefined && ticketFind[0][0]['claimed_by'] !== interaction.user.id) || !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-      await interaction.reply({
+    if ((ticketFind[0][0] !== undefined && ticketFind[0][0]['claimed_by'] !== interaction.user.id) && !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+      interaction.reply({
         content: "You cannot delete this ticket. You didn't claim it.",
         ephemeral: true,
       });
@@ -613,20 +619,22 @@ bot.on('interactionCreate', async (interaction) => {
 
     switch (interaction.customId) {
       case 'ticket_delete':
-        if (ticketFind[0][0] !== undefined) editMessageTicket(ticketFind, 'Completed', 'Green', false)
-
-        await interaction.reply({
-          content: 'You **completed** this ticket, it will be deleted in 3 seconds.',
-          ephemeral: true
-        });
+        if (ticketFind[0][0] !== undefined) {
+          editMessageTicket(ticketFind, 'Completed', 'Green', 'You **completed** this ticket, it will be deleted in 3 seconds.')
+        } else {
+          interaction.reply({
+            content: 'You **completed** this ticket, it will be deleted in 3 seconds.',
+            ephemeral: true
+          });
+        }
 
         await request.query(
           `DELETE FROM tickets WHERE channel_id=?`,
           [interaction.channel.id]
         )
 
-        setTimeout(async () => {
-          await interaction.channel.delete();
+        setTimeout(() => {
+          interaction.channel.delete();
         }, 3000);
 
         break;
@@ -647,7 +655,7 @@ bot.on('interactionCreate', async (interaction) => {
         const reason = en.context.verify.response.reason;
         const alreadyVerified = en.context.verify.response.alreadyVerified;
         if (user.roles.cache.some(role => role.id === '1084970943820075050')) {
-          interaction.reply({
+          interaction.editReply({
             content: alreadyVerified.replace(/%Arg%/, '<@' + ticketFind[0][0]['user_id'] + '>'),
             ephemeral: true,
           });
@@ -714,7 +722,7 @@ bot.on('interactionCreate', async (interaction) => {
 
         //
         // Modifying the reply to alert the staff it is done.
-        await interaction.deferReply({
+        interaction.editReply({
           content: `You successfully verified <@${ticketFind[0][0]['user_id']}>'s age.`,
           ephemeral: true,
         });
