@@ -33,24 +33,32 @@ module.exports = {
                 option['value'];
         }
 
-        await request.query(
-            `INSERT INTO command_stats (name, extra_option, usage_count) VALUES (?, ?, ?)`,
+        const commandStatFind = await request.query(
+            `SELECT * FROM command_stats WHERE name=? AND extra_option=?`,
             [
                 interaction.commandName,
-                option,
-                1
+                option
             ]
-        ).catch(async (error) => {
-            if (error.code === 'ER_DUP_ENTRY') {
-                await request.query(
-                    `UPDATE command_stats SET usage_count = usage_count + 1, extra_option=? WHERE name=?`,
-                    [
-                        option,
-                        interaction.commandName
-                    ]
-                );
-            };
-        });
+        );
+
+        if (commandStatFind[0][0] === undefined) {
+            await request.query(
+                `INSERT INTO command_stats (name, extra_option, usage_count) VALUES (?, ?, ?)`,
+                [
+                    interaction.commandName,
+                    option,
+                    1
+                ]
+            )
+        } else {
+            await request.query(
+                `UPDATE command_stats SET usage_count = usage_count + 1 WHERE name=? AND extra_option=?`,
+                [
+                    interaction.commandName,
+                    option
+                ]
+            );
+        }
 
         if (commandFind[0]['status'] === 0 || !interaction.guild) {
             let refusingAction = !interaction.guild ?
