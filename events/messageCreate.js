@@ -20,25 +20,35 @@ module.exports = {
             [message.guild.id]
         );
 
-        // Lookup for user and server settings.
-        if ((userSettingFind[0][0] != undefined && userSettingFind[0][0]['data_messageContent'] === 0) || (guildSettingFind[0][0] != undefined && guildSettingFind[0][0]['level_status'] === 0)) return db.releaseConnection(request);
-
         const userFind = await request.query(
             'SELECT * FROM users WHERE id=?',
             [message.author.id]
         );
 
-        if (userFind[0][0] == undefined) {
+        if (userFind[0][0] === undefined) {
             await request.query(
                 'INSERT INTO users (`id`, `name`, `avatar`, `global_name`) VALUES (?, ?, ?, ?)',
-                [message.author.id, message.author.username, message.author.avatar, message.author.globalName]
+                [
+                    message.author.id,
+                    message.author.username,
+                    message.author.avatar,
+                    message.author.globalName
+                ]
             );
         } else {
             await request.query(
                 'UPDATE users SET `name`=?, `global_name`=?, `avatar`=? WHERE id=?',
-                [message.author.username, message.author.globalName, message.author.avatar, message.author.id]
+                [
+                    message.author.username,
+                    message.author.globalName,
+                    message.author.avatar,
+                    message.author.id
+                ]
             );
         }
+
+        // Lookup for user and server settings.
+        if ((userSettingFind[0][0] !== undefined && userSettingFind[0][0]['data_messageContent'] === 0) || (guildSettingFind[0][0] !== undefined && guildSettingFind[0][0]['level_status'] === 0)) return db.releaseConnection(request);
 
         const levelFind = await request.query(
             'SELECT * FROM levels WHERE user_id=? AND guild_id=?',
