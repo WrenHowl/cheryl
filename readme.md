@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://cheryl-bot.ca/assets/images/logo/favicon.png">
+  <img src="https://cheryl-bot.ca/assets/images/cheryl/favicon.png">
 <br>
   <strong>Cheryl</strong>
 </p>
