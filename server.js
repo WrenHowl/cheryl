@@ -37,7 +37,7 @@ const bot = new Client({
     Partials.Reaction
   ]
 });
-const db = mysql.createPool({
+var db = mysql.createPool({
   host: botPrivateInfo.database.host,
   port: botPrivateInfo.database.port,
   user: botPrivateInfo.database.username,

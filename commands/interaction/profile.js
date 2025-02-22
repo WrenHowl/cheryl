@@ -40,15 +40,11 @@ module.exports = {
     execute: async (interaction) => {
         const request = await db.getConnection();
 
-        //
         // Change the variable user if it was mentionned or not, if not mentionned the target will be themselves.
         const user = interaction.options.getUser(en.commands.profile.setup.user.name);
-        user ?
-            userTarget = user :
-            userTarget = interaction.user;
+        let userTarget = user ? user : interaction.user;
         const member = interaction.guild.members.cache.get(userTarget.id) || await interaction.guild.members.fetch(userTarget.id).catch(error => { });
 
-        //
         // Check if there is data from the users mentionned already in the users database.
         const usersData = await request.query(
             `SELECT * FROM users WHERE id=?`,
@@ -65,7 +61,7 @@ module.exports = {
             );
         };
 
-        let isAgeVerified = usersData[0][0]['age_verified'] == 1 ?
+        let isAgeVerified = usersData[0][0]['age_verified'] === 1 ?
             "Yes" :
             "No";
 

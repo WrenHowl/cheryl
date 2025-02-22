@@ -15,7 +15,7 @@ module.exports = {
         })
         .setType(ApplicationCommandType.User),
     execute: async (interaction) => {
-        if (!interaction.guild.id === "1082103667181764659") return;
+        if (interaction.guild.id !== "1082103667181764659") return;
 
         const request = await db.getConnection();
 

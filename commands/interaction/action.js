@@ -118,44 +118,58 @@ module.exports = {
             `SELECT * FROM user_settings WHERE id=?`,
             [userTarget.id]
         );
-        if (userSettingsFind[0][0] != undefined) {
-            if (userSettingsFind[0][0]['action_enabled'] == 0) {
-                interaction.reply({
-                    content: 'This user disabled this command to be used on them.',
-                    ephemeral: true,
-                });
-
-                return db.releaseConnection(request);
-            } else if (userSettingsFind[0][0]['action_nsfw'] === 0 && nsfwChoice.includes(interaction.customId)) {
-                interaction.reply({
-                    content: 'This user disabled NSFW actions to be used on them.',
-                    ephemeral: true,
-                });
-
-                return db.releaseConnection(request);
-            }
-        }
 
         const guildSettingsFind = await request.query(
             `SELECT * FROM guild_settings WHERE id=?`,
             [interaction.guild.id]
         );
-        if (guildSettingsFind[0][0] != undefined) {
-            if (guildSettingsFind[0][0]['action_status'] === 0) {
-                interaction.reply({
-                    content: 'The action command is disabled in this server.',
-                    ephemeral: true,
-                });
 
-                return db.releaseConnection(request);
-            } else if (guildSettingsFind[0][0]['action_nsfw'] === 0 && nsfwChoice.includes(interaction.customId)) {
-                interaction.reply({
-                    content: 'The NSFW actions are disabled in this server.',
-                    ephemeral: true,
-                });
+        let errorReturn = false;
 
-                return db.releaseConnection(request);
+        if (typeof userSettingsFind[0][0] !== "undefined") {
+            switch (0) {
+                case userSettingsFind[0][0]['action_enabled']:
+                    interaction.reply({
+                        content: 'This user disabled this command to be used on them.',
+                        ephemeral: true,
+                    });
+
+                    errorReturn = true;
+                    break;
+                case userSettingsFind[0][0]['action_nsfw'] === 0 && nsfwChoice.includes(interaction.customId):
+                    interaction.reply({
+                        content: 'This user disabled NSFW actions to be used on them.',
+                        ephemeral: true,
+                    });
+
+                    errorReturn = true;
+                    break;
             }
+        }
+
+        if (typeof guildSettingsFind[0][0] !== "undefined") {
+            switch (0) {
+                case guildSettingsFind[0][0]['action_status']:
+                    interaction.reply({
+                        content: 'The action command is disabled in this server.',
+                        ephemeral: true,
+                    });
+
+                    errorReturn = true;
+                    break;
+                case guildSettingsFind[0][0]['action_nsfw'] && nsfwChoice.includes(interaction.customId):
+                    interaction.reply({
+                        content: 'The NSFW actions are disabled in this server.',
+                        ephemeral: true,
+                    });
+
+                    errorReturn = true;
+                    break;
+            }
+        }
+
+        if (errorReturn === true) {
+            return db.releaseConnection(request);
         }
 
         if (optionSuggest) {

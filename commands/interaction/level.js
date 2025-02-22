@@ -70,8 +70,8 @@ module.exports = {
             )
 
             levelCurrent = levelFind[0][0]['level'];
-            xpCanvas = Math.floor((levelFind[0][0]['xp'] * 300) / levelUpFind[0][0]['xp']);
-            xpText = Math.floor((levelFind[0][0]['xp'] * 100) / levelUpFind[0][0]['xp']);
+            xpCanvas = Math.floor(levelFind[0][0]['xp'] * 300 / levelUpFind[0][0]['xp']);
+            xpText = Math.floor(levelFind[0][0]['xp'] * 100 / levelUpFind[0][0]['xp']);
         }
 
         context.font = '60px Poppins';
@@ -87,7 +87,7 @@ module.exports = {
 
         context.lineWidth = 12;
         context.strokeStyle = '#00af00';
-        context.strokeRect(canvas.width / 2.5, canvas.height / 1.6, xpCanvas, 0); // Current XP
+        context.strokeRect(canvas.width / 2.5, canvas.height / 1.6, 100, 0); // Current XP
 
         context.font = '10px Poppins';
         context.fillText(`${xpText.toString()}%`, canvas.width / 2.5, canvas.height / 1.45);

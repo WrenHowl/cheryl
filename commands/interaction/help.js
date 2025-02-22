@@ -23,8 +23,6 @@ module.exports = {
       "nl": nl.commands.help.setup.description
     }),
   execute: async (interaction) => {
-    const request = await db.getConnection();
-
     const helpEmbed = new EmbedBuilder()
       .setDescription(en.commands.help.response.description)
       .setColor("Blue")
@@ -37,11 +35,13 @@ module.exports = {
           .setStyle(ButtonStyle.Link),
       );
 
-    await interaction.reply({
-      embeds: [helpEmbed],
-      components: [helpButton],
+    return interaction.reply({
+      embeds: [
+        helpEmbed
+      ],
+      components: [
+        helpButton
+      ],
     });
-
-    return db.releaseConnection(request);
   }
 };

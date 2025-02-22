@@ -38,8 +38,6 @@ module.exports = {
             })
             .setRequired(false)),
     async execute(interaction) {
-        const request = await db.getConnection();
-
         const userOption = interaction.options.getUser(en.commands.avatar.setup.user.name);
         const member = userOption ?
             userOption :
@@ -50,10 +48,8 @@ module.exports = {
             .setImage(member.displayAvatarURL({ dynamic: true, size: 512 }))
             .setColor('Blue')
 
-        await interaction.reply({
+        return interaction.reply({
             embeds: [avatarEmbed]
         });
-
-        return db.releaseConnection(request);
     }
 };
