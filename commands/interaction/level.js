@@ -49,8 +49,7 @@ module.exports = {
         const avatar = await loadImage(userCheck.displayAvatarURL({ extension: 'png' }));
         GlobalFonts.registerFromPath('./ressources/font/Poppins-SemiBold.ttf', 'Poppins')
 
-        //
-        // Create the levelup picture
+        // Create the level-up picture
         const canvas = createCanvas(700, 250);
         const context = canvas.getContext('2d');
 
@@ -63,7 +62,7 @@ module.exports = {
         let xpCanvas = 0;
         let xpText = 0;
 
-        if (levelFind[0][0] !== undefined) {
+        if (typeof levelFind[0][0] !== "undefined") {
             const levelUpFind = await request.query(
                 'SELECT * FROM level_xp WHERE level=?',
                 [levelFind[0][0]['level'] + 1]
@@ -78,22 +77,24 @@ module.exports = {
         context.fillStyle = '#00af00';
         context.fillText(levelCurrent.toString(), canvas.width / 1.575, canvas.height / 2)
 
+        // Level label
         context.fillStyle = '#ffffff';
         context.fillText('Level', canvas.width / 2.5, canvas.height / 2)
 
+        // Level line
         context.lineWidth = 12;
         context.strokeStyle = '#ffffff';
         context.strokeRect(canvas.width / 2.5, canvas.height / 1.6, 300, 0); // 100%
 
         context.lineWidth = 12;
         context.strokeStyle = '#00af00';
-        context.strokeRect(canvas.width / 2.5, canvas.height / 1.6, 100, 0); // Current XP
+        context.strokeRect(canvas.width / 2.5, canvas.height / 1.6, xpCanvas, 0); // Current XP
 
+        // Level text
         context.font = '10px Poppins';
         context.fillText(`${xpText.toString()}%`, canvas.width / 2.5, canvas.height / 1.45);
 
-        //
-        // Drawing profile picture
+        // Profile picture
         context.beginPath();
         context.arc(125, 125, 100, 0, Math.PI * 2, true);
         context.closePath();
@@ -102,9 +103,9 @@ module.exports = {
 
         const attachment = new AttachmentBuilder(await canvas.encode('png'), { name: 'leveling.png' });
 
-        await interaction.reply({
+        interaction.reply({
             files: [attachment]
-        })
+        });
 
         return db.releaseConnection(request);
     }
