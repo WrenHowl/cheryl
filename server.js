@@ -1,23 +1,9 @@
-const {
-  Client,
-  Partials,
-  Collection,
-  GatewayIntentBits,
-  EmbedBuilder,
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  ChannelType,
-  PermissionsBitField
-} = require('discord.js');
-const {
-  botPrivateInfo
-} = require('./config/main.json');
+const { Client, Partials, Collection, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, PermissionsBitField } = require('discord.js');
+const { botPrivateInfo } = require('./config/main.json');
 const fs = require('node:fs');
 const path = require('node:path');
 const mysql = require('mysql2/promise');
 const { en, fr, de, sp, nl } = require('./preset/language');
-
 const bot = new Client({
   allowedMentions: { parse: ['users', 'roles'], repliedUser: true },
   intents: [
@@ -37,7 +23,8 @@ const bot = new Client({
     Partials.Reaction
   ]
 });
-var db = mysql.createPool({
+
+const db = mysql.createPool({
   host: botPrivateInfo.database.host,
   port: botPrivateInfo.database.port,
   user: botPrivateInfo.database.username,
@@ -47,24 +34,18 @@ var db = mysql.createPool({
   connectionLimit: 100,
 });
 
-const date = new Date();
-const consoleDate = `${date.toLocaleString()} ->`;
-
-//
-// Exporting vital parts of the code.
-module.exports = { bot, date, consoleDate, db };
-
-//
 // Check if there is any error while loading the database.
 db.on('error', (error) => {
-  return console.error(`${consoleDate} MySQL error`, error);
+  return console.error(`${new Date().toLocaleString()} → MySQL error`, error);
 });
 
-//
 // Check if there is any error while closing connection of the database.
 db.on('close', (error) => {
-  return console.error(`${consoleDate} MySQL close`, error);
+  return console.error(`${new Date().toLocaleString()} → MySQL close`, error);
 });
+
+// Exporting vital parts of the code.
+module.exports = { bot, db };
 
 bot.commands = new Collection();
 
@@ -72,8 +53,6 @@ const commandsPath = path.join(__dirname, 'commands');
 const commandsFilter = fs.readdirSync(commandsPath).filter(file => file != 'message'); // Filter the message event out of it
 
 for (folder of commandsFilter) {
-  //
-  // Find the folder after the filter
   const commandsPath = path.join(__dirname, `commands/${folder}`);
   const commandsFilter = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
@@ -102,7 +81,6 @@ bot.on('interactionCreate', async (interaction) => {
 
   const request = await db.getConnection();
 
-  //
   // Approving and Denying new action image buttons.
   async function actionButton() {
     const actionFind = await request.query(
@@ -734,6 +712,5 @@ bot.on('interactionCreate', async (interaction) => {
   return db.releaseConnection(request);;
 });
 
-//
 // Login to discord and the bot.
 bot.login(botPrivateInfo.token);

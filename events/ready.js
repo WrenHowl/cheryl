@@ -1,5 +1,5 @@
 const { Events, ActivityType } = require('discord.js');
-const { db, consoleDate, bot } = require('../server');
+const { db, bot } = require('../server');
 const configPreset = require('../config/main.json');
 
 module.exports = {
@@ -8,7 +8,6 @@ module.exports = {
     async execute() {
         bot.user.setStatus('dnd');
 
-        let counter = 0;
         const request = await db.getConnection()
 
         setInterval(async () => {
@@ -16,9 +15,13 @@ module.exports = {
                 `SELECT COUNT(*) FROM blacklists`
             )
 
-            blacklistAmount = blacklistFind ?
+            const blacklistAmount = blacklistFind ?
                 blacklistFind[0][0]['COUNT(*)'] :
-                blacklistAmount = 0;
+                0;
+            let counter = 0;
+            counter = counter === 3 ?
+                0 :
+                counter++;
 
             const status = [
                 `${bot.guilds.cache.reduce((a, g) => a + g.memberCount, 0)} Members!`,
@@ -27,37 +30,13 @@ module.exports = {
                 `Version ${configPreset.botInfo.version}`,
             ];
 
-            counter === 3 ?
-                counter = 0 :
-                counter++;
-
             bot.user.setActivity(status[counter], { type: ActivityType.Watching });
         }, 10000);
 
-        //
-        // Was used to get levels working in the database
-        /*const a = await request.query(
-            `SELECT * FROM level_xp ORDER BY level DESC`,
-        )
-
-        let intIncrease = (a[0][0]['level'] * 100) + a[0][0]['xp'] + 250;
-
-        for (let i = 1; i < 251; i++) {
-            console.log(i + ' ... ' + intIncrease);
-
-            await request.query(
-                `INSERT INTO level_xp (xp) VALUES (?)`,
-                [intIncrease]
-            )
-
-            console.log('Completed.')
-
-            intIncrease = (i * 100) + intIncrease + 250
-        }*/
-
         bot.guilds.cache.forEach(async (guild) => {
             await request.query(
-                `INSERT INTO guilds (name, id, avatar, bot_in, members) VALUES (?, ?, ?, ?, ?)`,
+                `INSERT INTO guilds (name, id, avatar, bot_in, members) VALUES (?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE name=VALUES(name), avatar=VALUES(avatar), bot_in=VALUES(bot_in), members=VALUES(members)`,
                 [
                     guild.name,
                     guild.id,
@@ -65,29 +44,19 @@ module.exports = {
                     1,
                     guild.memberCount
                 ]
-            ).catch(async (error) => {
-                if (error.code === 'ER_DUP_ENTRY') {
-                    await request.query(
-                        `UPDATE guilds SET name=?, avatar=?, bot_in=?, members=? WHERE id=?`,
-                        [
-                            guild.name,
-                            guild.icon,
-                            1,
-                            guild.memberCount,
-                            guild.id
-                        ]
-                    )
-                }
-            });
+            );
 
             await request.query(
-                `INSERT INTO guild_settings (id) VALUES (?)`,
+                `INSERT INTO guild_settings (id) VALUES (?)
+                ON DUPLICATE KEY UPDATE id=VALUES(id)`,
                 [
                     guild.id
                 ]
-            ).catch(() => { })
+            );
         });
 
-        console.log(`${consoleDate} The bot is ready!`);
+        console.log(`${new Date().toLocaleString()} → The bot is ready!`);
+
+        return db.releaseConnection(request);
     },
 };

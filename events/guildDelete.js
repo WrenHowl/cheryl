@@ -16,6 +16,13 @@ module.exports = {
             ]
         )
 
+        await request.query(
+            `DELETE FROM guild_userPermission WHERE id=?`,
+            [
+                guild.id
+            ]
+        )
+
         let owner = await guild.fetchOwner();
 
         // Lookup if the owner of the server is blacklisted

@@ -13,7 +13,7 @@ module.exports = {
             [newMember.guild.id]
         )
 
-        if (guildSettingFind[0][0] == undefined) return;
+        if (typeof guildSettingFind[0][0] === "undefined") return db.releaseConnection(request);
 
         const welcome_channelDestination = guildSettingFind[0][0]['welcome_channelDestination'];
         if (welcome_channelDestination) {

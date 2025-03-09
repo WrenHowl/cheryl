@@ -1,6 +1,6 @@
 const { Events, AttachmentBuilder } = require('discord.js');
-const Canvas = require('@napi-rs/canvas');
 const { db } = require('../server');
+const Canvas = require('@napi-rs/canvas');
 
 module.exports = {
     name: Events.MessageCreate,
@@ -25,21 +25,20 @@ module.exports = {
         )
 
         // Create user information in the database if there isn't any found
-        if (typeof userFind[0][0] === "undefined") {
-            await request.query(
-                'INSERT INTO users (id, name, avatar, global_name) VALUES (?, ?, ?, ?)',
-                [
-                    message.author.id,
-                    message.author.username,
-                    message.author.avatar,
-                    message.author.globalName
-                ]
-            )
-        }
+        await request.query(
+            `INSERT INTO users (id, name, avatar, global_name) VALUES (?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE name=VALUES(name), avatar=VALUES(avatar), global_name=VALUES(global_name)`,
+            [
+                message.author.id,
+                message.author.username,
+                message.author.avatar,
+                message.author.globalName
+            ]
+        )
 
         // Get the guild settings
         const guildFind = await request.query(
-            `SELECT * FROM guild_settings WHERE id=?`,
+            `SELECT level_status FROM guild_settings WHERE id=?`,
             [
                 message.guild.id
             ]
@@ -53,7 +52,8 @@ module.exports = {
         // Check if the user has data already in the server.
         if (typeof userFind[0][0]['xp'] === "object") {
             await request.query(
-                'INSERT INTO levels (`guild_id`, `user_id`, `xp`) VALUES (?, ?, ?)',
+                `INSERT INTO levels (guild_id, user_id, xp) VALUES (?, ?, ?)
+                ON DUPLICATE KEY UPDATE `,
                 [
                     message.guild.id,
                     message.author.id,

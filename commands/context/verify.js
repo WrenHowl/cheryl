@@ -19,7 +19,6 @@ module.exports = {
 
         const request = await db.getConnection();
 
-        //
         // Check for the permission of the user executing the command.
         const missingRoleReply = en.global.userMissingRole;
         if (!interaction.member.roles.cache.some(role => role.id === '1083475130241523852')) {
@@ -29,7 +28,6 @@ module.exports = {
             });
         };
 
-        //
         // Replying to the staff.
         const processVerify = en.context.verify.response.processVerify;
         await interaction.reply({
@@ -37,7 +35,6 @@ module.exports = {
             ephemeral: true,
         });
 
-        //
         // Check if the user is already verified.
         const reason = en.context.verify.response.reason;
         const alreadyVerified = en.context.verify.response.alreadyVerified;
@@ -52,7 +49,6 @@ module.exports = {
                 reason.replace(/%Arg%/, interaction.user.username)
             );
 
-            //
             // Remove the un-verified role.
             if (interaction.targetMember.roles.cache.some(role => role.id === '1233066501825892383')) {
                 await interaction.targetMember.roles.remove(
