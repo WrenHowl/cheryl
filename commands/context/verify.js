@@ -24,7 +24,7 @@ module.exports = {
         if (!interaction.member.roles.cache.some(role => role.id === '1083475130241523852')) {
             return interaction.reply({
                 content: missingRoleReply.replace(/%Arg%/, '<@&1083475130241523852>'),
-                ephemeral: true,
+                flags: [MessageFlags.Ephemeral]
             });
         };
 
@@ -32,7 +32,7 @@ module.exports = {
         const processVerify = en.context.verify.response.processVerify;
         await interaction.reply({
             content: processVerify.replace(/%Arg%/, interaction.targetMember.toString()),
-            ephemeral: true,
+            flags: [MessageFlags.Ephemeral]
         });
 
         // Check if the user is already verified.
@@ -41,65 +41,56 @@ module.exports = {
         if (interaction.targetMember.roles.cache.some(role => role.id === '1084970943820075050')) {
             interaction.editReply({
                 content: alreadyVerified.replace(/%Arg%/, interaction.targetMember.toString()),
-                ephemeral: true,
+                flags: [MessageFlags.Ephemeral]
             });
-        } else {
-            await interaction.targetMember.roles.add(
-                '1084970943820075050',
+
+            return db.releaseConnection(request);
+        }
+
+        await interaction.targetMember.roles.add(
+            '1084970943820075050',
+            reason.replace(/%Arg%/, interaction.user.username)
+        );
+
+        // Remove the un-verified role.
+        if (interaction.targetMember.roles.cache.some(role => role.id === '1233066501825892383')) {
+            await interaction.targetMember.roles.remove(
+                '1233066501825892383',
                 reason.replace(/%Arg%/, interaction.user.username)
             );
-
-            // Remove the un-verified role.
-            if (interaction.targetMember.roles.cache.some(role => role.id === '1233066501825892383')) {
-                await interaction.targetMember.roles.remove(
-                    '1233066501825892383',
-                    reason.replace(/%Arg%/, interaction.user.username)
-                );
-            };
-
-            //
-            // Updating the profile.
-            await request.query(
-                'INSERT INTO users (id, age_verified) VALUES (?, ?)',
-                [
-                    interaction.targetMember.id,
-                    true
-                ]
-            ).catch(async (error) => {
-                if (error.code === 'ER_DUP_ENTRY') {
-                    await request.query(
-                        'UPDATE users SET age_verified=? WHERE id=?',
-                        [
-                            true,
-                            interaction.targetMember.id
-                        ]
-                    )
-                }
-            });
-
-            //
-            // Sending message in channel.
-            const embed = new EmbedBuilder()
-                .addFields(
-                    {
-                        name: 'Reaction Role',
-                        value:
-                            'There is multiple roles you can grab, some are just for fun and some that gives you access to channels :\n' +
-                            '* <#1082135082246078464>\n' +
-                            '  * This channel will give you access to fun roles that will only be there for yourself. You do not get access to more channels with these roles\n' +
-                            '* <#1082135024264032297>\n' +
-                            '  * This channel will give you access to NSFW categories. Including yiff and nudes.'
-                    }
-                )
-                .setColor('Blue')
-
-            const channel18 = interaction.guild.channels.cache.get('1091220263569461349')
-            const newVerification = en.context.verify.response.newVerification;
-            await channel18.send({
-                content: newVerification.replace(/%Arg%/, interaction.targetMember.toString()),
-                embeds: [embed],
-            });
         };
+
+        // Updating the profile.
+        await request.query(
+            `INSERT INTO users (id, age_verified) VALUES (?, ?)
+            ON DUPLICATE KEY UPDATE age_verified=VALUES(age_verified)`,
+            [
+                interaction.targetMember.id,
+                true
+            ]
+        );
+
+        // Sending message in channel.
+        const embed = new EmbedBuilder()
+            .addFields(
+                {
+                    name: 'Reaction Role',
+                    value:
+                        'There is multiple roles you can grab, some are just for fun and some that gives you access to channels :\n' +
+                        '* <#1082135082246078464>\n' +
+                        '  * This channel will give you access to fun roles that will only be there for yourself. You do not get access to more channels with these roles\n' +
+                        '* <#1082135024264032297>\n' +
+                        '  * This channel will give you access to NSFW categories. Including yiff and nudes.'
+                }
+            )
+            .setColor('Blue')
+
+        const channel18 = interaction.guild.channels.cache.get('1091220263569461349')
+        const newVerification = en.context.verify.response.newVerification;
+        await channel18.send({
+            content: newVerification.replace(/%Arg%/, interaction.targetMember.toString()),
+            embeds: [embed],
+        });
 
         return db.releaseConnection(request);
     }

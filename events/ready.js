@@ -1,5 +1,7 @@
 const { Events, ActivityType } = require('discord.js');
 const { db, bot } = require('../server');
+const fs = require('node:fs');
+const colors = require('colors');
 const configPreset = require('../config/main.json');
 
 module.exports = {
@@ -8,7 +10,7 @@ module.exports = {
     async execute() {
         bot.user.setStatus('dnd');
 
-        const request = await db.getConnection()
+        const request = await db.getConnection();
 
         setInterval(async () => {
             const blacklistFind = await request.query(
@@ -54,8 +56,9 @@ module.exports = {
                 ]
             );
         });
+        console.log(`${new Date().toLocaleString()} → The bot is ready!`.green);
 
-        console.log(`${new Date().toLocaleString()} → The bot is ready!`);
+        fs.writeFile(`./logs/log-${new Date().toLocaleDateString()}.txt`, `${new Date().toLocaleDateString()} → The bot is ready!\n\n`, { flag: 'a+' }, callback => { });
 
         return db.releaseConnection(request);
     },

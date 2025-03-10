@@ -33,19 +33,16 @@ module.exports = {
             .setColor("Blue")
 
         const levelFind = await request.query(
-            `SELECT * FROM levels WHERE guild_id=? ORDER BY level DESC`,
-            [interaction.guild.id]
+            `SELECT user_id, level, xp FROM levels WHERE guild_id=? ORDER BY xp DESC LIMIT 5 OFFSET 0`,
+            [
+                interaction.guild.id
+            ]
         );
 
         if (typeof levelFind[0][0] !== "undefined" && levelFind[0][0]['level'] > 1) {
-            const levelOrderFind = await request.query(
-                `SELECT * FROM levels WHERE guild_id=? ORDER BY xp DESC LIMIT 5 OFFSET 0`,
-                [interaction.guild.id]
-            )
-
-            for (i = 0; i < levelOrderFind[0].length; i++) {
+            for (i = 0; i < levelFind[0].length; i++) {
                 embed.addFields(
-                    { name: `#${i}`, value: '<@' + levelOrderFind[0][i]['user_id'] + '> \n**Level** → `' + levelOrderFind[0][i]['level'] + '` \n**XP** → `' + levelOrderFind[0][i]['xp'] + '`' }
+                    { name: `#${i}`, value: '<@' + levelFind[0][i]['user_id'] + '> \n**Level** → `' + levelFind[0][i]['level'] + '` \n**XP** → `' + levelFind[0][i]['xp'] + '`' }
                 );
             }
 
@@ -55,7 +52,7 @@ module.exports = {
         } else {
             await interaction.reply({
                 content: en.commands.leaderboard.response.noLevel,
-                ephemeral: true,
+                flags: [MessageFlags.Ephemeral]
             });
         };
 

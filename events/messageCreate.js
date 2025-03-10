@@ -14,7 +14,7 @@ module.exports = {
         let levelStatus = 0;
 
         const userFind = await request.query(
-            `SELECT data_messageContent, xp, level_rankup FROM users
+            `SELECT user_settings.data_messageContent, levels.xp, user_settings.level_rankup FROM users
             LEFT JOIN user_settings ON users.id = user_settings.id
             LEFT JOIN levels ON users.id = levels.user_id AND levels.guild_id = ?
             WHERE users.id=?`,
@@ -50,7 +50,7 @@ module.exports = {
         }
 
         // Check if the user has data already in the server.
-        if (typeof userFind[0][0]['xp'] !== "object") {
+        if (typeof userFind[0][0]['xp'] !== "object" || typeof userFind[0][0]['xp'] !== "undefined") {
             // Check if the amount of XP gained is enough for a level up
             const levelXpFind = await request.query(
                 `SELECT level_xp.level, level_xp.xp, level_perks.guild_id, level_perks.role_id FROM level_xp

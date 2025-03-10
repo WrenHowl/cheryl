@@ -36,12 +36,8 @@ module.exports = {
       );
 
     return interaction.reply({
-      embeds: [
-        helpEmbed
-      ],
-      components: [
-        helpButton
-      ],
+      embeds: [helpEmbed],
+      components: [helpButton],
     });
   }
 };

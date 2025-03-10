@@ -7,15 +7,27 @@ module.exports = {
     execute: async (oldUpdate, newUpdate) => {
         const request = await db.getConnection();
 
-        if (newUpdate.username !== oldUpdate.username) {
-            await request.query(
-                `UPDATE blacklists SET name=? WHERE id=?`,
-                [newUpdate.username, oldUpdate.id]);
+        const arrayUpdate = Object.entries(newUpdate);
 
-            await request.query(
-                `UPDATE blacklists SET staff_name=? WHERE staff_id=?`,
-                [newUpdate.username, oldUpdate.id]);
+        const updatedVariable = [
+            'username',
+            'globalName',
+            'avatar'
+        ];
+
+        let data = [];
+
+        for (value of arrayUpdate) {
+            if (!updatedVariable.includes(value[0])) continue;
+            data.push(value[1]);
         };
+
+        await request.query(
+            `UPDATE users SET name=?, global_name=?, avatar=? WHERE id=?`,
+            [
+                ...data
+            ]
+        );
 
         return db.releaseConnection(request);
     }

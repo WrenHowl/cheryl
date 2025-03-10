@@ -8,45 +8,35 @@ module.exports = {
     execute: async (guild) => {
         const request = await db.getConnection()
 
-        //
         // Find the guild data in the database
-        const guildFind = await request.query(
-            `SELECT * FROM guilds WHERE id=?`,
-            [guild.id]
+        await request.query(
+            `INSERT INTO guilds (name, id, avatar, bot_in, members) VALUES (?, ?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE name=VALUES(name), avatar=VALUES(avatar), bot_in=VALUES(bot_in), members=VALUES(members)`,
+            [
+                guild.name,
+                guild.id,
+                guild.icon,
+                1,
+                guild.memberCount
+            ]
         )
 
-        if (guildFind[0][0] == undefined) {
-            await request.query(
-                `INSERT INTO guilds (name, id, avatar, bot_in, members) VALUES (?, ?, ?, ?, ?)`,
-                [guild.name, guild.id, guild.icon, 1, guild.memberCount]
-            )
-        } else {
-            await request.query(
-                `UPDATE guilds SET name=?, avatar=?, bot_in=?, members=? WHERE id=?`,
-                [guild.name, guild.icon, 1, guild.memberCount, guild.id]
-            )
-        }
-
-        //
-        // Find logging data in database
-        const loggingFind = await request.query(
-            `SELECT * FROM guild_settings WHERE id=?`,
-            [guild.id]
+        await request.query(
+            `INSERT INTO guild_settings (id) VALUES (?)
+            ON DUPLICATE KEY UPDATE id=VALUES(id)`,
+            [
+                guild.id
+            ]
         )
-
-        if (loggingFind[0][0] == undefined) {
-            await request.query(
-                `INSERT INTO guild_settings (id) VALUES (?)`,
-                [guild.id]
-            )
-        }
 
         let owner = await guild.fetchOwner();
 
         // Lookup if the owner of the server is blacklisted
         const blacklistFind = await request.query(
             `SELECT * FROM blacklists WHERE id=?`,
-            [owner.user.id]
+            [
+                owner.user.id
+            ]
         )
 
         isBlacklisted = blacklistFind[0][0] == undefined ?

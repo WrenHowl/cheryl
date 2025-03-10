@@ -1,4 +1,4 @@
-const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, AllowedMentionsTypes, MessageFlags, Message } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { en, fr, de, sp, nl } = require('../../preset/language.js');
 const { bot, db } = require('../../server.js');
@@ -125,14 +125,14 @@ module.exports = {
                 case userSettingsFind[0][0]['action_enabled']:
                     interaction.reply({
                         content: 'This user disabled this command to be used on them.',
-                        ephemeral: true,
+                        flags: [MessageFlags.Ephemeral]
                     });
 
                     return db.releaseConnection(request);
                 case userSettingsFind[0][0]['action_nsfw'] === 0 && nsfwChoice.includes(interaction.customId):
                     interaction.reply({
                         content: 'This user disabled NSFW actions to be used on them.',
-                        ephemeral: true,
+                        flags: [MessageFlags.Ephemeral]
                     });
 
                     return db.releaseConnection(request);
@@ -149,14 +149,14 @@ module.exports = {
                 case guildSettingsFind[0][0]['action_status']:
                     interaction.reply({
                         content: 'The action command is disabled in this server.',
-                        ephemeral: true,
+                        flags: [MessageFlags.Ephemeral]
                     });
 
                     return db.releaseConnection(request);
                 case guildSettingsFind[0][0]['action_nsfw'] && nsfwChoice.includes(interaction.customId):
                     interaction.reply({
                         content: 'The NSFW actions are disabled in this server.',
-                        ephemeral: true,
+                        flags: [MessageFlags.Ephemeral]
                     });
 
                     return db.releaseConnection(request);
@@ -170,7 +170,7 @@ module.exports = {
             } catch (error) {
                 return interaction.reply({
                     content: en.commands.action.response.suggest.wrongUrl,
-                    ephemeral: true,
+                    flags: [MessageFlags.Ephemeral]
                 });
             };
 
@@ -178,7 +178,7 @@ module.exports = {
             if (!['jpg', 'png', 'gif'].some(sm => optionSuggest.endsWith(sm))) {
                 return interaction.reply({
                     content: en.commands.action.response.suggest.wrongFormat,
-                    ephemeral: true,
+                    flags: [MessageFlags.Ephemeral]
                 });
             };
 
@@ -194,7 +194,7 @@ module.exports = {
             if (actionImageFind[0][0] != undefined) {
                 return interaction.reply({
                     content: en.commands.action.response.suggest.alreadyExist,
-                    ephemeral: true,
+                    flags: [MessageFlags.Ephemeral]
                 });
             };
 
@@ -202,7 +202,7 @@ module.exports = {
             // Notify that the suggestion has been received
             await interaction.reply({
                 content: en.commands.action.response.suggest.success,
-                ephemeral: true,
+                flags: [MessageFlags.Ephemeral]
             });
 
             //
@@ -270,7 +270,7 @@ module.exports = {
             if (nsfwChoice.includes(optionChoice) && !interaction.channel.nsfw) {
                 return interaction.reply({
                     content: en.commands.action.response.user.notNsfw,
-                    ephemeral: true,
+                    flags: [MessageFlags.Ephemeral]
                 });
             };
 
@@ -278,16 +278,16 @@ module.exports = {
                 `SELECT url FROM actions WHERE category=? ORDER BY RAND() LIMIT 1`,
                 [optionChoice]
             );
-            if (actionImageFind[0][0] == undefined) {
+            if (typeof actionImageFind[0][0] === "undefined") {
                 const replyString = en.commands.action.response.noImageFound;
 
                 await interaction.reply({
                     content: replyString.replace(/%Arg%/g, optionChoice),
-                    ephemeral: true,
+                    flags: [MessageFlags.Ephemeral]
                 });
 
                 return db.releaseConnection(request);
-            }
+            };
 
             const userInteracter = interaction.user.toString();
             const noun_target = "them";
@@ -356,6 +356,12 @@ module.exports = {
                         `${userInteracter} swing a baseball bat on ${userTarget}'s head.Bonking ${noun_target}!~`
                     ];
                     sentence = bonk;
+                    break;
+                case 'slap':
+                    const slap = [
+                        `${userInteracter} slaps ${userTarget}`,
+                    ];
+                    sentence = slap;
                     break;
                 case 'fuckstraight':
                     const fuckStraight = [
@@ -428,12 +434,12 @@ module.exports = {
             };
 
             const randomAnswer = sentence[Math.floor(Math.random() * sentence.length)];
-            let isEphemeral = false;
+            let isEphemeral = '';
 
             switch (guildSettingsFind[0][0]['action_status']) {
                 case 0:
                     reply = en.commands.action.response.user.disable;
-                    isEphemeral = true;
+                    isEphemeral = MessageFlags.Ephemeral;
                     break;
                 case 1:
                     reply = `[Source](${actionImageFind[0][0]['url']})`;
@@ -450,7 +456,7 @@ module.exports = {
 
             await interaction.reply({
                 content: reply,
-                ephemeral: isEphemeral,
+                flags: [isEphemeral]
             });
         }
 
