@@ -11,7 +11,7 @@ module.exports = {
         try {
             // Send it to my DM
             return bot.users.cache.get(configPreset.botInfo.ownerId).send({
-                content: '**Error at ' + new Date().toLocaleDateString() + '** \n\n```javascript\n' + error.stack + '```'
+                content: '**Error at ' + new Date().toLocaleString() + '** \n\n```javascript\n' + error.stack + '```'
             });
         } catch (error) { return }
     }

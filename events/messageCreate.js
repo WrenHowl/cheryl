@@ -14,7 +14,7 @@ module.exports = {
         let levelStatus = 0;
 
         const userFind = await request.query(
-            `SELECT * FROM users
+            `SELECT data_messageContent, xp, level_rankup FROM users
             LEFT JOIN user_settings ON users.id = user_settings.id
             LEFT JOIN levels ON users.id = levels.user_id AND levels.guild_id = ?
             WHERE users.id=?`,
@@ -38,7 +38,7 @@ module.exports = {
 
         // Get the guild settings
         const guildFind = await request.query(
-            `SELECT level_status FROM guild_settings WHERE id=?`,
+            `SELECT level_status, level_rankup FROM guild_settings WHERE id=?`,
             [
                 message.guild.id
             ]
@@ -50,17 +50,7 @@ module.exports = {
         }
 
         // Check if the user has data already in the server.
-        if (typeof userFind[0][0]['xp'] === "object") {
-            await request.query(
-                `INSERT INTO levels (guild_id, user_id, xp) VALUES (?, ?, ?)
-                ON DUPLICATE KEY UPDATE `,
-                [
-                    message.guild.id,
-                    message.author.id,
-                    xpPerMessage
-                ]
-            )
-        } else {
+        if (typeof userFind[0][0]['xp'] !== "object") {
             // Check if the amount of XP gained is enough for a level up
             const levelXpFind = await request.query(
                 `SELECT level_xp.level, level_xp.xp, level_perks.guild_id, level_perks.role_id FROM level_xp
@@ -76,6 +66,7 @@ module.exports = {
 
             if (userFind[0][0]['xp'] + xpPerMessage === levelXpFind[0][0]['xp']) {
                 levelStatus = levelXpFind[0][0]['level'];
+
                 if (typeof levelXpFind[0][0]['role_id'] !== "object") {
                     await message.member.roles.add(levelXpFind[0][0]['role_id']);
                 }
@@ -112,18 +103,19 @@ module.exports = {
                     })
                 }
             }
-
-            // Update the level of the user to the current one
-            await request.query(
-                'UPDATE levels SET level = ?, xp = xp + ? WHERE guild_id=? AND user_id=?',
-                [
-                    levelStatus,
-                    xpPerMessage,
-                    message.guild.id,
-                    message.author.id
-                ]
-            )
         }
+
+        // Update the level of the user to the current one
+        await request.query(
+            `INSERT INTO levels (guild_id, user_id, xp, level) VALUES (?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE level=VALUES(level), xp=xp + VALUES(xp)`,
+            [
+                message.guild.id,
+                message.author.id,
+                xpPerMessage,
+                levelStatus,
+            ]
+        )
 
         return db.releaseConnection(request);
     }
