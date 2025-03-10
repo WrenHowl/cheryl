@@ -10,7 +10,7 @@ module.exports = {
         // Send it to console
         console.error(`${error.stack}`.red);
 
-        fs.writeFile(`./logs/log-${new Date().toLocaleDateString()}.txt`, `${new Date().toLocaleDateString()}\n${error.stack}\n\n`, { flag: 'a+' }, callback => { });
+        fs.writeFile(`./logs/log-${new Date().toLocaleDateString()}.txt`, `${new Date().toLocaleString()}\n${error.stack}\n\n`, { flag: 'a+' }, callback => { });
 
         try {
             // Send it to my DM

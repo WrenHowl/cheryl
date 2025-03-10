@@ -22,6 +22,8 @@ module.exports = {
             data.push(value[1]);
         };
 
+        console.log(data)
+
         await request.query(
             `UPDATE users SET name=?, global_name=?, avatar=? WHERE id=?`,
             [

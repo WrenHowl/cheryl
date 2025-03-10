@@ -45,7 +45,7 @@ module.exports = {
         );
 
         // Lookup for user and server settings if they do not want level to be used
-        if ((typeof userFind[0][0] !== "undefined" && userFind[0][0]['data_messageContent'] === 0) || (typeof guildFind[0][0] !== "undefined" && guildFind[0][0]['level_status'] === 0)) {
+        if (typeof userFind[0][0] === "undefined" || userFind[0][0]['data_messageContent'] === 0 || (typeof guildFind[0][0] !== "undefined" && guildFind[0][0]['level_status'] === 0)) {
             return db.releaseConnection(request);
         }
 
