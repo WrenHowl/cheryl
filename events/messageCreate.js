@@ -1,81 +1,75 @@
 const { Events, AttachmentBuilder } = require('discord.js');
-const Canvas = require('@napi-rs/canvas');
 const { db } = require('../server');
+const Canvas = require('@napi-rs/canvas');
 
 module.exports = {
     name: Events.MessageCreate,
     once: false,
     execute: async (message) => {
+        // Will return if the message is coming from a bot.
         if (message.author.bot) return;
 
         const request = await db.getConnection()
-
-        const userSettingFind = await request.query(
-            `SELECT * FROM user_settings WHERE userId=?`,
-            [message.author.id]
-        );
-
-        const guildSettingFind = await request.query(
-            `SELECT * FROM guild_settings WHERE guildId=?`,
-            [message.guild.id]
-        );
-
-        //
-        // Lookup if the person refuses to get their data looked over.
-        if ((userSettingFind[0][0] != undefined && userSettingFind[0][0]['data_messageContent'] === 0) || (guildSettingFind[0][0] != undefined && guildSettingFind[0][0]['level_status'] === 0)) return db.releaseConnection(request);
+        const xpPerMessage = 5;
+        let levelStatus = 0;
 
         const userFind = await request.query(
-            'SELECT * FROM users WHERE userId=?',
-            [message.author.id]
-        );
-
-        if (userFind[0][0] == undefined) {
-            await request.query(
-                'INSERT INTO users (`userId`, `userName`, `avatar`, `globalName`) VALUES (?, ?, ?, ?)',
-                [message.author.id, message.author.username, message.author.avatar, message.author.globalName]
-            );
-        } else {
-            await request.query(
-                'UPDATE users SET `userName`=?, `globalName`=?, `avatar`=? WHERE userId=?',
-                [message.author.username, message.author.globalName, message.author.avatar, message.author.id]
-            );
-        }
-
-        const levelFind = await request.query(
-            'SELECT * FROM level WHERE userId=? AND guildId=?',
-            [message.author.id, message.guild.id]
+            `SELECT user_settings.data_messageContent, levels.xp, user_settings.level_rankup FROM users
+            LEFT JOIN user_settings ON users.id = user_settings.id
+            LEFT JOIN levels ON users.id = levels.user_id AND levels.guild_id = ?
+            WHERE users.id=?`,
+            [
+                message.guild.id,
+                message.author.id
+            ]
         )
 
-        const xpPerMessage = 5;
+        // Create user information in the database if there isn't any found
+        await request.query(
+            `INSERT INTO users (id, name, avatar, global_name) VALUES (?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE name=VALUES(name), avatar=VALUES(avatar), global_name=VALUES(global_name)`,
+            [
+                message.author.id,
+                message.author.username,
+                message.author.avatar,
+                message.author.globalName
+            ]
+        )
 
-        if (levelFind[0][0] == undefined) {
-            await request.query(
-                'INSERT INTO level (`guildId`, `userId`, `xp`) VALUES (?, ?, ?)',
-                [message.guild.id, message.author.id, xpPerMessage]
-            )
-        } else {
-            const xpIncrease = levelFind[0][0]['xp'] + xpPerMessage; // Increase level
-            const levelCurrent = levelFind[0][0]['level'] + 1;
+        // Get the guild settings
+        const guildFind = await request.query(
+            `SELECT level_status, level_rankup FROM guild_settings WHERE id=?`,
+            [
+                message.guild.id
+            ]
+        );
 
-            await request.query(
-                'UPDATE level SET `xp`=? WHERE guildId=? AND userId=?',
-                [xpIncrease, message.guild.id, message.author.id]
-            )
+        // Lookup for user and server settings if they do not want level to be used
+        if (typeof userFind[0][0] === "undefined" || userFind[0][0]['data_messageContent'] === 0 || (typeof guildFind[0][0] !== "undefined" && guildFind[0][0]['level_status'] === 0)) {
+            return db.releaseConnection(request);
+        }
 
+        // Check if the user has data already in the server.
+        if (typeof userFind[0][0]['xp'] !== "object" || typeof userFind[0][0]['xp'] !== "undefined") {
+            // Check if the amount of XP gained is enough for a level up
             const levelXpFind = await request.query(
-                `SELECT * FROM level_xp WHERE level=? AND xp=?`,
-                [levelCurrent, xpIncrease]
+                `SELECT level_xp.level, level_xp.xp, level_perks.guild_id, level_perks.role_id FROM level_xp
+                LEFT JOIN level_perks ON level_perks.level <= level_xp.level AND level_perks.guild_id = ?
+                WHERE level_xp.xp > ? LIMIT 1`,
+                [
+                    message.guild.id,
+                    userFind[0][0]['xp']
+                ]
             );
 
-            //
-            // Level up
-            if (levelXpFind[0][0] != undefined) {
-                await request.query(
-                    'UPDATE level SET `level`=? WHERE guildId=? AND userId=?',
-                    [levelCurrent, message.guild.id, message.author.id]
-                )
+            if (userFind[0][0]['xp'] + xpPerMessage === levelXpFind[0][0]['xp']) {
+                levelStatus = levelXpFind[0][0]['level'];
 
-                if (guildSettingFind[0][0]['level_rankup'] === 0) {
+                if (typeof levelXpFind[0][0]['role_id'] !== "object") {
+                    await message.member.roles.add(levelXpFind[0][0]['role_id']);
+                }
+
+                if ((typeof guildFind[0][0] !== "undefined" && guildFind[0][0]['level_rankup'] === 1) && (typeof userFind[0][0] !== "undefined" && userFind[0][0]['level_rankup'] === 1)) {
                     // Create the levelup picture
                     const canvas = Canvas.createCanvas(700, 250);
                     const context = canvas.getContext('2d');
@@ -87,7 +81,7 @@ module.exports = {
 
                     context.font = '60px Poppins';
                     context.fillStyle = '#ffffff';
-                    context.fillText(`Level ${levelCurrent}`, canvas.width / 2.5, canvas.height / 1.8);
+                    context.fillText(`Level ${levelXpFind[0][0]['level'] - 1}`, canvas.width / 2.5, canvas.height / 1.8);
 
                     context.beginPath();
                     context.arc(125, 125, 100, 0, Math.PI * 2, true);
@@ -99,26 +93,27 @@ module.exports = {
 
                     const attachment = new AttachmentBuilder(await canvas.encode('png'), { name: 'leveling.png' });
 
-                    const perksFind = await request.query(
-                        'SELECT * FROM level_perks WHERE guildId=? AND level=?',
-                        [message.guild.id, levelCurrent]
-                    )
-
-                    if (perksFind[0][0] != undefined) {
-                        if (!message.member.roles.cache.some(role => role.id === perksFind[0][0]['roleId'])) {
-                            await message.member.roles.add(perksFind[0][0]['roleId'])
-                        }
-                    }
-
-                    if (userSettingFind[0][0] == undefined || userSettingFind[0][0]['level_rankup'] == 0) {
-                        message.channel.send({
-                            content: `Congrats ${message.author.toString()}, you leveled up! :partying_face:\n\n-# You do not want to receive this message when you level up? You can disable it on the website : https://cheryl-bot.ca/settings`,
-                            files: [attachment]
-                        })
-                    }
+                    message.channel.send({
+                        content: `Congrats ${message.author.toString()}, you leveled up! :partying_face:`,
+                        files: [
+                            attachment
+                        ]
+                    })
                 }
             }
         }
+
+        // Update the level of the user to the current one
+        await request.query(
+            `INSERT INTO levels (guild_id, user_id, xp, level) VALUES (?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE level=VALUES(level), xp=xp + VALUES(xp)`,
+            [
+                message.guild.id,
+                message.author.id,
+                xpPerMessage,
+                levelStatus,
+            ]
+        )
 
         return db.releaseConnection(request);
     }

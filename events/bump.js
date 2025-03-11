@@ -8,6 +8,7 @@ module.exports = {
         if (message.author.bot && message.author.id == '302050872383242240' && message.embeds[0].description.startsWith('Bump')) {
             const member = message.interaction.user.toString();
             const reply = en.events.bump.response.timersUp
+
             await message.channel.send({
                 content: reply.replace(/%Arg%/, member)
             });

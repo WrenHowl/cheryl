@@ -15,45 +15,43 @@ module.exports = {
         })
         .setType(ApplicationCommandType.User),
     execute: async (interaction) => {
-        if (!interaction.guild.id === "1082103667181764659") return;
+        if (interaction.guild.id !== "1082103667181764659") return;
 
         const request = await db.getConnection();
 
-        //
         // Check for the permission of the user executing the command.
         const missingRoleReply = en.global.userMissingRole;
-        if (!interaction.member.roles.cache.some(role => role.id === '1191482864156557332')) {
+        if (!interaction.member.roles.cache.some(role => role.id === '1083475130241523852')) {
             return interaction.reply({
-                content: missingRoleReply.replace(/%Arg%/, '<@&1191482864156557332>'),
-                ephemeral: true,
+                content: missingRoleReply.replace(/%Arg%/, '<@&1083475130241523852>'),
+                flags: [MessageFlags.Ephemeral]
             });
         };
 
-        //
         // Replying to the staff.
         const processVerify = en.context.verify.response.processVerify;
         await interaction.reply({
             content: processVerify.replace(/%Arg%/, interaction.targetMember.toString()),
-            ephemeral: true,
+            flags: [MessageFlags.Ephemeral]
         });
 
-        //
         // Check if the user is already verified.
         const reason = en.context.verify.response.reason;
         const alreadyVerified = en.context.verify.response.alreadyVerified;
         if (interaction.targetMember.roles.cache.some(role => role.id === '1084970943820075050')) {
-            return interaction.reply({
+            interaction.editReply({
                 content: alreadyVerified.replace(/%Arg%/, interaction.targetMember.toString()),
-                ephemeral: true,
+                flags: [MessageFlags.Ephemeral]
             });
-        } else {
-            await interaction.targetMember.roles.add(
-                '1084970943820075050',
-                reason.replace(/%Arg%/, interaction.user.username)
-            );
-        };
 
-        //
+            return db.releaseConnection(request);
+        }
+
+        await interaction.targetMember.roles.add(
+            '1084970943820075050',
+            reason.replace(/%Arg%/, interaction.user.username)
+        );
+
         // Remove the un-verified role.
         if (interaction.targetMember.roles.cache.some(role => role.id === '1233066501825892383')) {
             await interaction.targetMember.roles.remove(
@@ -62,28 +60,18 @@ module.exports = {
             );
         };
 
-        //
         // Updating the profile.
-        const userFind = await request.query(
-            'SELECT userId FROM users WHERE userId=?',
-            [interaction.targetId]
-        )
+        await request.query(
+            `INSERT INTO users (id, age_verified) VALUES (?, ?)
+            ON DUPLICATE KEY UPDATE age_verified=VALUES(age_verified)`,
+            [
+                interaction.targetMember.id,
+                true
+            ]
+        );
 
-        if (userFind[0][0] == undefined) {
-            await request.query(
-                'INSERT INTO users (userId, userName, ageVerified) VALUES (?, ?, ?)',
-                [interaction.targetId, interaction.targetMember.username, 1]
-            )
-        } else {
-            await request.query(
-                'UPDATE users SET ageVerified=? WHERE userId=?',
-                [1, interaction.targetId]
-            )
-        }
-
-        //
         // Sending message in channel.
-        const verifiedEmbed = new EmbedBuilder()
+        const embed = new EmbedBuilder()
             .addFields(
                 {
                     name: 'Reaction Role',
@@ -101,7 +89,7 @@ module.exports = {
         const newVerification = en.context.verify.response.newVerification;
         await channel18.send({
             content: newVerification.replace(/%Arg%/, interaction.targetMember.toString()),
-            embeds: [verifiedEmbed],
+            embeds: [embed],
         });
 
         return db.releaseConnection(request);

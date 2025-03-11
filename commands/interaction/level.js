@@ -49,38 +49,44 @@ module.exports = {
         const avatar = await loadImage(userCheck.displayAvatarURL({ extension: 'png' }));
         GlobalFonts.registerFromPath('./ressources/font/Poppins-SemiBold.ttf', 'Poppins')
 
-        //
-        // Create the levelup picture
+        // Create the level-up picture
         const canvas = createCanvas(700, 250);
         const context = canvas.getContext('2d');
 
         const levelFind = await request.query(
-            'SELECT * FROM level WHERE userId=? AND guildId=?',
-            [userCheck.id, interaction.guild.id]
-        )
-
-        const levelUpFind = await request.query(
-            'SELECT * FROM level_xp WHERE level=?',
-            [levelFind[0][0]['level'] + 1]
+            'SELECT * FROM levels WHERE user_id=? AND guild_id=?',
+            [
+                userCheck.id,
+                interaction.guild.id
+            ]
         )
 
         let levelCurrent = 0;
         let xpCanvas = 0;
         let xpText = 0;
 
-        if (levelFind[0][0] != undefined) {
+        if (typeof levelFind[0][0] !== "undefined") {
+            const levelUpFind = await request.query(
+                'SELECT * FROM level_xp WHERE level=?',
+                [
+                    levelFind[0][0]['level'] + 1
+                ]
+            )
+
             levelCurrent = levelFind[0][0]['level'];
-            xpCanvas = Math.floor((levelFind[0][0]['xp'] * 300) / levelUpFind[0][0]['xp']);
-            xpText = Math.floor((levelFind[0][0]['xp'] * 100) / levelUpFind[0][0]['xp']);
+            xpCanvas = Math.floor(levelFind[0][0]['xp'] * 300 / levelUpFind[0][0]['xp']);
+            xpText = Math.floor(levelFind[0][0]['xp'] * 100 / levelUpFind[0][0]['xp']);
         }
 
         context.font = '60px Poppins';
         context.fillStyle = '#00af00';
         context.fillText(levelCurrent.toString(), canvas.width / 1.575, canvas.height / 2)
 
+        // Level label
         context.fillStyle = '#ffffff';
         context.fillText('Level', canvas.width / 2.5, canvas.height / 2)
 
+        // Level line
         context.lineWidth = 12;
         context.strokeStyle = '#ffffff';
         context.strokeRect(canvas.width / 2.5, canvas.height / 1.6, 300, 0); // 100%
@@ -89,11 +95,11 @@ module.exports = {
         context.strokeStyle = '#00af00';
         context.strokeRect(canvas.width / 2.5, canvas.height / 1.6, xpCanvas, 0); // Current XP
 
+        // Level text
         context.font = '10px Poppins';
         context.fillText(`${xpText.toString()}%`, canvas.width / 2.5, canvas.height / 1.45);
 
-        //
-        // Drawing profile picture
+        // Profile picture
         context.beginPath();
         context.arc(125, 125, 100, 0, Math.PI * 2, true);
         context.closePath();
@@ -104,7 +110,7 @@ module.exports = {
 
         await interaction.reply({
             files: [attachment]
-        })
+        });
 
         return db.releaseConnection(request);
     }

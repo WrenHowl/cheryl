@@ -21,6 +21,8 @@ module.exports = {
             "nl": nl.commands.ticket.setup.description
         }),
     execute: async (interaction) => {
+        if (interaction.user.id !== '291262778730217472') return;
+
         await interaction.reply({
             content: "Sending."
         });

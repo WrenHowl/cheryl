@@ -1,22 +1,9 @@
-const {
-  Client,
-  Partials,
-  Collection,
-  GatewayIntentBits,
-  EmbedBuilder,
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  ChannelType,
-  PermissionsBitField
-} = require('discord.js');
-const {
-  botPrivateInfo
-} = require('./config/main.json');
+const { Client, Partials, Collection, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, PermissionsBitField } = require('discord.js');
+const { botPrivateInfo } = require('./config/main.json');
 const fs = require('node:fs');
 const path = require('node:path');
 const mysql = require('mysql2/promise');
-
+const { en, fr, de, sp, nl } = require('./preset/language');
 const bot = new Client({
   allowedMentions: { parse: ['users', 'roles'], repliedUser: true },
   intents: [
@@ -36,6 +23,7 @@ const bot = new Client({
     Partials.Reaction
   ]
 });
+
 const db = mysql.createPool({
   host: botPrivateInfo.database.host,
   port: botPrivateInfo.database.port,
@@ -46,24 +34,18 @@ const db = mysql.createPool({
   connectionLimit: 100,
 });
 
-const date = new Date();
-const consoleDate = `${date.toLocaleString()} ->`;
-
-//
-// Exporting vital parts of the code.
-module.exports = { bot, date, consoleDate, db };
-
-//
 // Check if there is any error while loading the database.
 db.on('error', (error) => {
-  return console.error(`${consoleDate} MySQL error`, error);
+  return console.error(`${new Date().toLocaleString()} → MySQL error`, error);
 });
 
-//
 // Check if there is any error while closing connection of the database.
 db.on('close', (error) => {
-  return console.error(`${consoleDate} MySQL close`, error);
+  return console.error(`${new Date().toLocaleString()} → MySQL close`, error);
 });
+
+// Exporting vital parts of the code.
+module.exports = { bot, db };
 
 bot.commands = new Collection();
 
@@ -71,8 +53,6 @@ const commandsPath = path.join(__dirname, 'commands');
 const commandsFilter = fs.readdirSync(commandsPath).filter(file => file != 'message'); // Filter the message event out of it
 
 for (folder of commandsFilter) {
-  //
-  // Find the folder after the filter
   const commandsPath = path.join(__dirname, `commands/${folder}`);
   const commandsFilter = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
@@ -101,82 +81,71 @@ bot.on('interactionCreate', async (interaction) => {
 
   const request = await db.getConnection();
 
-  //
   // Approving and Denying new action image buttons.
   async function actionButton() {
     const actionFind = await request.query(
-      `SELECT * FROM actionimages WHERE messageId=?`,
+      `SELECT * FROM action_suggest WHERE message_id=?`,
       [interaction.message.id]
     )
 
-    if (actionFind[0][0] == undefined) return db.releaseConnection(request);;
+    if (actionFind[0][0] === undefined) return db.releaseConnection(request);;
 
-    userId = actionFind[0][0]['userId'];
-    url = actionFind[0][0]['url'];
-    category = actionFind[0][0]['category'];
-    createdAt = actionFind[0][0]['createdAt'];
+    const url = actionFind[0][0]['url'];
+    const category = actionFind[0][0]['category'];
 
     let suggestionEmbed = new EmbedBuilder()
       .addFields(
-        { name: 'User', value: `<@${userId}>`, inline: true },
+        { name: 'User', value: `<@${actionFind[0][0]['user_id']}>`, inline: true },
         { name: 'Category', value: category, inline: true },
-        { name: 'Image URL', value: imageUrl, inline: true },
+        { name: 'Image URL', value: url, inline: true },
       )
       .setImage(interaction.message.embeds[0].image.url);
 
+    // Checking for the interaction name and sending the appropriate response
+    switch (interaction.customId) {
+      case ('action_accept'):
+        await request.query(
+          `INSERT INTO action_suggest (url, category) VALUES (?, ?)`,
+          [url, category]
+        );
+
+        suggestionEmbed.addFields(
+          { name: 'Status', value: 'Accepted' }
+        );
+        suggestionEmbed.setColor('Green');
+
+        break;
+      case ('action_deny'):
+        suggestionEmbed.addFields(
+          { name: 'Status', value: 'Denied' },
+        );
+        suggestionEmbed.setColor('Red');
+
+        request.query(
+          `DELETE FROM action_suggest WHERE message_id=?`,
+          [interaction.message.id]
+        );
+        break;
+    };
+
     // Fetching the message to edit it
     interaction.channel.messages.fetch(interaction.message.id).then(async () => {
-      // Checking for the interaction name and sending the appropriate response
-      switch (interaction.customId) {
-        case ('acceptSuggestionAction'):
-          await request.query(
-            `UPDATE actionimages SET url=? WHERE messageId=?`,
-            [interaction.message.embeds[0].image.url, interaction.message.id]
-          );
-
-          suggestionEmbed.addFields(
-            { name: 'Status', value: 'Accepted' }
-          );
-          suggestionEmbed.setColor('Green');
-
-          response = `The image you suggested the (${createdAt}) has been denied. Thank you for your contribution!`;
-          break;
-        case ('denySuggestionAction'):
-          suggestionEmbed.addFields(
-            { name: 'Status', value: 'Denied' },
-          );
-          suggestionEmbed.setColor('Red');
-
-          response = `The image (${actionImageData.id}) you suggested has been denied.`;
-
-          request.query(
-            `DELETE FROM actionimages WHERE messageId=?`,
-            [interaction.message.id]
-          );
-          break;
-      };
-
-      bot.users.cache.get(actionImageData.userId).send({
-        content: response,
-      });
-
       await interaction.update({
         embeds: [suggestionEmbed],
         components: []
       });
-
-    })
+    });
   }
 
   //
   // Generating ticket button.
   async function ticketButton() {
-    const loggingFind = await request.query(
-      `SELECT * FROM guild_settings WHERE guildId=?`,
+    const guildSettingFind = await request.query(
+      `SELECT * FROM guild_settings WHERE id=?`,
       [interaction.guild.id]
     )
 
-    if (loggingFind[0][0] == undefined) return db.releaseConnection(request);;
+    if (guildSettingFind[0][0] == undefined) return db.releaseConnection(request);;
 
     let reason;
 
@@ -199,11 +168,11 @@ bot.on('interactionCreate', async (interaction) => {
     }
 
     const ticketFind = await request.query(
-      `SELECT * FROM ticket WHERE guildId=? AND userId=? AND reason=?`,
+      `SELECT * FROM tickets WHERE guild_id=? AND user_id=? AND reason=?`,
       [interaction.guild.id, interaction.user.id, reason]
     )
 
-    if (ticketFind[0][0] != undefined) {
+    if (ticketFind[0][0] !== undefined) {
       interaction.reply({
         content: `You already created a ticket for the following reason: \`${reason}\``,
         ephemeral: true,
@@ -218,22 +187,22 @@ bot.on('interactionCreate', async (interaction) => {
     });
 
     const ticketCountFind = await request.query(
-      `SELECT * FROM ticket_count WHERE guildId=?`,
+      `SELECT * FROM ticket_count WHERE guild_id=?`,
       [interaction.guild.id]
     )
 
     let ticketCount = 1;
 
-    if (ticketCountFind[0][0] == undefined) {
+    if (ticketCountFind[0][0] === undefined) {
       await request.query(
-        `INSERT INTO ticket_count (guildId, count) VALUES(?, ?)`,
+        `INSERT INTO ticket_count (guild_id, count) VALUES(?, ?)`,
         [interaction.guild.id, ticketCount]
       )
     } else {
       ticketCount = ticketCountFind[0][0]['count'] + 1;
 
       await request.query(
-        `UPDATE ticket_count SET count=? WHERE guildId=?`,
+        `UPDATE ticket_count SET count=? WHERE guild_id=?`,
         [ticketCount, interaction.guild.id]
       )
     }
@@ -279,13 +248,13 @@ bot.on('interactionCreate', async (interaction) => {
       .setColor('Yellow')
 
     // Sending the embed and button to the right channel
-    const ticketLogChannel = interaction.guild.channels.cache.get(loggingFind[0][0]['ticket_channelDestination']);
+    const ticketLogChannel = interaction.guild.channels.cache.get(guildSettingFind[0][0]['ticket_channelDestination']);
     ticketLogChannel.send({
       embeds: [newTicketEmbed],
       components: [newTicketButton]
     }).then(async (msg) => {
       await request.query(
-        `INSERT INTO ticket (guildId, userName, userId, ticketId, reason, messageId) VALUES (?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO tickets (guild_id, user_name, user_id, ticket_id, reason, message_id) VALUES (?, ?, ?, ?, ?, ?)`,
         [interaction.guild.id, interaction.user.username, interaction.user.id, ticketCount, reason, msg.id]
       )
     })
@@ -294,17 +263,17 @@ bot.on('interactionCreate', async (interaction) => {
   //
   // Function to edit the -> Ticket Database and Ticket Message
   async function editMessageTicket(ticket, status, color, replyStaff) {
-    const loggingFind = await request.query(
-      `SELECT * FROM guild_settings WHERE guildId=?`,
+    const guildSettingFind = await request.query(
+      `SELECT * FROM guild_settings WHERE id=?`,
       [interaction.guild.id]
     )
 
     const embed = new EmbedBuilder()
-      .setTitle(`Ticket #${ticket[0][0]['ticketId']}`)
+      .setTitle(`Ticket #${ticket[0][0]['ticket_id']}`)
       .addFields(
         {
           name: 'Member',
-          value: `<@${ticket[0][0]['userId']}>`,
+          value: `<@${ticket[0][0]['user_id']}>`,
           inline: true
         },
         {
@@ -327,7 +296,7 @@ bot.on('interactionCreate', async (interaction) => {
       )
       .setColor(color)
 
-    await bot.channels.cache.get(loggingFind[0][0]['ticket_channelDestination']).messages.fetch(ticket[0][0]['messageId'])
+    await bot.channels.cache.get(guildSettingFind[0][0]['ticket_channelDestination']).messages.fetch(ticket[0][0]['message_id'])
       .then(async (msg) => {
         await msg.edit({
           embeds: [embed],
@@ -336,10 +305,12 @@ bot.on('interactionCreate', async (interaction) => {
       })
       .catch(() => { });
 
-    await interaction.reply({
-      content: replyStaff,
-      ephemeral: true
-    });
+    if (replyStaff !== false) {
+      interaction.reply({
+        content: replyStaff,
+        ephemeral: true
+      });
+    }
   }
 
   const action = [
@@ -371,11 +342,13 @@ bot.on('interactionCreate', async (interaction) => {
     //
     // Get the -> Ticket Database -> ready
     let ticketFind = await request.query(
-      `SELECT * FROM ticket WHERE guildId=? AND messageId=?`,
-      [interaction.guild.id, interaction.message.id]
+      `SELECT * FROM tickets WHERE message_id=?`,
+      [
+        interaction.message.id
+      ]
     );
 
-    if (ticketFind[0][0] == undefined) {
+    if (ticketFind[0][0] === undefined) {
       await interaction.message.delete();
 
       await interaction.reply({
@@ -388,21 +361,23 @@ bot.on('interactionCreate', async (interaction) => {
 
     //
     // Get the -> Logging Database -> Ready
-    let loggingFind = await request.query(
-      `SELECT * FROM guild_settings WHERE guildId=?`,
-      [interaction.guild.id]
+    let guildSettingFind = await request.query(
+      `SELECT * FROM guild_settings WHERE id=?`,
+      [
+        interaction.guild.id
+      ]
     );
 
     switch (interaction.customId) {
       case 'ticket_accept':
         //
         // Check if there's a channel already in -> Ticket Database
-        if (ticketFind[0][0]['channelId'] != undefined) break;
+        if (ticketFind[0][0]['channel_id'] !== null) break;
 
         //
         // Check if the person clicking on the button is -> Themself.
-        if (ticketFind[0][0]['userId'] === interaction.user.id) {
-          await interaction.reply({
+        if (ticketFind[0][0]['user_id'] === interaction.user.id) {
+          interaction.reply({
             content: "You cannot claim your own ticket."
           });
 
@@ -416,9 +391,9 @@ bot.on('interactionCreate', async (interaction) => {
         //
         // Creating the ticket channel.
         const createChannel = await interaction.guild.channels.create({
-          name: `${ticketFind[0][0]['reason']}-${ticketFind[0][0]['ticketId']}`,
+          name: `${ticketFind[0][0]['reason']}-${ticketFind[0][0]['ticket_id']}`,
           type: ChannelType.GuildText,
-          parent: loggingFind[0][0]['ticket_categoryDestination'],
+          parent: guildSettingFind[0][0]['ticket_categoryDestination'],
           permissionOverwrites: [
             {
               id: interaction.guild.id,
@@ -434,7 +409,7 @@ bot.on('interactionCreate', async (interaction) => {
               ],
             },
             {
-              id: ticketFind[0][0]['userId'],
+              id: ticketFind[0][0]['user_id'],
               type: 1,
               allow: [
                 PermissionsBitField.Flags.ViewChannel,
@@ -458,18 +433,22 @@ bot.on('interactionCreate', async (interaction) => {
         //
         // Update the -> Ticket Database
         await request.query(
-          `UPDATE ticket SET channelId=?, claimedBy=? WHERE messageId=?`,
-          [createChannel.id, interaction.user.id, ticketFind[0][0]['userId'], interaction.message.id]
+          `UPDATE tickets SET channel_id=?, claimed_by=? WHERE message_id=?`,
+          [
+            createChannel.id,
+            interaction.user.id,
+            interaction.message.id
+          ]
         )
 
         //
         // Create the embed.
         const inTicketEmbed = new EmbedBuilder()
-          .setTitle(`Ticket #${ticketFind[0][0]['ticketId']}`)
+          .setTitle(`Ticket #${ticketFind[0][0]['ticket_id']}`)
           .addFields(
             {
               name: "Member",
-              value: `<@${ticketFind[0][0]['userId']}>`,
+              value: `<@${ticketFind[0][0]['user_id']}>`,
               inline: true,
             },
             {
@@ -576,7 +555,7 @@ bot.on('interactionCreate', async (interaction) => {
         // Quickly mention the user that made the ticket.
         // Delete the message after 1 second.
         const quickMention = createChannel.send({
-          content: `<@${ticketFind[0][0]['userId']}>`,
+          content: `<@${ticketFind[0][0]['user_id']}>`,
         });
 
         setTimeout(async () => {
@@ -590,7 +569,7 @@ bot.on('interactionCreate', async (interaction) => {
         editMessageTicket(ticketFind, 'Declined', 'Red', 'You **declined** this ticket.')
 
         await request.query(
-          `DELETE FROM ticket WHERE messageId=?`,
+          `DELETE FROM tickets WHERE message_id=?`,
           [interaction.message.id]
         )
 
@@ -599,14 +578,16 @@ bot.on('interactionCreate', async (interaction) => {
   }
   else if (inTicket.includes(interaction.customId)) {
     const ticketFind = await request.query(
-      `SELECT * FROM ticket WHERE guildId=? AND channelId=?`,
-      [interaction.guild.id, interaction.channel.id]
+      `SELECT * FROM tickets WHERE channel_id=?`,
+      [
+        interaction.channel.id
+      ]
     )
 
     //
     // Check who is the person clicking the button
-    if (ticketFind[0][0] != undefined && ticketFind[0][0]['claimedBy'] !== interaction.user.id || !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-      await interaction.reply({
+    if ((ticketFind[0][0] !== undefined && ticketFind[0][0]['claimed_by'] !== interaction.user.id) && !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+      interaction.reply({
         content: "You cannot delete this ticket. You didn't claim it.",
         ephemeral: true,
       });
@@ -616,58 +597,90 @@ bot.on('interactionCreate', async (interaction) => {
 
     switch (interaction.customId) {
       case 'ticket_delete':
-        if (ticketFind[0][0] != undefined) editMessageTicket(ticketFind, 'Completed', 'Green', false)
-
-        await interaction.reply({
-          content: 'You **completed** this ticket, it will be deleted in 3 seconds.',
-          ephemeral: true
-        });
+        if (ticketFind[0][0] !== undefined) {
+          editMessageTicket(ticketFind, 'Completed', 'Green', 'You **completed** this ticket, it will be deleted in 3 seconds.')
+        } else {
+          interaction.reply({
+            content: 'You **completed** this ticket, it will be deleted in 3 seconds.',
+            ephemeral: true
+          });
+        }
 
         await request.query(
-          `DELETE FROM ticket WHERE guildId=? AND channelId=?`,
-          [interaction.guild.id, interaction.channel.id]
+          `DELETE FROM tickets WHERE channel_id=?`,
+          [interaction.channel.id]
         )
 
-        setTimeout(async () => {
-          await interaction.channel.delete();
+        setTimeout(() => {
+          interaction.channel.delete();
         }, 3000);
 
         break;
       case 'ticket_verify':
-        console.log(ticketFind[0][0])
+        if (ticketFind[0][0] === undefined) break;
+        const user = interaction.guild.members.cache.get(ticketFind[0][0]['user_id']);
 
         //
         // Replying to the staff.
+        const processVerify = en.context.verify.response.processVerify;
         await interaction.reply({
-          content: `Currently trying to verify <@${ticketFind[0][0]['userId']}>.`,
+          content: processVerify.replace(/%Arg%/, '<@' + ticketFind[0][0]['user_id'] + '>'),
           ephemeral: true,
         });
 
         //
-        // Updating the profile.
-        const userFind = await request.query(
-          'SELECT userId FROM users WHERE userId=?',
-          [interaction.targetId]
-        )
+        // Check if the user is already verified.
+        const reason = en.context.verify.response.reason;
+        const alreadyVerified = en.context.verify.response.alreadyVerified;
+        if (user.roles.cache.some(role => role.id === '1084970943820075050')) {
+          interaction.editReply({
+            content: alreadyVerified.replace(/%Arg%/, '<@' + ticketFind[0][0]['user_id'] + '>'),
+            ephemeral: true,
+          });
 
-        if (userFind[0][0] == undefined) {
-          await request.query(
-            'INSERT INTO users (userId, ageVerified) VALUES (?, ?)',
-            [ticketFind[0][0]['userId'], 1]
-          )
+          break;
         } else {
-          await request.query(
-            'UPDATE users SET ageVerified=? WHERE userId=?',
-            [1, ticketFind[0][0]['userId']]
-          )
-        }
+          await user.roles.add(
+            '1084970943820075050',
+            reason.replace(/%Arg%/, interaction.user.username)
+          );
+        };
+
+        //
+        // Remove the un-verified role.
+        if (user.roles.cache.some(role => role.id === '1233066501825892383')) {
+          await user.roles.remove(
+            '1233066501825892383',
+            reason.replace(/%Arg%/, interaction.user.username)
+          );
+        };
+
+        //
+        // Updating the profile.
+        await request.query(
+          'INSERT INTO users (id, age_verified) VALUES (?, ?)',
+          [
+            ticketFind[0][0]['id'],
+            true
+          ]
+        ).catch(async (error) => {
+          if (error.code === 'ER_DUP_ENTRY') {
+            await request.query(
+              'UPDATE users SET age_verified=? WHERE id=?',
+              [
+                true,
+                ticketFind[0][0]['id']
+              ]
+            )
+          }
+        });
 
         //
         // Sending message in channel.
-        const verifiedEmbed = new EmbedBuilder()
+        const embed = new EmbedBuilder()
           .addFields(
             {
-              name: 'Auto-Role',
+              name: 'Reaction Role',
               value:
                 'There is multiple roles you can grab, some are just for fun and some that gives you access to channels :\n' +
                 '* <#1082135082246078464>\n' +
@@ -679,15 +692,16 @@ bot.on('interactionCreate', async (interaction) => {
           .setColor('Blue')
 
         const channel18 = interaction.guild.channels.cache.get('1091220263569461349')
+        const newVerification = en.context.verify.response.newVerification;
         await channel18.send({
-          content: `${ticketFind[0][0]['userId']} just got verified! Please make him feel welcomed~`,
-          embeds: [verifiedEmbed],
+          content: newVerification.replace(/%Arg%/, '<@' + ticketFind[0][0]['user_id'] + '>'),
+          embeds: [embed],
         });
 
         //
         // Modifying the reply to alert the staff it is done.
-        await interaction.deferReply({
-          content: `You successfully verified <@${ticketFind[0][0]['userId']}>'s age.`,
+        interaction.editReply({
+          content: `You successfully verified <@${ticketFind[0][0]['user_id']}>'s age.`,
           ephemeral: true,
         });
 
@@ -698,6 +712,5 @@ bot.on('interactionCreate', async (interaction) => {
   return db.releaseConnection(request);;
 });
 
-//
 // Login to discord and the bot.
 bot.login(botPrivateInfo.token);

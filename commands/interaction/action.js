@@ -1,4 +1,4 @@
-const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, AllowedMentionsTypes, MessageFlags, Message } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { en, fr, de, sp, nl } = require('../../preset/language.js');
 const { bot, db } = require('../../server.js');
@@ -49,6 +49,7 @@ module.exports = {
                 { name: 'Pat', value: 'pat' },
                 { name: 'Bite', value: 'bite' },
                 { name: 'Bonk', value: 'bonk' },
+                { name: 'Slap', value: 'slap' },
                 { name: '[NSFW] male/female - Fuck', value: 'fuckstraight' },
                 { name: '[NSFW] male/female - Suck', value: 'suckstraight' },
                 { name: '[NSFW] male/female - Ride', value: 'ridestraight' },
@@ -115,105 +116,115 @@ module.exports = {
         const request = await db.getConnection();
 
         const userSettingsFind = await request.query(
-            `SELECT * FROM user_settings WHERE userId=?`,
-            [userTarget.id]
+            `SELECT * FROM user_settings WHERE id=?`,
+            [
+                userTarget.id
+            ]
         );
-        if (userSettingsFind[0][0] != undefined) {
-            if (userSettingsFind[0][0]['action_enabled'] == 0) {
-                interaction.reply({
-                    content: 'This user disabled this command to be used on them.',
-                    ephemeral: true,
-                });
 
-                return db.releaseConnection(request);
-            } else if (userSettingsFind[0][0]['action_nsfw'] === 0 && nsfwChoice.includes(interaction.customId)) {
-                interaction.reply({
-                    content: 'This user disabled NSFW actions to be used on them.',
-                    ephemeral: true,
-                });
+        if (typeof userSettingsFind[0][0] !== "undefined") {
+            switch (0) {
+                case userSettingsFind[0][0]['action_enabled']:
+                    interaction.reply({
+                        content: 'This user disabled this command to be used on them.',
+                        flags: [MessageFlags.Ephemeral]
+                    });
 
-                return db.releaseConnection(request);
+                    return db.releaseConnection(request);
+                case userSettingsFind[0][0]['action_nsfw'] === 0 && nsfwChoice.includes(interaction.customId):
+                    interaction.reply({
+                        content: 'This user disabled NSFW actions to be used on them.',
+                        flags: [MessageFlags.Ephemeral]
+                    });
+
+                    return db.releaseConnection(request);
             }
         }
 
         const guildSettingsFind = await request.query(
-            `SELECT * FROM guild_settings WHERE guildId=?`,
-            [interaction.guild.id]
+            `SELECT * FROM guild_settings WHERE id=?`,
+            [
+                interaction.guild.id
+            ]
         );
-        if (guildSettingsFind[0][0] != undefined) {
-            if (guildSettingsFind[0][0]['action_status'] === 0) {
-                interaction.reply({
-                    content: 'The action command is disabled in this server.',
-                    ephemeral: true,
-                });
 
-                return db.releaseConnection(request);
-            } else if (guildSettingsFind[0][0]['action_nsfw'] === 0 && nsfwChoice.includes(interaction.customId)) {
-                interaction.reply({
-                    content: 'The NSFW actions are disabled in this server.',
-                    ephemeral: true,
-                });
+        if (typeof guildSettingsFind[0][0] !== "undefined") {
+            switch (0) {
+                case guildSettingsFind[0][0]['action_status']:
+                    interaction.reply({
+                        content: 'The action command is disabled in this server.',
+                        flags: [MessageFlags.Ephemeral]
+                    });
 
-                return db.releaseConnection(request);
+                    return db.releaseConnection(request);
+                case guildSettingsFind[0][0]['action_nsfw'] && nsfwChoice.includes(interaction.customId):
+                    interaction.reply({
+                        content: 'The NSFW actions are disabled in this server.',
+                        flags: [MessageFlags.Ephemeral]
+                    });
+
+                    return db.releaseConnection(request);
             }
         }
 
         if (optionSuggest) {
-            //
             // Check if the suggestion is an URL
             try {
                 new URL(optionSuggest);
             } catch (error) {
-                return interaction.reply({
+                await interaction.reply({
                     content: en.commands.action.response.suggest.wrongUrl,
-                    ephemeral: true,
+                    flags: [MessageFlags.Ephemeral]
                 });
+
+                return db.releaseConnection(request);
             };
 
-            //
             // Check if the suggestion string is a valid format URL
             if (!['jpg', 'png', 'gif'].some(sm => optionSuggest.endsWith(sm))) {
-                return interaction.reply({
+                await interaction.reply({
                     content: en.commands.action.response.suggest.wrongFormat,
-                    ephemeral: true,
+                    flags: [MessageFlags.Ephemeral]
                 });
+
+                return db.releaseConnection(request);
             };
 
-            //
             // Check if image has already been suggested/added
             const actionImageFind = await request.query(
-                `SELECT url FROM actionimages WHERE url=?`,
-                [optionSuggest]
+                `SELECT * FROM actions WHERE url=?`,
+                [
+                    optionSuggest
+                ]
             );
 
-            //
             // Check if the url already exist
-            if (actionImageFind[0][0] != undefined) {
-                return interaction.reply({
+            if (typeof actionImageFind[0][0] !== "undefined") {
+                await interaction.reply({
                     content: en.commands.action.response.suggest.alreadyExist,
-                    ephemeral: true,
+                    flags: [MessageFlags.Ephemeral]
                 });
+
+                return db.releaseConnection(request);
             };
 
-            //
             // Notify that the suggestion has been received
             await interaction.reply({
                 content: en.commands.action.response.suggest.success,
-                ephemeral: true,
+                flags: [MessageFlags.Ephemeral]
             });
 
-            //
             // Creating the embed and button
             const buttonSuggestion = new ActionRowBuilder()
                 .addComponents(
                     new ButtonBuilder()
-                        .setCustomId('acceptSuggestionAction')
+                        .setCustomId('action_accept')
                         .setLabel('Accept')
                         .setStyle(ButtonStyle.Success),
                 )
                 .addComponents(
                     new ButtonBuilder()
-                        .setCustomId('denySuggestionAction')
+                        .setCustomId('action_deny')
                         .setLabel('Deny')
                         .setStyle(ButtonStyle.Danger),
                 );
@@ -231,13 +242,11 @@ module.exports = {
                 .setImage(optionSuggest)
                 .setColor('Yellow');
 
-            //
             // Check if the user that suggested is the bot owner
-            !optionChoice === !nsfwChoice.includes(optionChoice) ?
-                channelSuggestId = configPreset.channelsId.nsfwSuggestion :
-                channelSuggestId = configPreset.channelsId.sfwSuggestion;
+            let channelSuggestId = !optionChoice === !nsfwChoice.includes(optionChoice) ?
+                configPreset.channelsId.nsfwSuggestion :
+                configPreset.channelsId.sfwSuggestion;
             const channelSuggest = interaction.client.guilds.cache.get(configPreset.botInfo.supportServerId).channels.cache.get(channelSuggestId);
-
 
             if (interaction.user.id === configPreset.botInfo.ownerId) {
                 imageEmbed.setColor('Green');
@@ -245,41 +254,58 @@ module.exports = {
                 msg = await channelSuggest.send({
                     embeds: [imageEmbed],
                 });
+
+                await request.query(
+                    'INSERT INTO actions (category, url) VALUES (?, ?)',
+                    [
+                        optionChoice,
+                        optionSuggest
+                    ]
+                );
             } else {
                 msg = await channelSuggest.send({
                     embeds: [imageEmbed],
                     components: [buttonSuggestion]
                 });
-            };
 
-            await request.query(
-                'INSERT INTO actionimages (userId, messageId, category, url) VALUES (?, ?, ?, ?)',
-                [interaction.user.id, msg.id, optionChoice, optionSuggest]
-            );
+                await request.query(
+                    'INSERT INTO action_suggest (id, message_id, category, url) VALUES (?, ?, ?, ?)',
+                    [
+                        interaction.user.id,
+                        msg.id,
+                        optionChoice,
+                        optionSuggest
+                    ]
+                );
+            };
         } else {
-            //
             // Check if the action is NSFW and if the channel is NSFW.
             if (nsfwChoice.includes(optionChoice) && !interaction.channel.nsfw) {
-                return interaction.reply({
+                await interaction.reply({
                     content: en.commands.action.response.user.notNsfw,
-                    ephemeral: true,
+                    flags: [MessageFlags.Ephemeral]
                 });
+
+                return db.releaseConnection(request);
             };
 
             const actionImageFind = await request.query(
-                `SELECT url FROM actionimages WHERE category=? ORDER BY RAND() LIMIT 1`,
-                [optionChoice]
+                `SELECT url FROM actions WHERE category=? ORDER BY RAND() LIMIT 1`,
+                [
+                    optionChoice
+                ]
             );
-            if (actionImageFind[0][0] == undefined) {
+
+            if (typeof actionImageFind[0][0] === "undefined") {
                 const replyString = en.commands.action.response.noImageFound;
 
                 await interaction.reply({
                     content: replyString.replace(/%Arg%/g, optionChoice),
-                    ephemeral: true,
+                    flags: [MessageFlags.Ephemeral]
                 });
 
                 return db.releaseConnection(request);
-            }
+            };
 
             const userInteracter = interaction.user.toString();
             const noun_target = "them";
@@ -348,6 +374,12 @@ module.exports = {
                         `${userInteracter} swing a baseball bat on ${userTarget}'s head.Bonking ${noun_target}!~`
                     ];
                     sentence = bonk;
+                    break;
+                case 'slap':
+                    const slap = [
+                        `${userInteracter} slaps ${userTarget}`,
+                    ];
+                    sentence = slap;
                     break;
                 case 'fuckstraight':
                     const fuckStraight = [
@@ -420,12 +452,12 @@ module.exports = {
             };
 
             const randomAnswer = sentence[Math.floor(Math.random() * sentence.length)];
-            let isEphemeral = false;
+            let isEphemeral = '';
 
             switch (guildSettingsFind[0][0]['action_status']) {
                 case 0:
                     reply = en.commands.action.response.user.disable;
-                    isEphemeral = true;
+                    isEphemeral = MessageFlags.Ephemeral;
                     break;
                 case 1:
                     reply = `[Source](${actionImageFind[0][0]['url']})`;
@@ -438,11 +470,9 @@ module.exports = {
                     break;
             }
 
-            reply = reply.toString();
-
             await interaction.reply({
-                content: reply,
-                ephemeral: isEphemeral,
+                content: reply.toString(),
+                flags: [isEphemeral]
             });
         }
 

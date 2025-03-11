@@ -41,48 +41,39 @@ module.exports = {
     execute: async (interaction) => {
         const request = await db.getConnection();
 
-        //const language = loggingsFind[0][0]['language']; // Unused currently, but will be later.
         const user = interaction.options.getUser(en.commands.staff.setup.user.name);
         const userCheck = user ?
             user :
             interaction.user;
         const fetchGuild = interaction.client.guilds.cache.get(configPreset.botInfo.supportServerId);
         await fetchGuild.members.fetch();
-
         const staffGet = fetchGuild.members.cache.get(userCheck.id);
-        const staffRole = staffGet ?
-            staffGet.roles.cache.some(role => role.id === configPreset.staffRoleId.leadDeveloper) |
-            staffGet.roles.cache.some(role => role.id === configPreset.staffRoleId.developer) |
-            staffGet.roles.cache.some(role => role.id === configPreset.staffRoleId.staff) :
-            false;
 
-        //
-        // Set the variable to it's setup value which is 'STAFF'.
-        let staffRank = "STAFF";
-        let thumbnailStaff = configPreset.other.isNotStaff;
-        let isStaff = "isn't";
-        let color = 'Red';
+        const staffRoles = [
+            "Lead Developer",
+            "Developer",
+            "Admin",
+            "Mod",
+            "Helper"
+        ]
 
-        //
-        // Check if the user mentionned is a staff.
-        if (staffRole) {
+        if (staffRoles.includes(staffGet.roles.highest.name)) {
+            defaultString = en.commands.staff.response.description.isStaff;
+            replyString = defaultString.replace(/%StaffRank%/g, staffGet.roles.highest.name);
             thumbnailStaff = configPreset.other.isStaff;
-            isStaff = "is";
             color = 'Green';
+        } else {
+            replyString = en.commands.staff.response.description.notStaff;
+            thumbnailStaff = configPreset.other.isNotStaff;
+            color = 'Red';
+        }
 
-            //
-            // Check for what rank as a staff member he is.
-            if (staffGet.roles.cache.some(role => role.id === configPreset.staffRoleId.leadDeveloper)) {
-                staffRank = "LEAD DEVELOPER";
-            } else if (staffGet.roles.cache.some(role => role.id === configPreset.staffRoleId.developer)) {
-                staffRank = "DEVELOPER";
-            };
-        };
+        description = replyString.replace(/%Username%/g, userCheck.toString()).replace(/%BotName%/g, bot.user.username)
 
         const embed = new EmbedBuilder()
             .setColor(color)
             .setThumbnail(thumbnailStaff)
-            .setDescription(`${userCheck.toString()} ${isStaff} a **${staffRank}** of **${bot.user.username}**`);
+            .setDescription(description);
 
         await interaction.reply({
             embeds: [embed],

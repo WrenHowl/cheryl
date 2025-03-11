@@ -10,16 +10,27 @@ module.exports = {
 
         // Deleting the guild database of this server.
         await request.query(
-            `DELETE FROM guilds WHERE guildId=?`,
-            [guild.id]
+            `DELETE FROM guilds WHERE id=?`,
+            [
+                guild.id
+            ]
+        )
+
+        await request.query(
+            `DELETE FROM guild_userPermission WHERE id=?`,
+            [
+                guild.id
+            ]
         )
 
         let owner = await guild.fetchOwner();
 
         // Lookup if the owner of the server is blacklisted
         const blacklistFind = await request.query(
-            `SELECT * FROM blacklists WHERE userId=?`,
-            [owner.user.id]
+            `SELECT * FROM blacklists WHERE id=?`,
+            [
+                owner.user.id
+            ]
         )
 
         isBlacklisted = blacklistFind[0][0] == undefined ?

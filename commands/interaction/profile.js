@@ -40,31 +40,30 @@ module.exports = {
     execute: async (interaction) => {
         const request = await db.getConnection();
 
-        //
         // Change the variable user if it was mentionned or not, if not mentionned the target will be themselves.
         const user = interaction.options.getUser(en.commands.profile.setup.user.name);
-        user ?
-            userTarget = user :
-            userTarget = interaction.user;
+        let userTarget = user ? user : interaction.user;
         const member = interaction.guild.members.cache.get(userTarget.id) || await interaction.guild.members.fetch(userTarget.id).catch(error => { });
 
-        //
         // Check if there is data from the users mentionned already in the users database.
         const usersData = await request.query(
-            `SELECT * FROM users WHERE userId=?`,
+            `SELECT * FROM users WHERE id=?`,
             [userTarget.id]
         );
 
-        if (usersData[0][0] == undefined) {
-            await db.query(
-                `INSERT INTO users (userName, userId) VALUES (?, ?)`,
-                [userTarget.username, userTarget.id]
+        if (typeof usersData[0][0] === "undefined") {
+            await request.query(
+                `INSERT INTO users (name, id) VALUES (?, ?)`,
+                [
+                    userTarget.username,
+                    userTarget.id
+                ]
             );
         };
 
-        usersData[0][0]['ageVerified'] == 1 ?
-            isAgeVerified = "Yes" :
-            isAgeVerified = "No";
+        const isAgeVerified = usersData[0][0]['age_verified'] === 1 ?
+            "Yes" :
+            "No";
 
         const embed = new EmbedBuilder()
             .setThumbnail(userTarget.displayAvatarURL())

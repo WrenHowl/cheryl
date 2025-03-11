@@ -1,5 +1,7 @@
 const { Events, ActivityType } = require('discord.js');
-const { db, consoleDate, bot } = require('../server');
+const { db, bot } = require('../server');
+const fs = require('node:fs');
+const colors = require('colors');
 const configPreset = require('../config/main.json');
 
 module.exports = {
@@ -8,73 +10,55 @@ module.exports = {
     async execute() {
         bot.user.setStatus('dnd');
 
-        let counter = 0;
-        let request = await db.getConnection();
+        const request = await db.getConnection();
 
         setInterval(async () => {
-            request = await db.getConnection();
-
             const blacklistFind = await request.query(
                 `SELECT COUNT(*) FROM blacklists`
             )
 
+            const blacklistAmount = blacklistFind ?
+                blacklistFind[0][0]['COUNT(*)'] :
+                0;
+            let counter = 0;
+            counter = counter === 3 ?
+                0 :
+                counter++;
+
             const status = [
                 `${bot.guilds.cache.reduce((a, g) => a + g.memberCount, 0)} Members!`,
                 `${bot.guilds.cache.size} Servers!`,
-                `${blacklistFind[0][0]['COUNT(*)']} Blacklisted Users!`,
+                `${blacklistAmount} Blacklisted Users!`,
                 `Version ${configPreset.botInfo.version}`,
             ];
 
-            counter == 3 ?
-                counter = 0 :
-                counter++;
-
             bot.user.setActivity(status[counter], { type: ActivityType.Watching });
-
-            db.releaseConnection(request);
         }, 10000);
-
-        //
-        // Was used to get levels working in the database
-        /*const a = await request.query(
-            `SELECT * FROM level_xp ORDER BY level DESC`,
-        )
-
-        let intIncrease = (a[0][0]['level'] * 100) + a[0][0]['xp'] + 250;
-
-        for (let i = 1; i < 251; i++) {
-            console.log(i + ' ... ' + intIncrease);
-
-            await request.query(
-                `INSERT INTO level_xp (xp) VALUES (?)`,
-                [intIncrease]
-            )
-
-            console.log('Completed.')
-
-            intIncrease = (i * 100) + intIncrease + 250
-        }*/
 
         bot.guilds.cache.forEach(async (guild) => {
             await request.query(
-                `INSERT INTO guilds (guildName, guildId, guildIcon, botIn, memberCount) VALUES (?, ?, ?, ?, ?)`,
-                [guild.name, guild.id, guild.icon, 1, guild.memberCount]
-            ).catch(async (error) => {
-                if (error.code === 'ER_DUP_ENTRY') {
-                    await request.query(
-                        `UPDATE guilds SET guildName=?, guildIcon=?, botIn=?, memberCount=? WHERE guildId=?`,
-                        [guild.name, guild.icon, 1, guild.memberCount, guild.id]
-                    )
-                }
-            });
+                `INSERT INTO guilds (name, id, avatar, bot_in, members) VALUES (?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE name=VALUES(name), avatar=VALUES(avatar), bot_in=VALUES(bot_in), members=VALUES(members)`,
+                [
+                    guild.name,
+                    guild.id,
+                    guild.icon,
+                    1,
+                    guild.memberCount
+                ]
+            );
 
             await request.query(
-                `INSERT INTO guild_settings (guildId) VALUES (?)`,
-                [guild.id]
-            ).catch((error) => { })
+                `INSERT INTO guild_settings (id) VALUES (?)
+                ON DUPLICATE KEY UPDATE id=VALUES(id)`,
+                [
+                    guild.id
+                ]
+            );
         });
+        console.log(`${new Date().toLocaleString()} → The bot is ready!`.green);
 
-        console.log(`${consoleDate} The bot is ready!`);
+        fs.writeFile(`./logs/log-${new Date().toLocaleDateString()}.txt`, `${new Date().toLocaleDateString()} → The bot is ready!\n\n`, { flag: 'a+' }, callback => { });
 
         return db.releaseConnection(request);
     },
