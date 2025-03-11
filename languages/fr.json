@@ -1,28 +1,28 @@
 {
     "global": {
-        "commandDisabledGlobally": " This command is disabled globally by the developers.",
-        "serverOnly": "You can only use this command in a server.",
-        "staffOnly": "This command is only available to the staff of Cheryl.",
-        "userMissingPermission": "You are missing the following permission: `%Arg%`",
-        "userMissingRole": "You are missing the following role: %Arg%",
-        "botMissingPermission": "I'm missing the following permission: `%Arg%`",
-        "botMissingRole": "I am missing the following role: %Arg%",
+        "commandDisabledGlobally": "Cette commande est désactivée globalement par les développeurs.",
+        "serverOnly": "Vous ne pouvez utiliser cette commande que sur un serveur.",
+        "staffOnly": "Cette commande est uniquement disponible pour le personnel de Cheryl.",
+        "userMissingPermission": "Il vous manque l'autorisation suivante : `%Arg%`",
+        "userMissingRole": "Il vous manque le rôle suivant : %Arg%",
+        "botMissingPermission": "Il me manque l'autorisation suivante : `%Arg%`",
+        "botMissingRole": "Il me manque le rôle suivant : %Arg%",
         "button": {
-            "discord": "Support Server"
+            "discord": "Serveur d'assistance"
         }
     },
     "context": {
         "verify": {
             "setup": {
-                "name": "Verify",
-                "description": "Manually verify the age of a member."
+                "name": "Vérifier",
+                "description": "Vérifier manuellement l'âge d'un membre."
             },
             "response": {
-                "alreadyVerified": "%Arg% is already verified.",
-                "processVerify": "Currently trying to verify %Arg%",
-                "reason": "User verified by %Arg%.",
-                "verifiedComplete": "You successfully verified %Arg%.",
-                "newVerification": "%Arg% just got verified! Please make him feel welcomed~"
+                "alreadyVerified": "%Arg% est déjà vérifié.",
+                "processVerify": "J'essaie actuellement de vérifier %Arg%",
+                "reason": "Utilisateur vérifié par %Arg%.",
+                "verifiedComplete": "Vous avez vérifié avec succès %Arg%.",
+                "newVerification": "%Arg% vient d'être vérifié ! S'il vous plaît, faites-lui sentir le bienvenu~"
             }
         }
     },
@@ -30,148 +30,141 @@
         "action": {
             "setup": {
                 "name": "action",
-                "description": "Do an action (or suggest an image for an action) on a member.",
+                "description": "Effectuer une action envers un membre ou suggérer une image pour une action.",
                 "string": {
                     "choice": {
-                        "name": "choice",
-                        "description": "What action would you like to do?"
+                        "name": "choix",
+                        "description": "Quelle action souhaiteriez-vous réaliser?"
                     },
                     "suggest": {
-                        "name": "suggest",
-                        "description": "Suggest an image to be added to the selected choice."
+                        "name": "suggérer",
+                        "description": "Proposer une image à ajouter au choix sélectionné."
                     }
                 },
                 "user": {
-                    "name": "member",
-                    "description": "Member to target the action towards to."
+                    "name": "membre",
+                    "description": "Le membre que vous souhaitez faire l'action envers."
                 }
             },
             "response": {
                 "suggest": {
                     "wrongUrl": "You must provide a valid URL.",
-                    "wrongFormat": "You must send a valid format. The URL must end with `.jpg`, `.png` or `.gif`.",
-                    "alreadyExist": "This image has already been suggested/added.",
-                    "success": "Your image has been successfully sent to the staff of Cheryl."
+                    "wrongFormat": "Vous devez envoyer un format valide. L'URL doit se terminer par `.jpg`, `.png` ou `.gif`.",
+                    "alreadyExist": "Cette image a déjà été suggérée/ajoutée.",
+                    "success": "Votre image a été envoyée avec succès au personnel de Cheryl."
                 },
                 "user": {
-                    "disable": "This command has been disabled in this server.",
-                    "notNsfw": "You cannot use NSFW command into this channel. This channel must be age-restricted to use this command."
+                    "disable": "Cette commande a été désactivée sur ce serveur.",
+                    "notNsfw": "Vous ne pouvez pas utiliser la commande NSFW sur ce canal. Ce canal doit être soumis à une limite d'âge pour utiliser cette commande."
                 },
-                "noImageFound": "There is no image in the database for the following category: `%Arg%`\n\nYou can start by suggesting an image yourself!"
+                "noImageFound": "Il n'y a aucune image dans la base de données pour la catégorie suivante: `%Arg%`\n\nVous pouvez commencer par suggérer vous-même une image !"
             }
         },
         "profile": {
             "setup": {
-                "name": "profile",
-                "description": "Get information about a user.",
+                "name": "profil",
+                "description": "Obtenir des informations sur un utilisateur.",
                 "user": {
-                    "name": "user",
-                    "description": "User from whom to obtain information."
+                    "name": "utilisateur",
+                    "description": "L'utilisateur que vous souhaitez obtenir des informations."
                 }
             },
             "response": {
-                "description": "Profile updated",
+                "description": "Profil mis à jour",
                 "fields": {
-                    "name": "Name",
+                    "name": "Nom",
                     "id": "ID",
-                    "ageVerified": "Age Verified",
-                    "createdAt": "Account created on",
-                    "joinedAt": "Joined Discord on",
-                    "roles": "Roles"
+                    "ageVerified": "Âge vérifié",
+                    "createdAt": "Compte créé le",
+                    "joinedAt": "A rejoint Discord le",
+                    "roles": "Rôles"
                 }
             }
         },
         "staff": {
             "setup": {
                 "name": "staff",
-                "description": "Verify if a user is part of the staff of the bot.",
+                "description": "Vérifiez si un utilisateur est un staff du bot.",
                 "user": {
-                    "name": "user",
-                    "description": "User to check."
+                    "name": "utilisateur",
+                    "description": "Utilisateur à vérifier."
+                }
+            },
+            "response": {
+                "description": {
+                    "isStaff": "%Username% est un **%StaffRank%** de **%BotName%**.",
+                    "notStaff": "%Username% n'est pas un **Staff** de **%BotName%**."
                 }
             }
         },
         "help": {
             "setup": {
-                "name": "help",
-                "description": "Display the commands available (or information about a certain command)."
+                "name": "aide",
+                "description": "Afficher les commandes disponibles (ou des informations sur une certaine commande)."
             },
             "response": {
-                "description": "The list of command is available on https://cheryl-bot.ca/commands.\n\nThere will also be a dashboard there in the future where users may adjust and personalize the bot."
+                "description": "La liste de commande est disponible à https://cheryl-bot.ca/commands.\n\nIl y aura également à l’avenir un tableau de bord où les utilisateurs pourront ajuster et personnaliser le bot."
             }
         },
         "avatar": {
             "setup": {
                 "name": "avatar",
-                "description": "Get the avatar of a user.",
+                "description": "Obtenir l'avatar d'un utilisateur.",
                 "user": {
-                    "name": "user",
-                    "description": "User to get the avatar."
+                    "name": "utilisateur",
+                    "description": "L'utilisateur à obtenir l'avatar."
                 }
             },
             "response": {
-                "title": "Avatar of %Arg%"
-            }
-        },
-        "repeat": {
-            "setup": {
-                "name": "repeat",
-                "description": "Repeat the message you wish in the VC you are in.",
-                "string": {
-                    "name": "text",
-                    "description": "The text you wish the bot to repeat for you."
-                }
-            },
-            "error": {
-                "wrongGuild": "You must run the command on the guild you are a VC in."
+                "title": "Avatar de %Arg%"
             }
         },
         "level": {
             "setup": {
-                "name": "level",
-                "description": "Show your current progress and level.",
+                "name": "niveau",
+                "description": "Montrez votre progression et votre niveau actuel.",
                 "user": {
-                    "name": "user",
-                    "description": "User to show the level."
+                    "name": "utilisateur",
+                    "description": "L'utilisateur a afficher le niveau."
                 }
             }
         },
         "leaderboard": {
             "setup": {
-                "name": "leaderboard",
-                "description": "Show the leaderboard of the server."
+                "name": "classement",
+                "description": "Afficher le classement du serveur."
             },
             "response": {
-                "title": "Leaderboard of %Arg%",
-                "description": "The full leaderboard is available [here](https://cheryl-bot.ca/leaderboard/guild/%Arg%)",
-                "noLevel": "There is currently nobody with level."
+                "title": "Classement de %Arg%",
+                "description": "Le classement complet est disponible [here](https://cheryl-bot.ca/leaderboard/guild/%Arg%)",
+                "noLevel": "Il n'y a actuellement personne avec un niveau."
             }
         },
         "ticket": {
             "setup": {
                 "name": "ticket",
-                "description": "Send the ticket template."
+                "description": "Envoyez le modèle de ticket."
             }
         }
     },
     "events": {
         "bump": {
             "response": {
-                "timersUp": "Thank you for bumping the server! I will remind %Arg% in 2 hours to bump it again.",
+                "timersUp": "Merci d'avoir bump le serveur ! Je rappellerai %Arg% dans 2 heures pour le bump de nouveau.",
                 "newTimer": {
                     "title": "Bump Time",
-                    "description": "It's been 2 hours already and it's now time to bump the server!\n* Use the command `/bump` from Disboard."
+                    "description": "Cela fait déjà 2 heures et il est maintenant temps de booster le serveur !\n* Utilisez la commande `/bump` de Disboard."
                 }
             }
         },
         "guildMemberAdd": {
             "response": {
-                "onJoin": "%Arg% joined the server."
+                "onJoin": "%Arg% a rejoint le serveur."
             }
         },
         "guildMemberRemove": {
             "response": {
-                "onLeave": "%Arg% left the server."
+                "onLeave": "%Arg% a quitté le serveur."
             }
         },
         "guildBanAdd": {
