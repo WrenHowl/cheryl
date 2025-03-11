@@ -50,7 +50,7 @@ module.exports = { bot, db };
 bot.commands = new Collection();
 
 const commandsPath = path.join(__dirname, 'commands');
-const commandsFilter = fs.readdirSync(commandsPath).filter(file => file != 'message'); // Filter the message event out of it
+const commandsFilter = fs.readdirSync(commandsPath).filter(file => file !== 'message'); // Filter the message event out of it
 
 for (folder of commandsFilter) {
   const commandsPath = path.join(__dirname, `commands/${folder}`);
@@ -64,17 +64,24 @@ for (folder of commandsFilter) {
 }
 
 const eventsPath = path.join(__dirname, 'events');
-const eventsFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
+const eventsFiles = fs.readdirSync(eventsPath);
 
-for (file of eventsFiles) {
-  const filesPath = path.join(eventsPath, file);
-  const event = require(filesPath);
-  if (event.once) {
-    bot.once(event.name, (...args) => event.execute(...args));
-  } else {
+for (folder of eventsFiles) {
+  const eventsPath = path.join(__dirname, `events/${folder}`);
+  const eventsFilter = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
+
+  for (file of eventsFilter) {
+    const filesPath = path.join(eventsPath, file);
+    const event = require(filesPath);
+
+    if (event.once) {
+      bot.once(event.name, (...args) => event.execute(...args));
+      continue;
+    }
+
     bot.on(event.name, (...args) => event.execute(...args));
   }
-};
+}
 
 bot.on('interactionCreate', async (interaction) => {
   if (!interaction.guild) return;
@@ -339,7 +346,6 @@ bot.on('interactionCreate', async (interaction) => {
   if (action.includes(interaction.customId)) return actionButton();
   else if (ticketCreate.includes(interaction.customId)) return ticketButton();
   else if (ticket.includes(interaction.customId)) {
-    //
     // Get the -> Ticket Database -> ready
     let ticketFind = await request.query(
       `SELECT * FROM tickets WHERE message_id=?`,
@@ -348,7 +354,7 @@ bot.on('interactionCreate', async (interaction) => {
       ]
     );
 
-    if (ticketFind[0][0] === undefined) {
+    if (typeof ticketFind[0][0] === "undefined") {
       await interaction.message.delete();
 
       await interaction.reply({
@@ -585,7 +591,6 @@ bot.on('interactionCreate', async (interaction) => {
       ]
     )
 
-    //
     // Check who is the person clicking the button
     if ((ticketFind[0][0] !== undefined && ticketFind[0][0]['claimed_by'] !== interaction.user.id) && !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
       interaction.reply({
@@ -619,7 +624,7 @@ bot.on('interactionCreate', async (interaction) => {
 
         break;
       case 'ticket_verify':
-        if (ticketFind[0][0] === undefined) break;
+        if (typeof ticketFind[0][0] === "undefined") break;
         const user = interaction.guild.members.cache.get(ticketFind[0][0]['user_id']);
 
         //
@@ -650,7 +655,6 @@ bot.on('interactionCreate', async (interaction) => {
           );
         };
 
-        //
         // Remove the un-verified role.
         if (user.roles.cache.some(role => role.id === '1233066501825892383')) {
           await user.roles.remove(
@@ -659,7 +663,6 @@ bot.on('interactionCreate', async (interaction) => {
           );
         };
 
-        //
         // Updating the profile.
         await request.query(
           'INSERT INTO users (id, age_verified) VALUES (?, ?)',

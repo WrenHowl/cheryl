@@ -1,5 +1,5 @@
 const { Events } = require('discord.js');
-const { db } = require('../server');
+const { db } = require('../../server');
 
 module.exports = {
     name: Events.UserUpdate,

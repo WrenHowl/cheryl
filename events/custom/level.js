@@ -1,5 +1,5 @@
 const { Events, AttachmentBuilder } = require('discord.js');
-const { db } = require('../server');
+const { db } = require('../../server');
 const Canvas = require('@napi-rs/canvas');
 
 module.exports = {
@@ -62,7 +62,12 @@ module.exports = {
                 ]
             );
 
-            if (userFind[0][0]['xp'] + xpPerMessage === levelXpFind[0][0]['xp']) {
+            // Manually set a cap of XP that is obtainable.
+            levelStatus = userFind[0][0]['xp'] > 3150200 ?
+                250 :
+                levelXpFind[0][0]['level'] - 1;
+
+            if (typeof levelXpFind[0][0] !== "undefined" && userFind[0][0]['xp'] + xpPerMessage === levelXpFind[0][0]['xp']) {
                 levelStatus = levelXpFind[0][0]['level'];
 
                 if (typeof levelXpFind[0][0]['role_id'] !== "object") {

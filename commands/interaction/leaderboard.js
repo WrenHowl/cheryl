@@ -42,7 +42,7 @@ module.exports = {
         if (typeof levelFind[0][0] !== "undefined" && levelFind[0][0]['level'] > 1) {
             for (i = 0; i < levelFind[0].length; i++) {
                 embed.addFields(
-                    { name: `#${i}`, value: '<@' + levelFind[0][i]['user_id'] + '> \n**Level** → `' + levelFind[0][i]['level'] + '` \n**XP** → `' + levelFind[0][i]['xp'] + '`' }
+                    { name: `#${i + 1}`, value: '<@' + levelFind[0][i]['user_id'] + '> \n**Level** → `' + levelFind[0][i]['level'] + '` \n**XP** → `' + levelFind[0][i]['xp'] + '`' }
                 );
             }
 

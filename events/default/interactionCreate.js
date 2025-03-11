@@ -1,6 +1,6 @@
 const { Events } = require('discord.js');
-const { en } = require('../preset/language')
-const { db } = require('../server');
+const { en } = require('../../preset/language')
+const { db } = require('../../server');
 
 module.exports = {
     name: Events.InteractionCreate,

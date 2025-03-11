@@ -173,6 +173,20 @@
                     "description": "Raison pour le bannissement."
                 }
             }
+        },
+        "coinflip": {
+            "setup": {
+                "name": "coinflip",
+                "description": "Start a coinflip in exchange of some of your XP to attempt to get 2x of the XP.",
+                "amount": {
+                    "name": "amount",
+                    "description": "Amount of XP you wish to try to multiply by 2."
+                },
+                "user": {
+                    "name": "user",
+                    "description": "User you'd like to fight against!"
+                }
+            }
         }
     },
     "events": {

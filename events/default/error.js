@@ -1,8 +1,8 @@
 const { Events } = require('discord.js');
-const { bot } = require('../server');
+const { bot } = require('../../server');
 const fs = require('node:fs');
 const colors = require('colors');
-const configPreset = require('../config/main.json');
+const configPreset = require('../../config/main.json');
 
 module.exports = {
     name: Events.Error,
@@ -16,9 +16,7 @@ module.exports = {
             // Send it to my DM
             return bot.users.cache.get(configPreset.botInfo.ownerId).send({
                 content: '**Error at ' + new Date().toLocaleString() + '** \n\n```javascript\n' + error.stack + '```'
-            });
-        } catch (err) {
-            console.error(err)
-        }
+            })
+        } catch (error) { return }
     }
 }

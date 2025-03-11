@@ -1,8 +1,8 @@
 const { Events, ActivityType } = require('discord.js');
-const { db, bot } = require('../server');
+const { db, bot } = require('../../server');
 const fs = require('node:fs');
 const colors = require('colors');
-const configPreset = require('../config/main.json');
+const configPreset = require('../../config/main.json');
 
 module.exports = {
     name: Events.ClientReady,

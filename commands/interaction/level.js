@@ -63,7 +63,7 @@ module.exports = {
 
         let levelCurrent = 0;
         let xpCanvas = 0;
-        let xpText = 0;
+        let xpText = '0 / 250';
 
         if (typeof levelFind[0][0] !== "undefined") {
             const levelUpFind = await request.query(
@@ -75,7 +75,7 @@ module.exports = {
 
             levelCurrent = levelFind[0][0]['level'];
             xpCanvas = Math.floor(levelFind[0][0]['xp'] * 300 / levelUpFind[0][0]['xp']);
-            xpText = Math.floor(levelFind[0][0]['xp'] * 100 / levelUpFind[0][0]['xp']);
+            xpText = levelFind[0][0]['xp'] + ' / ' + levelUpFind[0][0]['xp'];
         }
 
         context.font = '60px Poppins';
@@ -97,7 +97,7 @@ module.exports = {
 
         // Level text
         context.font = '10px Poppins';
-        context.fillText(`${xpText.toString()}%`, canvas.width / 2.5, canvas.height / 1.45);
+        context.fillText(xpText, canvas.width / 2.5, canvas.height / 1.45);
 
         // Profile picture
         context.beginPath();
