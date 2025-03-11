@@ -62,8 +62,6 @@ module.exports = {
                 ]
             );
 
-            levelStatus = levelXpFind[0][0]['level'] - 1;
-
             if (userFind[0][0]['xp'] + xpPerMessage === levelXpFind[0][0]['xp']) {
                 levelStatus = levelXpFind[0][0]['level'];
 

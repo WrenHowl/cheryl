@@ -117,7 +117,9 @@ module.exports = {
 
         const userSettingsFind = await request.query(
             `SELECT * FROM user_settings WHERE id=?`,
-            [userTarget.id]
+            [
+                userTarget.id
+            ]
         );
 
         if (typeof userSettingsFind[0][0] !== "undefined") {
@@ -141,7 +143,9 @@ module.exports = {
 
         const guildSettingsFind = await request.query(
             `SELECT * FROM guild_settings WHERE id=?`,
-            [interaction.guild.id]
+            [
+                interaction.guild.id
+            ]
         );
 
         if (typeof guildSettingsFind[0][0] !== "undefined") {
@@ -168,44 +172,48 @@ module.exports = {
             try {
                 new URL(optionSuggest);
             } catch (error) {
-                return interaction.reply({
+                await interaction.reply({
                     content: en.commands.action.response.suggest.wrongUrl,
                     flags: [MessageFlags.Ephemeral]
                 });
+
+                return db.releaseConnection(request);
             };
 
             // Check if the suggestion string is a valid format URL
             if (!['jpg', 'png', 'gif'].some(sm => optionSuggest.endsWith(sm))) {
-                return interaction.reply({
+                await interaction.reply({
                     content: en.commands.action.response.suggest.wrongFormat,
                     flags: [MessageFlags.Ephemeral]
                 });
+
+                return db.releaseConnection(request);
             };
 
-            //
             // Check if image has already been suggested/added
             const actionImageFind = await request.query(
                 `SELECT * FROM actions WHERE url=?`,
-                [optionSuggest]
+                [
+                    optionSuggest
+                ]
             );
 
-            //
             // Check if the url already exist
-            if (actionImageFind[0][0] != undefined) {
-                return interaction.reply({
+            if (typeof actionImageFind[0][0] !== "undefined") {
+                await interaction.reply({
                     content: en.commands.action.response.suggest.alreadyExist,
                     flags: [MessageFlags.Ephemeral]
                 });
+
+                return db.releaseConnection(request);
             };
 
-            //
             // Notify that the suggestion has been received
             await interaction.reply({
                 content: en.commands.action.response.suggest.success,
                 flags: [MessageFlags.Ephemeral]
             });
 
-            //
             // Creating the embed and button
             const buttonSuggestion = new ActionRowBuilder()
                 .addComponents(
@@ -234,13 +242,11 @@ module.exports = {
                 .setImage(optionSuggest)
                 .setColor('Yellow');
 
-            //
             // Check if the user that suggested is the bot owner
             let channelSuggestId = !optionChoice === !nsfwChoice.includes(optionChoice) ?
                 configPreset.channelsId.nsfwSuggestion :
                 configPreset.channelsId.sfwSuggestion;
             const channelSuggest = interaction.client.guilds.cache.get(configPreset.botInfo.supportServerId).channels.cache.get(channelSuggestId);
-
 
             if (interaction.user.id === configPreset.botInfo.ownerId) {
                 imageEmbed.setColor('Green');
@@ -251,7 +257,10 @@ module.exports = {
 
                 await request.query(
                     'INSERT INTO actions (category, url) VALUES (?, ?)',
-                    [optionChoice, optionSuggest]
+                    [
+                        optionChoice,
+                        optionSuggest
+                    ]
                 );
             } else {
                 msg = await channelSuggest.send({
@@ -261,23 +270,32 @@ module.exports = {
 
                 await request.query(
                     'INSERT INTO action_suggest (id, message_id, category, url) VALUES (?, ?, ?, ?)',
-                    [interaction.user.id, msg.id, optionChoice, optionSuggest]
+                    [
+                        interaction.user.id,
+                        msg.id,
+                        optionChoice,
+                        optionSuggest
+                    ]
                 );
             };
         } else {
-            //
             // Check if the action is NSFW and if the channel is NSFW.
             if (nsfwChoice.includes(optionChoice) && !interaction.channel.nsfw) {
-                return interaction.reply({
+                await interaction.reply({
                     content: en.commands.action.response.user.notNsfw,
                     flags: [MessageFlags.Ephemeral]
                 });
+
+                return db.releaseConnection(request);
             };
 
             const actionImageFind = await request.query(
                 `SELECT url FROM actions WHERE category=? ORDER BY RAND() LIMIT 1`,
-                [optionChoice]
+                [
+                    optionChoice
+                ]
             );
+
             if (typeof actionImageFind[0][0] === "undefined") {
                 const replyString = en.commands.action.response.noImageFound;
 
@@ -452,10 +470,8 @@ module.exports = {
                     break;
             }
 
-            reply = reply.toString();
-
             await interaction.reply({
-                content: reply,
+                content: reply.toString(),
                 flags: [isEphemeral]
             });
         }

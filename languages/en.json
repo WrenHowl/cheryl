@@ -89,6 +89,12 @@
                     "name": "user",
                     "description": "User to check."
                 }
+            },
+            "response": {
+                "description": {
+                    "isStaff": "%Username% is a **%StaffRank%** of **%BotName%**.",
+                    "notStaff": "%Username% is not a **STAFF** of **%BotName%**."
+                }
             }
         },
         "help": {

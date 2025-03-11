@@ -23,7 +23,7 @@ module.exports = {
     execute: async (interaction) => {
         if (interaction.user.id !== '291262778730217472') return;
 
-        interaction.reply({
+        await interaction.reply({
             content: "Sending."
         });
 

@@ -51,8 +51,8 @@ module.exports = {
             [userTarget.id]
         );
 
-        if (usersData[0][0] == undefined) {
-            await db.query(
+        if (typeof usersData[0][0] === "undefined") {
+            await request.query(
                 `INSERT INTO users (name, id) VALUES (?, ?)`,
                 [
                     userTarget.username,
@@ -61,7 +61,7 @@ module.exports = {
             );
         };
 
-        let isAgeVerified = usersData[0][0]['age_verified'] === 1 ?
+        const isAgeVerified = usersData[0][0]['age_verified'] === 1 ?
             "Yes" :
             "No";
 

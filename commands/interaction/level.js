@@ -55,7 +55,10 @@ module.exports = {
 
         const levelFind = await request.query(
             'SELECT * FROM levels WHERE user_id=? AND guild_id=?',
-            [userCheck.id, interaction.guild.id]
+            [
+                userCheck.id,
+                interaction.guild.id
+            ]
         )
 
         let levelCurrent = 0;
@@ -65,7 +68,9 @@ module.exports = {
         if (typeof levelFind[0][0] !== "undefined") {
             const levelUpFind = await request.query(
                 'SELECT * FROM level_xp WHERE level=?',
-                [levelFind[0][0]['level'] + 1]
+                [
+                    levelFind[0][0]['level'] + 1
+                ]
             )
 
             levelCurrent = levelFind[0][0]['level'];
@@ -103,7 +108,7 @@ module.exports = {
 
         const attachment = new AttachmentBuilder(await canvas.encode('png'), { name: 'leveling.png' });
 
-        interaction.reply({
+        await interaction.reply({
             files: [attachment]
         });
 
