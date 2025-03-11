@@ -1,27 +1,30 @@
 <p align="center">
+  <img alt="GitHub Release" src="https://img.shields.io/github/v/release/wrenhowl/cheryl?style=for-the-badge">
+  <img alt="NPM Version" src="https://img.shields.io/npm/v/discord.js?style=for-the-badge&label=Discord.JS">
+  <img alt="NPM Version" src="https://img.shields.io/npm/v/mysql2?style=for-the-badge&label=MySQL2">
+  <br><br>
   <img src="https://cheryl-bot.ca/assets/images/cheryl/favicon.png">
-<br>
+  <br>
   <strong>Cheryl</strong>
 </p>
 <br>
-<p>
-  This repository is for Cheryl, a discord bot who provides : 
-  <ul>
-    <li>
-      A wide range of customisation for the user and server
-    </li>
-    <li>
-      Levelling system with an online leaderboard
-    </li>
-    <li>
-      Blacklist system to keep track of troublesome offenders
-    </li>
-    <li>
-      Action command to roleplay action from SFW to NSFW
-    </li>
-  </ul>
-</p>
-
+<h3>
+  What does Cheryl provide?
+</h3>
+<ul>
+  <li>
+    A wide range of customisation for the user and server
+  </li>
+  <li>
+    Levelling system with an online leaderboard
+  </li>
+  <li>
+    Blacklist system to keep track of troublesome offenders
+  </li>
+  <li>
+    Action command to roleplay action from SFW to NSFW
+  </li>
+</ul>
 <h2>
   FAQ
 </h2>
