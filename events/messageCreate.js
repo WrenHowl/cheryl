@@ -50,7 +50,7 @@ module.exports = {
         }
 
         // Check if the user has data already in the server.
-        if (typeof userFind[0][0]['xp'] !== "object" || typeof userFind[0][0]['xp'] !== "undefined") {
+        if (typeof userFind[0][0]['xp'] !== "object" && typeof userFind[0][0]['xp'] !== "undefined") {
             // Check if the amount of XP gained is enough for a level up
             const levelXpFind = await request.query(
                 `SELECT level_xp.level, level_xp.xp, level_perks.guild_id, level_perks.role_id FROM level_xp

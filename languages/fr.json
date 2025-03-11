@@ -145,6 +145,34 @@
                 "name": "ticket",
                 "description": "Envoyez le modèle de ticket."
             }
+        },
+        "kick": {
+            "setup": {
+                "name": "kick",
+                "description": "Expulser un membre du serveur.",
+                "user": {
+                    "name": "utilisateur",
+                    "description": "Utilisateur à expulser."
+                },
+                "reason": {
+                    "name": "raison",
+                    "description": "Raison pour l'expulser."
+                }
+            }
+        },
+        "ban": {
+            "setup": {
+                "name": "ban",
+                "description": "Bannir un membre du serveur.",
+                "user": {
+                    "name": "utilisateur",
+                    "description": "Utilisateur à bannir."
+                },
+                "reason": {
+                    "name": "raison",
+                    "description": "Raison pour le bannissement."
+                }
+            }
         }
     },
     "events": {

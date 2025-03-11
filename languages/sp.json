@@ -145,6 +145,34 @@
                 "name": "ticket",
                 "description": "Send the ticket template."
             }
+        },
+        "kick": {
+            "setup": {
+                "name": "kick",
+                "description": "Kick a member from the server.",
+                "user": {
+                    "name": "user",
+                    "description": "User to kick."
+                },
+                "reason": {
+                    "name": "reason",
+                    "description": "The reason for the kick."
+                }
+            }
+        },
+        "ban": {
+            "setup": {
+                "name": "ban",
+                "description": "Ban a member from the server.",
+                "user": {
+                    "name": "user",
+                    "description": "User to ban."
+                },
+                "reason": {
+                    "name": "reason",
+                    "description": "The reason for the ban."
+                }
+            }
         }
     },
     "events": {

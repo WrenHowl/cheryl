@@ -1,4 +1,4 @@
-const { Client, Partials, Collection, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, PermissionsBitField } = require('discord.js');
+const { Client, Partials, Collection, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, PermissionsBitField, MessageFlags } = require('discord.js');
 const { botPrivateInfo } = require('./config/main.json');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -175,7 +175,7 @@ bot.on('interactionCreate', async (interaction) => {
     if (ticketFind[0][0] !== undefined) {
       interaction.reply({
         content: `You already created a ticket for the following reason: \`${reason}\``,
-        ephemeral: true,
+        flags: [MessageFlags.Ephemeral]
       });
 
       return db.releaseConnection(request);;
@@ -183,7 +183,7 @@ bot.on('interactionCreate', async (interaction) => {
 
     interaction.reply({
       content: "You successfully created a ticket. A staff member will accept it shortly.",
-      ephemeral: true
+      flags: [MessageFlags.Ephemeral]
     });
 
     const ticketCountFind = await request.query(
@@ -308,7 +308,7 @@ bot.on('interactionCreate', async (interaction) => {
     if (replyStaff !== false) {
       interaction.reply({
         content: replyStaff,
-        ephemeral: true
+        flags: [MessageFlags.Ephemeral]
       });
     }
   }
@@ -353,7 +353,8 @@ bot.on('interactionCreate', async (interaction) => {
 
       await interaction.reply({
         content: 'No data found in the **ticket** database.',
-        ephemeral: true,
+        flags: [MessageFlags.Ephemeral]
+        ,
       });
 
       return db.releaseConnection(request);
@@ -589,7 +590,8 @@ bot.on('interactionCreate', async (interaction) => {
     if ((ticketFind[0][0] !== undefined && ticketFind[0][0]['claimed_by'] !== interaction.user.id) && !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
       interaction.reply({
         content: "You cannot delete this ticket. You didn't claim it.",
-        ephemeral: true,
+        flags: [MessageFlags.Ephemeral]
+        ,
       });
 
       return db.releaseConnection(request);;
@@ -602,7 +604,7 @@ bot.on('interactionCreate', async (interaction) => {
         } else {
           interaction.reply({
             content: 'You **completed** this ticket, it will be deleted in 3 seconds.',
-            ephemeral: true
+            flags: [MessageFlags.Ephemeral]
           });
         }
 
@@ -625,7 +627,8 @@ bot.on('interactionCreate', async (interaction) => {
         const processVerify = en.context.verify.response.processVerify;
         await interaction.reply({
           content: processVerify.replace(/%Arg%/, '<@' + ticketFind[0][0]['user_id'] + '>'),
-          ephemeral: true,
+          flags: [MessageFlags.Ephemeral]
+          ,
         });
 
         //
@@ -635,7 +638,8 @@ bot.on('interactionCreate', async (interaction) => {
         if (user.roles.cache.some(role => role.id === '1084970943820075050')) {
           interaction.editReply({
             content: alreadyVerified.replace(/%Arg%/, '<@' + ticketFind[0][0]['user_id'] + '>'),
-            ephemeral: true,
+            flags: [MessageFlags.Ephemeral]
+            ,
           });
 
           break;
@@ -702,7 +706,8 @@ bot.on('interactionCreate', async (interaction) => {
         // Modifying the reply to alert the staff it is done.
         interaction.editReply({
           content: `You successfully verified <@${ticketFind[0][0]['user_id']}>'s age.`,
-          ephemeral: true,
+          flags: [MessageFlags.Ephemeral]
+          ,
         });
 
         break;
