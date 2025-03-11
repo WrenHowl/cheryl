@@ -25,7 +25,8 @@ module.exports = {
         await request.query(
             `UPDATE users SET name=?, global_name=?, avatar=? WHERE id=?`,
             [
-                data.join(",\n")
+                ...data,
+                newUpdate.user.id
             ]
         );
 
