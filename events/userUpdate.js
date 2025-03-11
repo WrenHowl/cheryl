@@ -26,7 +26,7 @@ module.exports = {
             `UPDATE users SET name=?, global_name=?, avatar=? WHERE id=?`,
             [
                 ...data,
-                newUpdate.user.id
+                newUpdate.id
             ]
         );
 
