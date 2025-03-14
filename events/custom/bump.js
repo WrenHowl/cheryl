@@ -9,9 +9,6 @@ module.exports = {
             return;
         }
 
-        console.log('A')
-        console.log(message)
-        console.log(message.interaction)
         const member = message.interaction.user.toString();
         const reply = en.events.bump.response.timersUp
 
