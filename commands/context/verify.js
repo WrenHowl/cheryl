@@ -1,4 +1,4 @@
-const { EmbedBuilder, ContextMenuCommandBuilder, ApplicationCommandType } = require('discord.js');
+const { EmbedBuilder, ContextMenuCommandBuilder, ApplicationCommandType, MessageFlags } = require('discord.js');
 const { en, fr, de, sp, nl } = require('../../preset/language');
 const { db } = require('../../server');
 
