@@ -75,7 +75,7 @@ module.exports = {
 
             levelCurrent = levelFind[0][0]['level'];
             xpCanvas = Math.floor(levelFind[0][0]['xp'] * 300 / levelUpFind[0][0]['xp']);
-            if (xpCanvas > 300) {
+            if (xpCanvas >= 300) {
                 xpCanvas = 300;
             }
 
