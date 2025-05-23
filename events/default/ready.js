@@ -11,26 +11,27 @@ module.exports = {
         bot.user.setStatus('dnd');
 
         const request = await db.getConnection();
+        let counter = 0;
 
         setInterval(async () => {
             const blacklistFind = await request.query(
                 `SELECT COUNT(*) FROM blacklists`
             )
 
-            const blacklistAmount = blacklistFind ?
+            /*const blacklistAmount = blacklistFind ?
                 blacklistFind[0][0]['COUNT(*)'] :
-                0;
-            let counter = 0;
-            counter = counter === 3 ?
-                0 :
-                counter++;
+                0;*/
 
             const status = [
                 `${bot.guilds.cache.reduce((a, g) => a + g.memberCount, 0)} Members!`,
                 `${bot.guilds.cache.size} Servers!`,
-                `${blacklistAmount} Blacklisted Users!`,
+                //`${blacklistAmount} Blacklisted Users!`,
                 `Version ${configPreset.botInfo.version}`,
             ];
+
+            counter >= 3 ?
+                counter = 0 :
+                counter++;
 
             bot.user.setActivity(status[counter], { type: ActivityType.Watching });
         }, 10000);
