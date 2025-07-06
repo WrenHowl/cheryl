@@ -532,7 +532,6 @@ bot.on('interactionCreate', async (interaction) => {
             break;
         }
 
-        //
         // Create the delete button. It is at the end so it will be the last button.
         button.addComponents(
           new ButtonBuilder()
@@ -548,7 +547,6 @@ bot.on('interactionCreate', async (interaction) => {
             .setDisabled(true)
         )
 
-        //
         // Send the ticket message in the channel.
         // Pin the message afterwards.
         const channelMessage = createChannel.send({
@@ -558,7 +556,6 @@ bot.on('interactionCreate', async (interaction) => {
 
         (await channelMessage).pin();
 
-        //
         // Quickly mention the user that made the ticket.
         // Delete the message after 1 second.
         const quickMention = createChannel.send({
@@ -571,7 +568,6 @@ bot.on('interactionCreate', async (interaction) => {
 
         break;
       case 'ticket_decline':
-        //
         // Update the -> Ticket Database & Ticket Message.
         editMessageTicket(ticketFind, 'Declined', 'Red', 'You **declined** this ticket.')
 
@@ -627,7 +623,6 @@ bot.on('interactionCreate', async (interaction) => {
         if (typeof ticketFind[0][0] === "undefined") break;
         const user = interaction.guild.members.cache.get(ticketFind[0][0]['user_id']);
 
-        //
         // Replying to the staff.
         const processVerify = en.context.verify.response.processVerify;
         await interaction.reply({
@@ -636,7 +631,6 @@ bot.on('interactionCreate', async (interaction) => {
           ,
         });
 
-        //
         // Check if the user is already verified.
         const reason = en.context.verify.response.reason;
         const alreadyVerified = en.context.verify.response.alreadyVerified;
@@ -682,7 +676,6 @@ bot.on('interactionCreate', async (interaction) => {
           }
         });
 
-        //
         // Sending message in channel.
         const embed = new EmbedBuilder()
           .addFields(
@@ -705,7 +698,6 @@ bot.on('interactionCreate', async (interaction) => {
           embeds: [embed],
         });
 
-        //
         // Modifying the reply to alert the staff it is done.
         interaction.editReply({
           content: `You successfully verified <@${ticketFind[0][0]['user_id']}>'s age.`,
