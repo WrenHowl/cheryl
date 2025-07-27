@@ -24,6 +24,11 @@
                 "verifiedComplete": "You successfully verified %Arg%.",
                 "newVerification": "%Arg% just got verified! Please make him feel welcomed~"
             }
+        },
+        "details": {
+            "setup": {
+                "name": "View Details"
+            }
         }
     },
     "commands": {
@@ -185,6 +190,16 @@
                 "user": {
                     "name": "user",
                     "description": "User you'd like to fight against!"
+                }
+            }
+        },
+        "confess": {
+            "setup": {
+                "name": "confess",
+                "description": "Confess anonymously about something.",
+                "message": {
+                    "name": "message",
+                    "description": "What do you wish to confess?"
                 }
             }
         }

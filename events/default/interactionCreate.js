@@ -19,12 +19,9 @@ module.exports = {
             ]
         );
 
-        let option = interaction.options._hoistedOptions[0] ?? 'None';
-        if (option !== 'None') {
-            option = /\d/.test(option['value']) ?
-                'None' :
-                option['value'];
-        }
+        option = interaction.commandName === 'action' ?
+            interaction.options._hoistedOptions[0]['value'] :
+            'None';
 
         await request.query(
             `INSERT INTO command_stats (name, extra_option, usage_count) VALUES (?, ?, ?)

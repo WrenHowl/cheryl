@@ -24,6 +24,11 @@
                 "verifiedComplete": "Vous avez vérifié avec succès %Arg%.",
                 "newVerification": "%Arg% vient d'être vérifié ! S'il vous plaît, faites-lui sentir le bienvenu~"
             }
+        },
+        "details": {
+            "setup": {
+                "name": "View Details"
+            }
         }
     },
     "commands": {
@@ -179,12 +184,22 @@
                 "name": "coinflip",
                 "description": "Start a coinflip in exchange of some of your XP to attempt to get 2x of the XP.",
                 "amount": {
-                    "name": "amount",
+                    "name": "montant",
                     "description": "Amount of XP you wish to try to multiply by 2."
                 },
                 "user": {
-                    "name": "user",
+                    "name": "utilisateur",
                     "description": "User you'd like to fight against!"
+                }
+            }
+        },
+        "confess": {
+            "setup": {
+                "name": "confess",
+                "description": "Confess anonymously about something.",
+                "message": {
+                    "name": "message",
+                    "description": "What do you wish to confess?"
                 }
             }
         }

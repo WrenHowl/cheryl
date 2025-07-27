@@ -8,9 +8,8 @@ module.exports = {
     name: Events.ClientReady,
     once: true,
     async execute() {
-        bot.user.setStatus('dnd');
-
         const request = await db.getConnection();
+
         let counter = 0;
 
         setInterval(async () => {
