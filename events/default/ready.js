@@ -24,6 +24,14 @@ module.exports = {
                 counter++;
 
             bot.user.setActivity(status[counter], { type: ActivityType.Watching });
+
+            await request.query(
+                `INSERT INTO status (id) VALUES (?)
+                ON DUPLICATE KEY UPDATE id=VALUES(id)`,
+                [
+                    configPreset.botPrivateInfo.botId
+                ]
+            );
         }, 10000);
 
         bot.guilds.cache.forEach(async (guild) => {
