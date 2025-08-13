@@ -27,7 +27,7 @@ module.exports = {
 
             await request.query(
                 `INSERT INTO status (id) VALUES (?)
-                ON DUPLICATE KEY UPDATE id=VALUES(id)`,
+                ON DUPLICATE KEY UPDATE timestamp=CURRENT_TIMESTAMP`,
                 [
                     configPreset.botPrivateInfo.botId
                 ]
