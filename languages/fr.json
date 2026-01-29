@@ -182,24 +182,40 @@
         "coinflip": {
             "setup": {
                 "name": "coinflip",
-                "description": "Start a coinflip in exchange of some of your XP to attempt to get 2x of the XP.",
+                "description": "Lancez une pièce!",
                 "amount": {
                     "name": "montant",
-                    "description": "Amount of XP you wish to try to multiply by 2."
+                    "description": "Quantité de XP que vous souhaitez essayer de multiplier par 2."
                 },
                 "user": {
                     "name": "utilisateur",
-                    "description": "User you'd like to fight against!"
+                    "description": "Utilisateur que vous aimeriez affronter !"
                 }
             }
         },
         "confess": {
             "setup": {
                 "name": "confess",
-                "description": "Confess anonymously about something.",
+                "description": "Avouez quelque chose anonymement.",
                 "message": {
                     "name": "message",
-                    "description": "What do you wish to confess?"
+                    "description": "Qu'avez-vous envie d'avouer ?"
+                }
+            }
+        },
+        "work": {
+            "setup": {
+                "name": "work",
+                "description": "Travaillez pour gagner de l'argent !"
+            }
+        },
+        "balance": {
+            "setup": {
+                "name": "balance",
+                "description": "Regardez votre solde ou celui de quelqu'un d'autre !",
+                "user": {
+                    "name": "user",
+                    "description": "Utilisateur à cibler."
                 }
             }
         }

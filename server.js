@@ -50,7 +50,7 @@ module.exports = { bot, db };
 bot.commands = new Collection();
 
 const commandsPath = path.join(__dirname, 'commands');
-const commandsFilter = fs.readdirSync(commandsPath).filter(file => file !== 'message'); // Filter the message event out of it
+const commandsFilter = fs.readdirSync(commandsPath);
 
 for (folder of commandsFilter) {
   const commandsPath = path.join(__dirname, `commands/${folder}`);
@@ -59,6 +59,17 @@ for (folder of commandsFilter) {
   for (file of commandsFilter) {
     const filesPath = path.join(commandsPath, file);
     const command = require(filesPath);
+
+    if (typeof command.data === "undefined") {
+      if (command.once) {
+        bot.once(command.name, (...args) => command.execute(...args));
+        continue;
+      }
+
+      bot.on(command.name, (...args) => command.execute(...args));
+      continue;
+    }
+
     bot.commands.set(command.data.name, command);
   }
 }
@@ -88,625 +99,66 @@ bot.on('interactionCreate', async (interaction) => {
 
   const request = await db.getConnection();
 
-  // Approving and Denying new action image buttons.
-  async function actionButton() {
-    const actionFind = await request.query(
-      `SELECT * FROM action_suggest WHERE message_id=?`,
-      [interaction.message.id]
-    )
-
-    if (actionFind[0][0] === undefined) return db.releaseConnection(request);;
-
-    const url = actionFind[0][0]['url'];
-    const category = actionFind[0][0]['category'];
-
-    let suggestionEmbed = new EmbedBuilder()
-      .addFields(
-        { name: 'User', value: `<@${actionFind[0][0]['user_id']}>`, inline: true },
-        { name: 'Category', value: category, inline: true },
-        { name: 'Image URL', value: url, inline: true },
-      )
-      .setImage(interaction.message.embeds[0].image.url);
-
-    // Checking for the interaction name and sending the appropriate response
-    switch (interaction.customId) {
-      case ('action_accept'):
-        await request.query(
-          `INSERT INTO action_suggest (url, category) VALUES (?, ?)`,
-          [url, category]
-        );
-
-        suggestionEmbed.addFields(
-          { name: 'Status', value: 'Accepted' }
-        );
-        suggestionEmbed.setColor('Green');
-
-        break;
-      case ('action_deny'):
-        suggestionEmbed.addFields(
-          { name: 'Status', value: 'Denied' },
-        );
-        suggestionEmbed.setColor('Red');
-
-        request.query(
-          `DELETE FROM action_suggest WHERE message_id=?`,
-          [interaction.message.id]
-        );
-        break;
-    };
-
-    // Fetching the message to edit it
-    interaction.channel.messages.fetch(interaction.message.id).then(async () => {
-      await interaction.update({
-        embeds: [suggestionEmbed],
-        components: []
-      });
-    });
-  }
-
-  //
-  // Generating ticket button.
-  async function ticketButton() {
-    const guildSettingFind = await request.query(
-      `SELECT * FROM guild_settings WHERE id=?`,
-      [interaction.guild.id]
-    )
-
-    if (guildSettingFind[0][0] == undefined) return db.releaseConnection(request);;
-
-    let reason;
-
-    switch (interaction.customId) {
-      case 'age-verification':
-        reason = 'Age Verification';
-        break;
-      case 'report':
-        reason = 'Report';
-        break;
-      case 'partnership':
-        reason = 'Partnership';
-        break;
-      case 'support':
-        reason = 'Support';
-        break;
-      default:
-        reason = 'Other';
-        break;
-    }
-
-    const ticketFind = await request.query(
-      `SELECT * FROM tickets WHERE guild_id=? AND user_id=? AND reason=?`,
-      [interaction.guild.id, interaction.user.id, reason]
-    )
-
-    if (ticketFind[0][0] !== undefined) {
-      interaction.reply({
-        content: `You already created a ticket for the following reason: \`${reason}\``,
-        flags: [MessageFlags.Ephemeral]
-      });
-
-      return db.releaseConnection(request);;
-    };
-
-    interaction.reply({
-      content: "You successfully created a ticket. A staff member will accept it shortly.",
-      flags: [MessageFlags.Ephemeral]
-    });
-
-    const ticketCountFind = await request.query(
-      `SELECT * FROM ticket_count WHERE guild_id=?`,
-      [interaction.guild.id]
-    )
-
-    let ticketCount = 1;
-
-    if (ticketCountFind[0][0] === undefined) {
-      await request.query(
-        `INSERT INTO ticket_count (guild_id, count) VALUES(?, ?)`,
-        [interaction.guild.id, ticketCount]
-      )
-    } else {
-      ticketCount = ticketCountFind[0][0]['count'] + 1;
-
-      await request.query(
-        `UPDATE ticket_count SET count=? WHERE guild_id=?`,
-        [ticketCount, interaction.guild.id]
-      )
-    }
-
-    // Creating the buttons
-    const newTicketButton = new ActionRowBuilder()
-      .addComponents(
-        new ButtonBuilder()
-          .setLabel('Accept')
-          .setCustomId('ticket_accept')
-          .setStyle(ButtonStyle.Success),
-      )
-      .addComponents(
-        new ButtonBuilder()
-          .setLabel('Decline')
-          .setCustomId('ticket_decline')
-          .setStyle(ButtonStyle.Danger),
-      )
-
-    // Creating the embed
-    const newTicketEmbed = new EmbedBuilder()
-      .setTitle(`Ticket #${ticketCount}`)
-      .addFields(
-        {
-          name: 'Member',
-          value: interaction.user.toString(),
-          inline: true
-        },
-        { name: '\u200b', value: '\u200b', inline: true },
-        { name: '\u200b', value: '\u200b', inline: true },
-        {
-          name: 'Reason',
-          value: reason,
-          inline: true
-        },
-        {
-          name: 'Status',
-          value: 'Waiting',
-          inline: true
-        },
-        { name: '\u200b', value: '\u200b', inline: true },
-      )
-      .setColor('Yellow')
-
-    // Sending the embed and button to the right channel
-    const ticketLogChannel = interaction.guild.channels.cache.get(guildSettingFind[0][0]['ticket_channelDestination']);
-    ticketLogChannel.send({
-      embeds: [newTicketEmbed],
-      components: [newTicketButton]
-    }).then(async (msg) => {
-      await request.query(
-        `INSERT INTO tickets (guild_id, user_name, user_id, ticket_id, reason, message_id) VALUES (?, ?, ?, ?, ?, ?)`,
-        [interaction.guild.id, interaction.user.username, interaction.user.id, ticketCount, reason, msg.id]
-      )
-    })
-  }
-
-  //
-  // Function to edit the -> Ticket Database and Ticket Message
-  async function editMessageTicket(ticket, status, color, replyStaff) {
-    const guildSettingFind = await request.query(
-      `SELECT * FROM guild_settings WHERE id=?`,
-      [interaction.guild.id]
-    )
-
-    const embed = new EmbedBuilder()
-      .setTitle(`Ticket #${ticket[0][0]['ticket_id']}`)
-      .addFields(
-        {
-          name: 'Member',
-          value: `<@${ticket[0][0]['user_id']}>`,
-          inline: true
-        },
-        {
-          name: 'Staff',
-          value: interaction.user.toString(),
-          inline: true
-        },
-        { name: '\u200b', value: '\u200b', inline: true },
-        {
-          name: 'Reason',
-          value: ticket[0][0]['reason'],
-          inline: true
-        },
-        {
-          name: 'Status',
-          value: status,
-          inline: true
-        },
-        { name: '\u200b', value: '\u200b', inline: true },
-      )
-      .setColor(color)
-
-    await bot.channels.cache.get(guildSettingFind[0][0]['ticket_channelDestination']).messages.fetch(ticket[0][0]['message_id'])
-      .then(async (msg) => {
-        await msg.edit({
-          embeds: [embed],
-          components: []
-        });
-      })
-      .catch(() => { });
-
-    if (replyStaff !== false) {
-      interaction.reply({
-        content: replyStaff,
-        flags: [MessageFlags.Ephemeral]
-      });
-    }
-  }
-
   const action = [
     'acceptSuggestionAction',
     'denySuggestionAction'
   ]
 
-  const ticketCreate = [
-    'age-verification',
-    'report',
-    'partnership',
-    'support',
-    'other',
-  ]
+  switch (true) {
+    case action.includes(interaction.customId):
+      const actionFind = await request.query(
+        `SELECT * FROM action_suggest WHERE message_id=?`,
+        [interaction.message.id]
+      )
 
-  const ticket = [
-    'ticket_accept',
-    'ticket_decline',
-  ]
+      if (typeof actionFind[0][0] === "object") return db.releaseConnection(request);;
 
-  const inTicket = [
-    'ticket_verify',
-    'ticket_delete'
-  ]
+      const url = actionFind[0][0]['url'];
+      const category = actionFind[0][0]['category'];
 
-  if (action.includes(interaction.customId)) return actionButton();
-  else if (ticketCreate.includes(interaction.customId)) return ticketButton();
-  else if (ticket.includes(interaction.customId)) {
-    // Get the -> Ticket Database -> ready
-    let ticketFind = await request.query(
-      `SELECT * FROM tickets WHERE message_id=?`,
-      [
-        interaction.message.id
-      ]
-    );
-
-    if (typeof ticketFind[0][0] === "undefined") {
-      await interaction.message.delete();
-
-      await interaction.reply({
-        content: 'No data found in the **ticket** database.',
-        flags: [MessageFlags.Ephemeral]
-        ,
-      });
-
-      return db.releaseConnection(request);
-    };
-
-    //
-    // Get the -> Logging Database -> Ready
-    let guildSettingFind = await request.query(
-      `SELECT * FROM guild_settings WHERE id=?`,
-      [
-        interaction.guild.id
-      ]
-    );
-
-    switch (interaction.customId) {
-      case 'ticket_accept':
-        //
-        // Check if there's a channel already in -> Ticket Database
-        if (ticketFind[0][0]['channel_id'] !== null) break;
-
-        //
-        // Check if the person clicking on the button is -> Themself.
-        if (ticketFind[0][0]['user_id'] === interaction.user.id) {
-          interaction.reply({
-            content: "You cannot claim your own ticket."
-          });
-
-          break;
-        };
-
-        //
-        // Update the -> Ticket Database & Ticket Message.
-        editMessageTicket(ticketFind, 'Accepted', 'Yellow', 'You **accepted** this ticket, it is currently being created.');
-
-        //
-        // Creating the ticket channel.
-        const createChannel = await interaction.guild.channels.create({
-          name: `${ticketFind[0][0]['reason']}-${ticketFind[0][0]['ticket_id']}`,
-          type: ChannelType.GuildText,
-          parent: guildSettingFind[0][0]['ticket_categoryDestination'],
-          permissionOverwrites: [
-            {
-              id: interaction.guild.id,
-              deny: [
-                PermissionsBitField.Flags.ViewChannel
-              ],
-            },
-            {
-              id: interaction.user.id,
-              allow: [
-                PermissionsBitField.Flags.ViewChannel,
-                PermissionsBitField.Flags.SendMessages
-              ],
-            },
-            {
-              id: ticketFind[0][0]['user_id'],
-              type: 1,
-              allow: [
-                PermissionsBitField.Flags.ViewChannel,
-                PermissionsBitField.Flags.AttachFiles,
-                PermissionsBitField.Flags.SendMessages
-              ],
-            }
-          ]
-        });
-
-        //
-        // Check if the channel actually got created.
-        if (!createChannel) {
-          await interaction.reply({
-            content: 'Failed to create a ticket channel.'
-          });
-
-          break;
-        };
-
-        //
-        // Update the -> Ticket Database
-        await request.query(
-          `UPDATE tickets SET channel_id=?, claimed_by=? WHERE message_id=?`,
-          [
-            createChannel.id,
-            interaction.user.id,
-            interaction.message.id
-          ]
+      let suggestionEmbed = new EmbedBuilder()
+        .addFields(
+          { name: 'User', value: `<@${actionFind[0][0]['user_id']}>`, inline: true },
+          { name: 'Category', value: category, inline: true },
+          { name: 'Image URL', value: url, inline: true },
         )
+        .setImage(interaction.message.embeds[0].image.url);
 
-        //
-        // Create the embed.
-        const inTicketEmbed = new EmbedBuilder()
-          .setTitle(`Ticket #${ticketFind[0][0]['ticket_id']}`)
-          .addFields(
-            {
-              name: "Member",
-              value: `<@${ticketFind[0][0]['user_id']}>`,
-              inline: true,
-            },
-            {
-              name: "Staff",
-              value: interaction.user.toString(),
-              inline: true,
-            },
-            { name: '\u200b', value: '\u200b', inline: true },
-          )
-          .setColor('Blue');
-
-        //
-        // Create the button for the embed.
-        const button = new ActionRowBuilder()
-
-        //
-        // Set specific fields and button for different reason.
-        switch (ticketFind[0][0]['reason']) {
-          case "Age Verification":
-            inTicketEmbed.addFields(
-              {
-                name: "Requirement",
-                value: "1. Be 18 years or older\n* A valid government ID or driving license OR a VRChat account with 18+ badge"
-              },
-              {
-                name: "Instructions for ID Verfication",
-                value: "1. Write on a piece of paper your username (`" + ticketFind[0][0]['userName'] + "`)\n* Place your prefered governmental identification on top of the piece of paper\n* Take a picture and share it to us in this channel\n\nDo not hide your expiry date (EXP), date of birth (DOB) and the province, state or country on top of the ID."
-              },
-              {
-                name: "Instructions for VRChat account",
-                value: "1. Send a link of your profile\n* Wait for a moderator to send you a friend request\n* Accept the friend request of the moderator"
-              },
-            )
-
-            button.addComponents(
-              new ButtonBuilder()
-                .setLabel('Verify')
-                .setCustomId('ticket_verify')
-                .setStyle(ButtonStyle.Success),
-            )
-
-            break;
-          case "Partnership":
-            inTicketEmbed.addFields(
-              {
-                name: "Requirement",
-                value: "1. At least 250 members\n* Furry related"
-              },
-              {
-                name: "Necessary Information",
-                value: "1. A server invite code\n* The server member count\n* Is the server NSFW?"
-              },
-            )
-
-            break;
-          case "Report":
-            inTicketEmbed.addFields(
-              {
-                name: "Necessary Information",
-                value: "1. Offender ID\n* Offender Username\n* Reason\n* Message Forward/ID"
-              },
-            )
-
-            inTicketEmbed.setColor('Red');
-            break;
-          default:
-            inTicketEmbed.addFields(
-              {
-                name: "Necessary Information",
-                value: "Please tell us exactly what do you need help with so we can help you quickly."
-              },
-            )
-
-            break;
-        }
-
-        // Create the delete button. It is at the end so it will be the last button.
-        button.addComponents(
-          new ButtonBuilder()
-            .setLabel('Delete')
-            .setCustomId('ticket_delete')
-            .setStyle(ButtonStyle.Danger)
-        )
-        button.addComponents(
-          new ButtonBuilder()
-            .setLabel('Buttons → Staff Only')
-            .setCustomId('ticket_warning')
-            .setStyle(ButtonStyle.Secondary)
-            .setDisabled(true)
-        )
-
-        // Send the ticket message in the channel.
-        // Pin the message afterwards.
-        const channelMessage = createChannel.send({
-          embeds: [inTicketEmbed],
-          components: [button]
-        });
-
-        (await channelMessage).pin();
-
-        // Quickly mention the user that made the ticket.
-        // Delete the message after 1 second.
-        const quickMention = createChannel.send({
-          content: `<@${ticketFind[0][0]['user_id']}>`,
-        });
-
-        setTimeout(async () => {
-          (await quickMention).delete();
-        }, 1000)
-
-        break;
-      case 'ticket_decline':
-        // Update the -> Ticket Database & Ticket Message.
-        editMessageTicket(ticketFind, 'Declined', 'Red', 'You **declined** this ticket.')
-
-        await request.query(
-          `DELETE FROM tickets WHERE message_id=?`,
-          [interaction.message.id]
-        )
-
-        break;
-    }
-  }
-  else if (inTicket.includes(interaction.customId)) {
-    const ticketFind = await request.query(
-      `SELECT * FROM tickets WHERE channel_id=?`,
-      [
-        interaction.channel.id
-      ]
-    )
-
-    // Check who is the person clicking the button
-    if ((ticketFind[0][0] !== undefined && ticketFind[0][0]['claimed_by'] !== interaction.user.id) && !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-      interaction.reply({
-        content: "You cannot delete this ticket. You didn't claim it.",
-        flags: [MessageFlags.Ephemeral]
-        ,
-      });
-
-      return db.releaseConnection(request);;
-    }
-
-    switch (interaction.customId) {
-      case 'ticket_delete':
-        if (ticketFind[0][0] !== undefined) {
-          editMessageTicket(ticketFind, 'Completed', 'Green', 'You **completed** this ticket, it will be deleted in 3 seconds.')
-        } else {
-          interaction.reply({
-            content: 'You **completed** this ticket, it will be deleted in 3 seconds.',
-            flags: [MessageFlags.Ephemeral]
-          });
-        }
-
-        await request.query(
-          `DELETE FROM tickets WHERE channel_id=?`,
-          [interaction.channel.id]
-        )
-
-        setTimeout(() => {
-          interaction.channel.delete();
-        }, 3000);
-
-        break;
-      case 'ticket_verify':
-        if (typeof ticketFind[0][0] === "undefined") break;
-        const user = interaction.guild.members.cache.get(ticketFind[0][0]['user_id']);
-
-        // Replying to the staff.
-        const processVerify = en.context.verify.response.processVerify;
-        await interaction.reply({
-          content: processVerify.replace(/%Arg%/, '<@' + ticketFind[0][0]['user_id'] + '>'),
-          flags: [MessageFlags.Ephemeral]
-          ,
-        });
-
-        // Check if the user is already verified.
-        const reason = en.context.verify.response.reason;
-        const alreadyVerified = en.context.verify.response.alreadyVerified;
-        if (user.roles.cache.some(role => role.id === '1084970943820075050')) {
-          interaction.editReply({
-            content: alreadyVerified.replace(/%Arg%/, '<@' + ticketFind[0][0]['user_id'] + '>'),
-            flags: [MessageFlags.Ephemeral]
-            ,
-          });
-
-          break;
-        } else {
-          await user.roles.add(
-            '1084970943820075050',
-            reason.replace(/%Arg%/, interaction.user.username)
+      // Checking for the interaction name and sending the appropriate response
+      switch (interaction.customId) {
+        case ('action_accept'):
+          await request.query(
+            `INSERT INTO action_suggest (url, category) VALUES (?, ?)`,
+            [url, category]
           );
-        };
 
-        // Remove the un-verified role.
-        if (user.roles.cache.some(role => role.id === '1233066501825892383')) {
-          await user.roles.remove(
-            '1233066501825892383',
-            reason.replace(/%Arg%/, interaction.user.username)
+          suggestionEmbed.addFields(
+            { name: 'Status', value: 'Accepted' }
           );
-        };
+          suggestionEmbed.setColor('Green');
 
-        // Updating the profile.
-        await request.query(
-          'INSERT INTO users (id, age_verified) VALUES (?, ?)',
-          [
-            ticketFind[0][0]['id'],
-            true
-          ]
-        ).catch(async (error) => {
-          if (error.code === 'ER_DUP_ENTRY') {
-            await request.query(
-              'UPDATE users SET age_verified=? WHERE id=?',
-              [
-                true,
-                ticketFind[0][0]['id']
-              ]
-            )
-          }
+          break;
+        case ('action_deny'):
+          suggestionEmbed.addFields(
+            { name: 'Status', value: 'Denied' },
+          );
+          suggestionEmbed.setColor('Red');
+
+          request.query(
+            `DELETE FROM action_suggest WHERE message_id=?`,
+            [interaction.message.id]
+          );
+          break;
+      };
+
+      // Fetching the message to edit it
+      interaction.channel.messages.fetch(interaction.message.id).then(async () => {
+        await interaction.update({
+          embeds: [suggestionEmbed],
+          components: []
         });
-
-        // Sending message in channel.
-        const embed = new EmbedBuilder()
-          .addFields(
-            {
-              name: 'Reaction Role',
-              value:
-                'There is multiple roles you can grab, some are just for fun and some that gives you access to channels :\n' +
-                '* <#1082135082246078464>\n' +
-                '  * This channel will give you access to fun roles that will only be there for yourself. You do not get access to more channels with these roles\n' +
-                '* <#1082135024264032297>\n' +
-                '  * This channel will give you access to NSFW categories. Including yiff and nudes.'
-            }
-          )
-          .setColor('Blue')
-
-        const channel18 = interaction.guild.channels.cache.get('1091220263569461349')
-        const newVerification = en.context.verify.response.newVerification;
-        await channel18.send({
-          content: newVerification.replace(/%Arg%/, '<@' + ticketFind[0][0]['user_id'] + '>'),
-          embeds: [embed],
-        });
-
-        // Modifying the reply to alert the staff it is done.
-        interaction.editReply({
-          content: `You successfully verified <@${ticketFind[0][0]['user_id']}>'s age.`,
-          flags: [MessageFlags.Ephemeral]
-          ,
-        });
-
-        break;
-    }
+      });
+      break;
   }
 
   return db.releaseConnection(request);;

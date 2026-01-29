@@ -10,7 +10,9 @@ module.exports = {
 
         const guildSettingFind = await request.query(
             `SELECT * FROM guild_settings WHERE id=?`,
-            [newMember.guild.id]
+            [
+                newMember.guild.id
+            ]
         )
 
         if (typeof guildSettingFind[0][0] === "undefined") return db.releaseConnection(request);
@@ -20,9 +22,12 @@ module.exports = {
             // Check if the channel still exist
             const welcomeChannel = newMember.guild.channels.cache.get(welcome_channelDestination);
             if (!welcomeChannel) {
+                console.log(welcomeChannel)
                 return request.query(
                     `UPDATE guild_settings SET welcome_channelDestination=?`,
-                    [null]
+                    [
+                        null
+                    ]
                 )
             };
 

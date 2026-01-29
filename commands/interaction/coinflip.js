@@ -112,14 +112,12 @@ module.exports = {
             });
 
             if (!i <= 0) {
-                return;
+                return db.releaseConnection(request);
             }
 
             clearInterval(flippingCoin);
 
-            const odds = Math.floor(Math.random() * 10) + 1;
-
-            if (odds <= Math.floor(10 / 2)) {
+            if (Math.floor(Math.random() * 10) + 1 <= Math.floor(10 / 2)) {
                 result = `**won** __${optionInt * 2}__ XP`;
                 statusLevel = `+`;
             } else {

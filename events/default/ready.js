@@ -37,7 +37,7 @@ module.exports = {
         bot.guilds.cache.forEach(async (guild) => {
             await request.query(
                 `INSERT INTO guilds (name, id, avatar, bot_in, members) VALUES (?, ?, ?, ?, ?)
-                ON DUPLICATE KEY UPDATE name=VALUES(name), avatar=VALUES(avatar), bot_in=VALUES(bot_in), members=VALUES(members)`,
+                ON DUPLICATE KEY UPDATE name=name, avatar=avatar, bot_in=bot_in, members=members`,
                 [
                     guild.name,
                     guild.id,

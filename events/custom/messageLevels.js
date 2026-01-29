@@ -6,7 +6,6 @@ module.exports = {
     name: Events.MessageCreate,
     once: false,
     execute: async (message) => {
-        // Will return if the message is coming from a bot.
         if (message.author.bot) return;
 
         const request = await db.getConnection()

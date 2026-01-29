@@ -202,6 +202,22 @@
                     "description": "What do you wish to confess?"
                 }
             }
+        },
+        "work": {
+            "setup": {
+                "name": "work",
+                "description": "Work to receive money!"
+            }
+        },
+        "balance": {
+            "setup": {
+                "name": "balance",
+                "description": "Look at your balance or someone else balance!",
+                "user": {
+                    "name": "user",
+                    "description": "User to target."
+                }
+            }
         }
     },
     "events": {

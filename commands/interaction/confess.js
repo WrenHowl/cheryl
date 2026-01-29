@@ -45,7 +45,9 @@ module.exports = {
 
         const guildData = await request.query(
             `SELECT confession_count FROM guilds WHERE id=?`,
-            [interaction.guild.id]
+            [
+                interaction.guild.id
+            ]
         );
 
         const embed = new EmbedBuilder()
@@ -55,7 +57,9 @@ module.exports = {
 
         const guild_settingsData = await request.query(
             `SELECT confession_channelDestination FROM guild_settings WHERE id=?`,
-            [interaction.guild.id]
+            [
+                interaction.guild.id
+            ]
         );
 
         if (typeof guild_settingsData[0][0]['confession_channelDestination'] !== "object") {
