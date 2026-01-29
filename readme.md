@@ -36,12 +36,6 @@
     </p>
   </li>
   <li>
-    <strong>Why is this bot open-source?</strong>
-    <p>
-      I, WrenHowl, am a firm believer in open source. It speeds up problem resolution. I am also kind of new to website making and appreciate outside assistance.
-    </p>
-  </li>
-  <li>
     <strong>I can't afford an host, can I test the bot for free?</strong>
     <p>
       If you wish to test the bot or just can't afford to host it yourself, you can invite it to your server : https://top.gg/bot/940369423125061633
