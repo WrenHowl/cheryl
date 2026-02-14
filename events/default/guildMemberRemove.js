@@ -8,28 +8,40 @@ module.exports = {
         const request = await db.getConnection();
 
         // Send a message in the leaving channel mentionned.
-        const loggingFind = await request.query(
+        const guildSettingFind = await request.query(
             `SELECT * FROM guild_settings WHERE id=?`,
-            [leavingMember.guild.id]
+            [
+                leavingMember.guild.id
+            ]
         )
 
-        if (typeof loggingFind[0][0] !== "undefined") {
-            const channelId_Leaving = loggingFind[0][0]['leaving_channelDestination'];
-            if (channelId_Leaving === null) return;
+        switch (true) {
+            case typeof guildSettingFind[0][0] === "undefined":
+                break;
+            case typeof guildSettingFind[0][0]['leaving_channelDestination'] === "object":
+                break;
+            default:
+                const leavingChannel = leavingMember.guild.channels.cache.get(guildSettingFind[0][0]['leaving_channelDestination']);
 
-            const leavingChannel = leavingMember.guild.channels.cache.get(channelId_Leaving);
-            if (!leavingChannel) {
-                await request.query(
-                    `UPDATE guild_settings SET leaving_channelDestination=?`,
-                    [null]
-                )
-            } else {
-                if (!leavingMember.guild.members.me.permissionsIn(channelId_Leaving).has(['SendMessages', 'ViewChannel']) | leavingMember.user.bot) return;
+                switch (true) {
+                    case !leavingChannel:
+                        await request.query(
+                            `UPDATE guild_settings SET leaving_channelDestination=?`,
+                            [
+                                null
+                            ]
+                        )
 
-                await leavingChannel.send({
-                    content: `${leavingMember.user.toString()} left the server.`
-                });
-            }
+                        break;
+                    case leavingMember.guild.members.me.permissionsIn(guildSettingFind[0][0]['leaving_channelDestination']).has(['SendMessages', 'ViewChannel']) || leavingMember.user.bot:
+                        await leavingChannel.send({
+                            content: `${leavingMember.user.toString()} left the server.`
+                        });
+
+                        break;
+                }
+
+                break;
         }
 
         return db.releaseConnection(request);

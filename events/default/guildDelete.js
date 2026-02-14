@@ -33,11 +33,11 @@ module.exports = {
             ]
         )
 
-        isBlacklisted = blacklistFind[0][0] == undefined ?
+        const isBlacklisted = blacklistFind[0][0] == undefined ?
             'No' :
             'Yes';
 
-        let removeGuildEmbed = new EmbedBuilder()
+        const removeGuildEmbed = new EmbedBuilder()
             .setTitle('Bot Removed')
             .addFields(
                 { name: 'Server Name', value: '`' + guild.name + '`', inline: true },

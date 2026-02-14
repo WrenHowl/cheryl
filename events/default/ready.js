@@ -55,9 +55,10 @@ module.exports = {
                 ]
             );
         });
+
         console.log(`${new Date().toLocaleString()} → The bot is ready!`.green);
 
-        fs.writeFile(`./logs/log-${new Date().toLocaleDateString()}.txt`, `${new Date().toLocaleString()} → The bot is ready!\n\n`, { flag: 'a+' }, callback => { });
+        fs.writeFile(`./logs/log-${new Date().toLocaleDateString()}.txt`, `${new Date().toLocaleString()} → The bot is ready!\n`, { flag: 'a+' }, callback => { });
 
         return db.releaseConnection(request);
     },

@@ -15,49 +15,46 @@ module.exports = {
             ]
         )
 
-        if (typeof guildSettingFind[0][0] === "undefined") return db.releaseConnection(request);
+        switch (true) {
+            case typeof guildSettingFind[0][0] === "undefined":
+                break;
+            case typeof guildSettingFind[0][0]['welcome_channelDestination'] === "object":
+                break;
+            default:
+                const welcomeChannel = newMember.guild.channels.cache.get(guildSettingFind[0][0]['welcome_channelDestination']);
 
-        const welcome_channelDestination = guildSettingFind[0][0]['welcome_channelDestination'];
-        if (welcome_channelDestination) {
-            // Check if the channel still exist
-            const welcomeChannel = newMember.guild.channels.cache.get(welcome_channelDestination);
-            if (!welcomeChannel) {
-                console.log(welcomeChannel)
-                return request.query(
-                    `UPDATE guild_settings SET welcome_channelDestination=?`,
-                    [
-                        null
-                    ]
-                )
-            };
+                switch (true) {
+                    case !welcomeChannel:
+                        await request.query(
+                            `UPDATE guild_settings SET welcome_channelDestination=?`,
+                            [
+                                null
+                            ]
+                        )
 
-            // Checking if the bot can send message in the channel
-            if (!newMember.guild.members.me.permissionsIn(welcome_channelDestination).has(['SendMessages', 'ViewChannel']) || newMember.user.bot) return;
+                        break;
+                    case newMember.guild.members.me.permissionsIn(guildSettingFind[0][0]['welcome_channelDestination']).has(['SendMessages', 'ViewChannel']) || newMember.user.bot:
+                        await welcomeChannel.send({
+                            content: `${newMember.user.toString()} joined the server.`
+                        });
 
-            // Sending the message
-            await welcomeChannel.send({
-                content: `${newMember.user.toString()} joined the server.`
-            });
-        };
+                        break;
+                }
 
-        // Disable since it isn't added in the website currently
-        /*const welcome_roleAdd = guildSettingFind[0][0]['welcome_roleAdd'];
-        if (welcome_roleAdd) {
-            const botPermissionRole = newMember.guild.members.me.permissions.has('ManageRoles');
-            const botPostion = newMember.roles.highest.position >= (await newMember.guild.members.fetch(config.botPrivateInfo.botId)).roles.highest.position;
+                break;
+        }
 
-            if (botPermissionRole & botPostion) {
-                return newMember.roles.add(welcome_roleAdd);
-            };
-        };*/
+        const blacklistData = await request.query(
+            `SELECT * FROM blacklists WHERE id=?`,
+            [
+                newMember.user.id
+            ]
+        )
 
-        if (guildSettingFind[0][0]['blacklist_status'] >= 1) {
-            const blacklistData = await request.query(
-                `SELECT * FROM blacklists WHERE user_id=?`,
-                [newMember.user.id]
-            )
-
-            if (blacklistData[0][0] !== undefined) {
+        switch (true) {
+            case typeof blacklistData[0][0] === "undefined":
+                break;
+            case guildSettingFind[0][0]['blacklist_status'] >= 1:
                 const autoban = guildSettingFind[0][0]['blacklist_autoBan'];
                 const channel = guildSettingFind[0][0]['blacklist_channelDestination'];
 
@@ -66,14 +63,19 @@ module.exports = {
                 if (!blacklistChannel) {
                     await request.query(
                         `UPDATE guild_settings SET blacklist_channelDestination=?`,
-                        [null]
+                        [
+                            null
+                        ]
                     )
                 };
 
                 // Incrementing the join count in the database
                 await request.query(
                     `UPDATE blacklists SET server_join=? WHERE user_id=?`,
-                    [blacklistData[0][0]['server_join'] + 1, newMember.user.id]
+                    [
+                        blacklistData[0][0]['server_join'] + 1,
+                        newMember.user.id
+                    ]
                 );
 
                 // Checking if the bot can send message in the channel
@@ -81,17 +83,18 @@ module.exports = {
                     if (!newMember.guild.members.me.permissionsIn(channel).has(['SendMessages', 'ViewChannel'])) return;
 
                     // Changing embed color in terms of the risk
-                    switch (blacklistData[0][0]['risk']) {
-                        case 3:
-                            color = 'FEE75C'; // High
-                            break;
-                        case 2:
-                            color = 'ED4245'; // Medium
-                            break;
-                        default:
-                            color = 'ED4245'; // Low
-                            break;
-                    }
+
+                    const riskColor = [
+                        [
+                            "Low", "ED4245"
+                        ],
+                        [
+                            "Medium", "ED4245"
+                        ],
+                        [
+                            "High", "FEE75C"
+                        ]
+                    ]
 
                     // Creating the embed and sending the message
                     const embed = new EmbedBuilder()
@@ -105,7 +108,7 @@ module.exports = {
                             { name: '\u200b', value: '\u200b', inline: true },
                         )
                         .setTimestamp()
-                        .setColor(color);
+                        .setColor(riskColor[blacklistData[0][0]['risk'] - 1][1]);
 
                     blacklistChannel.send({
                         embeds: [embed],
@@ -115,7 +118,6 @@ module.exports = {
                 if (autoban <= 1 && blacklistData[0][0]['risk'] >= autoban) {
                     newMember.guild.members.ban(newMember.user.id, { reason: [`${blacklistData[0][0]['reason']} | Blacklist`] });
                 }
-            }
         }
 
         return db.releaseConnection(request);
